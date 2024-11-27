@@ -1,0 +1,30 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/customisations/custom-docker-image.html ===
+Building Custom Docker Image
+The following
+Dockerfile
+can be used as a template for integration with your own underlying base container.
+FROM registry.ipf.iconsolutions.com/ubi8-minimal-openjdk-17
+
+USER root
+
+RUN mkdir -p /csm-reachability-application/conf /csm-reachability-application/lib
+
+COPY csm-reachability-application-2.0.14-runnable.jar /csm-reachability-application/lib/
+COPY cinnamon-agent-2.20.1.jar /csm-reachability-application/lib/
+
+WORKDIR /csm-reachability-application
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s --retries=1 CMD wget -qO- http://localhost:8080/actuator/health/ | grep UP || exit 1
+
+ENTRYPOINT java \
+  -javaagent:/csm-reachability-application/lib/cinnamon-agent-2.20.1.jar \
+  -cp "/csm-reachability-application/lib/csm-reachability-application-2.0.14-runnable.jar:/csm-reachability-application/conf" \
+  $IPF_JAVA_ARGS \
+  -Dconfig.override_with_env_vars=true \
+  -Dloader.main=com.iconsolutions.ipf.csmreachability.app.CsmReachabilityApplication  \
+  org.springframework.boot.loader.launch.PropertiesLauncher
+Command to build docker image:
+docker build . -t csm-reachability-application:2.0.14
+Creating a Custom Settings Ingester
+Working Days Service

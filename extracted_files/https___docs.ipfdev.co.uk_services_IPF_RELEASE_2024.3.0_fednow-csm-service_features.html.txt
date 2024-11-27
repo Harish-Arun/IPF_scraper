@@ -1,0 +1,9 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/fednow-csm-service/features.html ===
+Features
+FedNow CSM Service Application Structure
+FedNow Validations
+FedNow CSM Service Configuration
+CSM Events
+Supported Transports
+Messages Handled by FedNow CSM Service
+FedNow CSM Service Application Structure

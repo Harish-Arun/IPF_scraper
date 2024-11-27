@@ -1,0 +1,15 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/guides/use-persistent-scheduler.html ===
+Using the persistent scheduler to support flows
+The
+ipf-flo-scheduler
+module provides an out of the box mechanism to support the usage of the
+ipf-flo-scheduler
+with a flo without having to add any additional configuration.
+To use, it is simply necessary to add the dependency to the module:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.platform</groupId>
+    <artifactId>ipf-flo-scheduler</artifactId>
+</dependency>
+This will inject all the necessary components via spring into your project.  All that is then required is the standard configuration for determining which actions and states require scheduling information.
+How to secure IPF HTTP Endpoints
+How to implement a duplicate check function

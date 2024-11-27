@@ -1,0 +1,54 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/csm-reachability-operations/csm-reachability-operations.html ===
+CSM Reachability Operations
+Let’s understand the operations provided by CSM Reachability Service in this part of the documentation.
+CSM Reachability APIs
+The service provides three types of APIs:
+Service APIs
+Domain APIs
+DPS Setting Management APIs
+Service APIs
+Service APIs deal directly with the reachability aspect of the service.
+The Service APIs on the service are versioned to allow future extensions while providing backwards compatibility to previous versions.
+Please refer to IPF API versioning strategy to know how long a version of API will be supported once introduced through an IPF release.
+Service APIs
+API
+Purpose
+validate-intra-entity-reachability
+Validate if the payment can be settled "Inta Entity" (within the processing entity itself) without using an external CSM Agent.
+Validates that the counterparty on the payment is on the Intra Entity Parties list and optionally the currency is on supported transfer currency list with Intra Entity flag as "True".
+validate-csm-reachability
+Validate if the counterparty is reachable through a specific CSM Agent for given payments data.
+select-csm-agent
+Select a CSM Agent through which the counterparty is reachable for given payments data.
+Uses client defined preferences on the CS Agent Selection Settings to return a preferred reachable CSM Agent for the payment.
+Domain APIs
+Domain APIs do not provide reachability functionality directly. These APIs provide access to logical groups of dynamic configurations or allow validation / look up of industry data for payment enrichment purposes.
+The domain APIs on the service are versioned to allow future extensions while providing backwards compatibility to previous versions.
+Please refer to IPF API versioning strategy to know how long a version of API will be supported once introduced through an IPF release.
+Domain APIs
+API
+Purpose
+processing-entities
+Retrieve details of a 'Processing Entity' and optionally associated Generic Processing Settings like Processing Entity Accounts, Supported Transfer Currencies and Intra Entity Parties.
+Any client implementation specific Generic Processing settings, if defined, can also be retrieved using this API.
+settlement-agents
+Retrieve Dynamic configurations associated with a specific Agent with which the Processing Entity holds a settlement relationship.
+This includes Agent Settings as well as optionally Agent Settlement and Agent Clearing settings for an agent using AgentUniqueId or an industry identifier that of the agent.
+The data returned can be used for getting the settlement account to be used, knowing the limits data for the agent, operating hours of the agents, type and role of the agent (Refer to API specs for more)
+party-entities
+Allows look up of a party entity (any Financial Institution) to retrieve industry identifiers and address details. The data returned can be used for payment enrichment for parties involved on the payments.
+The parties looked up do not have to have settlement relationship with the Processing Entity.
+The data look up is specific to an Industry source supported on Party Entity Directory.
+iban-deconstruct
+The API provides ability to deconstruct an IBAN to know the country of the entity holding the account, IBAN BIC and IBAN National ID.
+The source of data for IBAN Deconstruction is IBAN Plus directory provided by SWIFTRef (IBANPlus, IBAN Structure and IBAN Exclusion List).
+bic-validation
+API allows validation of a BIC against SWIFTRef Bic Dir 2018. The response confirms if the BIC used on the payment is a valid BIC.
+DPS Setting Management APIs
+DPS Setting Management APIs allow access to the Dynamic Configurations used for Reachability purposes.
+The APIs are provided through the standard DPS ("Dynamic Processing Settings") design pattern on IPF and provide the CRUD features as well as Approvals workflow for the dynamic configurations.
+Setting Management APIs should be used for creating / maintaining the Dynamic Configurations and are used by IPF GUI to provide access to Dynamic Configurations through IPF UI.
+Setting Management APIs are not versioned yet.
+It is strongly recommended that the DPS Setting Management APIs are not used from the Payments processing flows directly. These APIs are for management of dynamic configurations. Using these APIs on the flows will expose them to the risk of underlying dynamic configuration definitions changing in future needing the flows to be modified when these changes are necessary. Setting Management APIs are not versioned, and dynamic configuration definitions are likely to need extensions / modifications as the service evolves. Client implementations should use provided Domain APIs to get the dynamic configurations required during payments processing.
+SWIFTRef Bic Dir 2018
+Reachability Reason Codes

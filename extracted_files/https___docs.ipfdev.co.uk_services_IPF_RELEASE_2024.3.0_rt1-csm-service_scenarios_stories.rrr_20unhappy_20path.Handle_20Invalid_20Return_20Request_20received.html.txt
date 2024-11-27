@@ -1,0 +1,34 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20unhappy%20path.Handle%20Invalid%20Return%20Request%20received.html ===
+Handle Invalid Return Request received.story
+Meta
++disableXsdValidation+:true
+Scenario: Handling invalid payment return
+When
+the ï½Recall Serviceï½  sends a Send Recall To Csm Request
+Then
+the ï½CSMï½  receives a Payment Cancellation Request
+And
+ï½Recall Serviceï½  receives a Technical Response with values:
+| status | SUCCESS |
+And
+ï½Recall Serviceï½  receives a Send Recall To Csm Response
+When
+ï½the CSMï½  sends an invalid Payment Return
+Then
+ï½CSMï½  receives a Payment Status Report using predicate:
+| FIToFIPmtStsRpt.OrgnlGrpInf*And*Sts.GrpSts             | RJCT                                      |
+| FIToFIPmtStsRpt.GrpHdr.InstgAgt.FinInstnId.BIC       | ICSLGBL1                                  |
+| FIToFIPmtStsRpt.GrpHdr.InstdAgt.FinInstnId.BIC       | IPSTFRPP                                  |
+| FIToFIPmtStsRpt.OrgnlGrpInf*And*Sts.StsRsnInf.Rsn.Cd   | FF01                                      |
+| FIToFIPmtStsRpt.OrgnlGrpInf*And*Sts.StsRsnInf.Orgtr.Nm | #PaymentReturn_headers.NETWORK_MESSAGE_ID |
+| FIToFIPmtStsRpt.OrgnlGrpInf*And*Sts.OrgnlMsgNmId       | pacs.004                                  |
+| FIToFIPmtStsRpt.TxInf*And*Sts                          | NOT_SET                                 |
+Then
+ï½the Payment Serviceï½  receives a System Event using predicate:
+| level                                 | ERROR                                     |
+| processingContext.associationId.value | NOTAVAILABLE                              |
+| name                                  | InvalidMessageReceived                    |
+| payload.csm                           | RT1                                       |
+| payload.description                   | Invalid Positive Recall Response Received |
+| payload.rawMessage                    | prettyPrint(#PaymentReturn)               |
+| type                                  | FUNCTIONAL                                |

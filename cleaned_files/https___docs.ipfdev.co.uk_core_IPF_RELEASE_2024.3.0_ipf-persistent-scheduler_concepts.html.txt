@@ -1,0 +1,11 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-persistent-scheduler/concepts.html ===
+Concepts
+The Action Helper
+Calendars
+Failed Jobs
+Job Specification and Status
+Scheduling Module
+Scheduling Status
+TTL Indexes
+Persistent Scheduler
+The Action Helper

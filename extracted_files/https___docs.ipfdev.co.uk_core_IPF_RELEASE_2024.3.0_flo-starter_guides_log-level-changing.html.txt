@@ -1,0 +1,49 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/guides/log-level-changing.html ===
+Dynamic Log Level Configuration
+The purpose of this page is to explain how the logging levels could be changed during the runtime, so you don’t have to restart your application in order to change a log level. We will achieve that using the actuator library.
+To use actuator, you must have the following dependency (already included in ipf-common-starter-core):
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+When your application is up and running, this way you could check which loggers you have:
+localhost/actuator/loggers
+Suppose you have a
+com.sample
+package in there and you want to check a log level for it. You can check the following endpoint (via browser or using curl command):
+localhost/actuator/loggers/com.sample
+{"configuredLevel":"INFO","effectiveLevel":"INFO"}
+This means your configured level and the effective level is set on INFO. Unlike
+configuredLevel
+,
+effectiveLevel
+must be present. It will be by default set but the parent level, while
+configuredLevel
+will be null (so it may appear that you just have):
+{"effectiveLevel":"INFO"}
+When configuredLevel has been set to non-null value,
+effectiveLevel
+will take over its value. So, when changing the log level for a particular logger (e.g. com.sample), we’re actually doing the change over
+configuredLevel
+field.
+curl 'http://localhost/actuator/loggers/com.sample' -i -X POST \
+-H 'Content-Type: application/json' \
+-d '{"configuredLevel":"DEBUG"}'
+Now if we look at http(s)://localhost/actuator/loggers/com.sample:
+{"configuredLevel":"DEBUG","effectiveLevel":"DEBUG"}
+That’s about setting the log level. Now, if it’s not visible inside application logs, it might be that you need to reconfigure your logback.xml file. For example, it may happen you have a filtering, for example:
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    ...
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        ...
+    </appender>
+    ...
+</configuration>
+...
+So, in order to see DEBUG logs, you could either change the <level> tag value to "DEBUG" or remove the <filter> tag completely.
+How to implement a payment scheduler
+Tracing and Other Telemetry With OpenTelemetry

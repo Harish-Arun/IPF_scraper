@@ -1,0 +1,66 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/htm/guides/kubernetes-deployment.html ===
+Kubernetes Deployment
+Deployment
+HTM connectors can be configured to do retries and use the circuit breaker pattern to protect the HTM Http server
+(for more information on how to configure this, visit
+Connector
+).
+Here is an example ConfigMap that can be used to deploy HTM to Kubernetes:
+akka {
+   remote.artery.canonical.hostname = ${POD_IP}
+ # Use Kubernetes API to discover the cluster
+   discovery {
+     kubernetes-api {
+       pod-label-selector = "app=%s"
+     }
+   }
+
+   management {
+ # use the Kubernetes API to create the cluster
+     cluster.bootstrap {
+       contact-point-discovery {
+         discovery-method          = kubernetes-api
+         service-name              = ${AKKA_CLUSTER_BOOTSTRAP_SERVICE_NAME}
+         required-contact-point-nr = 1
+         required-contact-point-nr = ${?REQUIRED_CONTACT_POINT_NR}
+       }
+     }
+ # available from Akka management >= 1.0.0
+     health-checks {
+       readiness-path  = "health/ready"
+       liveness-path   = "health/alive"
+     }
+   }
+
+   actor {
+     provider = cluster
+   }
+
+   cluster {
+     seed-nodes = []
+     downing-provider-class = "akka.cluster.sbr.SplitBrainResolverProvider"
+     split-brain-resolver {
+       active-strategy = keep-majority
+       stable-after = 20s
+     }
+     sharding {
+       remember-entities = off
+       handoff-timeout = 8s
+       least-shard-allocation-strategy.rebalance-absolute-limit = 20
+       rebalance-interval = 2s
+       number-of-shards = 100
+     }
+   }
+}
+Considerations for CosmosDB on Azure
+By default, HTM registers 3 event processors:
+Task read side event processor
+Task history read side event processor
+Bulk execution event processor
+These processors register their own event processor streams, which consumes more Request Units (RUs) on Cosmos DB.
+To save some RU on Cosmos DB, DelegatingEventProcessor can be used. In this case only one event processor consumes events from journal and then delegate events to other registered event processors.
+Disadvantage of DelegatingEventProcessor is if processing event fails at any of delegated event processor, the same event will be replied to all delegated event processors (even if event was successfully processed by others). When there are three independent event processors, then failing event will be replied only to single event processor where the previous processing failed.
+You can enable the Delegating Event Processor using the following configuration
+ipf.htm.event-processor.delegating.enabled = true
+API
+Operational Dashboard

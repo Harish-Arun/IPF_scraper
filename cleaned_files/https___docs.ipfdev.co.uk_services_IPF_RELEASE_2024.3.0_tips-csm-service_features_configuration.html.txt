@@ -1,0 +1,361 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/tips-csm-service/features/configuration.html ===
+Application Configuration
+General Configuration
+Key
+Type
+Description
+Default Value
+tips.encryption.enabled
+Boolean
+false
+ipf.csm.tips.pacs008.map-instd-agt-from-config-enabled
+boolean
+Whether to map bics from config, or direct from the incoming
+ClearAndSettleRequest
+(see `ipf.csm.tips.pacs008.instg-agt-id ` and `ipf.csm.tips.pacs008.instd-agt-id `).
+false
+ipf.csm.tips.pacs004.map-instd-agt-from-config-enabled
+boolean
+Whether to map bics from config, or direct from the incoming
+SendPositiveAnswerToCSMRequest
+(see `ipf.csm.tips.pacs004.instg-agt-id ` and `ipf.csm.tips.pacs004.instd-agt-id `).
+false
+ipf.csm.tips.pacs004.instg-agt-id
+String
+The instructing agent BIC to be used by the CSM (grpHdr.instgAgt.finInstnId.BICFI)
+ICSLGBL1
+ipf.csm.tips.pacs004.instd-agt-id
+String
+The instructed agent BIC to be used by the CSM (grpHdr.instdAgt.finInstnId.BICFI).
+IPSTFRPP
+ipf.csm.tips.pacs008.instg-agt-id
+String
+The instructing agent BIC to be used by the CSM (grpHdr.instgAgt.finInstnId.BICFI)
+ICSLGBL1
+ipf.csm.tips.pacs008.instd-agt-id
+String
+The instructed agent BIC to be used by the CSM (grpHdr.instdAgt.finInstnId.BICFI).
+IPSTFRPP
+tips.receive.timeout.enabled
+Boolean
+Whether the service should check if the inbound payments are received within the specified
+tips.receive.timeout.duration
+interval.
+true
+tips.rule.amount-limit-eur
+Integer
+The max allowed amount per transaction.
+100000
+tips.receive.timeout.duration
+Duration
+The max allowed age of received inbound payments.
+5s
+tips.rule.allowed-bics.cdtragt
+List
+A list of creditor agent BICs allowed for inbound payments.
+[
+{"bic" : "ICONGBA0"},
+{"bic" : "ICONGBB0"},
+{"bic" : "ICONGBC0"},
+{"bic" : "ICONGBD0"},
+{"bic" : "ICONGBE0"},
+{"bic" : "ICONGBA1"},
+{"bic" : "IC12NGBA1"},
+{"bic" : "ICSLGBL1XXX"}
+]
+tips.rule.allowed-bics.dbtragt
+List
+List of debtor agent BICs allowed for outbound payments.
+[
+{"bic" : "ICONGBA0"},
+{"bic" : "ICONGBB0"},
+{"bic" : "ICONGBC0"},
+{"bic" : "ICONGBD0"},
+{"bic" : "ICONGBE0"},
+{"bic" : "ICONGBA1"},
+{"bic" : "IC12NGBA1"},
+{"bic" : "ICSLGBL1XXX"}
+]
+ipf.csm.tips.pacs008.instg-agt-id
+String
+The instructing agent BIC to be used by the CSM.
+ICSLGBL1
+tips.receive.am05-ignore.duration
+Duration
+The max allowed age of received AM05 rejects.
+5s
+tips.flow-restart-settings.min-backoff
+Duration
+Minimum back off time before a retry
+1s
+tips.flow-restart-settings.max-restarts-within
+Duration
+Time it will take to apply restart max restrictions - whichever comes first max-restarts or the time limit will end retries
+10m
+tips.flow-restart-settings.max-restarts
+Integer
+Maximum number of retries before failure
+5
+tips.flow-restart-settings.max-backoff
+Duration
+Maximum back off time before a retry
+5s
+tips.flow-restart-settings.random-factor
+Float
+Multiplier for the retry back off times - every retry will progressively longer depends on this factor - by default here it adds 25 percent on each retry
+0.25
+tips.send-outcome.enabled
+Boolean
+Should TIPS CSM service listen to the
+send-outcome
+queue or topic?
+If true - it listens and this will be translated to technical response which will be sent to the clients of TIPS CSM Service
+If false - it doesnat listen for send outcomes. However, TIPS CSM Service will generate appropriate technical response as soon as the message is sent out
+false
+tips.receive.am05-ignore.enabled
+Boolean
+Should we ignore AM05 reject messages
+true
+tips.receive.am05-ignore.duration
+Duration
+The max allowed age of received AM05 rejects.
+5s
+ipf.processing-data.egress.enabled
+Boolean
+Generate IPF processing data events
+true
+message.logger.type
+String
+Where to output message log messages. e.g. mongo,kafka,ipf-processing-data-egress
+ipf-processing-data-egress
+Config
+Type
+Description
+character-replacements.char-to-char-replacements.character
+Character
+Character to be replaced
+character-replacements.char-to-char-replacements.replaceWith
+Character
+Character replacement
+character-replacements.char-to-char-replacements.replaceInDomOnly
+Boolean
+Flag indicating whether the replacement should happen only in the text nodes of the DOM
+character-replacements.list-to-char-replacements.list
+List<Character>
+List of characters to be replaced
+character-replacements.list-to-char-replacements.replaceWith
+Character
+Character replacement for list
+character-replacements.list-to-char-replacements.replaceInDomOnly
+Boolean
+Flag indicating whether the replacement should happen only in the text nodes of the DOM
+character-replacements.regex-to-char-replacements.regex
+String
+Regular expression for replaced characters
+character-replacements.regex-to-char-replacements.replaceWith
+Character
+Character replacement for regex
+character-replacements.regex-to-char-replacements.replaceInDomOnly
+Boolean
+Flag indicating whether the replacement should happen only in the text nodes of the DOM
+Processing Entity Configuration
+Extra notes - Cache purging configuration for Pacs.008 inbound and outbound messages duplicate check
+The below table contains only the root path of the configuration. For all options of the cache purging configuration
+please refer to the
+transaction cache documentation
+.
+The purging period (
+retain-from-offset
+) value should always be longer than the value of
+pacs008-duplicate-message-check-period
+.
+Config
+Type
+Comment
+Default
+tips.processing-entity.pacs008-duplicate-message-check-period
+Period
+Sets the duplicate validation period for Pacs.008 messages. The value is rounded to full days (e.g. 25 and 47
+hours is still 1 day). The check considers all previous message within the configured period and a duplicate is only
+flagged when it has been created in the given period, it is otherwise ignored. If set to 0 the check falls down to the
+default behaviour.
+5d
+tips.processing-entity.pacs008-purging-cache.enabled
+Boolean
+Controls if purging is enabled for the Pacs.008 inbound and outbound duplicate checks cache entries.
+false
+tips.processing-entity.pacs008-purging-cache.inbound
+Complex Type
+Configures the inbound Pacs.008 duplicate check cache entries purge. When enabled, it will default to 17:00 after 10
+days.
+tips.processing-entity.pacs008-purging-cache.outbound
+Complex Type
+Configures the outbound Pacs.008 duplicate check cache entries purge. When enabled, it will default to 17:00 after 10
+days.
+Gateway Header Configuration
+Key
+Type
+Description
+Default Value
+Inserted As Message Header
+tips.gateway-header.enabled
+Boolean
+Should gateway headers be included in messages sent to the scheme
+true
+N/A
+tips.gateway-header.our-bu-id
+String
+ID of the sender
+cn=icslgbl1,ou=pilot,ou=tips_ips,o=88324,dc=sianet,dc=sia,dc=eu
+NETWORK_SENDER_ID
+tips.gateway-header.csm-bu-id
+String
+ID of the receiver e.g. CSM
+cn=icslgbl1,ou=pilot,ou=tips_ips,o=88324,dc=sianet,dc=sia,dc=eu
+NETWORK_RECIPIENT_ID
+tips.gateway-header.class-to-message-type-map
+Map
+Key, value pair of class and applicable message type
+cn=icslgbl1,ou=pilot,ou=tips_ips,o=88324,dc=sianet,dc=sia,dc=eu
+NETWORK_MESSAGE_TYPE
+tips.tips-routing
+String
+Indicates the routing strategy, which decide if message should be routed. Used when routing to TIPS from RT1
+N
+TIPS_ROUTING
+tips.network-possible-duplicate
+String
+Indicates if the message to be sent is potentially a duplicate (Y/N)
+N
+NETWORK_POSSIBLE_DUPLICATE
+JMS Configuration
+General JMS Configuration
+Key
+Type
+Description
+Default Value
+tips.send-queue
+String
+Outbound queue to CSM
+SCTI.SEND.QUEUE
+tips.send-outcome.queue
+String
+SendOutcomeReceiveQueue
+tips.broker.type
+String
+Use IBM MQ or Artemis MQ as broker
+artemis
+tips.message.destination
+String
+Inbound queue from CSM
+SCTI.RECEIVE.QUEUE
+tips.slow.receivepayment.request-queue
+String
+SCTI.RECEIVE.BB.QUEUE
+Artemis
+Key
+Type
+Description
+Default Value
+tips.broker.artemis.url
+String
+Broker URL of an ActiveMQ Artemis deployment
+tcp://localhost:61616
+IBM MQ
+Key
+Type
+Description
+Default Value
+tips.broker.ibmmq.host
+String
+The host name or IP address of the system on which the IBM MQ broker runs. The property is used with the
+tips.broker.ibmmq.port
+property to identify the broker.
+localhost
+tips.broker.ibmmq.port
+Integer
+The number of the port on which the IBM MQ queue manager listens for incoming requests.
+1414
+tips.broker.ibmmq.queue-manager
+String
+Name of the queue manager weare connecting to.
+QM1
+tips.broker.ibmmq.channel
+String
+The name of the channel to be used for the connection to the IBM MQ broker
+DEV.APP.SVRCONN
+tips.broker.ibmmq.cipher-suite
+String
+The name of the CipherSuite to be used on an SSL or TLS connection to a queue manager. The protocol used in negotiating the secure connection depends on the specified CipherSuite.
+TLS_RSA_WITH_AES_128_CBC_SHA256
+tips.broker.ibmmq.ssl-key-store-location
+String
+The location of the SSL keystore to be used when connecting to IBM MQ.
+Not set
+tips.broker.ibmmq.ssl-key-store-password
+String
+The password of the SSL keystore to be used when connecting to IBM MQ.
+Not set
+tips.broker.ibmmq.ssl-key-store-type
+String
+The type of the SSL keystore to be used when connecting to IBM MQ.
+Not set
+Kafka Configuration
+Key
+Type
+Description
+Default Value
+tips.kafka.consumer.topics.receive
+String
+Name of the topic that the TIPS CSM service adapter will receive messages from
+TIPS_RECEIVE
+tips.kafka.producer.restart-settings.random-factor
+Float
+Multiplier for the retry back off times - every retry will progressively longer depends on this factor - by default here it adds 25 percent on each retry
+0.25
+tips.kafka.consumer.restart-settings.max-backoff
+Duration
+Maximum back off time before a retry
+5s
+tips.kafka.producer.topics.send
+String
+Name of the topic that the TIPS CSM service adapter will send messages to
+TIPS_SEND
+tips.kafka.consumer.restart-settings.min-backoff
+Duration
+Minimum back off time before a retry
+1s
+tips.kafka.producer.restart-settings.max-restarts
+Integer
+Maximum number of retries before failure
+5
+tips.kafka.consumer.kafka-clients.group.id
+String
+Kafka consumer GroupID
+tips-csm-service-group
+tips.kafka.producer.restart-settings.min-backoff
+Duration
+Minimum back off time before a retry
+1s
+tips.kafka.producer.restart-settings.max-backoff
+Duration
+Maximum back off time before a retry
+5s
+tips.kafka.consumer.restart-settings.max-restarts-within
+Duration
+Time it will take to apply restart max restrictions - whichever comes first max-restarts or the time limit will end retries
+10m
+tips.kafka.producer.restart-settings.max-restarts-within
+Duration
+Time it will take to apply restart max restrictions - whichever comes first max-restarts or the time limit will end retries
+10m
+tips.message.destination
+String
+Name of the topic that the TIPS CSM Service adapter will receive messages from
+TIPS_RECEIVE
+tips.kafka.consumer.restart-settings.max-restarts
+Integer
+Maximum number of retries before failure
+5
+Features
+Deployment

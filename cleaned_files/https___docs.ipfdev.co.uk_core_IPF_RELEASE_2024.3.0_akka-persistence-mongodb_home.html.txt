@@ -1,0 +1,51 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/akka-persistence-mongodb/home.html ===
+Akka Persistence
+Akka Persistence enables stateful actors to persist their state so that it can be recovered when an actor is either restarted, such as after a JVM crash, by a supervisor or a manual stop-start, or migrated within a cluster. The key concept behind Akka Persistence is that only the events that are persisted by the actor are stored, not the actual state of the actor (although actor state snapshot support is available). The events are persisted by appending to storage (nothing is ever mutated) which allows for very high transaction rates and efficient replication. A stateful actor is recovered by replaying the stored events to the actor, allowing it to rebuild its state. This can be either the full history of changes or starting from a checkpoint in a snapshot, which can dramatically reduce recovery times.
+The sections underlying this page contain instructions regarding the use of Akka Persistence within IPF. The remainder of this page breaks down the concepts and meaning of the words and ideas in the paragraph above.
+Background
+Events happen in the past. For example, "the pain.001 was received", "the Account was Debited", "the cash was dispensed". All these events are described using the past tense.
+Events are immutable, this means because events happen in the past, they cannot be changed or undone. However, subsequent events may alter or negate the effects of earlier events. For example, "the debit was cancelled" is an event that changes the result of an earlier debit event. In this case the original debit event still exists, but the second cancellation event changes the overall state of the transaction in the system. The current state is the culmination of the sequence of events leading up to it.
+Typically, events include parameters that provide additional information about the event. For example, "Account 12345678 was debited via Cheque."
+Using Event Sourcing
+Event sourcing is a way of knowing your applications state by storing the history of Events that lead up to the current moment in time. For example, a payment system needs to track the number of completed transactions via a payment method so it can check whether the total value for a given day matches that quoted by the payment scheme. The system could store the total number of transactions for a Payment scheme in two ways:
+In a traditional "CRUD" type model, it could
+Create
+a data item to store the total number of transactions for a particular scheme, then
+Read
+and
+Update
+this number whenever someone makes or cancels a payment before
+Deleting
+it when finished with. You can think of the number of transactions as being an integer value stored in a specific column of a table that has a row for each payment system used by the bank.
+In an Event Sourced system, it would store all the transactions and cancellation events for each payment scheme and then calculate the current number of transactions by accessing the relevant events associated with the scheme for which you wanted to check the current total number of transactions.
+Aggregates
+An aggregate is a group of data objects that can be treated as a single unit for the purpose of data changes and Events. Each aggregate has a root and a boundary. The root is the entry point into the aggregate and is passed around as a reference to the group. The Boundary limits access to the objects within the group. Anything within the Boundary can access anything else in the aggregate, but external access is limited via the root. The main process that uses the aggregate is thought of as the Domain in which the group lives.
+In the example of a pacs.008 aggregate, the message itself would be a domain object, but it is made up of several internal data objects: The Debtor, The Creditor, the value and currency of the payment etc. Each part of the data needed for the message is an entity. The root needs to be a single, specific entity in the aggregate, so this could, for example, be the MessageId.
+"The pacs.008 underwent Sanction Checking", would be an example of an Event within the aggregates lifecycle.
+Actors
+The Actor in an Event driven system can be thought of as the processing logic of a system that is working on an aggregate and which facilitates the events it goes through.
+For example, an IPF process flow that decides if a pacs.008 aggregate needs its Destination BIC enriching, before it is sent for Sanction Checks and then on to a CSM service to be sent a customer at another bank, can be thought of as the Actor.
+Why do we use event sourcing?
+Event sourcing stores a complete history of the events associated with the aggregates in your domain. This is a vital feature in some implementations, such as accounting, where you need a complete audit trail of the financial transactions, and where events must be immutable. Once a transaction has happened, you cannot delete or change it, although you can create a new corrective or reversing transaction if necessary.
+The primary benefit of using event sourcing is a built-in audit mechanism that ensures consistency of transactional data and audit data because these are the same data. Representation via events allows you to reconstruct the state of any object at any moment in time, which is crucial for recovery of interrupted processing (e.g. during an outage or system failure).
+The following list describes some of the additional benefits that you can derive from using event sourcing:
+Performance
+: Because events are immutable, append-only operation are used to save them. Events are also simple, standalone objects. Both these factors lead to better performance and scalability for the system than approaches that use complex relational storage models.
+Simplification
+: Events are simple objects that describe what has happened in the system. By simply saving events, you are avoiding the complications associated with saving complex domain objects to a relational store.
+Audit trail
+: Events are immutable and store the full history of the state of the system. As such, they can provide a detailed audit trail of what has taken place within the system.
+New Projections can access existing events
+: Projections (also known as View Models or Query Models) provide a view of the underlying event-based data model. When new Projections are added, they can immediately access existing events to display a new view of the data. These are often referred to as "read side" as they only need to read from the existing store of data, and do not interfere with the writing of new events, therefore not impacting performance of the system in question.
+Integration with other subsystems
+: Events provide a useful way of communicating with other subsystems. Your event store can publish events to notify other interested subsystems of changes to the applications state. Again, the event store provides a complete record of all the events that it published to other systems. In IPF, for example, this could be the Notification Service or ODS.
+Deriving additional business value from the event history
+: By storing events, you have the ability to determine the state of the system at any previous point in time by querying the events associated with a domain object up to that point in time. This enables you to answer historical questions from the business about the system. In addition, you cannot predict what questions the business might want to ask about the information stored in a system. If you store your events, you are not discarding information that may prove to be valuable in the future.
+Production troubleshooting
+: You can use the event store to troubleshoot problems in a production system by taking a copy of the production event store and replaying it in a test environment. If you know the time that an issue occurred in the production system, then you can easily replay the event stream up to that point to observe exactly what was happening.
+Fixing errors
+: You might discover a coding error that results in the system calculating an incorrect value. Rather than fixing the coding error and performing a risky manual adjustment on a stored item of data, you can fix the coding error and replay the event stream so that the system calculates the value correctly based on the new version of the code.
+Testing
+: All of the state changes in your aggregates are recorded as events. Therefore, you can test that a command had the expected effect on an aggregate by simply checking for the event.
+Flexibility
+: A sequence of events can be projected to any desired structural representation.

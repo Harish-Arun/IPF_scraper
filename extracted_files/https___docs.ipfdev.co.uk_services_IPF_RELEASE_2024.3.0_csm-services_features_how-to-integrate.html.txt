@@ -1,0 +1,193 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/features/how-to-integrate.html ===
+How to integrate with CSM Services
+The CSM Adapter is expecting clients to provide an implementation for
+CSMCTClientAdapter
+:
+public interface CSMCTClientAdapter {
+
+    default CompletionStage<Void> handleSchemeRulesResponse(ReceivingContext receivingContext, ValidateSchemeRulesResponse schemeRulesResponse) {
+        throw new IconRuntimeException("Please implement the CSMClientAdapter's handleSchemeRulesResponse");
+    }
+
+    default CompletionStage<Void> handleClearAndSettleResponse(ReceivingContext receivingContext, ClearAndSettleResponse clearAndSettleResponse) {
+        throw new IconRuntimeException("Please implement the CSMClientAdapter's handleClearAndSettleResponse");
+    }
+
+    default CompletionStage<Void> handleReceivePaymentSettledRequest(ReceivingContext receivingContext, ReceivePaymentSettledRequest receivePaymentSettledRequest) {
+        throw new IconRuntimeException("Please implement the CSMClientAdapter's handleReceivePaymentSettledRequest");
+    }
+
+    default CompletionStage<Void> handleTechnicalResponse(ReceivingContext receivingContext, TechnicalResponse technicalResponse) {
+        throw new IconRuntimeException("Please implement the CSMClientAdapter's handleTechnicalResponse");
+    }
+
+    default CompletionStage<Void> handleReceivePayment(ReceivingContext receivingContext, ReceivePaymentRequest receivePaymentRequest) {
+        throw new IconRuntimeException("Please implement the CSMClientAdapter's handleReceivePayment");
+    }
+
+    default CompletionStage<Void> handleTimeout(ReceivingContext receivingContext, ReceivePaymentTimeout csmTimeout) {
+        throw new IconRuntimeException("Please implement the CSMClientAdapter's handleTimeout");
+    }
+
+    default CompletionStage<Void> handleReceivePaymentStatusInquiryRequest(ReceivingContext receivingContext, ReceivePaymentStatusInquiryRequest receivePaymentStatusInquiryRequest) {
+        throw new IconRuntimeException("Please implement the CSMClientAdapter's handleReceivePaymentStatusInquiryRequest");
+    }
+
+    default CompletionStage<Void> handleStatusRequestResponse(ReceivingContext receivingContext, StatusRequestResponse statusRequestResponse) {
+        throw new IconRuntimeException("Please implement the CSMClientAdapter's handleStatusRequestResponse");
+    }
+
+    default CompletionStage<Void> handleCreditorStatusRequestResponse(ReceivingContext receivingContext, CreditorStatusRequestResponse creditorStatusRequestResponse) {
+        throw new IconRuntimeException("Please implement the CSMClientAdapter's handleCreditorStatusRequestResponse");
+    }
+
+    default CompletionStage<Void> handleCreditorRequestToPay(ReceivingContext receivingContext, CreditorRequestToPayResponse creditorRequestToPayResponse) {
+        throw new IconRuntimeException("Please implement the CSMClientAdapter's creditorRequestToPayResponse");
+    }
+
+    default CompletionStage<Void> handleDebtorRequestToPay(ReceivingContext receivingContext, DebtorRequestToPayRequest debtorRequestToPayRequest) {
+        throw new IconRuntimeException("Please implement the CSMClientAdapter's handleDebtorRequestToPayResponse");
+    }
+
+    default CompletionStage<Void> handleReceiveLiquidityPositionNotification(ReceivingContext receivingContext, LiquidityPositionNotification notification) {
+        // returning completed future to avoid forcing downstream consumers to implement no-op receivers
+        return CompletableFuture.completedStage(null);
+    }
+
+    default CompletionStage<Void> handleReceiveLiquidityAdjustmentNotification(ReceivingContext receivingContext, LiquidityAdjustmentNotification notification) {
+        return CompletableFuture.completedStage(null);
+    }
+
+    default CompletionStage<Void> handleReceiveParticipantUnavailableNotification(ReceivingContext receivingContext, ParticipantUnavailableNotification notification) {
+        return CompletableFuture.completedStage(null);
+    }
+}
+By overriding the methods, the client is able to process distinct messages from the CSM Service, for further processing.
+Method
+API
+Flows
+handleSchemeRulesResponse
+Clear and Settle API
+Creditor CT, Debtor CT, Creditor RRR and Debtor RRR
+handleClearAndSettleResponse
+Clear and Settle API
+Debtor CT
+handleReceivePaymentSettledRequest
+Credit Transfer API
+Creditor CT
+handleTechnicalResponse
+Payment API
+Debtor CT, Creditor RRR and Debtor RRR
+handleReceivePayment
+Credit Transfer API
+Creditor CT
+handleTimeout
+Credit Transfer API
+Creditor CT
+handleReceivePaymentStatusInquiryRequest
+Credit Transfer API
+Creditor CT
+handleStatusRequestResponse
+Payment Status API
+Debtor CT
+handleCreditorStatusRequestResponse
+Payment Status API
+Creditor CT
+handleCreditorRequestToPay
+Clear and Settle API
+Creditor CT
+handleDebtorRequestToPay
+Clear and Settle API
+Debtor CT
+handleReceiveLiquidityPositionNotification
+Clear and Settle API
+Not applicable yet
+handleReceiveLiquidityAdjustmentNotification
+Clear and Settle API
+Not applicable yet
+handleReceiveParticipantUnavailableNotification
+Clear and Settle API
+Not applicable yet
+The following maven dependency is a starter project and includes boilerplate code which will accelerate the integration of a client application with a CSM service.
+This is the preferred method and makes things easier. However, it is not technically required to be used.
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm</groupId>
+    <artifactId>csm-client-starter-all</artifactId>
+</dependency>
+When adding this dependency, an implementation of
+CSMCTAdapter
+is also available:
+public interface CSMCTAdapter {
+
+    CompletionStage<DeliveryReport> clearAndSettle(ClearAndSettleRequest clearAndSettleRequest);
+
+    CompletionStage<DeliveryReport> validateAgainstSchemeRules(ValidateSchemeRulesRequest validateSchemeRulesRequest);
+
+    CompletionStage<DeliveryReport> validateDebtorAgainstSchemeRules(ValidateSchemeRulesRequest validateSchemeRulesRequest);
+
+    CompletionStage<DeliveryReport> validateCreditorAgainstSchemeRules(ValidateSchemeRulesRequest validateSchemeRulesRequest);
+
+    CompletionStage<DeliveryReport> confirmReceivePayment(ReceivePaymentResponse receivePaymentResponse);
+
+    CompletionStage<DeliveryReport> statusRequest(StatusRequest statusRequest);
+
+    CompletionStage<DeliveryReport> creditorStatusRequest(StatusRequest statusRequest);
+
+    CompletionStage<DeliveryReport> creditorRequestToPay(CreditorRequestToPayRequest creditorRequestToPayRequest);
+
+    CompletionStage<DeliveryReport> debtorRequestToPayStatusReport(DebtorRequestToPayResponse debtorRequestToPayResponse);
+
+    CompletionStage<DeliveryReport> receivePaymentStatusRequestResponse(ReceivePaymentStatusInquiryResponse receivePaymentStatusInquiryResponse);
+
+    CompletionStage<DeliveryReport> sendInformationRequestToCsm(SendInformationRequestToCSM sendInformationRequestToCSM);
+
+    CompletionStage<DeliveryReport> sendInformationRequestResponseToCSM(SendInformationRequestResponseToCSM sendInformationRequestResponseToCSM);
+
+    CompletionStage<DeliveryReport> sendAdditionalInformationRequestResponseToCSM(SendAdditionalInformationRequestResponseToCSM sendAdditionalInformationRequestResponseToCSM);
+
+}
+This interface can be injected on the client side and by invoking these methods, distinct messages can be sent to the CSM Service, for further processing.
+Method
+API
+Flows
+clearAndSettle
+Clear and Settle API
+Debtor CT
+validateAgainstSchemeRules
+Clear and Settle API
+Creditor CT
+validateDebtorAgainstSchemeRules
+Clear and Settle API
+Debtor CT
+validateCreditorAgainstSchemeRules
+Clear and Settle API
+Creditor CT
+confirmReceivePayment
+Credit Transfer API
+Creditor CT
+statusRequest
+Payment Status API
+Debtor CT
+creditorStatusRequest
+Payment Status API
+Creditor CT
+creditorRequestToPay
+Clear And Settle API
+Not applicable yet
+debtorRequestToPayStatusReport
+Clear And Settle API
+Not applicable yet
+receivePaymentStatusRequestResponse
+Credit Transfer API
+Not applicable yet
+sendInformationRequestToCsm
+Clear and Settle API
+Not applicable yet
+sendInformationRequestResponseToCSM
+Clear and Settle API
+Not applicable yet
+sendAdditionalInformationRequestResponseToCSM
+Clear and Settle API
+Not applicable yet
+Status Request Scheduler (SRS)
+Getting Started

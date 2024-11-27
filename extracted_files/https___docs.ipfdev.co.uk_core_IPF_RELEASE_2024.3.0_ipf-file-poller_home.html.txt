@@ -1,0 +1,7 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-file-poller/home.html ===
+IPF File Poller
+The IPF File Poller allows periodic polling of directories for processing.
+Features
+IPF File Poller Scheduler
+Getting Started
+Features

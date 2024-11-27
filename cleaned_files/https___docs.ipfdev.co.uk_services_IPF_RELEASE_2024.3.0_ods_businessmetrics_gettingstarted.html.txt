@@ -1,0 +1,44 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/businessmetrics/gettingstarted.html ===
+Getting Started
+Quick Start
+Choose your metrics
+Some metrics are enabled by default and will work without any additional configuration, such as the count of finished payments, end-to-end payment duration, and error codes.
+Other metrics, such as payment critical path duration and payment waiting duration, will require additional configuration before theyre enabled and working as you expect.
+See the
+Payment Metrics
+for more information.
+Choose your labels
+Metrics will be labelled by default, but some labels require additional configuration for them to work as you expect. Any labels that are not enabled because theyre not configured will still be applied to metrics, but the value is always
+Unknown
+.
+Error code metrics
+contain a single label representing the error code, and there are no additional labels for you to configure
+Payment metrics can have many different labels
+, some of them enabled and working by default, with others requiring additional configuration for them to be enabled.
+Configure and Run
+See the
+Deployment Options
+page for more information.
+Test
+Once IPF Metrics Processor is running, and there are no obvious errors in the logs, you can query the
+/actuator/prometheus
+HTTP endpoint to see if it is producing metrics.
+There shouldnt be any business metrics yet (metrics prefixed with
+businessmetrics_
+), unless the
+IPF_PROCESSING_DATA
+contained payment data.
+Once IPF Metrics Processor has processed payment data, you should see business metrics, e.g.
+$ curl localhost:8080/actuator/prometheus | grep businessmetrics
+... snip ...
+# HELP businessmetrics_payments_finished_total
+# TYPE businessmetrics_payments_finished_total counter
+businessmetrics_payments_finished_total{csm="TIPS",currency="EUR",direction="Internal",htm="No",paymentType="DebtorCT",state="Completed",} 31.0
+businessmetrics_payments_finished_total{csm="TIPS",currency="EUR",direction="Internal",htm="No",paymentType="DebtorCT",state="Cancelled",} 46.0
+... snip ...
+Visualise your metrics
+See the
+Visualisation
+page for more information.
+Resiliency
+Deployment

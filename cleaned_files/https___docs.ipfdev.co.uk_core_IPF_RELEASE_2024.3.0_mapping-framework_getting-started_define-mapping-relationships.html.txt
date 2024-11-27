@@ -1,0 +1,98 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/mapping-framework/getting-started/define-mapping-relationships.html ===
+Defining the Mapping Relationships
+This section covers the way to define a mapping from source to destination. These are defined in HOCON configuration files.
+The code generation tool expects one or more HOCON configuration files to be present in a user-defined folder. Apart from
+the
+.conf
+extension, there are no requirements about the naming. Each file, however, will either configure a mapping or
+an enrichment.
+Mapping Configuration
+Each pair of classes to be mapped will be defined by a configuration file containing the
+mappings
+key.
+Bidirectional mapping can also be supported by adding
+bidirectional-mapping: true
+property to mapping conf file.
+A basic mapping configuration will look like this:
+AtoB-mapping.conf
+source-class:      com.ipf.example.model.TestA  # class to read
+destination-class: com.ipf.example.model.TestB  # class to produce
+target-package:    com.ipf.example.mapping      # package to generate
+target-class-name: TestAToTestBCustomiser       # name of the mapper class to generate
+mappings: [
+  { source: foo, destination: bar }             # just map this pair
+  # { source: moreFoo, destination: moreBar }   # ...any other pairs would go here
+]
+Sometimes we want to map a class to a newer version of it, where the vast majority of attributes match.
+Maybe an array of elements, of which we are only interested in the first one, has turned into a scalar, or vice versa.
+More frequently, an attribute will have been removed.
+In these cases, we can be concise and use implicit mappings (
+implicit-mapping: true
+) , and only specify the exceptions e.g. to exclude a removed attribute:
+CtoCv2-mapping.conf
+source-class:      com.ipf.example.model.v1.TestC
+destination-class: com.ipf.example.model.v2.TestCv2
+target-package:    com.ipf.example.mapping
+target-class-name: TestCToTestCv2Customiser
+implicit-mapping:  true                               # match attributes by name
+bidirectional-mapping: true
+mappings: [
+  { source: foo2, excluded: true }                         # exclude an attribute from mapping
+  { source: apples.0, destination: apple }                 # map first apple in array of apples
+  { source: bananas.0, destination: banana }               # map first banana in array of bananas
+  { source: farmer, destination: farmers.0 }               # it also works the other way around
+]
+As previously said, this config will generate TestC  TestCv2 and TestCv2  TestC mappers because bidirectional mapping is enabled. The apple object in the TestCv2 would be mapped to a single element array with mapped apple object.
+Enrichment configuration
+Often times, the message to be sent to the target system carries needs to be
+enriched
+with
+fixed values coming from configuration, the system clock or simply hardcoded values.
+The framework supports this by reading enrichment configuration from a file like the one below:
+TestA-enrichment.conf
+enrichment-target: com.ipf.example.model.TestA  # what class to enrich
+target-package: com.ipf.example.mapping
+enrichments: [
+   {destination: version, enrichment-type: value , value: 100L}
+   {destination: id, enrichment-type: randomAlphaNumeric}
+   {destination: special, enrichment-type: config-value, path: "get.me"}
+   {destination: date, enrichment-type: from-instant, format: "dd/MM/yyyy"}
+]
+Enrichment is backed by an
+enrichment context
+, provided by the framework,
+that supports four types of enrichment sources:
+type
+description
+example
+value
+inlined constant value, on the
+value
+property
+value: "some literal value"
+randomAlphaNumeric
+generate a random alphanumeric token (32 characters)
+(no specification required)
+config-value
+read a value from a HOCON configuration source
+path: "my.config.path"
+from-instant
+use the current date/time formatted as a string
+format: "dd/MM/yyyy"
+current-instant
+use the current date/time returned as an Instant object
+(no specification required)
+current-local-date
+use the current date returned as a LocalDate object
+(no specification required)
+current-offset-datetime
+use the current date/time returned as a OffsetDateTime object
+(no specification required)
+current-local-datetime
+use the current date/time returned as a LocalDateTime object
+(no specification required)
+current-zoned-datetime
+use the current date/time returned as a ZonedDateTime object
+(no specification required)
+Getting Started
+Code Generation and use

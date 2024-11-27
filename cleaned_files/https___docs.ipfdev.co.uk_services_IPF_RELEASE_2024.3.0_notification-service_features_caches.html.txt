@@ -1,0 +1,140 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/notification-service/features/caches.html ===
+Caches
+Payment Data Cache
+This services instantiates an
+Async Cache Adapter
+.
+It caches all payment related objects such as PAIN_001.
+It requires the following configuration to be provided:
+data-cache.retry-delay = 2s
+Custom Data Cache
+This services instantiates an
+Async Cache Adapter
+.
+It caches all custom related objects by configurable
+custom-data-keys
+field, which takes a list of names to extract from a CustomObjectContainer.
+payment-status-notification.resequencer.custom-data-keys = []
+It also requires the retry delay to be provided if retrieval by ods is supported:
+data-cache.retry-delay = 2s
+Pds Data Cache
+This services instantiates an
+Async Cache Adapter
+.
+It caches all pds related objects by configurable
+pds-data-keys
+field, which takes a list of names to extract from a PdsObjectContainer.
+payment-status-notification.resequencer.pds-data-keys = []
+It also requires the retry delay to be provided if retrieval by ods is supported:
+data-cache.retry-delay = 2s
+Notification Settings Cache
+This cache instantiates an
+Async Cache Adapter
+.
+It caches all notification settings. It is then used by the Connector implementation and by the MongoDB implementation, which use the adapter to put and retrieve the data from the cache.
+This will avoid unnecessary calls to external services when the data is available in the cache.
+Async Cache Adapter
+Two types of Async Cache Adapters can be instantiated. Worth reviewing the
+IPF-Cache
+documentation to understand the different options in more detail. The current configuration which can be overridden is covered here.
+ipf.caching.caffeine.enabled = false
+
+ipf.caching.infinispan {
+  enabled = true
+  cache-manager-name = "infinispanCacheManager"
+    settings {
+      payment-data {
+        max-count = 19000000
+        timeout = 4h
+        cache-mode = REPL_ASYNC
+      }
+      custom-data {
+        max-count = 19000000
+        timeout = 4h
+        cache-mode = REPL_ASYNC
+      }
+      pds-data {
+        max-count = 19000000
+        timeout = 4h
+        cache-mode = REPL_ASYNC
+      }
+      resequencer-state {
+        max-count = 19000000
+        timeout = 5m
+        cache-mode = REPL_ASYNC
+      }
+      notification-settings {
+        max-count = 100
+        timeout = 1h
+        cache-mode = REPL_ASYNC
+      }
+   }
+}
+Caffeine Cache
+In order to enable Caffeine Cache this property needs to be set:
+ipf.caching.caffeine.enabled = true
+For additional configuration that needs to be provided for Caffeine cache, please read the documentation on
+Caffeine Configuration
+.
+Three Async Cache Adapters are instantiated using the Caffeine Cache Factory if the configuration is set to use Caffeine:
+Payment Data
+Custom Data
+Pds Data
+Notification Settings
+In Notification Service we use infinispan as our caching option.
+In case we want to switch to caffeine, we just need to change the enabled property from
+false
+to
+true
+and set the following properties for
+payment-data
+and
+notifications-settings
+:
+ipf.caching.caffeine {
+    enabled = false
+    settings {
+       payment-data {
+          max-size = 100000
+          timeout = 80s
+       }
+       notification-settings {
+          max-size = 1
+          timeout = 1ms
+       }
+    }
+}
+Infinispan Cache
+In order to enable Infinispan Cache this property needs to be set:
+ipf.caching.infinispan.enabled = true
+For additional configuration that needs to be provided for Infinispan cache, please read the documentation on
+Infinispan Configuration
+.
+Two Async Cache Adapters are instantiated using the Infinispan Cache Factory if the configuration is set to use Infinispan:
+Payment Data
+Custom Data
+Notification Settings
+And here is an example on how we can set the properties for
+payment-data
+and
+notifications-settings
+:
+ipf.caching.infinispan {
+    enabled = true
+    cache-manager-name = "infinispanCacheManager"
+    settings {
+       payment-data {
+          max-count = 100000
+          timeout = 80s
+          cache-mode = REPL_ASYNC
+       }
+       # We don't want to cache the notification settings because each test has different notification settings
+       notification-settings {
+          max-count = 1
+          timeout = 1ms
+          cache-mode = REPL_ASYNC
+       }
+    }
+}
+Notification Sender
+Payment Data Retriever Service

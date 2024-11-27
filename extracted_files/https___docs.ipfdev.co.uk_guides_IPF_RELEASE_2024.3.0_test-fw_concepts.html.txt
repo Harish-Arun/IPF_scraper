@@ -1,0 +1,16 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/test-fw/concepts.html ===
+Concepts
+Message
+An abstraction model for any 'message' that is handled by the framework implementation (request, response, payload etc). A message is typed against a known Java type that represent the contents deserialised form, also referred to as Document Type.
+MessageType
+A representation of the messages type that can be referred to through the BDD, there should be a one to one mapping between MessageType instance and a Messages associated Document type.
+MessageDefinition
+A contextual structure that provides functionality for handling messages of the configured type, serving as a point of Inversion of Control with the test-framework. There should be a one-one mapping between the MessageDefinition instance and configured Message Type, and it is common to see both Message and MessageDefinition as arguments to core methods.
+MessageBucket
+A glorified collection that any messages received by the test-framework (either directly from Consumers, or secondary such as HTTP responses) are appended to. The internal collection is encapsulated and a predicate-based accessor methods are provided in order to "fish" correlated messages from the bucket. A successfully "fished" message is typically removed from the bucket and added to the test own Context object.
+Transporter
+An abstraction of a protocol on which a message may be sent to the target system e.g. HTTP, JMS etc
+Context
+A scenario context that holds test information and is accessible from any step, the internal data structure is thread local to facilitate parallelization and the is cleared down between scenarios by JBehave lifecycle hooks.
+Icon Test Framework
+Features

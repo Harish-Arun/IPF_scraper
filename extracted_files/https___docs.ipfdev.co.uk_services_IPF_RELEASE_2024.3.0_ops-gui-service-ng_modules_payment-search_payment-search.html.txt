@@ -1,0 +1,1188 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ops-gui-service-ng/modules/payment-search/payment-search.html ===
+ODS Payment Search
+The ODS payment search module will let you search payments via a series of different fields (ID’s, party details and summary info).
+Configuration
+Config
+This config is used for the autocomplete on certain Summary Info search fields. Those being global statuses and transaction types.
+This example shows the global statuses, to add more you would simply add to this array:
+global-statuses = ["PENDING", "ACCEPTED", "REJECTED", "SCHEDULED"]
+In the config there are also date types and amount types which appear in dropdowns in the UI. You can change the order in which these types appear in the
+dropdowns by changing the order in which they appear in the config.
+For example, currently bulk date types appear in the UI in the following order:
+bulk-date-types = [
+                    "CREATED_AT",
+                    "MESSAGE_RECEIVED_AT",
+                    "INTERBANK_SETTLEMENT_DATE"
+                  ]
+If you want the message received at type to appear at the top of the list you would change it to be like this:
+bulk-date-types = [
+                    "MESSAGE_RECEIVED_AT",
+                    "CREATED_AT",
+                    "INTERBANK_SETTLEMENT_DATE"
+                  ]
+The property 'detailsDefault' is used to handle the behaviour of the payment details screen:
+details-defaults = {
+       "showGraphs": true,
+       "flows": {
+           "opened": "latest",
+           "sort": "asc",
+       },
+       "events": {
+           "opened": "all",
+           "sort": "asc",
+       }
+     }
+Where 'showGraphs' handles whether the graphs are shown by default
+'opened' handles if you want to have certain flows opened by default ('latest', 'all', 'none')
+'sort' handles the order in which the flows/events are sorted ('desc', 'asc')
+ODS Page Size
+ODS search results default settings. Maximum number of search results returning from ODS is set to 1000.
+ods-page-results = {
+    size = 1000
+}
+Alternative Identifiers
+Custom alternative identifiers for Summary Info search fields need to be added to alternative identifiers within config if they are to be used as part of the autocomplete for that search field:
+alternative-identifiers = [
+    {
+      searchBy: "CLIENT_REQUEST_ID",
+      displayName: "Client Request ID"
+    }
+]
+Reason Codes
+Reason codes from common config can be overwritten for this module by supplying your own
+payment-search-reason-codes.conf
+.
+Currency Codes
+Currency codes from common config can be overwritten for this module by supplying your own
+payment-search-currency-codes.conf
+.
+Summary Configuration
+This configuration will determine how to render and layout the various summary pages for unit of works in the UI. One set of configuration is required per summary type -
+payment
+,
+recall
+,
+bulk
+,
+batch
+The evaluated layout can be retrieved from
+/api/ods/summary/{unitOfWorkId}
+The configurable values are as follows:
+Property
+Description
+Summary
+layout.<summary-type>
+The set of cards to be rendered on the screen for the given summary type. This will be what is loaded when a user clicks on an invidual unit of work in the UI
+Cards
+layout.<summary-type>.cardNameTranslationKey
+The translation key to be used by transloco for the card title. This will be added to the translation root key. e.g.
+t(payment-summary.debtorinformation)
+layout.<summary-type>.translationRoot
+The translation root for the transloco translation file. e.g.
+payment-summary
+layout.<summary-type>.type
+Type of card to use from the dynamic summary page. 3 current types
+list
+,
+gridList
+and
+relatedSummaries
+. Default is
+list
+layout.<summary-type>.width
+How many columns this card should take. Default is 1 and max is 6
+layout.<summary-type>.data
+The translation root for the transloco translation file. e.g.
+payment-summary
+Items
+layout.<summary-type>.data.<index>.translationKey
+The translation key to be used by transloco for the card title. This will be added to the translation root key. e.g.
+t(payment-summary.debtorinformation)
+layout.<summary-type>.data.<index>.type
+The type of the value. Defaults to text but will include modifier such as status, reason code, bold, etc.
+subtitle: Subtitle will be displayed as a title in the card, any following items in the list will appear under this subtitle until another one is specified.
+text: Plain text that will ellipsis if too long and be copiable by the user.
+date: Display as a date,
+datetime: Display as date and time, clicking on this item will convert the date time to a duration of how long ago the date time was.
+bold: Bolds the text.
+status: Status will display the text, if the item has a warning value then a warning icon will be displayed along side it.
+reasonCode: Reason code will reference the config for a relevant reason code and show some text alongside it when hovered over.
+layout.<summary-type>.data.<index>.valuePath
+The location of the value on the /details/{unit of work id} api of ODS. This path is defined using SPEL. e.g.
+"transactionData.customerCreditTransferInitiation.pmtInf[0].cdtTrfTxInf[0].pmtId.endToEndId"
+and can either be input as a single string or an array of strings if the value is conditional, input in preferential order with the first index being the highest preference i.e. ["firstChoicePath", "secondChoicePath].
+layout.<summary-type>.data.<index>.fallbackValue
+A string to use should the value be missing in the details response. Defaults to N/A
+If you want any other data to come after alternative identifiers in a card then make sure you add a subtitle in the following config to keep the data separate.
+The source file for defaults is called
+summary-layout.conf
+and can be overriden in the client project by supplying your own
+summary-layout.conf
+.
+layout = {
+  payment = [
+    {
+      cardNameTranslationKey: "paymentTitle",
+      translationRoot: "summary.processingIds",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "uowId",
+          type: "text",
+          valuePath: "summary.unitOfWorkId",
+        },
+        {
+          translationKey: "clientRequestId",
+          type: "text",
+          valuePath: "summary.clientRequestId",
+        },
+        {
+          translationKey: "transactionId",
+          type: "text",
+          valuePath: "summary.transactionId",
+        },
+        {
+          translationKey: "instructingId",
+          type: "text",
+          valuePath: "summary.instructionId",
+        },
+        {
+          translationKey: "uetr",
+          type: "text",
+          valuePath: "summary.uetr",
+        },
+        {
+          translationKey: "alternativeIds",
+          type: "altIds"
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.processingDates",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "created",
+          type: "date",
+          valuePath: "summary.createdAt",
+        },
+        {
+          translationKey: "instructed",
+          type: "date",
+          valuePath: "summary.instructionReceivedAt",
+        },
+        {
+          translationKey: "executionStarted",
+          type: "date",
+          valuePath: "summary.executionStartedAt",
+        },
+        {
+          translationKey: "settled",
+          type: "date",
+          valuePath: "summary.settlementCompletedAt",
+        },
+        {
+          translationKey: "acceptance",
+          type: "date",
+          valuePath: "summary.acceptanceDateTime",
+        },
+        {
+          translationKey: "interbankSettlement",
+          type: "date",
+          valuePath: "summary.interbankSettlementDate",
+        },
+        {
+          translationKey: "timeZone",
+          type: "text",
+          valuePath: "summary.timeZone",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.relatedSummaries",
+      type: "relatedSummaries",
+      width: 2,
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.executionStatus",
+      type: "gridList",
+      width: 3,
+      data: [
+        {
+          translationKey: "csm",
+          type: "text",
+          valuePath: "summary.csm",
+        },
+        {
+          translationKey: "priority",
+          type: "text",
+          valuePath: "summary.priority",
+        },
+        {
+          translationKey: "processingEntity",
+          type: "text",
+          valuePath: "summary.processingEntity",
+        },
+        {
+          translationKey: "globalStatus",
+          type: "status",
+          valuePath: "summary.globalStatus",
+        },
+        {
+          translationKey: "reasonCode",
+          type: "reasonCode",
+          valuePath: "summary.reasonCode",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.processingAmounts",
+      type: "gridList",
+      width: 3,
+      data: [
+        {
+          translationKey: "instructedAmount",
+          type: "amount",
+          valuePath: "summary.instructedAmount",
+        },
+        {
+          translationKey: "instructedAmount",
+          type: "currency",
+          valuePath: "summary.instructedAmountCurrency",
+        },
+        {
+          translationKey: "transactionAmount",
+          type: "amount",
+          valuePath: "summary.transactionAmount",
+        },
+        {
+          translationKey: "transactionAmount",
+          type: "currency",
+          valuePath: "summary.transactionAmountCurrency",
+        },
+        {
+          translationKey: "convertedAmount",
+          type: "amount",
+          valuePath: "summary.convertedTransactionAmount",
+        },
+        {
+          translationKey: "convertedAmount",
+          type: "currency",
+          valuePath: "summary.convertedTransactionAmountCurrency",
+        },
+        {
+          translationKey: "exchangeRate",
+          type: "text",
+          valuePath: "summary.exchangeRate",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.debtorDetails",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "debtorName",
+          type: "text",
+          valuePath: "summary.debtorName",
+        },
+        {
+          translationKey: "debtorIban",
+          type: "text",
+          valuePath: "summary.debtorAccount",
+        },
+        {
+          translationKey: "debtorBic",
+          type: "text",
+          valuePath: "summary.debtorBic",
+        },
+        {
+          translationKey: "debtorAgentBic",
+          type: "text",
+          valuePath: "summary.debtorAgentBic",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.creditorDetails",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "creditorName",
+          type: "text",
+          valuePath: "summary.creditorName",
+        },
+        {
+          translationKey: "creditorIban",
+          type: "text",
+          valuePath: "summary.creditorAccount",
+        },
+        {
+          translationKey: "creditorBic",
+          type: "text",
+          valuePath: "summary.creditorBic",
+        },
+        {
+          translationKey: "creditorAgentBic",
+          type: "text",
+          valuePath: "summary.creditorAgentBic",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.settlementNotificationInformation",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "debitAccount",
+          type: "text",
+          valuePath: "summary.debitAccount",
+        },
+        {
+          translationKey: "creditAccount",
+          type: "text",
+          valuePath: "summary.creditAccount",
+        },
+        {
+          translationKey: "debitAmount",
+          type: "amount",
+          valuePath: "summary.debitAmount",
+        },
+        {
+          translationKey: "debitAmount",
+          type: "currency",
+          valuePath: "summary.debitAmountCurrency",
+        },
+        {
+          translationKey: "creditAmount",
+          type: "amount",
+          valuePath: "summary.creditAmount",
+        },
+        {
+          translationKey: "creditAmount",
+          type: "currency",
+          valuePath: "summary.creditAmountCurrency",
+        },
+      ]
+    }
+  ],
+  recall = [
+    {
+      cardNameTranslationKey: "recallTitle",
+      translationRoot: "summary.processingIds",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "uowId",
+          type: "text",
+          valuePath: "summary.unitOfWorkId",
+        },
+        {
+          translationKey: "clientRequestId",
+          type: "text",
+          valuePath: "summary.clientRequestId",
+        },
+        {
+          translationKey: "originalMessageId",
+          type: "text",
+          valuePath: "summary.originalMessageId",
+        },
+        {
+          translationKey: "originalInstructionId",
+          type: "text",
+          valuePath: "summary.originalInstructionId",
+        },
+        {
+          translationKey: "originalEndToEndId",
+          type: "text",
+          valuePath: "summary.originalEndToEndId",
+        },
+        {
+          translationKey: "originalTransactionId",
+          type: "text",
+          valuePath: "summary.originalTransactionId",
+        },
+        {
+          translationKey: "cancellationId",
+          type: "text",
+          valuePath: "summary.cancellationId",
+        },
+        {
+          translationKey: "returnId",
+          type: "text",
+          valuePath: "summary.returnId",
+        },
+        {
+          translationKey: "alternativeIds",
+          type: "altIds"
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.processingDates",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "created",
+          type: "date",
+          valuePath: "summary.createdAt",
+        },
+        {
+          translationKey: "messageReceived",
+          type: "date",
+          valuePath: "summary.messageReceivedAt",
+        },
+        {
+          translationKey: "settled",
+          type: "date",
+          valuePath: "summary.interbankSettlementDate",
+        },
+        {
+          translationKey: "originalInterbankSettlement",
+          type: "date",
+          valuePath: "summary.originalInterbankSettlementDate",
+        },
+        {
+          translationKey: "timeZone",
+          type: "text",
+          valuePath: "summary.timeZone",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.relatedSummaries",
+      type: "relatedSummaries",
+      width: 2,
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.executionStatus",
+      type: "gridList",
+      width: 3,
+      data: [
+        {
+          translationKey: "csm",
+          type: "text",
+          valuePath: "summary.csm",
+        },
+        {
+          translationKey: "priority",
+          type: "text",
+          valuePath: "summary.priority",
+        },
+        {
+          translationKey: "processingEntity",
+          type: "text",
+          valuePath: "summary.processingEntity",
+        },
+        {
+          translationKey: "globalStatus",
+          type: "status",
+          valuePath: "summary.globalStatus",
+        },
+        {
+          translationKey: "reasonCode",
+          type: "reasonCode",
+          valuePath: "summary.reasonCode",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.processingAmounts",
+      type: "gridList",
+      width: 3,
+      data: [
+        {
+          translationKey: "returnedInterbankSettlementAmount",
+          type: "amount",
+          valuePath: "summary.returnedInterbankSettlementAmount",
+        },
+        {
+          translationKey: "returnedInterbankSettlementAmount",
+          type: "currency",
+          valuePath: "summary.returnedInterbankSettlementAmountCurrency",
+        },
+        {
+          translationKey: "originalInterbankSettlementAmount",
+          type: "amount",
+          valuePath: "summary.originalInterbankSettlementAmount",
+        },
+        {
+          translationKey: "originalInterbankSettlementAmount",
+          type: "currency",
+          valuePath: "summary.originalInterbankSettlementAmountCurrency",
+        },
+        {
+          translationKey: "chargeAmount",
+          type: "amount",
+          valuePath: "summary.chargeAmount",
+        },
+        {
+          translationKey: "chargeAmount",
+          type: "currency",
+          valuePath: "summary.chargeAmountCurrency",
+        },
+        {
+          translationKey: "convertedAmount",
+          type: "amount",
+          valuePath: "summary.convertedTransactionAmount",
+        },
+        {
+          translationKey: "convertedAmount",
+          type: "currency",
+          valuePath: "summary.convertedTransactionAmountCurrency",
+        },
+        {
+          translationKey: "exchangeRate",
+          type: "text",
+          valuePath: "summary.exchangeRate",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.debtorDetails",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "debtorName",
+          type: "text",
+          valuePath: "summary.debtorName",
+        },
+        {
+          translationKey: "debtorIban",
+          type: "text",
+          valuePath: "summary.debtorAccount",
+        },
+        {
+          translationKey: "debtorAgentBic",
+          type: "text",
+          valuePath: "summary.debtorAgentBic",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.creditorDetails",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "creditorName",
+          type: "text",
+          valuePath: "summary.creditorName",
+        },
+        {
+          translationKey: "creditorIban",
+          type: "text",
+          valuePath: "summary.creditorAccount",
+        },
+        {
+          translationKey: "creditorAgentBic",
+          type: "text",
+          valuePath: "summary.creditorAgentBic",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.agentDetails",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "instructingAgent",
+          type: "text",
+          valuePath: "summary.instructingAgent",
+        },
+        {
+          translationKey: "instructedAgent",
+          type: "text",
+          valuePath: "summary.instructedAgent",
+        },
+      ]
+    }
+  ]
+  bulk = [
+    {
+      cardNameTranslationKey: "bulkTitle",
+      translationRoot: "summary.processingIds",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "uowId",
+          type: "text",
+          valuePath: "summary.unitOfWorkId",
+        },
+        {
+          translationKey: "clientRequestId",
+          type: "text",
+          valuePath: "summary.clientRequestId",
+        },
+        {
+          translationKey: "messageId",
+          type: "text",
+          valuePath: "summary.messageId",
+        },
+        {
+          translationKey: "alternativeIds",
+          type: "altIds"
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.processingDates",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "created",
+          type: "date",
+          valuePath: "summary.createdAt",
+        },
+        {
+          translationKey: "messageReceived",
+          type: "date",
+          valuePath: "summary.messageReceivedAt",
+        },
+        {
+          translationKey: "interbankSettlement",
+          type: "date",
+          valuePath: "summary.interbankSettlementDate",
+        },
+        {
+          translationKey: "timeZone",
+          type: "text",
+          valuePath: "summary.timeZone",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.relatedSummaries",
+      type: "relatedSummaries",
+      width: 2,
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.executionStatus",
+      type: "gridList",
+      width: 3,
+      data: [
+        {
+          translationKey: "csm",
+          type: "text",
+          valuePath: "summary.csm",
+        },
+        {
+          translationKey: "priority",
+          type: "text",
+          valuePath: "summary.priority",
+        },
+        {
+          translationKey: "processingEntity",
+          type: "text",
+          valuePath: "summary.processingEntity",
+        },
+        {
+          translationKey: "globalStatus",
+          type: "status",
+          valuePath: "summary.globalStatus",
+        },
+        {
+          translationKey: "reasonCode",
+          type: "reasonCode",
+          valuePath: "summary.reasonCode",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.processingAmounts",
+      type: "gridList",
+      width: 3,
+      data: [
+        {
+          translationKey: "totalInterbankSettlementAmount",
+          type: "amount",
+          valuePath: "summary.totalInterbankSettlementAmount",
+        },
+        {
+          translationKey: "totalInterbankSettlementAmount",
+          type: "currency",
+          valuePath: "summary.totalInterbankSettlementAmountCurrency",
+        },
+        {
+          translationKey: "controlSum",
+          type: "text",
+          valuePath: "summary.controlSum",
+        },
+        {
+          translationKey: "numberOfTransactions",
+          type: "text",
+          valuePath: "summary.numberOfTransactions",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.agentDetails",
+      type: "list",
+      width: 6,
+      data: [
+        {
+          translationKey: "instructingAgent",
+          type: "text",
+          valuePath: "summary.instructingAgent",
+        },
+        {
+          translationKey: "instructedAgent",
+          type: "text",
+          valuePath: "summary.instructedAgent",
+        },
+        {
+          translationKey: "initiatingPartyName",
+          type: "text",
+          valuePath: "summary.initiatingPartyName",
+        },
+      ]
+    }
+  ]
+  batch = [
+    {
+      cardNameTranslationKey: "batchTitle",
+      translationRoot: "summary.processingIds",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "uowId",
+          type: "text",
+          valuePath: "summary.unitOfWorkId",
+        },
+        {
+          translationKey: "clientRequestId",
+          type: "text",
+          valuePath: "summary.clientRequestId",
+        },
+        {
+          translationKey: "paymentInformationId",
+          type: "text",
+          valuePath: "summary.paymentInformationId",
+        }
+        {
+          translationKey: "alternativeIds",
+          type: "altIds"
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.processingDates",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "created",
+          type: "date",
+          valuePath: "summary.createdAt",
+        },
+        {
+          translationKey: "timeZone",
+          type: "text",
+          valuePath: "summary.timeZone",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.relatedSummaries",
+      type: "relatedSummaries",
+      width: 2,
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.executionStatus",
+      type: "gridList",
+      width: 6,
+      data: [
+        {
+          translationKey: "csm",
+          type: "text",
+          valuePath: "summary.csm",
+        },
+        {
+          translationKey: "priority",
+          type: "text",
+          valuePath: "summary.priority",
+        },
+        {
+          translationKey: "processingEntity",
+          type: "text",
+          valuePath: "summary.processingEntity",
+        },
+        {
+          translationKey: "globalStatus",
+          type: "status",
+          valuePath: "summary.globalStatus",
+        },
+        {
+          translationKey: "reasonCode",
+          type: "reasonCode",
+          valuePath: "summary.reasonCode",
+        }
+      ]
+    },
+    {
+      cardNameTranslationKey: "title",
+      translationRoot: "summary.debtorDetails",
+      type: "list",
+      width: 6,
+      data: [
+        {
+          translationKey: "debtorName",
+          type: "text",
+          valuePath: "summary.debtorName",
+        },
+        {
+          translationKey: "debtorIban",
+          type: "text",
+          valuePath: "summary.debtorAccount",
+        },
+        {
+          translationKey: "debtorAgentBic",
+          type: "text",
+          valuePath: "summary.debtorAgentBic",
+        }
+      ]
+    },
+  ]
+}
+Within your application you will want to define your translations correctly. So for the example of a layout config:
+layout = {
+  payment = [
+    {
+      cardNameTranslationKey: "paymentTitle",
+      translationRoot: "summary.processingIds",
+      type: "list",
+      width: 2,
+      data: [
+        {
+          translationKey: "uowId",
+          type: "text",
+          valuePath: "summary.unitOfWorkId",
+        }
+      ]
+    }
+  ]
+}
+You will want to define your translation file as follows:
+"summary": {
+      "processingIds": {
+          "paymentTitle": "Test"
+      },
+      "unitOfWorkId": "12345"
+  }
+MDS Search Configuration
+This configuration will determine how to render and layout the various MDS search page tables in MDS Search module on the GUI. This has to be done per MDS object that you want to be displayed on your MDS search page
+The evaluated layout can be retrieved from
+/api/ods/mds-info
+The configurable values are as follows:
+Property
+Description
+Name
+mds.name
+The name of the MDS Object for which you want to provide the table headers for in the MDS Search page.
+Response Digest
+mds.responseDigest.name
+The key to the translation in the transloco translation file for the name of the header you want to be represented in the MDS Search table for a given MDS Object.
+mds.responseDigest.paths
+The location of the values you want to display in your rows of the designated header taken from the paymentsearch/all/mds-objects/{type} api response. This path is defined using dot-based JSON path. e.g.
+"object.headers.unitOfWorkId"
+mds.responseDigest.type
+The type of the value.
+STRING: Plain text that will ellipsis if too long and be copiable by the user.
+AMOUNT: Two value paths need to be supplied a value and a currency and this will converted to an amount display in the results table.
+INTEGER: Value path to be displayed as a number.
+BOOLEAN: Value path to be displayed as a boolean in the results table.
+DATE: Display as a date,
+DATETIME: Display as date and time.
+ARRAY: Value paths to be displayed collectively as a column of results within a row.
+REASONCODE: Reason code will reference the config for a relevant reason code and show some text alongside it when hovered over.
+The source file for defaults is called
+mds-response-fields.conf
+and can be overriden in the client project by supplying your own
+mds-response-fields.conf
+.
+{
+  mds = [
+    {
+      name = "PAIN_001",
+      responseDigest = [
+        {
+          name = "unitOfWorkId"
+          paths = ["object.headers.unitOfWorkId"]
+          type = "STRING"
+        },
+        {
+          name = "clientRequestId"
+          paths = ["object.headers.clientRequestId"]
+          type = "STRING"
+        },
+        {
+          name = "mdsObjectId"
+          paths = ["object.payload.mdsObjectId.id"]
+          type = "STRING"
+        },
+        {
+          name = "initiatingParty"
+          paths = [
+            "object.payload.content.grpHdr.initgPty.nm",
+            "object.payload.content.grpHdr.initgPty.id.orgId.anyBIC"
+          ]
+          type = "ARRAY"
+        }
+      ]
+    },
+    {
+      name = "PAIN_001_PAYMENT_INSTRUCTION",
+      responseDigest = [
+        {
+          name = "unitOfWorkId"
+          paths = ["object.headers.unitOfWorkId"]
+          type = "STRING"
+        },
+        {
+          name = "clientRequestId"
+          paths = ["object.headers.clientRequestId"]
+          type = "STRING"
+        },
+        {
+          name = "parentMdsObjectId"
+          paths = ["object.payload.parentMdsObjectId.id"]
+          type = "STRING"
+        },
+        {
+          name = "debtor"
+          paths = [
+            "object.payload.content.dbtr.nm",
+            "object.payload.content.dbtrAcct.id.iban",
+            "object.payload.content.dbtr.id.orgId.anyBIC"
+          ]
+          type = "ARRAY"
+        }
+      ]
+    },
+    {
+      name = "PAIN_001_CREDIT_TRANSFER_TRANSACTION",
+      responseDigest = [
+        {
+          name = "unitOfWorkId"
+          paths = ["object.headers.unitOfWorkId"]
+          type = "STRING"
+        },
+        {
+          name = "clientRequestId"
+          paths = ["object.headers.clientRequestId"]
+          type = "STRING"
+        },
+        {
+          name = "parentMdsObjectId"
+          paths = ["object.payload.parentMdsObjectId.id"]
+          type = "STRING"
+        },
+        {
+          name = "creditor"
+          paths = [
+            "object.payload.content.cdtr.nm",
+            "object.payload.content.cdtrAcct.id.iban",
+            "object.payload.content.cdtr.id.orgId.anyBIC"
+          ]
+          type = "ARRAY"
+        }
+      ]
+    },
+    {
+      name = "PACS_008",
+      responseDigest = [
+        {
+          name = "unitOfWorkId"
+          paths = ["object.headers.unitOfWorkId"]
+          type = "STRING"
+        },
+        {
+          name = "clientRequestId"
+          paths = ["object.headers.clientRequestId"]
+          type = "STRING"
+        },
+        {
+          name = "mdsObjectId"
+          paths = ["object.payload.mdsObjectId.id"]
+          type = "STRING"
+        },
+        {
+          name = "instructingAgent"
+          paths = [
+            "object.payload.content.grpHdr.instgAgt.finInstnId.nm",
+            "object.payload.content.grpHdr.instgAgt.finInstnId.bicfi"
+          ]
+          type = "ARRAY"
+        }
+      ]
+    },
+    {
+      name = "PACS_008_CREDIT_TRANSFER_TRANSACTION",
+      responseDigest = [
+        {
+          name = "unitOfWorkId"
+          paths = ["object.headers.unitOfWorkId"]
+          type = "STRING"
+        },
+        {
+          name = "clientRequestId"
+          paths = ["object.headers.clientRequestId"]
+          type = "STRING"
+        },
+        {
+          name = "parentMdsObjectId"
+          paths = ["object.payload.parentMdsObjectId.id"]
+          type = "STRING"
+        },
+        {
+          name = "transactionId"
+          paths = ["object.payload.content.pmtId.txId"]
+          type = "STRING"
+        },
+        {
+          name = "debtor"
+          paths = [
+            "object.payload.content.dbtr.nm",
+            "object.payload.content.dbtrAcct.id.iban",
+            "object.payload.content.dbtr.orgId.anyBIC"
+          ]
+          type = "ARRAY"
+        },
+        {
+          name = "creditor"
+          paths = [
+            "object.payload.content.cdtr.nm",
+            "object.payload.content.cdtrAcct.id.othr.id",
+            "object.payload.content.cdtr.orgId.anyBIC"
+          ]
+          type = "ARRAY"
+        },
+        {
+          name = "instructingAgent"
+          paths = [
+            "object.payload.content.instgAgt.finInstnId.nm",
+            "object.payload.content.instgAgt.finInstnId.bicfi"
+          ]
+          type = "ARRAY"
+        }
+      ]
+    },
+    {
+      name = "PACS_004",
+      responseDigest = [
+        {
+          name = "unitOfWorkId"
+          paths = ["object.headers.unitOfWorkId"]
+          type = "STRING"
+        },
+        {
+          name = "clientRequestId"
+          paths = ["object.headers.clientRequestId"]
+          type = "STRING"
+        },
+        {
+          name = "messageId"
+          paths = ["object.payload.content.msgId"]
+          type = "STRING"
+        },
+        {
+          name = "mdsObjectId"
+          paths = ["object.payload.mdsObjectId.id"]
+          type = "STRING"
+        },
+        {
+          name = "instructingAgent"
+          paths = [
+            "object.payload.content.instgAgt.finInstnId.nm",
+            "object.payload.content.instgAgt.finInstnId.bicfi"
+          ]
+          type = "ARRAY"
+        }
+      ]
+    },
+    {
+      name = "PACS_004_PAYMENT_TRANSACTION",
+      responseDigest = [
+        {
+          name = "unitOfWorkId"
+          paths = ["object.headers.unitOfWorkId"]
+          type = "STRING"
+        },
+        {
+          name = "clientRequestId"
+          paths = ["object.headers.clientRequestId"]
+          type = "STRING"
+        },
+        {
+          name = "parentMdsObjectId"
+          paths = ["object.payload.parentMdsObjectId.id"]
+          type = "STRING"
+        },
+        {
+          name = "originalMessageId"
+          paths = ["object.payload.content.orgnlGrpInf.orgnlMsgId"]
+          type = "STRING"
+        },
+        {
+          name = "reasonCode"
+          paths = ["object.payload.content.rtrRsnInf[0].rsn.cd"]
+          type = "REASONCODE"
+        },
+        {
+          name = "debtor"
+          paths = [
+            "object.payload.content.orgnlTxRef.dbtr.pty.nm",
+            "object.payload.content.orgnlTxRef.dbtrAcct.id.iban",
+            "object.payload.content.orgnlTxRef.dbtr.pty.orgId.anyBIC"
+          ]
+          type = "ARRAY"
+        },
+        {
+          name = "creditor"
+          paths = [
+            "object.payload.content.rtrChain.cdtr.pty.nm",
+            "object.payload.content.orgnlTxRef.cdtrAcct.id.iban",
+            "object.payload.content.rtrChain.cdtr.pty.id.orgId.anyBIC"
+          ]
+          type = "ARRAY"
+        }
+      ]
+    }
+  ]
+}
+GUI Service
+Human Task Manager

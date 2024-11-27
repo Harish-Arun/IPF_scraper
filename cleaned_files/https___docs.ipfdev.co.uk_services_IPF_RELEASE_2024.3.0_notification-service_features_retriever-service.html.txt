@@ -1,0 +1,45 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/notification-service/features/retriever-service.html ===
+Payment Data Retriever Service
+The purpose of the Payment Data Retriever Service is to fetch the payment data if we do not have it in our caches.
+The Payment Data Retriever Service can be of two types:
+ODS Payment Data Retriever Service
+Query Service Payment Data Retriever Service
+Ods Payment Data Retriever Service
+Retrieves payment data from ODS.
+Configuration
+ods.inquiry.client.mds-objects.enabled = true
+Query Service Payment Data Retriever Service
+Retrieves payment data from Query Service.
+Configuration
+Default transport configuration:
+ipf-query-service.http {
+    client {
+          host = "localhost"
+          endpoint-url = "/transactions"
+          port = 8080
+    }
+}
+Default connector configuration:
+ipf.notification-service {
+    connector {
+        query-service {
+          parallelism = 1000
+        }
+    }
+}
+Custom Data Retriever Service
+The purpose of the Custom Data Retriever Service is to fetch the custom data if we do not have it in our caches.
+We only support retrieval of custom data from ODS.
+ODS Custom Data Retriever Service
+Retrieves custom data from ODS.
+Configuration
+ods.inquiry.client.custom-objects.enabled = true
+Pds Data Retriever Service
+The purpose of the Pds Data Retriever Service is to fetch the pds data if we do not have it in our caches.
+We only support retrieval of pds data from ODS.
+ODS Pds Data Retriever Service
+Retrieves pds data from ODS.
+Configuration
+ods.inquiry.client.pds-objects.enabled = true
+Caches
+Getting Started

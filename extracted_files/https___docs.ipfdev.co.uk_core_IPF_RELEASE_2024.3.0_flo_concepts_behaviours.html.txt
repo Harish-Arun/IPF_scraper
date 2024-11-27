@@ -1,0 +1,84 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo/concepts/behaviours.html ===
+Behaviours
+In IPF we define
+behaviours
+for the processing of inputs to the system (from a response or instruction) and to specify the actions required when processing events. For this we have two concepts:
+"
+Input Behaviour
+" - this is a behaviour that specifies for each input what event will be generated.
+"
+Event Behaviour
+"  - this is the behaviour that specifies what actions should be taken on receipt of an event.
+Input Behaviour
+An input behaviour has a number of properties:
+"
+Input
+" - the input (instruction or response) upon which the behaviour is triggered.
+"
+Response code
+" - the response code (linked to the response if the response is an input, otherwise this field is not applicable) for which the behaviour applies
+"
+Event
+" - this can be either an event directly or via the execution and resulting outcome of a decision.
+Note that when using response codes, if one is not defined on an input behaviour this will be considered the "default" behaviour for all response codes.
+Event Behaviour
+The event behaviour is a little more complicated.  It has a number of properties:
+"
+Current State
+" - this is the state upon which the flow must be in for the behaviour to apply.
+"
+Criteria
+" - this is when the behaviour applies ( on / on all of / on any of)
+"
+Events
+" - one or more events, these can be any type of event (e.g. domain, timeout etc)
+"
+Move to State
+" - the destination state of the behaviour
+"
+Actions
+" - these are the list of actions (1 or more) that should be performed after the state transition, i.e. requests, notifications etc.
+This behaviour definition then says - whilst in
+Current State
+, when the
+Criteria
+is met with these
+Events
+, then "
+Move to State
+" and perform the list of
+Actions
+.
+Adding the behaviours we get:
+Note that the aggregate function (discussed
+here
+), as a self contained unit of calculation is not considered as either event or input behaviour but as a functional capability of it’s own.
+Initiation Behaviour
+There is one more key type of behaviour to consider within an IPF Flow, that is the "
+Initiation Behaviour
+".
+The initiation behaviour is a specialised version of the previously defined input behaviour but is only used to start a flow.  It is not linked to an external domain so that we can initiate the flow potentially from many different sources.
+An initiation behaviour has a number of properties:
+"
+On Received Data
+" - A list of business data taken on input to the flow
+"
+Move to State
+" - An initial state to move to
+"
+Perform
+" Action - A list of actions to perform
+& optionally
+"
+Perform Enrichment
+" - Call a function for
+Input Enrichment
+of the event
+"
+Generate Aggregate Data
+" - Call an
+Aggregate Function
+for operating on the Aggregate
+Note that when the initiation behaviour is invoked, a flow will start and the "FlowInitiated" event will be raised.
+Domain Operations
+Data & Mapping

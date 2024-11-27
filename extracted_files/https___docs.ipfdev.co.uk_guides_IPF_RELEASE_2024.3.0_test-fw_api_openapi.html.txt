@@ -1,0 +1,334 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/test-fw/api/openapi.html ===
+Test Executor API Open API 3.0.1 Raw Specification
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Test Executor API",
+    "version" : "v1"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:50712",
+    "description" : "Generated server url"
+  } ],
+  "paths" : {
+    "/stories/run-stories" : {
+      "post" : {
+        "tags" : [ "executor-controller" ],
+        "operationId" : "runStories",
+        "parameters" : [ {
+          "name" : "tag",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "name",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RunStoriesResponseDTO"
+                },
+                "examples" : {
+                  "RunStories" : {
+                    "$ref" : "#/components/examples/RUN_STORIES"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stories/add-story" : {
+      "post" : {
+        "tags" : [ "executor-controller" ],
+        "operationId" : "addStory",
+        "parameters" : [ {
+          "name" : "tag",
+          "in" : "query",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "required" : [ "file" ],
+                "type" : "object",
+                "properties" : {
+                  "file" : {
+                    "type" : "string",
+                    "format" : "binary"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AddStoryResponseDTO"
+                },
+                "examples" : {
+                  "AddStory" : {
+                    "$ref" : "#/components/examples/ADD_STORY"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stories/story-detail" : {
+      "get" : {
+        "tags" : [ "executor-controller" ],
+        "operationId" : "getStoryDetail",
+        "parameters" : [ {
+          "name" : "name",
+          "in" : "query",
+          "required" : true,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "text/plain" : {
+                "schema" : {
+                  "type" : "string"
+                },
+                "examples" : {
+                  "StoryDetail" : {
+                    "$ref" : "#/components/examples/STORY_DETAIL"
+                  }
+                }
+              }
+            }
+          },
+          "404" : {
+            "description" : "The file cannot be found",
+            "content" : {
+              "text/plain" : {
+                "schema" : {
+                  "type" : "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stories/report" : {
+      "get" : {
+        "tags" : [ "executor-controller" ],
+        "operationId" : "getReport",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/JsonReportDTO"
+                },
+                "examples" : {
+                  "GetReport" : {
+                    "$ref" : "#/components/examples/GET_REPORT"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stories/get-stories" : {
+      "get" : {
+        "tags" : [ "executor-controller" ],
+        "operationId" : "getStories",
+        "parameters" : [ {
+          "name" : "tag",
+          "in" : "query",
+          "required" : false,
+          "style" : "form",
+          "explode" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/StoryDirectoryDTO"
+                },
+                "examples" : {
+                  "GetStories" : {
+                    "$ref" : "#/components/examples/GET_STORIES"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "RunStoriesResponseDTO" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "enum" : [ "SUCCESS", "SUBMITTED", "FAILURE", "RUN_IN_PROGRESS" ]
+          }
+        }
+      },
+      "AddStoryResponseDTO" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "enum" : [ "SUCCESS", "SUBMITTED", "FAILURE", "RUN_IN_PROGRESS" ]
+          },
+          "failures" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      },
+      "JSONObject" : {
+        "type" : "object",
+        "properties" : {
+          "empty" : {
+            "type" : "boolean"
+          }
+        },
+        "additionalProperties" : {
+          "type" : "object"
+        }
+      },
+      "JsonReportDTO" : {
+        "type" : "object",
+        "properties" : {
+          "status" : {
+            "type" : "string",
+            "enum" : [ "SUCCESS", "SUBMITTED", "FAILURE", "RUN_IN_PROGRESS" ]
+          },
+          "error" : {
+            "type" : "string"
+          },
+          "reports" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/JSONObject"
+            }
+          }
+        }
+      },
+      "StoryDirectoryDTO" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "subdirectories" : {
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/StoryDirectoryDTO"
+            }
+          },
+          "fileNames" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          }
+        }
+      }
+    },
+    "examples" : {
+      "GET_STORIES" : {
+        "summary" : "Get Stories",
+        "description" : "Get all stories, optionally by tag",
+        "value" : {
+          "name" : "stories",
+          "subdirectories" : [ {
+            "name" : "subdirectory",
+            "fileNames" : [ "Foo.story", "Bar.story" ]
+          } ],
+          "fileNames" : [ "Foo.story", "Bar.story" ]
+        }
+      },
+      "STORY_DETAIL" : {
+        "summary" : "Story Detail",
+        "description" : "Returns a story file contents",
+        "value" : "Meta:\n\nNarrative:\nAs a user\nI want to perform an action\nSo that I can achieve a business goal\n\nScenario: scenario description\nGiven a system state\nWhen I do something\nThen system is in a different state"
+      },
+      "RUN_STORIES" : {
+        "summary" : "Run Stories",
+        "description" : "Run stories optionally by tag and/or name",
+        "value" : {
+          "status" : "SUBMITTED"
+        }
+      },
+      "ADD_STORY" : {
+        "summary" : "Add Story",
+        "description" : "Upload a story by tag",
+        "value" : {
+          "status" : "SUCCESS"
+        }
+      },
+      "GET_REPORT" : {
+        "summary" : "Get Report",
+        "description" : "Returns test results as a list of JSON reports",
+        "value" : {
+          "status" : "SUCCESS",
+          "reports" : [ {
+            "path" : "sub1/TestPassSub1.story",
+            "scenarios" : [ {
+              "keyword" : "Scenario:",
+              "title" : "scenario description",
+              "steps" : [ {
+                "step" : "Given this step exists",
+                "outcome" : "successful"
+              } ]
+            } ],
+            "title" : ""
+          } ]
+        }
+      }
+    }
+  }
+}

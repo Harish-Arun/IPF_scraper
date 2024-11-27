@@ -1,0 +1,95 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/features/validations.html ===
+Validations
+SEPA CT STEP2 CSM Service supports below validations on the bulks submitted from Client implementation flows. it is important to note that some validations may not be applicable based on the source of request. (Refer individual features to understand applicable validations).
+The scheme rules are identified and referenced from scheme documentation (STEP2 SCT Interface Specifications, STEP2 SCT Functional Description).
+All message types will have a schema check performed using the current version of the xsd. This action will perform all the necessary technical checks on the message such as data types, cardinality and size of data elements. As well as these Technical checks, the SEPA CSM performs Business-level checks, to ensure the data input to each field conforms to any rules over and above the basic Technical checks (eg settlement date is no more than three working days in advance, any ISO codes are valid for the particular use or calculated totals are equal to the counts they relate to).
+Messages arriving from the scheme will receive a technical check against their xsd. The only Business level validations to take place will make sure they are;
+not duplicates (file or individual transactions),
+intended for the Direct Participant running the instance of SEPA CT CSM and their configured Regional Brands,
+containing address formats that have been correctly used (either structured, unstructured or scheme allowed combinations of the two).
+Inbound messages from the scheme that fail validations, will still be passed to the client, however they will be added to a dedicated kafka topic that should be routed to an exception processing implementation. The SEPA CT scheme pack does not have a mechanism for the automated rejection of an inbound message.
+Business Level Validations
+Debtor CT (pacs.008 Bulks)
+Message / Bulk Level Validations:
+Duplicate check
+Group Header Totals Checks
+Interbank Settlement Amount check
+Number of transactions check
+Scheme Rules Checks against the Group Header Fields
+Instructing Agent BICS are correct and do not include branch codes
+Clearing system correct
+Settlement Date Validations
+The Interbank settlement date submitted on the bulks is validated against the allowed date range from Schemes point of view. STEP2 SCT service allows the transactions with the current settlement date and up to 3 future valid Target2 Business days to be submitted on the bulks.
+If the Interbank Settlement date submitted on the bulks to the STEP2 SCT CSM Service are outside this range, the CSM Service will reject this bulk to avoid a rejection of the bulk from the scheme.
+The settlement date calculations take into account the "SCT EOD Real Time Validation Cut-Off" configuration. Any bulks that are submitted to the CSM Service with the same calendar date but after the cut-off time, will be rejected. (Refer Configurations)
+Transaction Validations:
+Duplicate Check
+Scheme Rules Checks at transaction level
+Payment Service code is 'SEPA'
+Category Purpose Code is set to correct value and any associated fields are correct
+Debtor Agent is present
+Any Country Codes used are valid ISO codes
+Addresses populated when Beneficiary PSP is located in a non-EEA country or territory
+Only valid country code combinations for Creditor and Debtor agents are used
+Remittance Information field used correctly
+Schema Checks of mapped EBA Scheme format messages (before submitting for bulking)
+Creditor CT (pacs.004 Bulks)
+Message / Bulk Level Validations:
+Duplicate check at bulk (message) level
+Group Header Totals Checks
+Interbank Settlement Amount check
+Number of transactions check
+Scheme Rules Checks against the Group Header Fields
+Instructing Agent BICS are correct and do not include branch codes
+Clearing system correct
+Settlement Date Validations
+The Interbank settlement date submitted on the bulks is validated against the allowed date range from Schemes point of view. STEP2 SCT service allows the transactions with the current settlement date and up to 1 future valid Target2 Business days to be submitted on the bulks.
+Transaction Validations:
+Duplicate Check at transaction level
+Scheme Rules Checks at transaction level
+Correct Payment Service code
+Category Purpose Code is set to correct value and any associated fields are correct
+Creditor Agent is present
+Any Country Codes used are valid ISO codes
+Return Reason code is a valid ISO code
+Additional Information used when appropriate
+Schema Checks of mapped EBA Scheme format messages (before submitting for bulking)
+Debtor CT (pacs.004 Bulks)
+Returns of a previously sent pacs.008 can not be rejected. If they were, there would be no legitimate account for the funds to be credited to. A bank receiving a pacs.004 has to process it in some way (by crediting the originator of the pacs.008 or a suspense account pending investigation). For this reason, only technical checks, a duplicate check and Debtor BIC checks are performed, no further fields are validated.
+Creditor CT (camt.029 Bulks)
+Message / Bulk Level Validations:
+Duplicate check at bulk (message) level
+Scheme Rules Checks against the Group Header Fields
+Instructing Agent BICS are correct and do not include branch codes
+Clearing system correct
+Transaction Validations:
+Duplicate Check at transaction level
+Schema Checks of mapped EBA Scheme format messages (before submitting for bulking)
+Debtor CT (camt.056)
+Message / Bulk Level Validations:
+Duplicate check at bulk (message) level
+Scheme Rules Checks against the Group Header Fields
+Instructing Agent BICS are correct and do not include branch codes
+Clearing system correct
+Total number of included transactions is correct
+Transaction Validations:
+Duplicate Check at transaction level
+Original Message type is correct
+Valid Reason Code and associated information used
+Schema Checks of mapped EBA Scheme format messages (before submitting for bulking)
+Debtor CT (pacs.028)
+Message / Bulk Level Validations:
+Original message name and correct use of Original Group Information
+Duplicate check at bulk (message) level
+Instructing Agent BICS are correct and do not include branch codes
+Transaction Validations:
+Duplicate Check at transaction level
+Number of transactions (The SEPA CT CSM only allows 1 transaction per pacs.028, else it will be rejected with reason code B02)
+Valid Reason Code and associated information used
+Correct Clearing System
+Correct Service Code
+Correct Use of Remittance Information
+Category Purpose Code is set to correct value and any associated fields are correct
+Schema Checks of mapped EBA Scheme format messages (before submitting for bulking)
+Request Processing
+Validation API

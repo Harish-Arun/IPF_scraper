@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-meta/getting-started.html ===
+Getting Started
+Open the iso20022-mps MPS project, currently built with MPS 2021.3.1
+Once the project is loaded you should see various solutions, which are described in detail in later sections, for now if you select the
+com.iconsolutions.iso20022.repository.ipf
+solution, you will find a preloaded repository with the components present, as below.
+Some editors are represented as tables, many are not implemented yet and resolved to the standard reflection editor, these will be implemented incrementally
+If you generate the solution a Java representation of the message model and domain model will be generated to the solutions
+source_gen
+folder.
+There is some additional maven plugin configuration for the subsequent "reference" modules which (in a fashion similar to flo-lang) extract out the business and message models into different Maven modules
+Concepts
+How-to Guides

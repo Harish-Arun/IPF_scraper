@@ -1,0 +1,157 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/debulking-configuration.html ===
+Debulking Configuration
+Because the Debulker is a core feature of IPF, it has no intrinsic understanding of what it is debulking, it can be used to split any structured file.
+In order to be able to process a supplied file, proper configuration needs to be provided.
+The configuration for a given file will tell the Debulker:
+Structure type of the file - XML or JSON
+Schema to use for optional validation
+Hierarchy of nested elements
+The sample below is of an XML file containing a pain.001 message of two Payment Information elements, each containing two Credit Transfer Transaction Information elements.
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09">
+    <CstmrCdtTrfInitn>
+        <GrpHdr>
+            <MsgId>abc</MsgId>
+        </GrpHdr>
+        <PmtInf>
+            <PmtInfId>1</PmtInfId>
+            <NbOfTxs>2</NbOfTxs>
+            <CdtTrfTxInf>
+                <PmtId>
+                    <EndToEndId>1</EndToEndId>
+                </PmtId>
+            </CdtTrfTxInf>
+            <CdtTrfTxInf>
+                <PmtId>
+                    <EndToEndId>2</EndToEndId>
+                </PmtId>
+            </CdtTrfTxInf>
+        </PmtInf>
+        <PmtInf>
+            <PmtInfId>2</PmtInfId>
+            <NbOfTxs>2</NbOfTxs>
+            <CdtTrfTxInf>
+                <PmtId>
+                    <EndToEndId>3</EndToEndId>
+                </PmtId>
+            </CdtTrfTxInf>
+            <CdtTrfTxInf>
+                <PmtId>
+                    <EndToEndId>4</EndToEndId>
+                </PmtId>
+            </CdtTrfTxInf>
+        </PmtInf>
+        <SplmtryData>
+            <Envlp/>
+        </SplmtryData>
+    </CstmrCdtTrfInitn>
+</Document>
+To debulk the pain.001.001.09 above and extract the individual Credit Transfer Transaction Information elements, the debulker would use the configuration below.
+ISO pain.001.001.09 Configuration Example
+ipf.debulker {
+  configurations = [
+    {
+      # Name of the configuration which will be used as a reference for retrieving debulk configuration.
+      name = "pain.001.001.09"
+      # Name of the splitter which will be used for creating components from the bulk stream
+      splitter = "XML"
+      # Optional config value that will enable validation of a file against a Schema prior to debulking
+      validate-before-debulk.schema-bean-name = "pain001Schema"
+      # The processing entity associated with this configuration which will be be used in the processing context of the initiated flow
+      processing-entity = "debulker"
+      # The directory or s3 bucket that the files will be copied to after processing.
+      archive-path = "/tmp/archive"
+      # A tree structure of the bulk elements which will be extracted as separate components to be stored in the ComponentStore."
+      component-hierarchy {
+        marker = "Document"
+        children = [
+          {
+            # Relative path from parent node to child node
+            marker = "CstmrCdtTrfInitn.PmtInf"
+            children = [
+              {
+                marker = "CdtTrfTxInf"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
+This configuration would lead to 7 data items in the Component store
+Document component without PmtInf child elements
+Two PmtInf components without CdtTrfTxInf child elements, with the reference to a parent Document component
+Four CdtTrfTxInf components, with references to their parent PmtInf components, and also reference to all parent components in the hierarchy.
+Housekeeping Configuration
+Housekeeping configuration allows for specifying how to clean up files after processing or when a debulk is rejected.
+Below is a table of the properties within the
+housekeeping
+configuration.
+Property
+Type
+Default
+Description
+clean-component-store.on-successful-processing
+boolean
+Specifies whether to delete all components associated with a Bulk ID upon successful processing.
+true
+clean-component-store.on-successful-processing
+boolean
+Specifies whether to delete all components associated with a Bulk ID upon failed processing.
+false
+source-file-action-on-reject
+enum
+Specifies what to do with the bulk source file upon rejection. One of
+NO_ACTION
+,
+ARCHIVE
+,
+DELETE
+.
+NO_ACTION
+Housekeeping configuration can be added under
+ipf.debulker
+or on specific debulk configurations under
+ipf.debulker.configurations[]
+. The settings configured on a specific debulk configuration will take precedence over those specified under
+ipf.debulker
+.
+If no housekeeping configuration is added, the default values will be used.
+Below is an example configuration.
+conf-1
+overrides the values specified at the root level, whereas
+conf-2
+will use the configuration specified under
+ipf.debulker
+. If we removed
+ipf.debulker.housekeeping
+then
+conf-2
+would use the default settings.
+ipf.debulker {
+  housekeeping {
+    clean-component-store {
+       on-successful-processing = false,
+       on-failed-processing = false,
+     }
+     source-file-action-on-reject = "NO_ACTION" # DELETE or ARCHIVE
+  }
+  configurations = [
+    {
+      name = "conf-1"
+      housekeeping {
+        clean-component-store {
+          on-successful-processing = true,
+          on-failed-processing = true,
+        }
+        source-file-action-on-reject = "ARCHIVE"
+      }
+    },
+    {
+      name = "conf-2"
+      # will default to ipf.debulker.housekeeping
+    }
+  ]
+}
+Features
+New File Notification

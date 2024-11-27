@@ -1,0 +1,81 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ops-gui-service-ng/framework/common/common.html ===
+Common
+Common is a core module that is used to implement common config and utils across all modules.
+Configuration
+Reason Codes
+The source file for defaults is called
+reason-codes.conf
+and can be overridden per module.
+reason-codes = [
+    {
+      reasonCode = "AB01",
+      definition = "Clearing process aborted due to timeout.",
+      source = "ISO"
+    },
+    {
+      reasonCode = "AB02",
+      definition = "Clearing process aborted due to a fatal error.",
+      source = "ISO"
+    },
+    {
+      reasonCode = "AB03",
+      definition = "Settlement aborted due to timeout.",
+      source = "ISO"
+    }
+]
+Currency Codes
+The source file for defaults is called
+currency-codes.conf
+and can be overridden per module. These are used when inputting values for either searching or creating data in various modules. Only Alphabetic Code and Currency parameters need to be defined.
+currency-codes = [
+    {
+      "AlphabeticCode": "AFN",
+      "Currency": "Afghani",
+      "Entity": "AFGHANISTAN",
+      "MinorUnit": "2",
+      "NumericCode": 971.0,
+      "WithdrawalDate": null
+    },
+    {
+      "AlphabeticCode": "EUR",
+      "Currency": "Euro",
+      "Entity": "\u00c5LAND ISLANDS",
+      "MinorUnit": "2",
+      "NumericCode": 978.0,
+      "WithdrawalDate": null
+    },
+    {
+      "AlphabeticCode": "ALL",
+      "Currency": "Lek",
+      "Entity": "ALBANIA",
+      "MinorUnit": "2",
+      "NumericCode": 8.0,
+      "WithdrawalDate": null
+    }
+]
+Time Zones
+The source file for defaults is called
+time-zones.conf
+and can be overridden per module. These are used when inputting values for either searching or creating data in various modules.
+time-zones = ["Africa/Abidjan", "Etc/GMT+0", "UTC"]
+Country Codes
+The source file for defaults is called
+country-codes.conf
+and can be overridden per module. These are used when inputting values for either searching or creating data in various modules.
+country-codes = [
+  {
+    "name": "Australia",
+    "alpha-2": "AU",
+    "alpha-3": "AUS",
+  },
+  {
+    "name": "Austria",
+    "alpha-2": "AT",
+    "alpha-3": "AUT",
+  },
+  {
+    "name": "Azerbaijan",
+    "alpha-2": "AZ",
+    "alpha-3": "AZE",
+  }
+]

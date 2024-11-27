@@ -1,0 +1,26 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/businessmetrics/introduction.html ===
+Introduction
+The IPF Metrics Processor exists to assist in answering questions about IPF payment processing, such as…​
+How many payments have finished in the last hour?
+A counter metric is updated each time a payment reaches a terminal state
+How does that compare with yesterday?
+Metrics are stored in Prometheus, a time-series database, which allows you to query for changes to the count within different periods of time. You can easily compare the number of finished payments in the last hour with the same hour yesterday.
+How long are payments taking to reach completion?
+The payment duration is published as a set of metrics that allows you to see the worst case duration (max), and also to see the mean of payment durations over a specific time period.
+How many payments are 'Completed' vs 'Cancelled'?
+Payment metrics are labelled, allowing you to compare the count of 'Completed' vs 'Cancelled' payments, or to compare the duration of payments that reach those states.
+Why are so many payments finishing in a 'Cancelled' state?
+Error code counter metrics are updated as error codes are produced by IPF payment processing flows. You can visualise which error codes are being produced more frequently that others, and compare that with other time periods.
+Concepts
+The IPF Metrics Processor tracks information associated with end-to-end payments processed through IPF. Metrics produced include counts and durations of finished, cancelled and failed payments, and counts of error codes. In addition to this, the Metrics Processor supports drilling down into payments using a variety of labels i.e. Payment Type and Currency.
+The processor further allows for operators to track payments that required human intervention at any point within their IPF lifecycle and identify the amount of time spent in Human Task Manager (HTM).
+IPF Processing Data types are consumed from Kafka, allowing the metrics processor to capture and track individual payments from the data it produces.
+Once a payment is determined to be "finished", metrics are emitted.
+The metrics processor queries the ODS (Operational Data Store) database to determine if a payment has finished, and in some cases to retrieve any missing data such as events and PDS (Processing Data Structures) objects.
+The Metrics Endpoint is the Spring Boot Actuator (a feature that provides monitoring capabilities for applications)
+Prometheus Metrics
+endpoint, implemented with Micrometer metrics.
+The metrics at this endpoint are scraped by Prometheus.
+The data collated in the Metrics Processor is useful for both in-depth tracking/review of the payments being processed in IPF in an effort to increase efficiency or implement improvements, and providing visibility at a high level to stakeholders interested in the end-to-end payments journey in IPF through company business reports.
+Archiving
+Metrics

@@ -1,0 +1,32 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/test-fw/how-to/expression-how-to.html ===
+How do I create a custom data type converter?
+Datatype converters can either implement
+Converter
+(preferably) or
+GenericConverter
+if one needs runtime class information to govern the conversion strategy. All beans of both types are passed the conversionService at runtime.
+Note that even though Converter is a functional interface, it is NOT possible defined a bean implementation as a lambda due to type erasure of generated lambdas, as such they need to be anonymous classes.
+Note that the
+GenericConverter
+support strategy are not inherently by-directional, so either register both a
+String -> Type
+converter AND a distinct
+Type -> String
+converter, or register a single converter that supports both directions (and then derive the direction within the convert method by type checking the source object). Additionally it is also possible to specify a type (other than string) when accessing a property, in which case a converter between othe object’s property type and the desired type would be invoked.
+A note on overriding existing converters:
+The
+GenericConverter
+interface is untyped, as such the last loaded bean of a same name will be registered.
+A good practice is to namespace any converters appropriately (e.g
+myBankConverter
+vs
+dateConverter
+) and restructure the config instantiation order as needed if core converters need to be overridden.
+The ConversionConfig.java configuration class contains some examples of registered type converters that are applied by default.
+For usage tips please see the following unit test cases:
+ExpressionEngineTests
+for property access and general usage
+SpelTests
+for low level examples of function registration, bean method invocation h
+How to guides
+How do I create a 'Web' Test?

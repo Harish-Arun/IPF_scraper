@@ -1,0 +1,32 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/guides/retries-across-state.html ===
+Handling Retries Across Non-Completing States
+Retries are only cancelled if a request/response has been marked as completing on the external domain (see
+Concepts
+). So you could have the case where you would like to retry a transaction across multiple states which could included non-completing request/responses.
+In the following example we have modelled a request/response in an External Domain, of which one is non-completing (Completing flag is not ticked) and the other is completing (completing flag is ticked).
+The event behaviour in this example simply moves the state based on the response; either
+Insufficient Funds
+or
+Balance OK
+, which would complete the flow:
+When the
+Insufficient Funds Response
+is received, the state is moved to Insufficient Funds and the retries are not stopped because the response is a non-completing response. Retries will continue to occur even when we receive the first
+OK Response
+because we are now in state
+Insufficient Funds
+but the retries were firing from state
+Checking Balance
+.
+You can stop this retry occurring once the completing response is received by configuring the retry properties as follows:
+ipf.flow.Testflow.CheckingBalance.CheckBalance.initial-retry-interval = 1s
+ipf.flow.Testflow.CheckingBalance.CheckBalance.max-retries = 0
+
+ipf.flow.Testflow.InsufficientFunds.CheckBalance.initial-retry-interval = 1s
+ipf.flow.Testflow.InsufficientFunds.CheckBalance.max-retries = 3 #or however many attempts
+ipf.flow.Testflow.InsufficientFunds.CheckBalance.backoff-type = USER_DEFINED
+ipf.flow.Testflow.InsufficientFunds.CheckBalance.jitter-enabled = false
+ipf.flow.Testflow.InsufficientFunds.CheckBalance.custom-backoffs = [20s, 40s] #or whatever values you want here
+This configuration effectively moves the retry capabilities to the InsufficientFunds state, and we do not attempt any retries in the CheckingBalance state.
+How to get aggregate data for use in an external domain request
+How to implement a payment scheduler

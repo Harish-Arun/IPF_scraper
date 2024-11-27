@@ -1,0 +1,8 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/tips-csm-service/concepts.html ===
+Concepts
+Instant Payment Transaction Flow
+Missing/Delayed Beneficiary-side Answer Flow
+Investigation Flow
+Recall and Return Process Flow
+TIPS CSM Service
+Customer Payment Process

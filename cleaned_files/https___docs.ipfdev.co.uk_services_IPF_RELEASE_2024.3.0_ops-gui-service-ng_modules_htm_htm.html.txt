@@ -1,0 +1,64 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ops-gui-service-ng/modules/htm/htm.html ===
+Human Task Manager
+The HTM module is a proxy to the HTM AOM from IPF. It uses the connectors provided by HTM and simple spring controllers to proxy the calls from the UI. No data formatting or processing is done beyond permissions and auditing validations.
+Configuration
+Config
+This config is used for the search screen.
+htm-bulk-page-results = 1000
+htm-task-types = ["ENFORCE_EXECUTION"]
+htm-show-search-actions = true
+htm-bulk-task-types = [
+  {
+    id: "task1",
+    translationKey: "task1",
+    outcomes: [
+      {
+        id: "YES",
+        translationKey: "outcomeYes"
+      },
+      {
+        id: "NO",
+        translationKey: "outcomeNo"
+      }
+    ],
+    executionResultData: {
+      id: "name_for_object",
+      fields: [
+        {
+          id: "pegaId",
+          translationKey: "supportingFieldPegaId",
+          type: "string"
+        }
+      ]
+    }
+  },
+]
+The configurable values are as follows:
+Property
+Description
+htm-bulk-page-results
+Maximum number of tasks to be bulk executed by HTM (is set by default to 1000).
+htm-task-types
+The dropdown list of types available in this implementation of HTM
+htm-show-search-actions
+Whether to show the actions column (with the claim/un-claim button) in the search results.
+htm-bulk-task-types
+The configuration for bulk execute types. Its an array of BulkTaskTypes
+Bulk Task Type
+In order to configure the task types used for bulk execution you must provide the relevant details. Looking at the example
+config
+, the properties are defined as follows:
+Property
+Description
+id
+The unique id for the object
+translationKey
+The key that is to be used to determine what translation will be used for that specific field
+outcomes
+An object with key and translationKey properties that will display a radio button for each of the items
+field
+An object with key, translationKey and type properties (currently only strings but to be updated)
+executionResultsData
+An object with id and fields array properties used to provide client specific data for that task type
+ODS Payment Search
+Processing Settings

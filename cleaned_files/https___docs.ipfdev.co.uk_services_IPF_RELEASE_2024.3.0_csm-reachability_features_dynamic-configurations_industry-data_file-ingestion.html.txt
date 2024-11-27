@@ -1,0 +1,39 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/file-ingestion.html ===
+File Ingestion
+Industry data is loaded to dynamic configurations using Dynamic Processing Settings. The files provided by industry sources use file ingestion implementation on IPF to load the data to the dynamic configurations.
+IPF provides some file ingestion implementations out of the box (subject to licensing agreements) while custom file ingestions can be implemented by IPF client teams as per need.
+IPF file ingestion supports two modes:
+Sr No
+Ingestion Mode
+Description
+1
+Ingestion from local directory
+This mode is used when the file ingestion is done by uploading the files to local file directory on client implementation network.
+2
+Ingestion from AWS S3 Buckets
+This mode is used when client implementations want to use AWS S3 buckets to upload industry / custom files on to the dynamic configurations on IPF.
+IMPORTANT
+The local file directory mode is always available and S3 ingestion mode needs to be enabled through configurations.
+In future, more modes of file upload can be made available as per client needs.
+Table with links to other documentation:
+Section
+Link
+File Ingestion modes
+Local File Directory
+S3 Ingestion
+File Ingestion System Events
+Data Ingestion System Events
+Files and File Formats - CSM Participants
+CSM Participant
+Files and File Formats - Party Entity Directory
+Party Entity Directory
+Files and File Formats - IBAN Plus Directory
+IBAN Plus Directory
+Files and File Formats - Exclusion List Directory
+Exclusion List Directory
+Files and File Formats - IBAN Structure Directory
+IBAN Structure Directory
+Files and File Formats - BicDir2018 Directory
+SWIFTRef Bic Dir 2018
+Industry Data
+Ingestion from Local File

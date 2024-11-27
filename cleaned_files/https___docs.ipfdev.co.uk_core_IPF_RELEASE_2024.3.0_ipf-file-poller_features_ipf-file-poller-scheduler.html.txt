@@ -1,0 +1,50 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-file-poller/features/ipf-file-poller-scheduler.html ===
+IPF File Poller Scheduler
+This provides a scheduler that is polling the files from a configured location(s). Based on some configured accepted patterns it is filtering the files. The scheduler is checking if a file was previously processed by keeping track on the file name, hashed metadata, and hashed content.
+Metadata changed?
+Content changed?
+Meaning
+Action
+No
+No
+file has not been modified
+no action required
+Yes
+No
+file has not been meaningfully modified
+no action required
+No
+Yes
+Assumed not possible
+notify File Poller Adapter
+If the file is new, or it has been modified, the File Poller Adapter is notified. The file poller is doing this by setting up a scheduler, The schedulerId will be saved in the database.
+If a file has been modified and there is already a scheduled job, the job will be cancelled and another job schedule will be created for a fresh guard window. This allows for files that are in the process of being copied but have not completed, to be picked up only when they have finished and the content is no longer changed during the guard window.
+Configuration
+The base config is
+ipf.file-poller.pollers
+and it takes a list of pollers to allow polling from multiple directories. This allows polling to be split across processing entities where each entity would be configured to read from a separate directory.
+Default
+Config
+Type
+Comment
+Default
+ipf.file-poller.pollers[0].cron
+cron
+Property which defines the cron for the scheduler poller to run.
+"0 0 1 ? * *"
+ipf.file-poller.pollers[0].job-schedule-seconds
+cron
+Property which defines the time in seconds to schedule the job that is processing a file to run.
+"10"
+ipf.file-poller.pollers[0].file-path
+String
+Property which defines the location where the files should be polled from.
+"/tmp"
+ipf.file-poller.pollers[0].patterns
+list of strings
+Property which defines the valid patterns for a file name format.
+patterns = [
+"*.txt"
+]
+Features
+Data Processing & Persistence

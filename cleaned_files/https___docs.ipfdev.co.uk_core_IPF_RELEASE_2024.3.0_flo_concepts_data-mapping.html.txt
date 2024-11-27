@@ -1,0 +1,72 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo/concepts/data-mapping.html ===
+Data and Mapping
+Data is at the core of IPF Processing since it drives processing and decision making throughout IPF. Its worth reading this section on
+data and persistence
+related topics as well as the Flo-lang concepts.
+Business Data
+From a Flo-lang and orchestration flow perspective the first concept we consider is the "
+Business Data Element
+".  It has four properties:
+"
+Name
+"
+"
+Description
+"
+"
+Data Type
+" - the data type can be any java type, whether it be standard classes like String, Integer etc or your own bespoke types.
+"
+Data Category
+" - an optional field, the possible values are an enumerated set that refers to the type of data that is being represented by this BusinessDataElement. This Data Category label is used by various IPF components such as IPF Data Egress and Operational Data Store, which can automatically record data captured from Process Flows automatically, depending on the Data Category. The categories are:
+MESSAGE_DATA_STRUCTURE - This is data originating from external financial messages, often modelled as ISO20022 Message Components.
+PROCESSING_DATA_STRUCTURE - Data that relates to the processing of payments, such as meta-data, and payment type information. This category is also used for custom data types.
+ADDITIONAL_IDENTIFIER - This applies to data elements that represent additional identifiers to be associated with the payment.
+PAYMENT (
+Deprecated
+) - This is payment data that is modelled as ISO20022 message components within IPF.
+PAYMENT_PROCESSING (
+Deprecated
+) - This is data that relates to the processing of payments, such as meta-data and payment type information.
+Any MPS project can have as many different business data elements as you need.  These elements are defined within a "
+Business Data Library
+" which is simply a collection of related business data and as many different business data libraries can be defined as needed.
+IPF provides a number of pre-configured business data libraries.  By default, any process is given the "error"  library which provides default elements for handling flow failures, namely:
+Failure Event Name - this is the name of the event that registered the first failure in a flow.
+Failure Response Code - this is the IPF response code for the failure.
+Failure Reason Code - this is the IPF reason code for the failure.
+Failure Reason Text - this is the IPF text description of a failure.
+Failure Original Response Code - This allows specification of any original response code involved (which may have then been mapped to an IPF one)
+Failure Original Reason Code - This allows specification of any original reason code involved.
+Failure Original Reason Text - This allows specification of any original reason text involved.
+The concepts of reason and response codes are discussed later in this document.
+Within the lifetime of a payment each business data element is unique and it can be updated as required.
+Mapping Functions
+The next utility to consider is the "
+Mapping Function
+".  A mapping function is a piece of logic that is used to transform business data elements into different business data elements.  They can be used in one to one, one to many or many to many examples.
+Mapping function can live globally (i.e. be available for all flows) or be locally restricted to a single flow.
+There are three different situations that mapping functions can be used, and these are described below:
+Generating Data on Event Receipt (Aggregate Functions)
+The first use case for a mapping function is when it is needed to perform some kind of logic when an event is received and/or upon the data received in an event for later use in a flow. This type of mapping function is often referred to as an "Aggregate Function".
+A good example of this is a counter that tracks the number of times something has occurred during a flow - each time the function is called we may update that counter.  The outcome of the Aggregate Function then becomes available to the flow.
+The data generated as part of the mapping here is considered "in flight" and thus is
+not persisted by the application
+.
+When used here the function will be replayed during recovery, so care must be taken if calculating dynamic values such as dates.
+Included in the diagram we can see the context of the Aggregate Function after the Event but before State transition
+Enriching event data (Input Enrichment)
+This mapping function usecase is when you want to generate (or update) business data elements to be
+stored on a received event
+.  This is often referred to as an "Input Enricher".
+The key point to understand in the difference to the "aggregate" type of mapping above is that
+this data will be added to the event and persisted
+.  This means for example that it will be sent and made available within the processing data stream for use outside of IPF.
+A good example of using an Input Enrichment function is where the event requires data that is merged with the data available on the aggregate.  One way to execute this type of requirement would be to perform an aggregate get from outside of the domain and then updating the input before sending it in.  With an input enrichment type function, this can be done much more neatly without the overhead of retrieving the aggregate.
+Adding the Input Enricher function, this is enriching the event data:
+Once a mapping function has been used on an event in this way, the data it produces is treated just as any other data received on the event.
+Calculating data for sending to an action
+This usecase for a mapping function is to invoke it as part of sending data to a downstream system.  This allows either for manipulation of an existing data point at send time or the generation of data that is not provided in the flow but is required to make a downstream action call.
+Like the aggregate type of mapping above, this data is transient and is not persisted, its lifespan is purely the for the action invocation.
+Behaviours
+Generation

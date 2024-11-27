@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/getting-started/create-new-ipf-project.html ===
+Create a new IPF Application Project
+To create a brand new IPF Application project we advise using the
+Archetype starter
+as this is the quickest way to bootstrap a new project using the IPF SDK. The Maven archetype will generate a Maven project (using the Icon BOM as its parent) containing;
+an application skeleton (home for the application runtime code)
+a flow domain (artefacts related to the DSL and flow definitions)
+a test module (containing the docker application configuration)
+From this base you can then wire in any additional capability you need, either from the
+Flo Starter Projects
+or other IPF component libraries.
+Getting Started
+Defining The Read Side

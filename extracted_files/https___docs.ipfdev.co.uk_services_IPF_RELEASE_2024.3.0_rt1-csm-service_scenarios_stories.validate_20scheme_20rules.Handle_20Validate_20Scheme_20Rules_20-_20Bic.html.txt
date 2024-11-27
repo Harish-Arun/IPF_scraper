@@ -1,0 +1,32 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.validate%20scheme%20rules.Handle%20Validate%20Scheme%20Rules%20-%20Bic.html ===
+Handle Validate Scheme Rules - Bic.story
+Scenario: Handling validation of scheme rules invalid bic
+Steps
+When the Payment Service sends a '<bic>' 'Validate Scheme Rules Request'
+Then the Payment Service receives a 'Validate Scheme Rules Response' with values:
+| status                                | FAILURE                           |
+| getPayload().getContent().reasonCode  | RC01                              |
+| getPayload().getContent().description | BIC value not allowed             |
+| requestId                             | #ValidateSchemeRulesRequest.ipfId |
+Examples:
+bic
+Invalid Creditor Bic
+Invalid Debtor Bic
+Example: {bic=Invalid Creditor Bic}
+When
+the ï½Payment Serviceï½  sends a ï½Invalid Creditor Bicï½  Validate Scheme Rules Request
+Then
+ï½the Payment Serviceï½  receives a Validate Scheme Rules Response with values:
+| status                                | FAILURE                           |
+| getPayload().getContent().reasonCode  | RC01                              |
+| getPayload().getContent().description | BIC value not allowed             |
+| requestId                             | #ValidateSchemeRulesRequest.ipfId |
+Example: {bic=Invalid Debtor Bic}
+When
+the ï½Payment Serviceï½  sends a ï½Invalid Debtor Bicï½  Validate Scheme Rules Request
+Then
+ï½the Payment Serviceï½  receives a Validate Scheme Rules Response with values:
+| status                                | FAILURE                           |
+| getPayload().getContent().reasonCode  | RC01                              |
+| getPayload().getContent().description | BIC value not allowed             |
+| requestId                             | #ValidateSchemeRulesRequest.ipfId |

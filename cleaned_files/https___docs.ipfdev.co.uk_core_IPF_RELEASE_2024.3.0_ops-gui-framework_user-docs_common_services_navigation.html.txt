@@ -1,0 +1,20 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/common/services/navigation.html ===
+Navigation
+The navigation service gets all the routes that have been registered to the app and returns them as an array. It is used
+for the navigation from the module tiles on the home page. It also maps the translations for the title and description of each module tile.
+You can exclude a route by adding the data property of
+excludeFromIpfNav: true
+to the route.
+Example:
+{
+    path: 'example-route-to-show',
+    component: ExampleRouteComponent
+},
+{
+    path: 'example-route-to-hide',
+    component: ExampleRouteComponent,
+    data: { excludeFromIpfNav: true }
+},
+An example of how the service is used can be seen
+here
+.

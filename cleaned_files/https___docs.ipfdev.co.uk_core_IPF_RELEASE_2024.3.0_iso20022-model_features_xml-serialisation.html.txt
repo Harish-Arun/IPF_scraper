@@ -1,0 +1,135 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/features/xml-serialisation.html ===
+XML Serialisation
+Serialisation of the Message Model java types to XML is ultimately performed using
+JAXB
+in the same way as many other
+Java projects.
+However, there are some important caveats and restrictions, mainly around how we handle the
+normalised
+types. The
+handling of these details is encapsulated with a dedicated
+XMLMapper
+. This class should bee seen is the central place
+for serialising and de-serialising from XML into the Java representation of the message model. An
+instance of the
+XMLMapper
+is accessible through the
+ISO20022MessageModel
+class, this instance is pre-configured with
+details of the Message Definitions and should be used directly.
+XMLMapper
+The IPF IS020022 Message Model classes do
+NOT
+contain codified namespaces as traditional XJC generated typically do.
+This is a conscious design choice, Message Components are shared across multiple Message Definitions, and we want to
+embrace this principle rather than design against it.
+XJX & package.info
+XJC
+and
+JAXB
+usually operates under the premise of a single java package representing a namespace
+(Message Definition). This is often achieved through a single
+package.info
+housing an
+XMLSchema
+annotation,
+detailing the namespace of the associated Message Definition and all referenced Message Components.
+A common application pattern based on single namespace grouping of a Message Definition types was to create a single
+JAXBContext
+object which covered all deployed Message Definitions.
+The
+XMLMapper
+takes a new approach differing from this. The underlying classes do not have any namespaces defined (as
+detailed in
+Normalised Types
+). We instead define a separate JAXBContext object _per_Message
+Definition, and key these distinct contexts by the actual namespace on the message itself.
+This allows us to determine the correct message type based on the namespace, and then wholly deserialise the content
+in the restricted scope of the specific Message Definition.
+From a usage perspective this results in the same functionality as traditional JAXB serialisation (a single method to
+serialise/deserialise). The only difference being that the "namespacing" is now being handled within the XMLMapper rather
+than within JAXB.
+For the Message Definitions implemented with the provided Message Model the behaviour of the XMLMapper functions
+exactly as described here, however please see the below notes regarding
+Namespace Registration
+for potential gotchas if
+using the XMLMapper with any other types.
+Namespace Registration
+Message Definitions types and their namespaces need to be pre-registered with the
+XMLMapper
+instance in order to use
+the full functionality of the Serialisation and Deserialisation capabilities.
+The XMLMapper instance provided by the
+ISO20022MessageModel
+is automatically pre-configured with this information for
+all the supported Message Definitions.
+Deserialising without specifying a type requires the namespace of the target
+message to have been registered with the
+XMLMapper instance prior to the deserialisation request.
+If the XMLMapper is used on either:
+Message Definitions that are not registered with the XMLMapper
+Types that are no Message Definitions
+Then you may see behaviour such as
+Unable to deserialise without provided an explicit type
+Namespace is not populated when serialised
+Deserialising
+Accessing the XMLMapper instance.
+XMLMapper xmlMapper = ISO20022MessageModel.getInstance().xmlMapper();
+With Namespace
+Deserialising an XML String with namespace to a known explicit type
+Input example message
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.09">
+    <CstmrCdtTrfInitn>
+        <GrpHdr>
+            <MsgId>MsgId0</MsgId>
+        </GrpHdr>
+    </CstmrCdtTrfInitn>
+</Document>
+String exampleXML = ...;
+
+//com.iconsolutions.iso20022.message.definitions.payment_initiation.pain001.Document
+Document instance = xmlMapper.fromXML(exampleXML, Document.class);
+The XML can also be deserialised as an XML string without specifying an explicit type.
+This requires the xml string to have the namespace included
+Object instance = xmlMapper.fromXML(exampleXML);
+Without Namespace
+Deserialising an XML String without namespace to a known explicit type
+Input example message
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Document>
+    <CstmrCdtTrfInitn>
+        <GrpHdr>
+            <MsgId>MsgId0</MsgId>
+        </GrpHdr>
+    </CstmrCdtTrfInitn>
+</Document>
+String exampleXML = ...;
+
+//com.iconsolutions.iso20022.message.definitions.payment_initiation.pain001.Document
+Document instance = xmlMapper.fromXML(exampleXML, Document.class);
+Note it is
+NOT
+possible to deserialise an XML without a namespace without specifying an explicit type.
+Serialising
+Serialising an instance into an XML String
+Note that the resulting XML will have the namespace included
+only if
+the Message Definition has been registered with
+the
+XMLMapper
+(This is true for all provided Message Definitions, but may not be true if the
+XMLMapper
+is used
+outside the
+ISO20022MessageModel
+context)
+Document instance = Document.builder().cstmrCdtTrfInitn(
+        CustomerCreditTransferInitiationV09.builder().grpHdr(
+                GroupHeader85.builder().msgId("msggId123").build())
+                .build())
+        .build();
+
+String xml = xmlMapper.toXML(instance);
+Json serialisation
+Future Enhancements

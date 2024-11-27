@@ -1,0 +1,16 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/system-events/howto.html ===
+How to guides
+Subscribing to - then logging - all
+WARN
+and
+ERROR
+events
+Logging all events of a specific type
+IPF System Event Exporter Spring Boot starter packs
+Manually exporting events via a SendConnector
+List of System Events
+Subscribing to - then logging - all
+WARN
+and
+ERROR
+events

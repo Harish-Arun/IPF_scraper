@@ -1,0 +1,8 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/features/scheduling.html ===
+Scheduling
+The SEPA DD CSM uses the IPF Scheduler that is part of the Core product. At the point of a new IDF Bulk being created it will automatically look-up the current Submission Window it is running in and find out when that Submission Window will close. A job is scheduled to trigger the closing of the IDF at an appropriate time before the end of the Submission Window. The size of the time buffer between the Submission Window closing and the trigger to finalise the current IDF is
+configurable
+per implementation of the SEPA DD CSM.
+If a failure notification is received, this notification is updated to reflect this (status "RJCT"). The time at which this notification is sent after the end of the Settlement Day is configurable per SEPA DD STEP2 CSM implementation.
+File Debulking
+Extension Points

@@ -1,0 +1,9 @@
+=== URL: https://docs.ipfdev.co.uk/functions/IPF_RELEASE_2024.3.0/businessfunctions/home.html ===
+Business Functions
+Business Functions are a set of out of the box supporting components for your IPF payments solution. They take the form of reusable components that you can use within your IPF process flows.
+Business Functions are supported by all the necessary underlying java implementations and dependencies needed to fully implement the function.
+It is a simple process to make Business Functions available for use within your IPF solution.
+How to Add Business Functions
+Duplicate Check
+Human Task Manager
+How to Add Business Functions

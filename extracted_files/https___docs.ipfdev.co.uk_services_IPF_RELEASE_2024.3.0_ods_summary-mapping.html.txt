@@ -1,0 +1,1120 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/summary-mapping.html ===
+Summary Mapping
+Summaries are "projections" of a unit of work, and are based on data received by ODS. They represent the current state of
+a unit of work, and can be searched by a number of different fields.
+This data is "mapped" into pre-defined summary fields, and by extension, some indexed search fields, via combination of core, default, and custom mappings.
+Core mappings are usually essential for ODS functionality, and they cannot be overridden or customised.
+Default mappings are those provided by ODS out-of-the-box, and they apply to ISO20022 MDS types and PDS types.
+Custom mappings are solution specific, and they can override default mappings.
+Source Data
+Core Mappings
+Default Mappings
+Customisable
+ISO20022 MDS
+Yes
+Yes
+Yes
+IPF PDS
+Yes
+No
+No
+Custom PDS
+No
+No
+Yes
+IPF Processing Data
+Yes
+No
+No
+Both MDS/PDS mappings have defaults and custom mappings.
+Core Mappings
+ISO20022 MDS
+Field Name
+Source
+Notes
+Sequence
+instructionReceivedAt
+pain.001 (source event timestamp)
+pacs.008 (source event timestamp)
+camt.029 (
+Assgnmt.CreDtTm
+)
+camt.056 (
+Assgnmt.CreDtTm
+)
+Populated on receipt of each message
+Earliest
+executionStartedAt
+pacs.008 (source event timestamp)
+Populated on receipt of each message
+Earliest
+settlementCompletedAt
+pacs.002 (source event timestamp)
+Populated on receipt of each message
+Latest
+Core PDS
+Field Name
+Source
+Sequence
+journeyType
+JourneyType.value
+Always updates if there’s a change
+paymentType
+PaymentType.value
+Latest
+csm
+Csm.value
+Latest
+timeZone
+TimeZone.value
+Latest
+priority
+Priority.value
+Latest
+relatedUnitOfWorkId
+RelatedUnitOfWork.value
+Always updates if there’s a change, but shouldn’t change over the lifetime of a unit of work
+Process Flow Event
+Field Name
+Source
+Sequence
+Notes
+journeyType
+ProcessFlowEvent.journeyType
+Always updates if there’s a change
+Deprecated
+paymentType
+ProcessFlowEvent.paymentType
+Latest
+Deprecated
+csm
+ProcessFlowEvent.csm
+Latest
+Deprecated
+timeZone
+ProcessFlowEvent.timeZone
+Latest
+Deprecated
+priority
+ProcessFlowEvent.priority
+Latest
+Deprecated
+relatedUnitOfWorkId
+ProcessFlowEvent.relatedUnitOfWorkId
+Always updates if there’s a change, but shouldn’t change over the lifetime of a unit of work
+Deprecated
+reasonText
+ProcessFlowEvent.reasonText
+Latest
+reasonCode
+ProcessFlowEvent.reasonText
+Latest
+startedAt
+ProcessFlowEvent.createdAt
+Earliest
+Typically the timestamp of the first event
+terminal
+ProcessFlowEvent.status
+Latest
+Looks up the process flow status from process flow definitions to determine if the state change is terminal
+failure
+ProcessFlowEvent.status
+Latest
+Looks up the process flow status from process flow definitions to determine if the state change is a failure
+Custom Data
+Field Name
+Source
+Notes
+alternativeIds
+AlternativeId
+Populated from each alternative id published per unit of work
+Default Mappings
+ISO20022 MDS
+Summary Field
+Sources
+Sequence
+acceptanceDateTime
+CreditTransferTransaction39 (
+pacs.008
+)
+Latest
+batchBooking
+PaymentInstruction30 (
+pain.001
+)
+Latest
+cancellationId
+PaymentTransaction106 (
+camt.056
+)
+Latest
+chargeAmount
+PaymentTransaction112 (
+pacs.004
+)
+Latest
+chargeAmountCurrency
+PaymentTransaction112 (
+pacs.004
+)
+Latest
+controlSum
+CustomerCreditTransferInitiationV09 (
+pain.001
+)
+PaymentInstruction30 (
+pain.001
+)
+Latest
+creditAccount
+AccountNotification20 (
+camt.054
+)
+Latest
+creditAmount
+AccountNotification20 (
+camt.054
+)
+Latest
+creditAmountCurrency
+AccountNotification20 (
+camt.054
+)
+Latest
+creditorAccount
+CreditTransferTransaction34 (
+pain.001
+)
+CreditTransferTransaction39 (
+pacs.008
+)
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+creditorAgentBIC
+CreditTransferTransaction34 (
+pain.001
+)
+CreditTransferTransaction39 (
+pacs.008
+)
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+creditorBIC
+CreditTransferTransaction34 (
+pain.001
+)
+CreditTransferTransaction39 (
+pacs.008
+)
+Latest
+creditorName
+CreditTransferTransaction34 (
+pain.001
+)
+CreditTransferTransaction39 (
+pacs.008
+)
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+debitAccount
+AccountNotification20 (
+camt.054
+)
+Latest
+debitAmount
+AccountNotification20 (
+camt.054
+)
+Latest
+debitAmountCurrency
+AccountNotification20 (
+camt.054
+)
+Latest
+debtorAccount
+PaymentInstruction30 (
+pain.001
+)
+CreditTransferTransaction39 (
+pacs.008
+)
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+debtorAgentBIC
+PaymentInstruction30 (
+pain.001
+)
+CreditTransferTransaction39 (
+pacs.008
+)
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+debtorBIC
+PaymentInstruction30 (
+pain.001
+)
+CreditTransferTransaction39 (
+pacs.008
+)
+Latest
+debtorName
+PaymentInstruction30 (
+pain.001
+)
+CreditTransferTransaction39 (
+pacs.008
+)
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+initiatingPartyName
+CustomerCreditTransferInitiationV09 (
+pain.001
+)
+Latest
+instructedAgent
+FIToFICustomerCreditTransferV08 (
+pacs.008
+)
+PaymentReturnV09 (
+pacs.004
+)
+PaymentTransaction112 (
+pacs.004
+)
+Latest
+instructedAmount
+CreditTransferTransaction34 (
+pain.001
+)
+AccountNotification20 (
+camt.054
+)
+Latest
+instructedAmountCurrency
+CreditTransferTransaction34 (
+pain.001
+)
+AccountNotification20 (
+camt.054
+)
+Latest
+instructedParty
+FIToFIPaymentCancellationRequestV08 (
+camt.056
+)
+Latest
+instructingAgent
+FIToFICustomerCreditTransferV08 (
+pacs.008
+)
+PaymentReturnV09 (
+pacs.004
+)
+PaymentTransaction112 (
+pacs.004
+)
+Latest
+instructingParty
+FIToFIPaymentCancellationRequestV08 (
+camt.056
+)
+Latest
+instructionId
+CreditTransferTransaction34 (
+pain.001
+)
+CreditTransferTransaction39 (
+pacs.008
+)
+Latest
+originalInstructionId
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+interbankSettlementDate
+FIToFICustomerCreditTransferV08 (
+pacs.008
+)
+CreditTransferTransaction39 (
+pacs.008
+)
+PaymentReturnV09 (
+pacs.004
+)
+Latest
+messageId
+CustomerCreditTransferInitiationV09 (
+pain.001
+)
+FIToFICustomerCreditTransferV08 (
+pacs.008
+)
+PaymentReturnV09 (
+pacs.004
+)
+Latest
+numberOfTransactions
+PaymentInstruction30 (
+pain.001
+)
+FIToFICustomerCreditTransferV08 (
+pacs.008
+)
+Latest
+originalEndToEndId
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+originalInterbankSettlementDate
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+originalMessageId
+PaymentReturnV09 (
+pacs.004
+)
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+paymentInformationId
+PaymentInstruction30 (
+pain.001
+)
+Latest
+requestedExecutionDate
+PaymentInstruction30 (
+pain.001
+)
+Latest
+returnId
+PaymentTransaction112 (
+pacs.004
+)
+Latest
+returnedAmount
+PaymentTransaction112 (
+pacs.004
+)
+Latest
+returnedAmountCurrency
+PaymentTransaction112 (
+pacs.004
+)
+Latest
+totalAmount
+FIToFICustomerCreditTransferV08 (
+pacs.008
+)
+Latest
+totalAmountCurrency
+FIToFICustomerCreditTransferV08 (
+pacs.008
+)
+Latest
+transactionAmount
+CreditTransferTransaction39 (
+pacs.008
+)
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+AccountNotification20 (
+camt.054
+)
+Latest
+transactionAmountCurrency
+CreditTransferTransaction39 (
+pacs.008
+)
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+AccountNotification20 (
+camt.054
+)
+Latest
+originalTransactionAmount
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+originalTransactionAmountCurrency
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+transactionId
+CreditTransferTransaction39 (
+pacs.008
+)
+Latest
+originalTransactionId
+PaymentTransaction112 (
+pacs.004
+)
+PaymentTransaction102 (
+camt.029
+)
+PaymentTransaction106 (
+camt.056
+)
+Latest
+uetr
+CreditTransferTransaction34 (
+pain.001
+)
+CreditTransferTransaction39 (
+pacs.008
+)
+Latest
+Fx PDS
+Summary Field
+Sources
+Sequence
+transactionAmount
+Fx
+Latest
+transactionAmountCurrency
+Fx
+Latest
+convertedTransactionAmount
+Fx
+Latest
+convertedTransactionAmountCurrency
+Fx
+Latest
+exchangeRate
+Fx
+Latest
+Customisation
+All default mappings can be customised/overridden. When a custom mapping targets the same field as a default mapping,
+the default mapping is disabled
+. A custom mapping for a summary field could disable one or more default mappings.
+Given the
+messageId
+field is mapped by default from a pain.001
+CustomerCreditTransferInitiationV09
+, a pacs.008
+FIToFICustomerCreditTransferV08
+, or a pacs.004
+PaymentReturnV09
+- If a custom mapping were to be defined targeting the same
+messageId
+field, the three default mappings would be disabled.
+All mappings, including custom mappings, are defined in code, with a single source, and a single target summary field, e.g. a pacs.008 mapper expects the source
+FIToFICustomerCreditTransferV08
+, and targets the
+messageId
+summary field .
+new MdsMapper<>(FIToFICustomerCreditTransferV08.class, summaryFields.messageId(), it -> it.getGrpHdr().getMsgId());
+The same approach is taken for custom PDS mappings, e.g. a mapper that expects a client specific PDS type and targets the
+messageId
+summary field.
+new PdsMapper<>(ClientSpecificPdsType.class, "ClientSpecificPdsType", summaryFields.messageId(), it -> ClientSpecificPdsType::getValue);
+Custom ODS Ingestion Docker Image
+One method of customising ODS is to build a custom ODS Ingestion docker image, using the default ODS Ingestion docker image as a base.
+Additional JARs can be included in this custom image, containing the customised summary mappings.
+An example of such a customisation can be seen in the ODS repository. To apply custom mappings you must provide a JAR containing Spring autoconfiguration that provides a
+SummaryMappingConfigurer
+bean.
+Define a summary configurer bean
+package com.client.ods;
+
+import com.iconsolutions.ipf.ods.summary.MapperRegistry;
+import com.iconsolutions.ipf.ods.summary.SummaryFields;
+import com.iconsolutions.ipf.ods.summary.SummaryMappingConfigurer;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.context.annotation.Bean;
+
+@AutoConfiguration
+class CustomSummaryMappingConfig {
+    @Bean
+    SummaryMappingConfigurer customSummaryMappingConfigurer() {
+        return new SummaryMappingConfigurer() {
+            @Override
+            public void configure(final MapperRegistry registry, final SummaryFields summaryFields) {
+                registry
+                        .register(new PdsMapper<>(CustomPdsType.class, "CustomPdsType", summaryFields.messageId(), CustomPdsType::getFieldA))
+                        .register(new PdsMapper<>(CustomPdsType.class, "CustomPdsType", summaryFields.transactionId(), CustomPdsType::getFieldB));
+            }
+        };
+    }
+
+    static final class CustomPdsType {
+        private String fieldA;
+        private String fieldB;
+
+        public String getFieldA() {
+            return fieldA;
+        }
+
+        public void setFieldA(final String fieldA) {
+            this.fieldA = fieldA;
+        }
+
+        public String getFieldB() {
+            return fieldB;
+        }
+
+        public void setFieldB(final String fieldB) {
+            this.fieldB = fieldB;
+        }
+    }
+}
+Create Spring Autoconfiguration Imports file
+com.client.ods.CustomSummaryMappingConfig
+ODS is not usually aware of custom PDS types, but in this setup, your project is able to include the custom types in code, or via external dependencies, and they will be available on the classpath.
+Custom PDS types are received by ODS as a map of properties. The type is actually
+Map<String, Object>
+. ODS will convert this map to the desired type, and will invoke the custom mapper with the converted value.
+Any third-party dependencies required by your custom mapping JAR will also need to be included in the custom docker image. Dependencies such as Spring/Spring Boot/Lombok etc. will not need to be provided, as they are already provided by ODS.
+Avoid having more dependencies for your custom mappers than is absolutely necessary. This will help avoid classpath issues.
+The recommended set of dependencies your custom mapper JAR should depend on is
+<dependencies>
+    <dependency>
+        <groupId>com.iconsolutions.ipf.ods</groupId>
+        <artifactId>ods-summary-mapping-api</artifactId>
+        <version>${ods.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-autoconfigure</artifactId>
+        <version>${spring-boot.version}</version>
+    </dependency>
+
+    <!-- Optional: Only required if customising ISO20022 MDS Mappings -->
+    <dependency>
+        <groupId>com.iconsolutions.iso20022.model</groupId>
+        <artifactId>message-model-types</artifactId>
+        <version>${iso-model.version}</version>
+    </dependency>
+</dependencies>
+These will not need to be added to your custom docker image, they will already be present.
+In addition to these, you may need to depend on other libraries that provide your target custom PDS types. These will need to be included in the custom docker image along with your custom mappers.
+If your custom PDS type/s are small, you may choose to duplicate them alongside your custom mappers, rather than pulling in another dependency. ODS will be able to convert into the required types before invoking your mappers.
+ODS Plugin
+<Not yet implemented>
+Visibility
+The summary layout, i.e. the custom MDS and PDS mappings, the disabled default mappings, and the overall final set of mappings, is available at runtime.
+Logging
+The summary layout is logged at startup.
+Example summary layout log
+2023-10-04 15:02:57.270  INFO 1 --- [           main] c.i.ipf.ods.summary.SummaryLayoutLogger  :
+-------------------------------------------------------------------------------------
+ Summary Layout
+-------------------------------------------------------------------------------------
+    ---------------------------------------------------------------------------------
+     Disabled MDS Mappings
+    ---------------------------------------------------------------------------------
+                       Target Field                                      Source Type
+    ---------------------------------------------------------------------------------
+                         debtorName                             PaymentInstruction30
+                                                         CreditTransferTransaction39
+                                                               PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+
+                          messageId              CustomerCreditTransferInitiationV09
+                                                     FIToFICustomerCreditTransferV08
+                                                                    PaymentReturnV09
+
+                      transactionId                      CreditTransferTransaction39
+                                                               PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+
+    ---------------------------------------------------------------------------------
+    ---------------------------------------------------------------------------------
+     Custom PDS Mappings
+    ---------------------------------------------------------------------------------
+                       Target Field                                      Source Type
+    ---------------------------------------------------------------------------------
+                         debtorName                                    CustomPdsType
+
+                          messageId                                    CustomPdsType
+
+                      transactionId                                    CustomPdsType
+
+    ---------------------------------------------------------------------------------
+    ---------------------------------------------------------------------------------
+     Final Mappings
+    ---------------------------------------------------------------------------------
+                       Target Field                                      Source Type
+    ---------------------------------------------------------------------------------
+                 acceptanceDateTime                      CreditTransferTransaction39
+
+                       batchBooking                             PaymentInstruction30
+
+                     cancellationId                            PaymentTransaction106
+
+                       chargeAmount                            PaymentTransaction112
+
+               chargeAmountCurrency                            PaymentTransaction112
+
+                         controlSum              CustomerCreditTransferInitiationV09
+                                                                PaymentInstruction30
+
+                      creditAccount                            AccountNotification20
+
+                       creditAmount                            AccountNotification20
+
+               creditAmountCurrency                            AccountNotification20
+
+                    creditorAccount                      CreditTransferTransaction34
+                                                         CreditTransferTransaction39
+                                                               PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+
+                   creditorAgentBIC                      CreditTransferTransaction34
+                                                         CreditTransferTransaction39
+                                                               PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+
+                        creditorBIC                      CreditTransferTransaction34
+                                                         CreditTransferTransaction39
+
+                       creditorName                      CreditTransferTransaction34
+                                                         CreditTransferTransaction39
+                                                               PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+
+                       debitAccount                            AccountNotification20
+
+                        debitAmount                            AccountNotification20
+
+                debitAmountCurrency                            AccountNotification20
+
+                      debtorAccount                             PaymentInstruction30
+                                                         CreditTransferTransaction39
+                                                               PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+
+                     debtorAgentBIC                             PaymentInstruction30
+                                                         CreditTransferTransaction39
+                                                               PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+
+                          debtorBIC                             PaymentInstruction30
+                                                         CreditTransferTransaction39
+
+                         debtorName                                    CustomPdsType
+
+                initiatingPartyName              CustomerCreditTransferInitiationV09
+
+                    instructedAgent                  FIToFICustomerCreditTransferV08
+                                                                    PaymentReturnV09
+                                                               PaymentTransaction112
+
+                   instructedAmount                      CreditTransferTransaction34
+                                                               AccountNotification20
+
+           instructedAmountCurrency                      CreditTransferTransaction34
+                                                               AccountNotification20
+
+                    instructedParty              FIToFIPaymentCancellationRequestV08
+
+                   instructingAgent                  FIToFICustomerCreditTransferV08
+                                                                    PaymentReturnV09
+                                                               PaymentTransaction112
+
+                   instructingParty              FIToFIPaymentCancellationRequestV08
+
+                      instructionId                      CreditTransferTransaction34
+                                                         CreditTransferTransaction39
+                                                               PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+
+            interbankSettlementDate                  FIToFICustomerCreditTransferV08
+                                                         CreditTransferTransaction39
+                                                                    PaymentReturnV09
+
+                          messageId                                    CustomPdsType
+
+               numberOfTransactions                             PaymentInstruction30
+                                                     FIToFICustomerCreditTransferV08
+
+                 originalEndToEndId                            PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+
+    originalInterbankSettlementDate                            PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+
+                  originalMessageId                                 PaymentReturnV09
+                                                               PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+
+               paymentInformationId                             PaymentInstruction30
+
+             requestedExecutionDate                             PaymentInstruction30
+
+                           returnId                            PaymentTransaction112
+
+                     returnedAmount                            PaymentTransaction112
+
+             returnedAmountCurrency                            PaymentTransaction112
+
+                        totalAmount                  FIToFICustomerCreditTransferV08
+
+                totalAmountCurrency                  FIToFICustomerCreditTransferV08
+
+                  transactionAmount                      CreditTransferTransaction39
+                                                               PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+                                                               AccountNotification20
+
+          transactionAmountCurrency                      CreditTransferTransaction39
+                                                               PaymentTransaction112
+                                                               PaymentTransaction102
+                                                               PaymentTransaction106
+                                                               AccountNotification20
+
+                      transactionId                                    CustomPdsType
+
+                               uetr                      CreditTransferTransaction34
+                                                         CreditTransferTransaction39
+
+    ---------------------------------------------------------------------------------
+Actuator Endpoint
+The summary layout is available as a custom Spring Boot Actuator endpoint at
+/actuator/summary-layout
+. It’s not enabled by default.
+Configure
+management.endpoints.web.exposure.include
+to include
+summary-layout
+, to enable the summary layout endpoint, or with
+*
+to enable all actuator endpoints.
+e.g.
+management.endpoints.web.exposure.include = [health, info, prometheus, summary-layout]
+.
+Example summary layout response
+{
+  "finalMappings": {
+    "debtorAccount": [
+      "PaymentInstruction30",
+      "CreditTransferTransaction39",
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106"
+    ],
+    "debitAccount": [
+      "AccountNotification20"
+    ],
+    "creditorName": [
+      "CreditTransferTransaction34",
+      "CreditTransferTransaction39",
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106"
+    ],
+    "chargeAmountCurrency": [
+      "PaymentTransaction112"
+    ],
+    "instructedAmountCurrency": [
+      "CreditTransferTransaction34",
+      "AccountNotification20"
+    ],
+    "batchBooking": [
+      "PaymentInstruction30"
+    ],
+    "instructingAgent": [
+      "FIToFICustomerCreditTransferV08",
+      "PaymentReturnV09",
+      "PaymentTransaction112"
+    ],
+    "cancellationId": [
+      "PaymentTransaction106"
+    ],
+    "totalAmountCurrency": [
+      "FIToFICustomerCreditTransferV08"
+    ],
+    "creditorBIC": [
+      "CreditTransferTransaction34",
+      "CreditTransferTransaction39"
+    ],
+    "numberOfTransactions": [
+      "PaymentInstruction30",
+      "FIToFICustomerCreditTransferV08"
+    ],
+    "controlSum": [
+      "CustomerCreditTransferInitiationV09",
+      "PaymentInstruction30"
+    ],
+    "instructedParty": [
+      "FIToFIPaymentCancellationRequestV08"
+    ],
+    "debtorBIC": [
+      "PaymentInstruction30",
+      "CreditTransferTransaction39"
+    ],
+    "debitAmountCurrency": [
+      "AccountNotification20"
+    ],
+    "returnedAmountCurrency": [
+      "PaymentTransaction112"
+    ],
+    "transactionAmount": [
+      "CreditTransferTransaction39",
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106",
+      "AccountNotification20"
+    ],
+    "returnId": [
+      "PaymentTransaction112"
+    ],
+    "instructingParty": [
+      "FIToFIPaymentCancellationRequestV08"
+    ],
+    "chargeAmount": [
+      "PaymentTransaction112"
+    ],
+    "acceptanceDateTime": [
+      "CreditTransferTransaction39"
+    ],
+    "instructedAmount": [
+      "CreditTransferTransaction34",
+      "AccountNotification20"
+    ],
+    "originalMessageId": [
+      "PaymentReturnV09",
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106"
+    ],
+    "creditAmountCurrency": [
+      "AccountNotification20"
+    ],
+    "originalEndToEndId": [
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106"
+    ],
+    "creditAccount": [
+      "AccountNotification20"
+    ],
+    "paymentInformationId": [
+      "PaymentInstruction30"
+    ],
+    "instructedAgent": [
+      "FIToFICustomerCreditTransferV08",
+      "PaymentReturnV09",
+      "PaymentTransaction112"
+    ],
+    "messageId": [
+      "CustomPdsType"
+    ],
+    "transactionAmountCurrency": [
+      "CreditTransferTransaction39",
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106",
+      "AccountNotification20"
+    ],
+    "debtorName": [
+      "PaymentInstruction30",
+      "CreditTransferTransaction39",
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106"
+    ],
+    "debitAmount": [
+      "AccountNotification20"
+    ],
+    "transactionId": [
+      "CustomPdsType"
+    ],
+    "totalAmount": [
+      "FIToFICustomerCreditTransferV08"
+    ],
+    "requestedExecutionDate": [
+      "PaymentInstruction30"
+    ],
+    "creditorAccount": [
+      "CreditTransferTransaction34",
+      "CreditTransferTransaction39",
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106"
+    ],
+    "uetr": [
+      "CreditTransferTransaction34",
+      "CreditTransferTransaction39"
+    ],
+    "originalInterbankSettlementDate": [
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106"
+    ],
+    "instructionId": [
+      "CreditTransferTransaction34",
+      "CreditTransferTransaction39",
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106"
+    ],
+    "creditorAgentBIC": [
+      "CreditTransferTransaction34",
+      "CreditTransferTransaction39",
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106"
+    ],
+    "creditAmount": [
+      "AccountNotification20"
+    ],
+    "returnedAmount": [
+      "PaymentTransaction112"
+    ],
+    "initiatingPartyName": [
+      "CustomerCreditTransferInitiationV09"
+    ],
+    "interbankSettlementDate": [
+      "FIToFICustomerCreditTransferV08",
+      "CreditTransferTransaction39",
+      "PaymentReturnV09"
+    ],
+    "debtorAgentBIC": [
+      "PaymentInstruction30",
+      "CreditTransferTransaction39",
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106"
+    ]
+  },
+  "customMdsMappings": {},
+  "customPdsMappings": {
+    "messageId": [
+      "CustomPdsType"
+    ],
+    "transactionId": [
+      "CustomPdsType"
+    ]
+  },
+  "disabledMdsMappings": {
+    "messageId": [
+      "CustomerCreditTransferInitiationV09",
+      "FIToFICustomerCreditTransferV08",
+      "PaymentReturnV09"
+    ],
+    "transactionId": [
+      "CreditTransferTransaction39",
+      "PaymentTransaction112",
+      "PaymentTransaction102",
+      "PaymentTransaction106"
+    ]
+  }
+}
+Ingestion
+Archiving

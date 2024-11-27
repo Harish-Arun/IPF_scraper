@@ -1,0 +1,6 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/features/filtering-by-currency.html ===
+Filtering By Currency
+Input currency is matched against rules currency filter by checking if values match exactly.
+The currency filtering does not take into account the direction on the rules and the rule is applied irrespective of whether the rule direction value if currency is matched. The currency rules are applied even if the rule is complex (has BIC and or NCC values specified) but the input debtor and or creditor values do not match with those on the rules but currencies match.
+Filtering by NCC
+Getting Started

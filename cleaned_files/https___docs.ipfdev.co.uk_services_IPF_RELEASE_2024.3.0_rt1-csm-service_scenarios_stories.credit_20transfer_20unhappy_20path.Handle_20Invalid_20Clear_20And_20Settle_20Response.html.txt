@@ -1,0 +1,79 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.credit%20transfer%20unhappy%20path.Handle%20Invalid%20Clear%20And%20Settle%20Response.html ===
+Handle Invalid Clear And Settle Response.story
+Scenario: Handling invalid clear and settle responses
+Steps
+When the Payment Service sends a 'Clear And Settle Request'
+Then the CSM receives a 'Customer Credit Transfer'
+When 'CSM' sends a '<FileName>' 'Payment Status Report'
+Then 'Payment Service' receives a 'System Event' using predicate:
+| level | ERROR                |
+| name  | InboundMessageFailed |
+| type  | TECHNICAL            |
+Examples:
+FileName
+Invalid Xsd
+Invalid Xsd Grpsts And Txsts
+Invalid Xsd Cd And Prtry
+Invalid Xsd Grp Cd And Prtry
+Example: {FileName=Invalid Xsd}
+When
+the i12Payment Servicei12  sends a Clear
+And
+Settle Request
+Then
+the i12CSMi12  receives a Customer Credit Transfer
+When
+i12CSMi12  sends a i12Invalid Xsdi12  Payment Status Report
+Then
+i12Payment Servicei12  receives a System Event using predicate:
+| level | ERROR                |
+| name  | InboundMessageFailed |
+| type  | TECHNICAL            |
+Example: {FileName=Invalid Xsd Grpsts And Txsts}
+When
+the i12Payment Servicei12  sends a Clear
+And
+Settle Request
+Then
+the i12CSMi12  receives a Customer Credit Transfer
+When
+i12CSMi12  sends a i12Invalid Xsd Grpsts
+And
+Txstsi12  Payment Status Report
+Then
+i12Payment Servicei12  receives a System Event using predicate:
+| level | ERROR                |
+| name  | InboundMessageFailed |
+| type  | TECHNICAL            |
+Example: {FileName=Invalid Xsd Cd And Prtry}
+When
+the i12Payment Servicei12  sends a Clear
+And
+Settle Request
+Then
+the i12CSMi12  receives a Customer Credit Transfer
+When
+i12CSMi12  sends a i12Invalid Xsd Cd
+And
+Prtryi12  Payment Status Report
+Then
+i12Payment Servicei12  receives a System Event using predicate:
+| level | ERROR                |
+| name  | InboundMessageFailed |
+| type  | TECHNICAL            |
+Example: {FileName=Invalid Xsd Grp Cd And Prtry}
+When
+the i12Payment Servicei12  sends a Clear
+And
+Settle Request
+Then
+the i12CSMi12  receives a Customer Credit Transfer
+When
+i12CSMi12  sends a i12Invalid Xsd Grp Cd
+And
+Prtryi12  Payment Status Report
+Then
+i12Payment Servicei12  receives a System Event using predicate:
+| level | ERROR                |
+| name  | InboundMessageFailed |
+| type  | TECHNICAL            |

@@ -1,0 +1,54 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2023-1-0/release-IPF-2023-1-0.html ===
+Release Notes for IPF-2023.1.0
+This page details everything required to get going on IPF Release 2023.1.0 made available on 21st April 2023.
+Details
+Binaries
+The core binaries are available from
+IPF-Releases
+.
+The lightbend cinnamon binaries are available from
+IPF Lightbend
+.
+Archetype
+The latest version of the archetype is 1.7.0
+Developer App
+The latest version of the developer app is 1.0.29
+Features and Changes
+Bulker
+MVP release of IPF Bulker functionality
+The IPF Bulker provides the functionality to store a collection of data elements in a structured file format. It contains the functionality to accept individual transactions and at some point bring these together as a Bulk and create an output.
+More information on the adapters available for the Bulker can be found in the
+Bulker Developer documentation
+.
+Debulker
+MVP release of IPF Debulker functionality
+The IPF Debulker provides functionality to take a bulk of payments from a file and split the bulk into individual components, which can then be processed as individual payment items.
+More information on the adapters available for the Debulker can be found in the
+Debulker Developer documentation
+.
+Please also see the
+Debulker Tutorial
+.
+More detailed documentation for both the Bulker and Debulker is due end of April 2023.
+Reachability SEPA
+Added STEP2 SCT participant file loader
+Logical unique key for participants modified to allow importing multiple versions of the participant with different time periods (to support future dated payments)
+Participant reachability validation can be called for future dates
+Added bicdir2018 setting and file loader
+Added validate BIC API
+Added exclusion list setting and file loader
+Exclusion list settings are now used in IBAN deconstruct to validate if an IBAN is invalid based on the national id
+Added paymentTypeAllow fields for participants settings
+Changed validate-participate logic to not flag participants as not reachable when paymentTypeAllowedList contains the value "TEC"
+Ibanplus loader can handle delta files
+Added new fields on csm agent currency settings
+GUI
+Support for the linking and searching of related bulks , batch and transaction summaries both in ODS and the UI.
+Note this does not support the viewing of a large original file
+Update UI summary and details screen based on internal and client feedback.
+This moved away from transaction record centric approach of V1 to a flow centric and summary view for v2
+Providing the mechanism to mandate and validate processing entity in the UI.
+Including a change to the authentication model to have roles per processing entity/tenant
+General stability improvements and bugs raised
+Migration Steps for IPF-2023.2.0.2
+Migration Steps for IPF-2023.1.0

@@ -1,0 +1,109 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/features/message-validation.html ===
+Message Validation
+When working with messages sent between separate machines, even when working against a specific schema, there can often be issues with the validity of the messages.
+These are often due to bugs, data entry errors or schema version mismatches.
+Both sending and receiving connectors can be optionally configured to validate messages before sending or after receiving.
+Send Connectors
+To add validation to a sending connector, an implementation of the
+Validator
+interface must be provided when building the connector.
+Validator.java
+public interface Validator {
+    ValidationReport validate(TransportMessage transportMessage);
+}
+The connector library provides two validators, one for JSON Schema and another for XML Schema.
+Validation is performed against a TransportMessage before it is sent to the transport.
+XML Schema Validation
+The XML validation implementation of Validator is
+XmlSchemaValidator
+.
+It takes an InputStream representing the schema to use against which all messages passing through this validator will be validated.
+String xmlSchema = "/validation/sample-schema.xsd";
+InputStream xmlSchemaStream = getClass().getResourceAsStream(xmlSchema);
+XmlSchemaValidator xmlValidator = new XmlSchemaValidator(xmlSchemaStream);
+SendConnector<ExampleType, ExampleType> sendConnectorWithXmlValidator
+        = new SendConnector.Builder<ExampleType, ExampleType>(connectorName)
+        .withActorSystem(actorSystem)
+        .withConnectorTransport(transport)
+        .withCorrelationIdExtractor(correlationIdExtractor)
+        .withValidator(xmlValidator)
+(1)
+.build();
+1
+Adds the xml schema validator to the connector
+In the above example, we are loading an XML Schema document from the classpath as an input stream.
+This is the most common usage pattern for XmlSchemaValidator.
+It is possible to set up using other types of input stream, such as a
+ByteArrayInputStream
+for loading the schema from a string.
+The XML validator implements external entity injection (XXE) protection according to the
+OWASP cheat sheet
+on the topic.
+JSON Schema Validation
+The JSON validation implementation of Validator is
+JsonSchemaValidator
+.
+It is configured similarly to the XML validator, where we must pass an InputStream representing the schema to validate messages against.
+String jsonSchema = "/com/github/fge/jsonschema/examples/fstab.json";
+InputStream jsonSchemaStream = getClass().getResourceAsStream(jsonSchema);
+JsonSchemaValidator jsonValidator = new JsonSchemaValidator(jsonSchemaStream);
+SendConnector<ExampleType, ExampleType> sendConnectorWithJsonValidator
+        = new SendConnector.Builder<ExampleType, ExampleType>(connectorName)
+        .withActorSystem(actorSystem)
+        .withConnectorTransport(transport)
+        .withCorrelationIdExtractor(correlationIdExtractor)
+        .withValidator(jsonValidator)
+(1)
+.build();
+1
+Adds the json schema validator to the connector
+The default JSON schema version is
+draft-04
+which is the
+de facto
+standard.
+Receive Connectors
+To add validation to a sending connector, an implementation of the
+BeanValidator
+interface must be provided when building the connector.
+BeanValidator.java
+public interface BeanValidator<T> {
+    BeanValidationReport validate(T message);
+    BeanValidator<T> withConnectorName(String connectorName);
+}
+The connector library provides a validator for bean validation using the Hibernate validator implementation.
+Validation is performed against the message once it has been transformed from a TransportMessage to the target type by the provided ReceiveTransportMessageConverter function.
+Bean Validator
+Messages are expected to be annotated with
+jakarta.validation
+annotations if they are to be validated with the bean validator implementation.
+Bean validation is available with the
+BeanValidatorImpl
+.
+It optionally takes a
+jakarta.validation.Validator
+representing the validator to use against which all messages passing through this validator will be validated.
+If no validator is passed in, then a default validator is created.
+public BeanValidatorImpl() {
+    this(Validation.buildDefaultValidatorFactory().getValidator());
+}
+
+public BeanValidatorImpl(jakarta.validation.Validator validator) {
+    this(null, validator);
+}
+
+BeanValidatorImpl(String connectorName, jakarta.validation.Validator validator) {
+    this.connectorName = connectorName;
+    this.validator = validator;
+}
+Validation is optional and can be enabled by providing an implementation of BeanValidator when building the connector.
+receiveConnector = initiatingReceiveConnectorBuilder()
+        .withConnectorTransport(connectorTransport)
+        .withEventBus(eventBus)
+        .withBeanValidator(new BeanValidatorImpl<>())
+(1)
+.build();
+1
+Adds the bean validator to the connector
+Message Encryption
+Message Association

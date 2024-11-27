@@ -1,0 +1,11 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/scaffolder/how-to-reusable.html ===
+How do you create a reusable flow module?
+Most IPF projects are traditional applications that contain one or more flows together with the implementation details to make them executable and able to process payments.  This is done through the many different types of component available with the
+Icon DSL
+.
+However, you may wish to build a project that only includes the DSL code, i.e. to create a re-usable pieces of DSL that is not implemented directly within the generated project but is expected to be included within other projects, for example see:
+Using shared models
+.
+To do this, you simply run the scaffolder with the 'includeApplication' flag set to "n".  This will mean the scaffolder will only build the project in a reusable component format.  Note theres no reason why you cant subsequently turn it into a standard self-contained application project by adding the relevant application modules yourself subsequently.
+How do you use your own parent dependency?
+Akka Lease MongoDB

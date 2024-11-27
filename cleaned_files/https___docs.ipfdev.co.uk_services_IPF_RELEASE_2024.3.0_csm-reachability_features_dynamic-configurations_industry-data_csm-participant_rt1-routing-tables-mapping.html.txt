@@ -1,0 +1,149 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/csm-participant/rt1-routing-tables-mapping.html ===
+EBA RT1 SEPA INST - Routing Tables Mapping
+Bellow table provides information about File type supported and File format.
+File Types Supported
+File Name
+File Types Supported
+File Formats Supported
+File Naming Conventions
+SCI Participant Routing Table
+FULL
+TXT
+RT01SCI
+BBBBBBBBYYMMDDHHMMSS
+D
+NN
+.T
+SCI Addressable PSP Routing Table
+FULL
+TXT
+RT01SCI
+BBBBBBBBYYMMDDHHMMSS
+I
+NN
+.T
+BBBBBBBB is the BIC(8) of the Direct Participant or of the Preferred Agent configured for the CGS Settlement BIC. YYMMDDHHMMSS is the file creation date and time. NN is the incremental number reset for every file creation date. T indicates the type of the file (RTF file). Highlighted part of the file name is used to identify the file during ingestion for AWS S3 ingestion.
+The client implementations should not modify the files names provided by industry sources and ingest the files as received.
+Mapping Definitions
+SCI Participant Routing Table (Direct Participants)
+Below table provides the mapping as performed from RT1 SCI Direct Participant file into CSM Participants.
+RT1 SCI Participant Routing Table Property (Source)
+CSM Participant Property (Destination)
+Comment
+-
+csmAgentId
+Constant value: RT1
+P/LSP BIC
+csmParticipantIdentifier
+NAME
+participantName
+-
+participantType
+Constant value: DIRECT
+INIT DATE
+activeFromDate
+END DATE
+activeToDate
+P/LSP BIC
+routingBIC
+PAYMENT TYPE ALLOWED
+paymentTypeAllowedList
+STATUS
+N/A - but Only load ENABLED into IPF
+SCI Addressable PSP Routing Table (Indirect Participants)
+Below table provides the mapping as performed from RT1 SCI Addressable PSP Routing Table file into CSM Participants.
+SCI Addressable PSP Routing Table (Source)
+CSM Participant Property (Destination)
+Comment
+-
+csmAgentId
+Constant value: RT1
+AP BIC
+csmParticipantIdentifier
+AP NAME
+participantName
+-
+participantType
+Constant value: INDIRECT
+INIT DATE
+activeFromDate
+END DATE
+activeToDate
+BIC
+routingBIC
+PAYMENT TYPE ALLOWED
+paymentTypeAllowedList
+STATUS
+N/A - but Only load ENABLED into IPF
+Example Mapping
+The example records documented here are representational and do not confirm the participation of the entities with the CSM Agent, client implementations should use the files provided by industry data source for getting correct membership data.
+Direct  Participant
+Source Record from Industry file
+SCI PARTICIPANT ROUTING TABLE
+
+
+SEARCH CRITERIA
+P/LSP BIC	NAME	DATE FROM	DATE TO	STATUS	MATCHING RECORDS
+        	                                                  	        	        	ALL      	 192
+
+RESULTS
+P/LSP BIC	NAME	INIT DATE	END DATE	TIPS ACCOUNT OWNER BIC	STATUS	PAYMENT TYPE ALLOWED
+AABAFI22	Bank of Aland Plc                                 	20210907	99991231	AABAFI22XXX	ENABLED
+ABKSDEFF	ABK                                               	20171211	99991231	ABKSDEFFXXX	ENABLED  	TEC
+BARCDEF0	Barclays Bank Ireland PLC Frankfurt Branch        	20190425	20210928	BARCDEFFTIP	CHANGED
+Destination Record - CSM Participant
+{
+  "_id": "DynamicSettings|participant-RT1-AABAFI22XXX",
+  "payload": {
+    "csmAgentId": "RT1",
+    "csmParticipantIdentifier": "AABAFI22XXX",
+    "routingBic": "AABAFI22",
+    "participantName": "Bank of Aland Plc",
+    "participantCountry": "FR",
+    "activeFromDate": {
+      "$date": "2008-01-28T00:00:00.000Z"
+    },
+    "participantType": "DIRECT",
+    "paymentTypeAllowedList": [
+      "TEC"
+    ]
+  },
+  "version": 1,
+  "status": "ACTIVE",
+  "processingEntity": "UNKNOWN",
+  "_class": "com.iconsolutions.ipf.dynamicsettings.repository.ParticipantSettings"
+}
+Indirect Participant
+Source Record from Industry file
+SCI ADDRESSABLE PSP ROUTING TABLE
+
+
+SEARCH CRITERIA
+AP BIC	AP NAME	DATE FROM	DATE TO	P/LSP BIC	STATUS	MATCHING RECORDS
+           	                                                  	        	        	           	ALL      	 711
+
+RESULTS
+AP BIC	AP NAME	INIT DATE	END DATE	P/LSP BIC	TIPS ACCOUNT OWNER BIC	STATUS	PAYMENT TYPE ALLOWED
+ABKSDEFFRT1	ABK RT1 PSP                                       	20180109	99991231	ABKSDEFF	ABKSDEFFXXX	ENABLED  	NLA
+ADWSGB22XXX	Advanced Wallet Solutions Limited                 	20191017	99991231	LIABLT2X	LIABLT2XDCA	ENABLED
+AGRIFRPP802	CAISSE REGIONALE DE CREDIT AGRICOLE MUTUEL DU NORD	20190718	99991231	AGRIFRPP	AGRIFRPPXXX	R-ONLY
+Destination Record - CSM Participant
+{
+  "_id": "DynamicSettings|participant-RT1-ABKSDEFFXXX",
+  "payload": {
+    "csmAgentId": "RT1",
+    "csmParticipantIdentifier": "ABKSDEFFRT1",
+    "participantName": "ABK RT1 PSP",
+    "routingBIC": "ABKSDEFFXXX",
+    "activeFromDate": {
+      "$date": "2021-11-09T00:00:00.000Z"
+    },
+    "participantType": "INDIRECT"
+  },
+  "version": 1,
+  "status": "ACTIVE",
+  "processingEntity": "UNKNOWN",
+  "_class": "com.iconsolutions.ipf.dynamicsettings.repository.ParticipantSettings"
+}
+CSM Participant
+EBA STEP2 Routing Tables - Mapping

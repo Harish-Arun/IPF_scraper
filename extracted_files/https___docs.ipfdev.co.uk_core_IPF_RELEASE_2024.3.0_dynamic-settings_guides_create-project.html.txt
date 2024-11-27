@@ -1,0 +1,45 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/dynamic-settings/guides/create-project.html ===
+Create a Project Based on Dynamic Settings Workflow
+Dynamic settings workflow contains the building blocks that are meant to be used as a starting point to create an application that suits your needs.
+Such an application will manage the lifecycle of the settings which you will then use depending on your use case.
+Two typical reasons to manage a setting in your application are:
+to expose the setting to other services
+to use it as part of the business API that you want to expose (e.g. CSM Reachability)
+Creating a Setting
+covers details around adding a new setting.
+The structure of your Application
+Your application will typically contain the following modules:
+file-ingestion module
+data-management module
+one or more modules that expose business APIs
+an application module that assembles the application from the previous modules
+File ingestion module
+File ingestion module is used to feed the setting data from a source (local directory, REST API…​) through a data management API exposed by the data-management module.
+This module is built on top of the generic file-ingestion-service framework.
+The framework expects you to configure connectors that would ingest the settings from its source (currently supported transports are local directory/REST API).
+Depending on the specification of the source, specific mappers are needed in order to convert the settings into the canonical format.
+Data management module
+Data management module manages the lifecycle of each supported type of the setting. It encapsulates the write-side of the application.
+Module should be built on top of the setting-management framework. Setting-management framework is a generic API framework that exposes the data management API for each of the settings found on the classpath.
+You need to provide the relevant settings from the settings-catalogue as dependencies.
+Business API module(s)
+Depending on the use case, you may need one or more modules that expose business APIs. Such a module would typically query read side collections for one or more settings in order to provide a specific functionality.
+CSM Reachability
+is a good starting point.
+Configuration
+The file ingestion module has default configuration to automatically create MongoDB indexes on initialisation.
+The creation of default indexes can be disabled with:
+file-ingestion.mongodb.create-indexes=false
+Indexes can be disabled globally with:
+ipf.mongodb.create-indexes=false
+To disable indexing globally but retain it for the file ingestion module, apply the following, retaining the order:
+ipf.mongodb.create-indexes=false
+file-ingestion.mongodb.create-indexes=true
+The
+commit quorum
+can similarly be controlled with:
+file-ingestion.mongodb.commit-quorum=1
+Or overridden globally with:
+ipf.mongodb.commit-quorum=1
+How to guides
+Create Settings

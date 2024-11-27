@@ -1,0 +1,34 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20unhappy%20path.Handle%20Outbound%20Resolution%20Rejected%20From%20CSM%20GrpSts.html ===
+Handle Outbound Resolution Rejected From CSM GrpSts.story
+Scenario: Outbound resolution rejected by CSM GrpSts
+Steps
+When the Recall Service sends a 'Send Negative Answer To CSM Request'
+Then the CSM receives a 'Resolution Of Investigation'
+When the CSM sends a 'for-camt029' 'Payment Status Report' with values:
+| FIToFIPmtStsRpt.orgnlGrpInfAndSts.grpSts           | <GrpSts>      |
+| FIToFIPmtStsRpt.orgnlGrpInfAndSts.stsRsnInf.rsn.cd | <GrpStsRsnCd> |
+Then Recall Service receives a 'Send Negative Answer To CSM Response' with values:
+| payload.content.orgnlGrpInfAndSts[0].OrgnlMsgNmId        | camt.029.001.03                                                         |
+| payload.content.txInfAndSts[0].orgnlTxId                 | #ResolutionOfInvestigation.rsltnOfInvstgtn.cxlDtls.txInfAndSts.cxlStsId |
+| payload.content.orgnlGrpInfAndSts[0].grpSts              | <GrpSts>                                                                |
+| payload.content.orgnlGrpInfAndSts[0].stsRsnInf[0].rsn.cd | <GrpStsRsnCd>                                                           |
+Examples:
+GrpSts
+GrpStsRsnCd
+RJCT
+FF01
+Example: {GrpSts=RJCT, GrpStsRsnCd=FF01}
+When
+the i12Recall Servicei12  sends a Send Negative Answer To CSM Request
+Then
+the i12CSMi12  receives a Resolution Of Investigation
+When
+the i12CSMi12  sends a for-camt029 Payment Status Report with values:
+| FIToFIPmtStsRpt.orgnlGrpInf*And*Sts.grpSts           | i12RJCTi12       |
+| FIToFIPmtStsRpt.orgnlGrpInf*And*Sts.stsRsnInf.rsn.cd | i12FF01i12  |
+Then
+i12Recall Servicei12  receives a Send Negative Answer To CSM Response with values:
+| payload.content.orgnlGrpInf*And*Sts[0].OrgnlMsgNmId        | camt.029.001.03                                                         |
+| payload.content.txInf*And*Sts[0].orgnlTxId                 | #ResolutionOfInvestigation.rsltnOfInvstgtn.cxlDtls.txInf*And*Sts.cxlStsId |
+| payload.content.orgnlGrpInf*And*Sts[0].grpSts              | i12RJCTi12                                                                 |
+| payload.content.orgnlGrpInf*And*Sts[0].stsRsnInf[0].rsn.cd | i12FF01i12                                                            |

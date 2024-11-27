@@ -1,0 +1,61 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/concepts/scenarios.html ===
+SIC Scenarios
+Below are the scenarios supported by the CSM service including happy and failure cases.
+Clicking on the test name, will show the associated BDD which will include details such as:
+What happens when validations fail
+Details of system events and when system events are raised
+Interactions/messages associated to each scenario
+Validate Scheme Rules Success
+Handle Validate Payment Status Request Scheme Rules - Success
+Handle Validate Payment Status Report Scheme Rules - Success
+Handle Validate Scheme Rules - AcceptanceDtTm - Success
+Handle Validate Scheme Rules - AmtLimit - Success
+Handle Validate Scheme Rules - valid non-qr iban with iidType
+Handle Validate Scheme Rules - valid qr iban with iidType
+Handle Validate Scheme Rules - valid non-qr iban
+Handle Validate Scheme Rules - valid qr iban
+Handle Validate Payment Return Scheme Rules - Success
+Validate Scheme Rules Failure
+Handle Validate Scheme Rules - invalid qr reference
+Handle Validate Payment Return Scheme Rules - XSD Validation - Failure
+Handle Validate Payment Status Request Scheme Rules - XSD Validation - Failure
+Handle Validate Scheme Rules - invalid iban non-qr iban
+Handle Validate Scheme Rules - invalid non-qr reference
+Handle Validate Payment Status Report Scheme Rules - XSD Validation - Failure
+Handle Validate Scheme Rules - invalid iban qr iban
+Handle Validate Scheme Rules - AmtLimit - Fails
+Handle Validate Scheme Rules - mmbId
+Handle Validate Scheme Rules - AcceptanceDtTm - Failure
+Miscellaneous
+Character Replacements
+Failure Return
+Handle Invalid Outbound Return For Bank
+Handle Inbound Return For Bank Rejection
+Status Requests
+Handle Status Request
+Handle Status Request Cancellation
+Handle Status Request Creditor Confirmation Failure
+Happy Path Credit Transfer
+Handle Inbound Clear And Settle Request with Status Request
+Handle Clear And Settle Request with Status Request
+Handle Outbound Clear And Settle Request Happy Path
+Handle Inbound Clear And Settle Request Happy Path
+Failure Credit Transfer
+Handle Negative Debtor CT Payment Status Report TM01
+Handle Invalid Payment Status Report
+StatusRequest for Debtor CT returns no original record
+Handle Negative Debtor CT Payment Status Report
+Handle Negative Creditor CT Payment Status Report Conf
+Handle Negative Creditor CT Account Validation Failure
+Handle Negative Creditor CT Payment Status Report TM01 during payment processing
+Handle Invalid Clear And Settle Request
+Handle Negative Creditor CT Payment Status Report TM01 after payment processing
+Handle Invalid Receive Payment Request
+Orphan
+Handle Orphan Clear And Settle Reponse
+Handle Orphan Inbound Clear and Settle Request Response
+Happy Path Return
+Handle Inbound Return For Bank
+Handle Outbound Return For Bank
+SIC Supported Flows
+Interfaces

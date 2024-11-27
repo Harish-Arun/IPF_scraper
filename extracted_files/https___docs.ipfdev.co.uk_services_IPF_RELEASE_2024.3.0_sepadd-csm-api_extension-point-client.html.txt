@@ -1,0 +1,151 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-api/extension-point-client.html ===
+Sepa DD Extension Point Client
+Sepa DD Extension Point Client consists of Receive Connector with kafka/jms transports to consume ExtensionPointRequest messages published by Sepa DD CSM Service and a Send Connector to send ExtensionPointResponse. Client will also deal with low level stuff, such as constructing entire scheme ISO message for which client can implement appropriate handler.
+Configuration
+Property Grouping: ipf.csm.sepa-dd.extension-point
+Key
+Description
+Default Value
+ipf.csm.sepa-dd.extension-point.enabled
+When enabled, ExtensionPointRequest messages will be processed and ExtensionPointResponse will be sent.
+true
+Kafka Client Dependency
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.sepadd</groupId>
+    <artifactId>sepadd-csm-extension-point-client-kafka</artifactId>
+</dependency>
+Property Grouping: ipf.csm.sepa-dd.extension-point.kafka
+Key
+Description
+Default Value
+ipf.csm.sepa-dd.extension-point.kafka.consumer.restart-settings.max-restarts
+5
+ipf.csm.sepa-dd.extension-point.kafka.consumer.restart-settings.random-factor
+0.25
+ipf.csm.sepa-dd.extension-point.kafka.consumer.restart-settings.min-backoff
+"1s"
+ipf.csm.sepa-dd.extension-point.kafka.producer.restart-settings.min-backoff
+"1s"
+ipf.csm.sepa-dd.extension-point.kafka.consumer.restart-settings.max-restarts-within
+"10m"
+ipf.csm.sepa-dd.extension-point.kafka.consumer.kafka-clients.group.id
+"sepa-csm-extension-point-group"
+ipf.csm.sepa-dd.extension-point.kafka.producer.topic
+"SEPA_EXTENSION_POINT_RESPONSE"
+ipf.csm.sepa-dd.extension-point.kafka.producer.restart-settings.max-restarts-within
+"10m"
+ipf.csm.sepa-dd.extension-point.kafka.producer.restart-settings.max-restarts
+5
+ipf.csm.sepa-dd.extension-point.kafka.producer.restart-settings.max-backoff
+"5s"
+ipf.csm.sepa-dd.extension-point.kafka.consumer.topic
+"SEPA_EXTENSION_POINT_REQUEST"
+ipf.csm.sepa-dd.extension-point.kafka.producer.restart-settings.random-factor
+0.25
+ipf.csm.sepa-dd.extension-point.kafka.consumer.restart-settings.max-backoff
+"5s"
+ipf.csm.sepa-dd.extension-point.kafka.producer.kafka-clients.client.id
+"sepa-csm-extension-point-client"
+Jms Client Dependency
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.sepadd</groupId>
+    <artifactId>sepadd-csm-extension-point-client-jms</artifactId>
+</dependency>
+Property Grouping: ipf.csm.sepa-dd.extension-point.jms
+Key
+Description
+Default Value
+ipf.csm.sepa-dd.extension-point.jms.consumer-window-size
+0
+ipf.csm.sepa-dd.extension-point.jms.response.queue
+Queue to send ExtensionPointResponse
+"SEPA_EXTENSION_POINT_REQUEST"
+ipf.csm.sepa-dd.extension-point.jms.request.queue
+Queue to receive ExtensionPointRequest
+"SEPA_EXTENSION_POINT_RESPONSE"
+ipf.csm.sepa-dd.extension-point.jms.failover-timeout
+5000
+How To Use
+Add either
+Kafka
+or
+Jms
+sepadd-csm-extension-point-client dependency and
+ipf-component-store-mongo
+to your IPF Application.
+<dependency>
+    <groupId>com.iconsolutions.ipf.componentstore</groupId>
+    <artifactId>ipf-component-store-mongo</artifactId>
+</dependency>
+Validating Messages
+The Extension Point Client will construct java object representation of ISO message from ExtensionPointRequest and child components which are stored in
+ipf-component-store
+and forward it to
+MessageHandler
+implementation. In case MessageHandler is not defined for specific ISO message, client will always respond with ACCEPT outcome.
+In case you want to validate a pacs.002 message, you need to create a class which implements
+MessageHandler
+interface and define it as spring bean.
+The message passed to the message handler by the extension point will be the
+WHOLE
+message, for example for a pacs.002 message this will be all its consituent parts, including GrpHdr, OrgnlGrpInfAndSts and all TxInfAndSts elements. So in addition to performing validation, you can perform any operation on the message or send the entire message to an external system.
+public interface MessageHandler<T> {
+
+    CompletionStage<Outcome> handleMessage(ProcessingContext processingContext, T message);
+    Class<T> forType();
+    Direction forDirection();
+
+    @Getter
+    @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+    class Outcome {
+        private final ExtensionPointOutcome outcome;
+        private final String rejectionReason;
+
+        public static Outcome accept() {
+            return new Outcome(ExtensionPointOutcome.ACCEPT, null);
+        }
+
+        public static Outcome reject(String rejectionReason) {
+            return new Outcome(ExtensionPointOutcome.REJECT, rejectionReason);
+        }
+
+    }
+}
+The below example performs validation on the group header of the pacs.002s2 message received and if successful forwards the contents of the entire message to the send connector for processing by an external system.
+@Component
+@RequiredArgsConstructor
+public class Pacs002FromSchemeMessageHandler implements MessageHandler<SDDFIToFIPaymentStatusReportV10> {
+
+    private final SendConnector<SDDFIToFIPaymentStatusReportV10, SDDFIToFIPaymentStatusReportV10> schemeMessageSendConnector;
+
+    @Override
+    public CompletionStage<Outcome> handleMessage(ProcessingContext processingContext, SDDFIToFIPaymentStatusReportV10 message) {
+        // Perform message level validation here and then forward the *entire* scheme message (grpHdr and transactions)
+        if (message.getGrpHdr().getInstdAgt() == null) {
+            return schemeMessageSendConnector.send(message)
+                    .thenCompose(ignored -> Outcome.accept());
+        } else {
+            return CompletableFuture.completedStage(Outcome.reject("InstdAgt is not expected but was provided"));
+        }
+    }
+
+    @Override
+    public Class<SDDFIToFIPaymentStatusReportV10> forType() {
+        return SDDFIToFIPaymentStatusReportV10.class;
+    }
+
+    @Override
+    public Direction forDirection() {
+        Direction.FROM_SCHEME;
+    }
+}
+ISO Message types for which handlers can be defined:
+ISO Message
+Java Class
+Supported Direction
+Pacs.002
+sepa.dd.iso.std.iso._20022.tech.xsd.pacs_002_001_10S2.SDDFIToFIPaymentStatusReportV10
+FROM_SCHEME
+Pacs.003
+sepa.dd.iso.std.iso._20022.tech.xsd.pacs_003_001_08.SDDFIToFICustomerDirectDebitV08
+TO_SCHEME/FROM_SCHEME

@@ -1,0 +1,28 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/features/validations.html ===
+SIC Validations
+Further details of the standard validations are available here
+CSM Validations
+Supported
+Customisations
+Acceptance Date Validator
+Y
+Where to retrieve Acceptance Date Time in request
+Timeout
+Member Id Validator
+Y
+Creditor Agent Member Id Allowed List
+Debtor Agent Member Id Allowed List
+Structure Remittance Information Validator
+Y
+IBAN type QRR
+IBAN Type Normal (not QR-IBAN)
+XSD Schema Validator
+Y
+Validated against SIC message schemas
+Outbound XSD Validator
+N
+Scheme Limit Amount Check
+Y
+Reason Code - AM02
+SIC CSM Application Structure
+CSM Events

@@ -1,0 +1,53 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/features/business-day-calculation.html ===
+Business Day Calculation
+The SEPA Direct Debit Core scheme only allows settlement on TARGET Business Days. TARGET Business Days are defined as below (reference: EBA Clearing STEP2 SEPA Services Functional Description Glossary)
+A T2-RTGS Day is a day on which the settlement mechanism operates. An Interbank Settlement can only take place on a T2-RTGS day. Saturdays and Sundays are Non-T2-RTGS days (also known as T2-RTGS holidays). In addition, the following days are T2-RTGS holidays:
+1 January (New Year’s Day)
+Good Friday
+Easter Monday
+1 May (Labour Day)
+25 December (Christmas Day)
+26 December
+Setup
+The SEPA DD STEP2 scheme pack utilises the
+Working Days Service
+for settlement date calculations and to determine working/non-working days.  In order to correctly process transactions the
+Working Days Service
+should be setup with the above dates as non-working days. There are two calendars used to define non-working days:
+Annual Calendar - for days which fall on the same date every year and weekends
+Holiday Calendar - for days which don’t fall on the same date each year e.g. Easter
+Initial setup of the
+Working Days Service
+is required prior to processing transactions. The above holidays should be setup with a single
+calendarId
+that matches the same as the property below (default is
+target2
+- see linked
+Working Days Service
+documentation for more details on defining calendar settings).
+The above calendars are dynamic processing settings and can be managed (created/updated etc) via the
+Working Days Service Setting Management API
+Once, the above holidays have been configured in the
+Working Days Service
+the below properties need to be configured in the SEPA DD Scheme Pack
+In addition to configuring the
+Working Days Service
+, the SEPA DD scheme pack also needs to be configured to connect to the
+Working Days Service
+. For more details, please refer to the
+Standalone Configuration
+here
+The following property also needs configuring so the SEPA DD scheme pack knows which calendar to lookup from the working days service to perform business date calculations and what cutoff is applicable.
+Property Name
+Type
+Comment
+Default
+ipf.csm.sepa-dd.lac.holiday-calendar
+String
+This should correspond to the
+calendarId
+used to define the non-working days above in the
+Working Days Service
+target2
+Validations
+Correlation Store

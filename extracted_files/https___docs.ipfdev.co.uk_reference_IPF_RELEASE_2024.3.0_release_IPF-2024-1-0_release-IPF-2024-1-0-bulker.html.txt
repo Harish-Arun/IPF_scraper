@@ -1,0 +1,51 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-1-0/release-IPF-2024-1-0-bulker.html ===
+Bulker & Debulker - Changes & Fixes
+This page covers the Bulker & Debulker module changes and fixes provided in release IPF-2024.1.0.
+Bulker
+In the new release, Bulker now passivates bulks after 2 minutes by default. It has been identified that there are some issues when rehydrating actors after passivation has occurred. This will be fixed in the next release. To mitigate this in the current release, it is recommended to increase the bulker passivation timeout to a larger value than what you would expect the bulk to close. For Example, if the largest bulk window is 4 hours, it is recommended to set the value below to at least this value or even higher in your application.conf file:
+ipf.bulker.aggregate.actor-idle-timeout = 5h
+New
+Integration with ODS
+Automatic finalisation due to âByte Fullnessâ
+Support for client to component id when sending AddComponentCommand, enforcing idempotency in ipf-bulker-aggregate-akka
+Enhanced resilience and error reporting
+Current bulk size is returned in AddComponent response
+The following properties have been added to support command retries:
+ipf.bulker.aggregate.retry.processing-timeout
+ipf.bulker.aggregate.retry.max-attempts
+ipf.bulker.aggregate.retry.backoff-factor
+ipf.bulker.aggregate.retry.jitter-factor
+Other added config:
+ipf.bulker.aggregate.actor-idle-timeout = 2m
+(idle duration after which actor will be passivated)
+maximum-component-size
+(optional, maximum number of components allowed before bulk is auto closed, configured at the bulk level)
+Changed
+The single bulk behaviour has now been converted to a regular Akka Actor, components saved directly to the ComponentStore as commands are received.
+The recurring bulk behaviour has now been converted to a durable state behaviour
+Capacity limits applied âper Bulkâ not âper Instanceâ.
+File production recovery on system failure
+Improved Documentation
+Handle recurring bulk commands across multiple nodes
+Preventing creation of two single bulk instances by recurring bulk if command to create a new single bulk instance is received while new single bulk instance is being created.
+The following properties have been changed
+maximum-bulk-size
+(optional, maximum allowed size for bulk, configured at the bulk level)
+Removed
+The following property has been removed
+ipf.bulker.auto-close.maximum-components
+Debulker
+New
+Integration with ODS
+System events
+DuplicateCheckFailed
+and
+SchemaValidationFailed
+Added global statuses to debulker flow
+Changed
+Splitters to use flux instead of flow.publisher
+Improved Documentation
+Enhanced resilience and error reporting
+Fixed conflicting config paths
+Optional Modules - Changes & Fixes
+CSM Reachability - Changes & Fixes

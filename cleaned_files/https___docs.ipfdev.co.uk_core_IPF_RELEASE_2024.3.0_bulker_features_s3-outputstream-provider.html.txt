@@ -1,0 +1,26 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/features/s3-outputstream-provider.html ===
+S3 Bulk Outputstream Provider
+An implementation of OutputStream Provider for delivering bulk files onto AWS S3.
+Configuration
+Config
+Type
+Comment
+Default
+ipf.bulker.outputstream.s3.region
+String
+AWS region
+us-east-1
+ipf.bulker.outputstream.s3.credentials.access-key-id
+String
+AWS access key id
+accessKey
+ipf.bulker.outputstream.s3.credentials.secret-access-key
+String
+AWS secret access key
+secretAccessKey
+ipf.bulker.outputstream.s3.upload-parallelism
+Integer
+Number of parts that will be uploaded in parallel
+1
+Bulk Output Stream Provider
+Bulk Producer

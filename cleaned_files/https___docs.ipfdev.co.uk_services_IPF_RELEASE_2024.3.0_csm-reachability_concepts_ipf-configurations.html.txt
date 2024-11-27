@@ -1,0 +1,11 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/concepts/ipf-configurations.html ===
+IPF Configurations
+IPF Services and Business functions use configurations to allow client implementations processing flexibility.
+The configurations can be of two types:
+Static Configurations
+- Configurations that are not likely to be updated frequently and in real time. Static configurations are part of the code and any changes need the IPF service to be re-deployed for them to take effect. (e.g Kafka connectivity parameters, database URLs etc.)
+Dynamic Configurations
+- Configurations that are likely to be updated frequently and where the changes need to take effect in real time without needing the service re-deployment. Dynamic configurations on IPF use IPF proprietary design pattern called "Dynamic Processing Settings" (referred as DPS throughout this documentation henceforth). DPS design pattern provides Setting Management APIs for management of dynamic configurations. Refer to the documentation for DPS to know more on how IPF supports dynamic management of configurations using 'Dynamic Processing Settings'.
+The dynamic configurations used for CSM Reachability are part of a logical data model used for CSM Reachability Service.
+CSM Reachability Explained
+Dynamic Processing Settings (DPS)

@@ -1,0 +1,5 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/gui-modules/user-docs/processing-entity.html ===
+Processing Entity
+The Processing Entity module has been disabled. Processing Entities will only be editable via APIs. Future development will allow for modifications to be made to an existing processing entity via the UI.
+Processing Settings
+Agent Settings

@@ -1,0 +1,88 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-cache/features/caffeine.html ===
+Caffeine
+Introduction
+Caffeine
+is a high-performance caching library for Java.
+One fundamental difference between a cache and a Map is that a cache evicts stored items.
+An eviction policy decides which objects should be deleted at any given time. This policy directly affects the cache’s hit rate â a crucial characteristic of caching libraries.
+Caffeine uses the Window TinyLfu eviction policy, which provides a near-optimal hit rate.
+Caffeine Configuration
+First, let’s create a Caffeine bean. This is the main configuration that will control caching behavior such as expiration, cache size limits, and more:
+private CaffeineCache buildCaffeineCache(String name, CaffeineCacheSetting cacheSpec) {
+        log.info("Cache {} specified timeout of {} min, max of {}", name, cacheSpec.getTimeout(), cacheSpec.getMaxSize());
+        final Caffeine<Object, Object> caffeineBuilder =
+            Caffeine.newBuilder()
+                .expireAfterWrite(cacheSpec.getTimeout())
+                .maximumSize(cacheSpec.getMaxSize())
+                .recordStats();
+        return new CaffeineCache(name, caffeineBuilder.build());
+    }
+Next, we need  another bean using the Spring CacheManager interface. Caffeine provides its implementation of this interface, which requires the Caffeine object we created above:
+@Bean(name = "ipfCacheManager")
+    CacheManager ipfCaffeineCacheManager() {
+        SimpleCacheManager manager = new SimpleCacheManager();
+        if (Objects.nonNull(settings)) {
+            List<CaffeineCache> caches = settings.entrySet().stream()
+                .map(entry -> buildCaffeineCache(entry.getKey(), entry.getValue()))
+                .collect(Collectors.toList());
+            manager.setCaches(caches);
+        }
+        return manager;
+    }
+All the beans mentioned above we get for free when adding the maven dependency mentioned before.
+However, the Caffeine cache requires the following configuration values for each cache that is provided:
+ipf.caching.caffeine.settings."${cache_name}".timeout=[Duration]
+ipf.caching.caffeine.settings."${cache_name}".max-size=[Long]
+cache_name - name of the cache being used
+timeout - duration cache will remain in memory active before being evicted.
+max-size - maximum cache size before the cache evicts entries that are less likely to be used again
+see Caffeine
+An Example:
+ipf.caching.caffeine.settings.cache1.timeout=10m
+ipf.caching.caffeine.settings.cache1.max-size=10000
+ipf.caching.caffeine.settings.cache2.timeout=20s
+ipf.caching.caffeine.settings.cache2.max-size=100000
+Caffeine Implementation
+Implementation is simple, as this module is spring boot aware it will wire up all the necessary beans and hook them into the Spring CacheManager providing metrics.
+Just add the maven dependency and then retrieve any caches by name.
+We get the
+CacheFactory
+bean for free from
+ipf-cache-caffeine
+module and by enabling caffeine caching.
+@Bean(name = "caffeineCacheFactory")
+    CacheFactory<?, ?> cacheFactory(CacheManager cacheManager, CacheLogger<Object, Object> cacheLogger) {
+        return new CaffeineCacheFactory(cacheManager, cacheLogger);
+    }
+Then, you just need to use the
+CacheFactory
+to create either an
+AsyncCacheAdapter
+:
+@Bean
+        AsyncCacheAdapter<String, String> asyncCacheAdapter3(CacheFactory<String, String> cacheFactory) {
+            return cacheFactory.asyncCreateCacheAdapter(CACHE_3);
+        }
+Or a
+CacheAdapter
+:
+@Bean
+        CacheAdapter<?, ?> cacheAdapter1(CacheFactory<?, ?> cacheFactory) {
+            return cacheFactory.createCacheAdapter(CACHE_1);
+        }
+Dependencies
+The dependency on
+ipf-cache-api
+module requires some supplied dependencies to read and write to the message log.
+These can be added to your application (if not present) as follows:
+@Bean
+        ObjectMapper objectMapper() {
+            return new ObjectMapper();
+        }
+
+        @Bean
+        MessageLogger messageLogger() {
+            return messageLogEntry -> log.info("log entry: {}", messageLogEntry);
+        }
+Features
+InfiniSpan

@@ -1,0 +1,177 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ipf-operational-dashboard/installation/service-configuration.html ===
+Operational Dashboard Service Configuration
+Key
+Description
+Default Value
+spring.data.mongodb.uri
+This will need to be overridden with the connection string value of the db instance you’re connecting to`
+mongodb://ipf-mongodb:27017/
+Property Grouping:
+ipf.business-operations.auth.jwt
+Key
+Description
+Default Value
+ipf.business-operations.auth.jwt.secret
+Must be changed
+. JWT secret (min. 32 characters)
+changeMe
+ipf.business-operations.auth.jwt.roles-claim
+This the roles claim for the JWT token being used for authentication
+roles
+Property Grouping:
+ipf.business-operations.auth.saml2
+Key
+Description
+Default Value
+Required
+ipf.business-operations.auth.saml2.enabled
+Boolean value which can be true or false to enable saml2 authentication when logging into the operational dashboard.
+false
+Yes
+ipf.business-operations.auth.saml2.verification-certificate
+Verification certificate, should be PEM formatted.
+classpath:idp.crt
+Yes
+ipf.business-operations.auth.saml2.registration-id
+This is the registration id of the application as part of SSO authentication.
+example-app-id
+Yes
+ipf.business-operations.auth.saml2.single-sign-on-service-location
+This is the URL of your organisation’s IDP system.
+simplesaml.${environment_name}.ipfdev.co.uk/simplesaml/saml2/idp/SSOService.php
+Yes
+ipf.business-operations.auth.saml2.single-log-out-service-location
+This is the URL of the SSO logout endpoint that is provided by your organisation’s IDP system.
+simplesaml.${environment_name}.example.org/simplesaml/saml2/idp/SingleLogoutService.php
+Yes
+ipf.business-operations.auth.saml2.identity-provider-entity-id
+This is a globally unique name for an Identity Provider or a Service Provider. For the Service Provider, the Entity ID is automatically generated and corresponds by default to the metadata URL of the Service Provider.
+simplesaml.${environment_name}.example.org/simplesaml/saml2/idp/metadata.php
+Yes
+ipf.business-operations.auth.saml2.assertion-consumer-service-location
+Override for the URL being used by the security assertion to validate expected location - In the case of Gateway rewrite breaking the default for spring - Check spring docs for details
+{baseUrl}/login/saml2/sso/{registrationId}"
+No
+ipf.business-operations.auth.saml2.service-provider-entity-id
+Must be overridden. The SAML service provider entity ID.
+Yes
+ipf.business-operations.auth.saml2.want-authn-requests-signed
+Boolean value for signing authentication requests, can be true or false.
+false
+Yes
+ipf.business-operations.auth.saml2.uid-attribute
+SAML2 attribute that holds the userâs ID
+uid
+Yes
+ipf.business-operations.auth.saml2.roles-attribute
+An attribute name that holds a delimited list of roles. Optional if attribute-to-roles-mappings are already specified. Must be a top level property in the JWT payload.
+roles
+Yes
+ipf.business-operations.auth.saml2.roles-separator
+A character that is used as a delimiter in roles-attribute-name.
+,
+Yes
+ipf.business-operations.auth.saml2.return-url
+Return URL to use after successful authentication.
+/
+Yes
+ipf.business-operations.auth.saml2.ipf-roles
+Boolean value can be true or false. If it is set to true, it will signal the fact that the user has IPF roles (audit, metrics, etc) directly in the token and not bank roles. If it is set to false, it signals the fact that the client has bank roles in the token (roles unknown to the IPF that are present in the roles-mapping). This property helps us parse the roles-mapping and assign the correct roles to the user.
+false
+Yes
+ipf.business-operations.auth.saml2.roles-mapping
+Represents the mapping between processing entities, bank roles and IPF roles. Each processing entity can contain multiple bank roles and each bank role can contain multiple IPF roles. When granting access, we are parsing the mapping provided by banks and assign the correct roles to the user based on this mapping. If the bank uses IPF roles in the token, the bank role key needs to be provided, but it will be completely ignored (it can be a random text).
+No
+To see an example configuration set up see:
+OPS GUI Service SAML 2 Configuration
+Property Grouping:
+ipf.business-operations.auth.oauth2
+Key
+Description
+Default Value
+Required
+ipf.business-operations.auth.oauth2.enabled
+Boolean value which can be true or false to enable oauth2 authentication when logging into the operational dashboard.
+false
+Yes
+ipf.business-operations.auth.oauth2.registration-id
+This is the registration id of the application as part of OAuth authentication.
+keycloak
+Yes
+ipf.business-operations.auth.oauth2.client-id
+This is the clientId of the application being authenticated using oauth2.
+login-app
+Yes
+ipf.business-operations.auth.oauth2.client-secret
+This is the client secret used to authenticate oauth2 request.
+Yes
+ipf.business-operations.auth.oauth2.scopes
+Scope is a mechanism in OAuth 2.0 to limit an application’s access to a user’s account.
+openid, roles
+Yes
+ipf.business-operations.auth.oauth2.authorization-uri
+This is the URL used for oauth2 authorisation.
+keycloak.${environment_name}.example.org/realms/demo/protocol/openid-connect/auth
+Yes
+ipf.business-operations.auth.oauth2.token-uri
+This is the URL where the oauth2 token will be retrieved from.
+keycloak.${environment_name}.example.org/realms/demo/protocol/openid-connect/token
+Yes
+ipf.business-operations.auth.oauth2.jwk-set-uri
+This is the URL where certs/keys are stored for use of authentication.
+keycloak.${environment_name}.example.org/realms/demo/protocol/openid-connect/certs
+Yes
+ipf.business-operations.auth.oauth2.userinfo-uri
+This is the URL that returns claims about the authenticated end-user.
+keycloak.${environment_name}.example.org/realms/demo/protocol/openid-connect/userinfo
+No
+ipf.business-operations.auth.oauth2.return-url
+Return URL to use after successful authentication.
+/
+Yes
+ipf.business-operations.auth.oauth2.roles-from-attributes
+Boolean value to derive roles from attributes or not.
+true
+Yes
+ipf.business-operations.auth.oauth2.roles-attribute
+An attribute name that holds a delimited list of roles. Optional if attribute-to-roles-mappings are already specified. Must be a top level property in the JWT payload.
+roles
+No
+ipf.business-operations.auth.oauth2.roles-separator
+A character that is used as a delimiter in roles-attribute-name.
+,
+No
+ipf.business-operations.auth.oauth2.username
+This is an optional claim on oauth2 token.
+No
+ipf.business-operations.auth.oauth2.ipf-roles
+Boolean value can be true or false. If it is set to true, it will signal the fact that the user has IPF roles (audit, metrics, etc) directly in the token and not bank roles. If it is set to false, it signals the fact that the client has bank roles in the token (roles unknown to the IPF that are present in the roles-mapping). This property helps us parse the roles-mapping and assign the correct roles to the user.
+false
+Yes
+ipf.business-operations.auth.oauth2.roles-mapping
+Represents the mapping between processing entities, bank roles and IPF roles. Each processing entity can contain multiple bank roles and each bank role can contain multiple IPF roles. When granting access, we are parsing the mapping provided by banks and assign the correct roles to the user based on this mapping. If the bank uses IPF roles in the token, the bank role key needs to be provided, but it will be completely ignored (it can be a random text).
+No
+To see an example configuration set up see:
+OPS GUI Service OAuth 2 Configuration
+Property Grouping:
+ipf.business-operations.cluster-management.systems
+Key
+Description
+Default Value
+ipf.business-operations.cluster-management.systems.name
+The name of the service you want to show on the Cluster Health screen
+Payments Service
+ipf.business-operations.cluster-management.systems.base-urls
+Base URL of service
+payment-service:8558
+ipf.business-operations.cluster-management.systems.akka-management
+Is the service an akka clustered service ?
+true
+ipf.business-operations.cluster-management.systems.actuator.protocol
+Transport protocol used for actuator
+http
+ipf.business-operations.cluster-management.systems.actuator.port
+The port to call for actuator endpoint
+8080
+IPF GUI Roles
+Deployment

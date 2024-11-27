@@ -1,0 +1,12 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/features/debulking.html ===
+File Debulking
+Similar to the Bulker, the Debulker is part of the core functionality of IPF. It takes a structured input file as a stream and compares it to configured inflection points that have previously been provided.
+While streaming the input file, the Debulker identifies the start and end inflection point for each component, the component is written to persistent memory. Each component is stored with a reference to how it relates to the other components in the file, ie is it a child of previous component or a parent to subsequent items.
+Once the file has been streamed in full and all components extracted, to the requested granularity, a notification is sent to the waiting system with a link to the top most item of the file. The configured system can then access all the parts of the file by walking its way through the tree structure of references.
+Within the SEPA DD CSM, the Debulker will be configured to extract three levels of components. The scheme files contain a header (first level) with information as to which ISO messages are within it, these messages are extracted as the second level followed by any transactions within those messages extracted as the third level. The SEPA DD CSM service will be able to access the transactions and process/route them to the waiting client implementation flows.
+The output of this Debulking process will result in single transactions being passed to the waiting client flows. Each transaction will have a reference to the original header content, should there be a need to correlate a transaction with others that were originally bulked with it in the input file from the scheme.
+The Debulker is currently configured to handle the following messages and files from the scheme:
+DVF - pacs.002S2
+RSF - pacs.002S2
+Bulk File Creation
+Scheduling

@@ -1,0 +1,14 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/apis/home.html ===
+IPF APIs
+CSM Recalls Returns ROI API
+Recalls Returns ROI API
+Credit Transfer API
+Clear and Settle API
+Direct Debit API
+Direct Debit Validation API
+Validation API
+Payment Initiation API
+Payment Status API
+Connector and Transaction Operations API
+Common Library
+CSM Reachability Service Setting Management API

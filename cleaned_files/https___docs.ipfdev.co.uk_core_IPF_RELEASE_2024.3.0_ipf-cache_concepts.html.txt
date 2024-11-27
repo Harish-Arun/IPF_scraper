@@ -1,0 +1,144 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-cache/concepts.html ===
+Concepts
+The
+ipf-cache
+module provides a simple caching interface that IPF products can use for caching.
+The current offering is a
+Caffeine
+backed cache baked into Spring or
+Infinispan
+.
+API
+The API is based upon common API interactions and comes in 2 flavours, asynchronous and synchronous.
+package com.iconsolutions.ipf.core.platform.cache.api;
+
+import com.iconsolutions.ipf.core.shared.domain.context.ProcessingContext;
+
+import java.util.concurrent.CompletionStage;
+import java.util.function.Function;
+
+/**
+ * Asynchronous IPF cache adapter
+ *
+ * @param <K> key
+ * @param <V> Value
+ */
+public interface AsyncCacheAdapter<K,V> {
+
+    /**
+     * Retrieve a future value from cache
+     * @return future containing nullable value
+     */
+    CompletionStage<V> get(K key);
+
+    /**
+     * Retrieve a cache entry or if missing provide a future to make the value
+     * @return future containing value cached
+     */
+    CompletionStage<V> getOrDefault(K key, Function<K, CompletionStage<V>> callback);
+
+
+    /**
+     * Retrieve a cache entry, add to messageLog or if missing provide a future to make the value
+     * @return future containing value cached
+     */
+    CompletionStage<V> getThenLogOrDefault(ProcessingContext processingContext, K key, Function<K, CompletionStage<V>> callback);
+
+    /**
+     * Pass a future which upon completion will add the cache entry
+     */
+    CompletionStage<Void> put(K key, CompletionStage<V> value);
+
+    /**
+     * Manually evict an entry
+     */
+    CompletionStage<Void> evict(K key);
+
+    /**
+     * Evict all entries
+     */
+    CompletionStage<Void> clear();
+}
+package com.iconsolutions.ipf.core.platform.cache.api;
+
+import com.iconsolutions.ipf.core.shared.domain.context.ProcessingContext;
+
+import java.util.Optional;
+
+/**
+ * Synchronous IPF cache adapter
+ *
+ * @param <K> key
+ * @param <V> Value
+ */
+public interface CacheAdapter<K, V> {
+
+    /**
+     * Retrieve from cache
+     *
+     * @param key
+     * @return Optional<value>
+     */
+    Optional<V> get(K key);
+
+    /**
+     * Put an entry into cache
+     *
+     * @param key
+     * @param value
+     */
+    void put(K key, V value);
+
+    /**
+     * Manually evict the cached item for this key
+     *
+     * @param key
+     */
+    void evict(K key);
+
+    /**
+     * Clear all cached entries.
+     */
+    void clear();
+
+    /**
+     * Retrieve an entry or if absent use the provided value
+     *
+     * @param key
+     * @param defaultValue
+     * @return value cached
+     */
+    default V getOrDefault(K key, V defaultValue) {
+        return get(key).orElseGet(() -> {
+            put(key, defaultValue);
+            return defaultValue;
+        });
+    }
+
+    /**
+     * Retrieve an entry or if absent use the provided value
+     *
+     *
+     * @param processingContext
+     * @param key
+     * @param defaultValue
+     * @return value cached
+     */
+    V getThenLogOrDefault(ProcessingContext processingContext, K key, V defaultValue);
+}
+Both implementations are created based on the Cache Factory
+package com.iconsolutions.ipf.core.platform.cache.api;
+
+/**
+ * Factory to provide the cache implementation by name
+ *
+ * @param <K> key
+ * @param <V> value
+ */
+public interface CacheFactory<K, V> {
+    CacheAdapter<K, V> createCacheAdapter(String name);
+
+    AsyncCacheAdapter<K, V> asyncCreateCacheAdapter(String name);
+}
+IPF Cache
+Features

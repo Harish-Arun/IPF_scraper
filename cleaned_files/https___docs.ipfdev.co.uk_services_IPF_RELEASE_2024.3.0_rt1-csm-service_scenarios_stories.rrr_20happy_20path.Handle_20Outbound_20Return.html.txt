@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20happy%20path.Handle%20Outbound%20Return.html ===
+Handle Outbound Return.story
+Scenario: Handle outbound return
+When
+the i12Recall Servicei12  sends a Send Positive Answer To CSM Request with values:
+| customBusinessData | supportingContext(cancellationId,abcd1234, cancellationReasonCd, CUST) |
+Then
+i12the CSMi12  receives a Payment Return with values:
+| pmtRtr.txInf.rtrRsnInf.addtlInf | AT53: 966865de80aa43e8aa54e90aa3fe6496 |
+And
+i12IPFi12  receives a Send Positive Answer To CSM Response
+And
+i12IPFi12  receives a Receive Settlement Confirmation

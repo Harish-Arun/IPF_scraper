@@ -1,0 +1,103 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/processing-data/agent-settlement-settings.html ===
+Agent Settlement Settings
+Agent Settlement Settings are the configurations for an Agent that are specific to Transfer Currencies and settlement between the Processing Entity and the Agent for those transfer currencies.
+Agent Settlement Settings are must for an Agent if the Agent is to be selected as part of reachability checks for a payment in a transfer currency.
+Agent Settlement Settings allow maintenance of configurations like Transfer Currencies, settlement accounts, limits at agent level or for specific participants of the Agent.
+Dynamic Configuration Properties
+Name
+Description
+ProcessingEntity
+For Clients who may wish to configure different Settings for different entities within their organisation (e.g. different Branches) This value will define which Processing Entity this record applies to.
+For Clients who do not require different settings for different Processing Entities the value will be a constant.
+AgentUniqueId
+A unique identifier assigned by the Processing Entity to the Agent. The AgentUniqueId is defined on the Agent settings.
+TransferCurrencies
+A list of ISO4217 transfer currencies for which the Setting record is applicable.
+TransferDirection
+Inbound - Settlement Record supports transfer of currency into the Processing Entity from the agent (Inbound Payments)
+Outbound - Settlement Record supports transfer of currency Out of the Processing Entity to the agent (Outbound Payments)
+Bidirectional - Settlement record supports transfer of currency both into and out of the processing entity with the agent (Both Inbound and Outbound payments)
+SettlementAccount
+Only one settlement account can be registered against a one currency.
++ AccountId
+Account number of the settlement account
++ AccountIdType
+Type of the Account Id used. Possible values:
+IBAN
+OTHR
++ AccountCurrency
+ISO 4217 Currency Code
++ AccountType
+Possible values:
+NOSTRO
+VOSTRO
+SETTLEMENTMIRROR
++ AccountServicingAgent
+The agent that is servicing the settlement account. The account may be on the books of the Processing entity or on that of the agent that is in scope of the setting record. Appropriate Identifiers must be added against the accounts.
+At least one type of identifier must be provided.
+++ AgentName
+Name of the agent
+++ AgentIdentifiers
+The Industry identifiers that the agent is known by.
++++ Identifier
+The Identifier value for the Agent
++++ IdentifierType
+Identifier Type, next default values are supported:
+BIC
+LEI
+NCC
++++ IdentifierSubType
+Conditionally mandatory when identifier type is: BIC or NCC
+Enum list is specific to the identifier type.
+BIC : accountIssuingBIC, schemeMembershipBIC
+NCC: Subtype enums are aligned to ISO20022 specified codes.
+++ AgentCountry
+The country code of the identifier of the Account Servicing Agent. Conditionally mandatory when identifier type is NCC or LEI.
+AgentLimits
+Limits applicable for the agent for given transfer currencies. The amount limits will apply in the currency of the settlement account for both inbound and outbound transactions.
+Only one limit of any type should be allowed. (multiple occurrences are allowed to specify other limit types that are not supported yet)
++ LimitType
+Type of the amount limit. Possible values:
+INDIVIDUAL_MAX_AMOUNT_VALUE
++ LimitValue
+Value for the concerning limit type. The limit values will always be applied against the Agent Base currency.
+CustomParticipantLimits
+Limits applicable for Participants and set by the Processing entity for given Agent and for set of participants. This may also be set by the processing entity to reduce a risk exposure to one or more participants due to concerns around liquidity risk.
+The amount limits will apply in the currency of the settlement account for outbound transactions only.
+The list can have one participant appearing just once and cannot be duplicated.
++ LimitType
+Type of the amount limit. Possible values:
+INDIVIDUAL_MAX_AMOUNT_VALUE
++ LimitValue
+Value for the concerning limit type. The limit values will always be applied against the Agent Base currency.
++ ParticipantIdentifier
+The participant that this limit applies to. The participant identifier should be set using the type definition set in the Agent settings. This is an operational step and no validations will be implemented. If the value is not set using correct identifier type, then the limit wont be applied.
+CountryLimits
+Limit applicable when the counter party on the payment is based in the country of specified limit.
+The limits will apply in the currency of the settlement account on the Agent Settlement Settings record. The limits can be set up per country, so if the same limit value applies to multiple countries, multiple limit records will need to be registered.
++ LimitType
+Type of the amount limit. Possible values:
+INDIVIDUAL_MAX_AMOUNT_VALUE
++ LimitValue
+Value for the concerning limit type. The limit values will always be applied against the Agent Base currency.
++ Country
+ISO 3166 Country Code
+HigherParticipantLimitAllowed
+This flag indicates whether the agent allows higher participant limits to be set and used during processing.
+Values:
+True - Agent allows higher participant level limit so if the higher value is encountered for the participant (through industry source or through bilateral participant limit), then those values should be used when performing limit checks
+False - Agent does not allow higher participant level limit so if the higher value is encountered for the participant (through industry source or through bilateral participant limit), then agent level limits values should be used when performing limit checks
+Searchable Fields
+Searchable fields for Agent Settlement Settings are:
+agentUniqueId
+transferCurrencies
+transferDirections
+settlementAccountType (settlementAccount.accountType)
+For these fields
+indexes
+in the database should be created.
+Please refer
+Dynamic Configuration Management Guidelines
+for steps to be followed for configuring the dynamic configurations.
+Agent Settings
+Agent Clearing Settings

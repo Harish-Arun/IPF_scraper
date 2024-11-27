@@ -1,0 +1,88 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/customisations/configurable-enums.html ===
+CSM Reachability Configurable Enums
+Some values in setting data structures or in requests should have one of predefined values. IPF defines default values, but in some cases those values can be extended with client custom values.
+This document contains a list of properties which can be used to extend default values with custom ones.
+ISO 3166-2 Country Codes
+ISO 3166-2 country codes does not have default values. Only values from configuration can be used.
+ipf.csm-reachability.setting.country-codes: [
+  AD,
+  AE,
+  AF,
+  ...
+  ZA,
+  ZM,
+  ZW
+]
+Setting data structure attributes where this enumeration apply:
+AgentSettlementSettings.settlementAccount.accountServicingAgent.agentCountry
+AgentSettlementSettings.participantCountryLimits.country
+AgentSettings.agentAddress.country
+ProcessingEntity.entityAddress.country
+IntraEntityParties.partyIdentifierCountry
+IbanStructure.ibanCountryCode
+IbanPlus.ibanIsoCountryCode
+IbanPlus.isoCountryCode
+ExclusionList.ibanCountryCode
+ISO 4217 Currency Codes
+ISO 4217 currency codes does not have default values. Only values from configuration can be used.
+ipf.csm-reachability.setting.currency-codes: [
+  AED,
+  AFN,
+  ALL,
+  ...
+  ZAR,
+  ZMW,
+  ZWL
+]
+Setting data structure attributes where this enumeration apply:
+AgentSettlementSettings.transferCurrencies
+AgentSettlementSettings.settlementAccount.accountCurrency
+CsAgentSelectionSettings.transferCurrencies
+ProcessingEntity.ledgerCurrency
+ProcessingEntityAccounts.accountCurrency
+SupportedTransferCurrencies.transferCurrencies.currency
+Custom Agent Identifier Type Codes
+Default values for agent identifier type are different in different use cases. Default values for each specific endpoint are documented in Swagger UI.
+Examples of default values in some cases:
+BIC, NCC, LEI
+BIC, NCC, LEI, IBAN
+BIC, NCC, LEI, IBAN, AgentUniqueId
+No matter which combination of default values is used for specific use case, all of them are extended with the same set of custom values. The following property can be used to extend default values with custom ones:
+ipf.csm-reachability.setting.identifier-type.custom-codes: [
+  CustomCode1,
+  CustomCode2
+]
+Setting data structure attributes where this enumeration apply:
+AgentSettings.participationDetails.participantIdentifierType
+AgentSettings.agentIdentifiers.identifierType
+AgentSettlementSettings.settlementAccount.accountServicingAgent.agentIdentifiers.identifierType
+ProcessingEntity.entityIdentifiers.identifierType
+ProcessingEntityAccounts.processingEntityAccounts.branchIdentifier
+IntraEntityParties.partyIdentifierType
+Custom Party Entity Type Codes
+Default values for party entity type are:
+Bank
+Branch
+Following property can be used to extend default values with custom ones:
+ipf.csm-reachability.setting.party-entity.entity-type.custom-codes: [
+  CustomCode1,
+  CustomCode2
+]
+Setting data structure attributes where this enumeration apply:
+PartyEntity.entityType
+Custom Processing Entity Accounts Type And SubType Codes
+Default values for Account Type and SubType does not exist. They should be configured by clients.
+Following property can be used to define custom codes:
+ipf.csm-reachability.setting.processing-entity-accounts.account-type.custom-codes: [
+  SuspenseAccount,
+  LedgerAccount
+]
+Setting data structure attributes where this enumeration apply:
+ProcessingEntityAccounts.processingEntityAccounts.accountType
+ipf.csm-reachability.setting.processing-entity-accounts.account-subtype.custom-codes: [
+  ReturnsRejected
+]
+Setting data structure attributes where this enumeration apply:
+ProcessingEntityAccounts.processingEntityAccounts.accountSubType
+Create Additional Generic Processing Settings Category
+Creating a Custom Settings Ingester

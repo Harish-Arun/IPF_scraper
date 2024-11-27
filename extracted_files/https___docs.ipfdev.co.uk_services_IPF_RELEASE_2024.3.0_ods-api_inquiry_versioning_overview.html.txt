@@ -1,0 +1,14 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods-api/inquiry/versioning/overview.html ===
+API Versioning
+There are multiple versions of the ODS Inquiry API specification, each of which is detailed in
+Inquiry Specifications
+. The ODS Application supports calls to the following Inquiry API specification versions:
+ODS Inquiry API - V2 (Current)
+ODS Inquiry API - V2 Documentation
+Migration Guide
+from V1 to V2
+ODS Inquiry API - V1 (Legacy)
+ODS Inquiry API - V1 Documentation
+(IPF_RELEASE_2024.1.0)
+Inquiry
+Specifications

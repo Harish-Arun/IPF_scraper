@@ -1,0 +1,224 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/getting-started/sending-receiving-http.html ===
+HTTP Quickstart
+Integrating to an external system via HTTP is slightly different when compared to JMS or Kafka. This guide applies to outbound integration (i.e. where IPF makes requests to an external system), for inbound integration via HTTP (i.e. where IPF receives requests from another system) please refer to
+HTTP Receiving Flow Quickstart
+.
+For an example of using the HTTP Connector Transport to integrate with the Twitter API, see
+Chained Request-Reply with OAuth
+.
+When implementing an outbound integration via HTTP, instead of defining a pair of sending and receiving connectors a
+RequestReplySendConnector
+is required instead. This single connector makes the request and also handles the response from the external system asynchronously.
+Step 1: Add
+connector-http
+dependency
+The dependency to add to your
+pom.xml
+is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.connector</groupId>
+    <artifactId>connector-http</artifactId>
+</dependency>
+If importing the Icon BOM, or using the Icon BOM as a parent, there’s no need to supply a separate version.
+Step 2: Config
+Connector configuration - in general - is heavily config-driven.The configuration allows us to specify:
+HTTP server host/port
+Proxy settings
+Restart settings (on failure)
+Here’s an example of a configuration block for a
+HttpConnectorTransportConfiguration
+which we will wire into our
+ConnectorTransport
+, for a fictional bank’s fraud system which exposes a REST endpoint:
+bank.fraud-system {
+(1)
+http {
+    client {
+      host = "olaf"
+(2)
+endpoint-url = "/test"
+(3)
+proxy-host = "localhost"
+(4)
+ssl {
+        trust-store-location = "target/test-classes/tls/client/trust.p12"
+(5)
+trust-store-password = "password"
+(6)
+trust-store-type = "PKCS12"
+(7)
+key-store-location = "target/test-classes/tls/client/keys.p12"
+(8)
+key-store-password = "password"
+(9)
+key-store-type = "PKCS12"
+(10)
+key-password = "password"
+(11)
+}
+      buffer-size = 1
+      concurrency = 1
+      status-codes-treated-as-errors = [404, 5xx]
+(12)
+}
+    connection-pool {
+(13)
+max-connections = 5
+(14)
+}
+  }
+}
+1
+This is known as the
+config root path
+and will be referenced in the code. It indicates where in the application’s
+configuration to look for this Send Connector Transport’s settings
+2
+The hostname of the HTTP service
+3
+The route of the endpoint within the service
+4
+Hostname of the proxy, if it is used
+5
+A path to the file location of the truststore
+6
+Passphrase to access the keystore
+7
+The type of truststore to use. Should be one of PKCS12 or JKS
+8
+A path to the file location of the keystore
+9
+Passphrase to access the keystore
+10
+The type of keystore to use. Should be one of PKCS12 or JKS
+11
+Passphrase to access the keystore
+12
+Status codes that will be treated as errors. Standard status code patterns in form of
+4xx
+and
+5xx
+are supported as well.
+13
+Optional configuration block which will override Akka’s default connection pool config
+14
+Custom value for max number of connections, as example. Detailed attributes list with defaults and description could be found at
+doc.akka.io/docs/akka-http/current/client-side/configuration.html#pool-settings
+Step 3: Create HTTP Connector Transport Configuration
+You can skip this step by providing configRootPath to the
+HttpConnectorTransport.Builder<T>
+instead of
+HttpTransportConfiguration
+.
+This example achieves the same thing as an example in
+Step 4
+:
+var connectorTransport = new HttpConnectorTransport.Builder<T>()
+                .withActorSystem(actorSystem)
+                .withName("exampleHttpConnectorTransport")
+                .withConfigRootPath("bank.fraud-system")
+                .withTreatErrorResponseAsFailureWhen(httpResponse -> {
+                    if(httpResponse.status().intValue() == 505) {
+                        return false;
+                    }
+                    return true;
+                })
+                .build();
+The HTTP Connector Transport Configuration class acts as a wrapper for the HOCON configuration which we defined in
+Step 2
+, the application accesses the configuration via this class.
+Here’s how to create a HTTP Connector Transport Configuration class for configuring a HTTP Connector Transport:
+var connectorTransportConfiguration = HttpConnectorTransportConfiguration.create(actorSystem.classicSystem().settings().config(),
+(1)
+"bank.fraud-system");
+(2)
+1
+This retrieves the application configuration from the actor system. The actorSystem can typically be injected as a Spring bean.
+2
+This indicates the path to the config where the application should retrieve configuration values from.
+Step 4: Create HTTP Connector Transport
+Here’s an example of how a
+HttpConnectorTransport
+can be created:
+var connectorTransport = new HttpConnectorTransport.Builder<T>()
+(1)
+.withName("exampleHttpConnectorTransport")
+(2)
+.withActorSystem(actorSystem)
+                .withConfigRootPath("example-transport-configuration")
+(3)
+.withTreatErrorResponseAsFailureWhen(httpResponse -> {
+(4)
+if(httpResponse.status().intValue() == 505) {
+                        return false;
+                    }
+                    return true;
+                })
+                .build();
+1
+Replace
+T
+with the target type you are sending
+2
+Give the ConnectorTransport a meaningful name
+3
+Provide a configuration root path to your HTTP connector transport configuration (see
+Step 3
+for an example)
+4
+You can optionally customize how to handle specific HTTP Response codes. Takes a
+Predicate<HttpResponse>
+, in the example we are going treat a 505 response code as a success response. This could be used in conjunction with
+Resilience
+settings to customize retry behaviour. For example, by not treating a response as a failure you can bypass default retry handling. This setup can be avoided if we set
+status-codes-treated-as-errors
+parameter in our config root path. Statuses we set there will be treated as errors, and ones not in the list won’t.
+If the endpoint being connected to utilises Bearer Authentication, refer to the Bearer Authentication guide
+here
+Step 5: Create HTTP Receive Connector Transport
+Here’s an example of how a
+HttpReceiveConnectorTransport
+can be created:
+var configRootPath = "receive-example";
+(1)
+var config = actorSystem.classicSystem().settings().config().getConfig(configRootPath + ".http.receive");
+var connectorTransport =  HttpReceiveConnectorTransport.builder()
+        .withName("exampleHttpConnectorTransport")
+(2)
+.withActorSystem(actorSystem)
+        .withHost(config.getString("host"))
+        .withPort(config.getString("port"))
+        .withSslConfiguration(HttpReceiveTransportConfiguration.SSLConfig.buildSslContextFromConfiguration(config))
+        .withResponder(req -> HttpResponse.create().withStatus(202))
+        .withConfigRootPath(configRootPath)
+        .build();
+1
+Set
+configRootPath
+2
+Give the
+ConnectorTransport
+a meaningful name
+Create HTTP Request Reply Send Connector
+Here is an example of how a
+RequestReplySendConnector
+can be created:
+var connectorConfigRootPath = "ipf.example-project.transport.connector";
+var transportRootPath = "ipf.example-project.transport";
+var resiliencySettingsRootPath = connectorConfigRootPath + ".resiliency-settings";
+
+var rrSendConnector = new RequestReplySendConnector.Builder<REQ_D, REQ_T, REP_D, REP_T>(
+                "RRSendConnector", connectorConfigRootPath, actorSystem)
+                .withConnectorTransport(new HttpConnectorTransport.Builder<REQ_D>("RRSendConnectorTransport", actorSystem, transportRootPath).build())
+                .withMessageLogger(messageLogger)
+                .withCorrelationIdExtractor(payload -> null)
+                .withReceiveTransportMessageConverter(t -> convertToDomain(t.getPayload().toString()))
+                .withTargetToDomainTypeConverter(payload -> payload)
+                .withSendTransportMessageConverter(settingsApiGetAllTransportMessageConvertor)
+                .withResiliencySettingsCustomiser(resiliencySettings -> ResiliencySettings.builder()
+                        .withResiliencyConfig(resiliencySettings.getResiliencyConfig())
+                        .build())
+                .withManualStart(false)
+                .build();
+JMS Quickstart
+File Connector Quickstart

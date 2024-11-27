@@ -1,0 +1,96 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/test-fw/how-to/web-how-to.html ===
+How do I create a 'Web' Test?
+Marking a test as a "web" test
+Import the
+WebDriverConfig.class
+in your test framework config and provide the following beans:
+* a list of
+WebPageDefinition`s that are used to link the `MessageType`s associated with a page to a relative URL and a page name
+* an implementation of `BaseWebSteps
+that satisfies your use case
+Use the
+@web enabled
+annotation in your story file metadata to create a web driver context. This will open a browser
+window for your story to execute by allocating a web driver instance from the pool of available drivers. The pool size is defined by the
+web-driver.pool.size
+property and defaults to 4.
+Writing tests
+Similar to other test framework transports the main actions have been split into generic steps to enable the action of
+Inserting, verifying or retrieving items from the screen.
+Navigation Step and Web Page definition
+The UI contains a number of pages that can be navigated to using web URLs or tiles on the home screen.
+To make the navigation step more human readable a WebPageDefinition.java
+needs to be created with an associated
+MessageType
+This will allow the step to read as:
+When the user navigates to the Recall responses needing approval page on the GUI
+Rather than
+When the user navigates to the /#/recalls-needing-response page on the GUI
+Clicking on an element and predicates
+Fish for element (and fish for element with action) follow the same pattern as fish for messages.
+A set of predicates are passed to filter the elements list retrieved. A consumer then needs to be passed to either
+perform an assertion or process the result
+public void fishForElement(String cssSelector, List<Predicate<WebElement>> discriminators, Consumer<WebElement> action) {
+
+    List<WebElement> allElementsMatchingSelector = findElementsByCss(cssSelector);
+
+    assertFalse("No element matching supplied selector: " + cssSelector, allElementsMatchingSelector.isEmpty());
+    Optional<WebElement> result = allElementsMatchingSelector.stream()
+            .filter(Predicates.and(discriminators))
+            .findFirst();
+
+    assertTrue("No element matching supplied predicates", result.isPresent());
+
+    LOGGER.debug("Found a matching element on the page");
+    action.accept(result.get());
+}
+The first retrieval from screen is done based on a
+CSS selector
+This will fetch a set of web elements that can be further filtered by matching any of the elements attributes.
+Example step:
+And the user clicks on mat-panel-description with attribute values:
+|innerHTML|Respond with Resolution|
+The only action currently passed is the click function but this can be generalised.
+Retrieving Elements from the screen
+To perform assetions on screen based on their HTML, use the following step
+Then the user is able to find the following items on the screen with values:
+|.mat-column-recordType       |BB_Resolution                                         |
+|.mat-column-transactionId    |#CAMT_029.RsltnOfInvstgtn.CxlDtls.TxInfAndSts.CxlStsId|
+|.mat-column-transactionStatus|ACCEPTED                                              |
+This will find the elements by the given selector and iterate through the results to match the given value
+Inputting data into form elements or input
+To input data into fields on screen use:
+1 - This step to input data for a single element
+When the user populates the $selector input with value $value
+2- This step to populate multiple values at once should order of input not be relevant
+And the user populates the inputs with values:
+|$selector1|value1|
+|$selector2|value2|
+Extensibility
+If you wish to create your won custom steps or pages create the following
+A Page extending BaseWebPage.java.
+This should be passed to you Steps class extending BaseWebSteps
+To register these to the test framework add them as a list bean to your test config:
+Page
+@Bean
+public List<WebPageDefinition> webPageDefinitions() {
+    return asList(
+            webPageDefinition(RECALL_NEEDING_RESPONSE, "recalls-notrespondedto"),
+            webPageDefinition(TRANSACTION_SEARCH, "transactions/action/search"),
+            webPageDefinition(TRANSACTION_DETAILS, "transactions")
+    );
+}
+
+private WebPageDefinition webPageDefinition(MessageType webPageType, String relativePath) {
+    return new WebPageDefinition.WebPageDefinitionBuilder()
+            .withMessageType(webPageType)
+            .withRelativePath(relativePath)
+            .build();
+}
+Define your Steps as a Bean like so
+@Bean
+public CommonWebSteps commonWebSteps(List<WebPageDefinition> webPageDefinitions, GenericObjectPool<WebDriver> webDriverPool) {
+    return new CommonWebSteps(webPageDefinitions, webDriverPool, dashboardUrl);
+}
+How do I create a custom data type converter?
+How do I restrict a message to a given system?

@@ -1,0 +1,41 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/processing-data/guides/configure-flow-egress.html ===
+How to Configure a Process Flow Application for Egress of Data
+Egress all Data
+To configure a process flow application for egress of ALL data follow these steps.
+Choose a starter pom, which also requires you to choose a transport, and add the dependency in the ipf application for which you want to publish ipf processing data.
+The journal processor only processes MPS events (of type
+com.iconsolutions.ipf.core.shared.domain.event.Event
+) it will ignore other events and log a debug message with the class type in such cases.
+For kafka choose one of:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-starter-with-journal-processor-kafka</artifactId>
+</dependency>
+or
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-starter-with-event-forwarder-kafka</artifactId>
+</dependency>
+For http choose one of:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-starter-with-journal-processor-http</artifactId>
+</dependency>
+or
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-starter-with-event-forwarder-http</artifactId>
+</dependency>
+Egress Specific Data
+To configure a process flow application for egress of specific data follow these steps.
+If your application doesnt need to publish all processing data types, you can add specific plugins, with a specific transport implementation. e.g. if you want to publish system events to kafka, you would need both the kafka transport dependency, and the system-event-processor.
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-kafka</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-system-event-processor</artifactId>
+</dependency>
+How to Consume IPF processing data
+Configuring Kafka Topics

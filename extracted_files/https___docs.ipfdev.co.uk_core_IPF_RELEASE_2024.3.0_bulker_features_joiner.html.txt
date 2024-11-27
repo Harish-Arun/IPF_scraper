@@ -1,0 +1,164 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/features/joiner.html ===
+Joiner
+The DefaultJoiner provided by IPF is implemented using the StAX API, which is included within the standard Java language.
+The joiner has a dependency on the component store where it is expected to be already populated with components that, when combined with a component hierarchy to define the components relationships, can be merged together to form a valid XML document that can be ingested by another system.
+Namespaces
+If your bulked components use namespaces there may be the case where you need child elements to match the parent namespace prefix. In these cases you can add additional configuration (
+configurations[0].component-hierarchy.namespace-prefix
+) to do this at the parent configuration, and any child will have this prefix applied to it.
+Example:
+ipf.bulker {
+  configurations = [
+    {
+      name = "IDF"
+      file-name-prefix = "idf-"
+      file-path = "/tmp/bulks"
+      component-hierarchy {
+        component-parser-name = "xml"
+        marker = "MPEDDIdfBlkDirDeb"
+        namespace-prefix = "S2SDDIdf"
+        children = [
+          {
+            marker = "FIToFICstmrDrctDbt"
+          }
+        ]
+      }
+    }
+]
+}
+Example xml output would be:
+<S2SDDIdf:FIToFICstmrDrctDbt xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.003.001.08">...</FIToFICstmrDrctDbt>>
+Usage Example
+This usage example follows the same scenario used to demonstrate the XML Splitter but in reverse.
+We will populate a component store, create a component hierarchy to determine how the components should be joined together and finally provide an output stream so that the joined content can be streamed out to wherever it needs to go.
+This example joins together only a handful of components for demonstrative purposes, but this can scale to many more components.
+Below are each of the component’s content that is persisted within the component store.
+example-library-component.xml
+<library>
+    <name>Library of Alexandria</name>
+</library>
+example-book-component-1.xml
+<book>
+    <author>Martin, Robert</author>
+    <title>Clean Code</title>
+</book>
+example-book-component-2.xml
+<book>
+    <author>Bloch, Joshua</author>
+    <title>Effective Java</title>
+</book>
+example-chapter-component-1.xml
+<chapter>
+    <name>Clean Code</name>
+    <startPage>1</startPage>
+</chapter>
+example-chapter-component-2.xml
+<chapter>
+    <name>Meaningful Names</name>
+    <startPage>17</startPage>
+</chapter>
+example-chapter-component-3.xml
+<chapter>
+    <name>Introduction</name>
+    <startPage>1</startPage>
+</chapter>
+example-chapter-component-4.xml
+<chapter>
+    <name>Creating and Destroying Objects</name>
+    <startPage>5</startPage>
+</chapter>
+Let’s write an example program to first load the components into the component store and then process them using the XML Joiner.
+ComponentStore<List<InsertionPoint>> componentStore = new InMemoryComponentStore<>();
+
+// Create component hierarchy
+var rootNode = Node.root("library", "xml");
+var bookNode = rootNode.createChild("book", Collections.emptyList());
+var chapterNode = bookNode.createChild("chapter", Collections.emptyList());
+
+// Populate the component store
+BulkId bulkId = BulkId.random();
+var root = Component.<List<InsertionPoint>>builder()
+        .bulkId(bulkId).id(ComponentId.of(bulkId.getValue()))
+        .index(0L).marker("library")
+        .content(readResourceFile("example-root-component.xml"))
+        .custom(List.of(new InsertionPoint(bookNode, 49))).build();
+var book1 = Component.<List<InsertionPoint>>builder()
+        .bulkId(bulkId).id(ComponentId.random()).parentId(root.getId())
+        .index(1L).marker("library.book")
+        .content(readResourceFile("example-book-component-1.xml"))
+        .custom(List.of(new InsertionPoint(chapterNode, 73))).build();
+var book2 = Component.<List<InsertionPoint>>builder()
+        .bulkId(bulkId).id(ComponentId.random()).parentId(root.getId())
+        .index(2L).marker("library.book")
+        .content(readResourceFile("example-book-component-2.xml"))
+        .custom(List.of(new InsertionPoint(chapterNode, 76))).build();
+var chapter1 = Component.<List<InsertionPoint>>builder()
+        .bulkId(bulkId).id(ComponentId.random()).parentId(book1.getId())
+        .index(3L).marker("library.book.chapter")
+        .content(readResourceFile("example-chapter-component-1.xml"))
+        .custom(Collections.emptyList()).build();
+var chapter2 = Component.<List<InsertionPoint>>builder()
+        .bulkId(bulkId).id(ComponentId.random()).parentId(book1.getId())
+        .index(4L).marker("library.book.chapter")
+        .content(readResourceFile("example-chapter-component-2.xml"))
+        .custom(Collections.emptyList()).build();
+var chapter3 = Component.<List<InsertionPoint>>builder()
+        .bulkId(bulkId).id(ComponentId.random()).parentId(book2.getId())
+        .index(5L).marker("library.book.chapter")
+        .content(readResourceFile("example-chapter-component-3.xml"))
+        .custom(Collections.emptyList()).build();
+var chapter4 = Component.<List<InsertionPoint>>builder()
+        .bulkId(bulkId).id(ComponentId.random()).parentId(book2.getId())
+        .index(6L).marker("library.book.chapter")
+        .content(readResourceFile("example-chapter-component-4.xml"))
+        .custom(Collections.emptyList()).build();
+Mono.zip(
+        Mono.fromCompletionStage(componentStore.save(root)),
+        Mono.fromCompletionStage(componentStore.save(book1)),
+        Mono.fromCompletionStage(componentStore.save(book2)),
+        Mono.fromCompletionStage(componentStore.save(chapter1)),
+        Mono.fromCompletionStage(componentStore.save(chapter2)),
+        Mono.fromCompletionStage(componentStore.save(chapter3)),
+        Mono.fromCompletionStage(componentStore.save(chapter4))
+).block();
+
+Joiner joiner = new XmlJoiner(componentStore);
+OutputStream stream = new ByteArrayOutputStream();
+
+var rootId = BulkComponentId.of(root.getId().getValue());
+Mono.fromCompletionStage(joiner.join(rootId, rootNode, stream)).block(Duration.ofSeconds(5));
+
+String output = stream.toString();
+System.out.println(output);
+Running this code should print out the following to the console.
+The whitespace formatting may look a bit different due to the way the components are appended to the stream, but the content should effectively be the same.
+output
+<library>
+    <name>Library of Alexandria</name>
+    <book>
+        <author>Martin, Robert</author>
+        <title>Clean Code</title>
+        <chapter>
+            <name>Clean Code</name>
+            <startPage>1</startPage>
+        </chapter>
+        <chapter>
+            <name>Meaningful Names</name>
+            <startPage>17</startPage>
+        </chapter>
+    </book>
+    <book>
+        <author>Bloch, Joshua</author>
+        <title>Effective Java</title>
+        <chapter>
+            <name>Introduction</name>
+            <startPage>1</startPage>
+        </chapter>
+        <chapter>
+            <name>Creating and Destroying Objects</name>
+            <startPage>5</startPage>
+        </chapter>
+    </book>
+</library>
+Insertion Point Finder
+Bulk Output Stream Provider

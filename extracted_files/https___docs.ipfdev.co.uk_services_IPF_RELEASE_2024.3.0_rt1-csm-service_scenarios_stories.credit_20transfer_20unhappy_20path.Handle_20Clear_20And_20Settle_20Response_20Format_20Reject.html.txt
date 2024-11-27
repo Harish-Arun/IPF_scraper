@@ -1,0 +1,61 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.credit%20transfer%20unhappy%20path.Handle%20Clear%20And%20Settle%20Response%20Format%20Reject.html ===
+Handle Clear And Settle Response Format Reject.story
+Scenario: Handling clear and settle responses that indicate invalid original message
+Steps
+When the Payment Service sends a 'Clear And Settle Request'
+Then the CSM receives a 'Customer Credit Transfer'
+When the CSM sends a 'Rejected With Grpsts' 'Payment Status Report' with values:
+| fIToFIPmtStsRpt.orgnlGrpInfAndSts.stsRsnInf.rsn.cd    | <ReasonCode>        |
+| fIToFIPmtStsRpt.orgnlGrpInfAndSts.stsRsnInf.rsn.prtry | <ReasonProprietary> |
+Then the Payment Service receives a 'System Event' using predicate:
+| level                                 | ERROR                         |
+| processingContext.associationId.value | NOTAVAILABLE                  |
+| name                                  | OutgoingMessageTechnicalIssue |
+| payload.reasonCode                    | <ExpectedReasonCode>          |
+| type                                  | FUNCTIONAL                    |
+Examples:
+ReasonCode
+ReasonProprietary
+ExpectedReasonCode
+FF01
+NOT_SET
+FF01
+NOT_SET
+TECH
+TECH
+Example: {ReasonCode=FF01, ReasonProprietary=NOT_SET, ExpectedReasonCode=FF01}
+When
+the ï½Payment Serviceï½  sends a Clear
+And
+Settle Request
+Then
+the ï½CSMï½  receives a Customer Credit Transfer
+When
+the ï½CSMï½  sends a Rejected With Grpsts Payment Status Report with values:
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.stsRsnInf.rsn.cd    | ï½FF01ï½         |
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.stsRsnInf.rsn.prtry | ï½NOT_SETï½  |
+Then
+ï½the Payment Serviceï½  receives a System Event using predicate:
+| level                                 | ERROR                         |
+| processingContext.associationId.value | NOTAVAILABLE                  |
+| name                                  | OutgoingMessageTechnicalIssue |
+| payload.reasonCode                    | ï½FF01ï½           |
+| type                                  | FUNCTIONAL                    |
+Example: {ReasonCode=NOT_SET, ReasonProprietary=TECH, ExpectedReasonCode=TECH}
+When
+the ï½Payment Serviceï½  sends a Clear
+And
+Settle Request
+Then
+the ï½CSMï½  receives a Customer Credit Transfer
+When
+the ï½CSMï½  sends a Rejected With Grpsts Payment Status Report with values:
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.stsRsnInf.rsn.cd    | ï½NOT_SETï½         |
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.stsRsnInf.rsn.prtry | ï½TECHï½  |
+Then
+ï½the Payment Serviceï½  receives a System Event using predicate:
+| level                                 | ERROR                         |
+| processingContext.associationId.value | NOTAVAILABLE                  |
+| name                                  | OutgoingMessageTechnicalIssue |
+| payload.reasonCode                    | ï½TECHï½           |
+| type                                  | FUNCTIONAL                    |

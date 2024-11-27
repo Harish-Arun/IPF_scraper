@@ -1,0 +1,108 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/features/validations.html ===
+Validations
+Validation API
+SEPA DD STEP2 CSM Service provides a Validation API to enable the Client Implementation flows or SDK clients to submit the bulks for validation purposes only. The request to the API does not lead to the bulks being submitted for Collecting and Settlement.
+The response from the Direct Debit Validation API is
+Direct Debit Validation API
+which can comprise a message level OrgnlGrpInfAndSts block, transaction level TxInfAndSts block(s) and (if requested) a schemeFormatMessage block.
+Validate Direct Debit Scheme Rules
+The Direct Debit Scheme Rules API rule carries out the validations on the submitted bulks and included transactions and provides a validation response. Below validations are performed:
+Message Level Validation (Bulk level validations)
+Validation of Group Header totals such as Count of transactions and Interbank Settlement Amounts.
+Scheme Rules Validations against the Header fields
+Mapping from the IPF Canonical format message to the Scheme format message
+Individual Transaction Validations and Scheme Rule Validations
+Schema Check of the final validations
+The Validations API can return the Scheme format message in the response if requested in the request if the 'returnSchemeMessage' flag is set to True. The transactions that fail the validations will be removed from the format message so the output scheme format message will always be acceptable by the scheme. When removing the failed transactions, the CSM service will adjust the group header totals (count of transactions and amounts), so they match the transactions that have passed validations. The scheme does not alter the contents of individual transactions in any shape or form so the transactions transparency is always maintained.
+Please note that below validations are not performed when the bulks are submitted to the Validation API.
+Duplicate check on the submitted bulks
+Duplicate check at transaction level
+Validations against the settlement dates submitted on the bulks
+The duplicate checks are not performed on the Validation API call. This is to ensure the same bulk can be submitted multiple times for validation without being rejected as duplicate in later attempts or when it is eventually submitted for clearing and settlement.
+Interbank Settlement date Validations are not performed keeping in mind that the submission to Validation API is not same as request to collect and settle and that the dates on the transactions may be updated when they are finally submitted for clearing.
+See the validation specification here
+Direct Debit Validation API
+Request Processing API
+SEPA DD STEP2 CSM Service supports below validations on bulks submitted from Client implementation flows. It is important to note that some validations may not be applicable based on the source of request. (Refer to individual features to understand applicable validations).
+The scheme rules are identified and referenced from scheme documentation (STEP2 SDD Interface Specifications, STEP2 SDD Functional Description).
+All message types will have a schema check performed using the current version of the scheme xsd. This action will perform all the necessary technical checks on the message such as data types, cardinality and size of data elements. As well as these Technical checks, the SEPA CSM performs Business-level checks, to ensure the data input to each field conforms to any rules over and above the basic Technical checks (e.g. settlement date is no more than 14 working days in advance, any ISO codes are valid for the particular use or calculated totals are equal to the counts they relate to).
+Messages arriving from the scheme will receive a technical check against their xsd. The only Business level validations to take place will make sure they are:
+Not duplicates (file or individual transactions)
+Intended for the Direct Participant running the instance of SEPA DD CSM and their configured Regional Brands
+Containing address formats that have been correctly used (either structured, unstructured or scheme allowed combinations of the two)
+Inbound messages from the scheme that fail validations, will still be passed to the client, however they will be added to a dedicated kafka topic that should be routed to an exception processing implementation. The SEPA DD scheme pack does not have a mechanism for the automated rejection of an inbound message.
+Validation Rules
+Collect and Settle (Pacs.003)
+Message Level Rules
+Rule
+Request Processing API
+Validation API
+Description
+Message Duplicate Check
+The following fields are checked for duplicate:
+GrpHdr.MsgId
+GrpHdr.InstAgt.FinInstnId.BICFI
+(B14)
+Interbank Settlement Date
+GrpHdr.IntrBkSttlmDt is not a Target Business Day  (B15)
+GrpHdr.IntrBkSttlmDt is greater than 14 days in the future (B15)
+GrpHdr+IntrBkSttlmDt is before or equal to the Current Interbank Settlement Date (B15)
+GrpHdr+IntrBkSttlmDt is the day after Current Interbank Settlement Date, but the current time (CET) is later than Core Validation Cutoff has been missed (B15)
+Schema XSD Validation
+Schema validation against the scheme XSD after mapping (FF01)
+Group Header Totals Validation
+GrpHdr.NbOfTxs is not equal to the number of transactions in the bulk (B03)
+GrpHdr.TtlIntrBkSttlmAmt is zero (B13)
+GrpHdr.TtlIntrBkSttlmAmt is not equal to the sum of the IntrBkSttlmAmt for the transactions in the bulk (B05)
+Group Header Clearing System and Instructing Agent Validation
+GrpHdr.SttlmInf.ClrSys.Prtry is not equal to ST2 (B16)
+GrpHdr.InstgAgt.FinInstnId.BICFI length is bigger than 8 (B10)
+Transactions Level Rules
+Rule
+Request Processing API
+Validation API
+Description
+Transaction Duplicate Check
+The following fields are checked for duplicate:
+DrctDbtTxInf.PmtId.TxId
+DrctDbtTxInf.CdtrAgt.FinInstnId.BICFI
+GrpHdr.IntrBkSttlmDt
+(AM05)
+Service Level Checks
+DrctDbtTxInf.PmtTpInf.SvcLvl.Cd should contain 'SEPA' (XT33)
+Local Instrument Checks
+DrctDbtTxInf.PmtTpInf.LclInstrm.Cd should contain 'CORE' (XT33)
+Debtor/Creditor Agent SEPA COM Pacifique Check
+If char 5 & 6 of DrctDbtTxInf.CdtrAgt.FinInstnId.BICFI contain 'PF', 'NC' or 'WF'
+Then char 5 & 6 of DrctDbtTxInf.DbtrAgt.FinInstnId.BICFI should contain 'FR', 'GP', 'RE', 'MQ', 'GF', 'PM', 'PF', 'NC', 'WF', 'BL', 'MF', 'YT' (XT91)
+If char 5 & 6 of DrctDbtTxInf.DbtrAgt.FinInstnId.BICFI contain 'PF', 'NC' or 'WF'
+Then char 5 & 6 of DrctDbtTxInf.CdtrAgt.FinInstnId.BICFI should contain 'FR', 'GP', 'RE', 'MQ', 'GF', 'PM', 'PF', 'NC', 'WF', 'BL', 'MF', 'YT' (XT91)
+Instructing Agent Check
+DrctDbtTxInf.InstgAgt.FinInstnId.BICFI should not be populated (XT13)
+Requested Collection Date Check
+If ReqdColltnDt is a Target Business Day, then it must be equal to IntrBkSttlmDt (DT01).
+If ReqdColltnDt is not the business day following IntrBkSttlmDt (DT01).
+If ReqdColltnDt is more than 14 days in the future from IntrBkSttlmDt (DT01).
+If ReqdColltnDt is the day after IntrBkSttlmDt and the current time is after the cutoff time (DT01).
+If ReqdColltnDt is before or equal to Current Core DD Interbank Settlement Date (DT01).
+Postal Address Country Code Check
+DrctDbtTxInf.Cdtr.PstlAdr.Ctry should be a valid ISO3166 country code (XT73)
+DrctDbtTxInf.Dbtr.PstlAdr.Ctry should be a valid ISO3166 country code (XT73)
+Creditor Scheme Id and Name Check
+The first 7 characters (after ignoring leading spaces) of DrctDbtTxInf.DrctDbtTx.CdtrSchmeId.Id.PrvtId.Othr.Id should not contain spaces (XT33)
+DrctDbtTxInf.DrctDbtTx.CdtrSchmeId.Id.PrvtId.Othr.SchmeNm.Prtry should be "SEPA" (XT33)
+Mandate Amendments
+If amendment indicator is set to âtrueâ then at least one of the following must be populated (XT13)
+original MandateID
+Creditorâs original name
+original Scheme ID
+original Creditor Scheme Name
+original Debtorâs IBAN account
+original Debtorâs account identifier
+original Debtor Agentâs BIC
+If amendment indicator is set to âfalseâ then none of the above can be populated (XT13)
+If populated, original Creditor Scheme Name must equal 'SEPA' (XT33)
+If populated, original Debtor’s account identifier must equal 'SMNDA' (XT33)
+If Original Debtor Account’s identifier is populated with 'SMNDA' then original Debtor Agent’s BIC should not be populated (XT33)
+Request Processing
+Business Day Calculation

@@ -1,0 +1,16 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/concepts.html ===
+Concepts
+The Bulker is responsible for bringing together individual transactions or components, and acts initially as a temporary storage area where the main IPF flow can store elements that will eventually end up in the structured file. When instructed, the Bulker will stream each item, in a preconfigured order, to a file at a predefined location.
+Along with the items themselves, the Bulker can use pre-configured templates to include headers, footers and intermediary constructs in the final file.
+Key Concepts
+The following are key concepts which are explored in more detailed within the linked features section. They are explained here to show how these concepts and features relate to each other.
+Triggers
+The trigger for streaming the stored elements to file can be a "manual" command sent from the IPF Implementation that set-up the Bulk and provided the elements, or, it can come automatically from a variety of sources. Automatic finalisation can be time based in Scheduled or periodic intervals, or it could be based on the characteristics of the Bulk such as number of elements or  estimated total size of the output file. The method of finalisation is defined at the point the Bulk is first created.
+Recurring Bulks
+In a situation when elements will continue to be generated and need to be stored, even after a Bulk has been finalised and a file created, the Bulk can be given the "Recurrance" characteristic. In this situation the closing of one Bulk will automatically trigger the creation of a new Bulk, with identical configuration, for subsequent elements to be added to.
+Output File Structure
+The structure of the output file needs to be provided in a template in the configuration of the Bulk. This configuration will instruct the Bulker where elements need to end up in the final documentation and any ordering that may be necessary.
+House Keeping
+As well as the ability to build Bulk files, the Bulker provides housekeeping features to ensure memory and storage is freed after files are produced and also a host of enquiry API’s in order to be able to find out the size, status and structure of the Bulk while it grows.
+Bulker
+Features

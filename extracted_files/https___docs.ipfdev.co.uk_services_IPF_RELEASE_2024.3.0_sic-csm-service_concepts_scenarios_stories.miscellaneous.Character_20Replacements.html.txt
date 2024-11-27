@@ -1,0 +1,20 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/concepts/scenarios/stories.miscellaneous.Character%20Replacements.html ===
+Character Replacements.story
+Scenario: Handling charater replacement on an Inbound clear and settle request
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseMeta(java.lang.String)
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseLegacy(java.lang.String)
+When
+ï½the CSMï½  sends a Customer Credit Transfer
+Then
+ï½the Payment Serviceï½  receives a Receive Payment Request
+When
+the ï½Payment Serviceï½  sends a Receive Payment Response with values:
+| payload.content.txInf*And*Sts[0].stsRsnInf[0].orgtr.nm | char: Ã,Ã¯. list: Ã,Ã,Ã,Ã. regex: Ã,Ã,Ã  |
+Then
+ï½the CSMï½  receives a Payment Status Report with values:
+| FIToFIPmtStsRpt.txInf*And*Sts[0].stsRsnInf[0].orgtr.nm | char: A,i. list: E,E,E,E. regex: .,.,. |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()

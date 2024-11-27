@@ -1,0 +1,20 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/security.html ===
+Security
+ODS Inquiry API is secured with spring security using
+OAuth 2.0
+.
+In order to access API resources, API client will need to provide a valid bearer token via Authorization header.
+Configuration
+ODS uses
+spring-boot-starter-oauth2-resource-server
+module as a dependency, and more details about configuration can be found
+here
+.
+Property
+Default value
+Description
+ods.security.oauth.enabled
+true
+Toggles security on or off
+ODS Purging
+Operational Dashboard

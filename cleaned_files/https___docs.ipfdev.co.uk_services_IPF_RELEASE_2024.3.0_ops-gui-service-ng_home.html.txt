@@ -1,0 +1,26 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ops-gui-service-ng/home.html ===
+Ops GUI Service
+The Ops GUI service provides all the scaffolding to implement the backend for the Icon OPS user interface. It also includes a reference implementation that can be run as a docker container.
+Core Modules
+Audit
+Authentication
+Common
+Optional modules
+ODS Payment Search
+Human Task Manager
+Processing Settings
+Cluster Management
+Ops GUI Starter
+The starter module can be used as a dependency of a custom client implementation. It will provide
+everything that the service needs to run, but not more than that, it will be just an empty shell with
+authentication capabilities.
+API docs
+The starter will include Open API documentation via SpringDoc. The Swagger UI will be accessible at
+localhost:8082/swagger-ui.html
+, assuming that you started the application using the functional end to end
+docker cluster.
+Modules not included in the starter
+Cluster Management
+ODS Payment Search
+Requirements
+ODS Payment Search

@@ -1,0 +1,6 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/concepts.html ===
+Concepts
+Within the SEPA DD STEP2 CSM the following concepts are defined:
+Multi Level Bulking
+SEPA DD STEP2 CSM Service
+SEPA DD STEP2 Flows

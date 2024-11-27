@@ -1,0 +1,11 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/scaffolder/features.html ===
+Scaffolder Features
+The scaffolder is capable of building different types of applications depending on what the intended use is.  This section details the different options and what their core usage is.
+Reusable Components
+When working with IPF applications, it is possible to create MPS artefacts that can be used and then plugged into another IPF application.  These reusable components are not expected to be run on their own but form an important part of a wider IPF eco-system.  If this is required, we generate the project using the "includeApplication" and "includeE2E" flags both with value "n".  The 'includeBuildScripts' property should be set to 'y'.
+Flow Based Applications
+The second core usage is to build flow applications.  These are expected to be used as core IPF orchestration applications.  In this case we include the "includeApplication" flag to "y".  Optionally we can include the "includeE2E" flag to "y", if this is done then an end to end setup including all the basis of running the application and tests in docker are included. The 'includeBuildScripts' property should be set to 'n'.
+Excluding Docker
+The scaffolder can build applications that do not depends on docker. For this we simply use the "useEmbeddedMongo" flag and specify the value of "y".  This will use a local embedded mongo application for testing.
+Concepts
+Getting Started

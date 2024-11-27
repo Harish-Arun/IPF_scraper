@@ -1,0 +1,27 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.orphan.Handle%20Orphan%20Send%20Recall%20To%20Csm%20Response.html ===
+Handle Orphan Send Recall To Csm Response.story
+Scenario: Handling orphan send recall to csm responses.
+When
+the i12Recall Servicei12  sends a Send Recall To Csm Request
+Then
+the i12CSMi12  receives a Payment Cancellation Request
+And
+i12Recall Servicei12  receives a Technical Response with values:
+| status | SUCCESS |
+When
+i12CSMi12  sends a negative orphan Payment Status Report
+Then
+i12Recall Servicei12  receives a System Event using predicate:
+| level                                 | WARN                                                       |
+| processingContext.associationId.value | #PaymentStatusReport.fIToFIPmtStsRpt.txInf*And*Sts.orgnlTxId |
+| name                                  | OrphanPaymentStatusReportReceived                          |
+| type                                  | FUNCTIONAL                                                 |
+| payload.csm                           | RT1                                                        |
+| payload.status                        | RJCT                                                       |
+| payload.rawMessage                    | prettyPrint(#PaymentStatusReport)                          |
+| payload.transactionId                 | #PaymentStatusReport.fIToFIPmtStsRpt.txInf*And*Sts.orgnlTxId |
+| payload.description                   | OrphanMessageForRecall                                     |
+!-- because this will be automatically sent always (i.e. doesnt matter if we received negative pacs002 or not)
+And
+i12Recall Servicei12  receives a Send Recall To Csm Response using predicate:
+|payload.content.txInf*And*Sts[0].orgnlTxId | #SendRecallToCsmRequest.payload.content.undrlyg[0].txInf[0].cxlId |

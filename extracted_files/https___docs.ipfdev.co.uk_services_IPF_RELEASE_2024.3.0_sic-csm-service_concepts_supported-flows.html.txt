@@ -1,0 +1,30 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/concepts/supported-flows.html ===
+SIC Supported Flows
+Further details of the standard supported flows are available
+here
+Supported
+Customised
+Credit Transfer Flows
+Debtor Payment Flow
+Y
+Y
+Creditor Payment Flow
+Y
+Y
+Return Flows
+Debtor Return Flow
+Y
+Y
+Creditor Return Flow
+Y
+Y
+There is currently no support available for
+camt
+messages, at present the expectation is that the messages will be handled external to the service.
+Sic Payment Flow
+Debtor CT Flow
+Creditor CT Flow
+Creditor Return Flow
+Debtor Return Flow
+Concepts
+SIC Scenarios

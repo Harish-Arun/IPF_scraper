@@ -1,0 +1,122 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/iban-structure-directory.html ===
+IBAN Structure Directory
+IBAN Structure, containing information about the ISO IBAN formats registered by countries that adopted IBANs in their payment systems.
+IBAN Structure dynamic configuration is used during IBAN deconstruction by IPF CSM Reachability Service.
+Iban Structure Directory Data Structure
+Iban Structure property
+Description
+ibanCountryCode
+The country which has issued the IBAN
+ibanCountryCodePosition
+Position of Iban Country Code
+ibanCountryCodeLength
+Size of Iban country Code
+ibanCheckDigitsPosition
+The position of check digit values in the IBAN (for given country)
+ibanCheckDigitsLength
+The length of check digit values on the IBAN for given country
+bankIdentifierPosition
+Position of Bank Identifier
+bankIdentifierLength
+Size of Bank Identifier
+branchIdentifierLength
+Size of Branch identifier
+ibanNationalIdLength
+Size of Iban National Id
+accountNumberLength
+Size of Account Number
+accountNumberPosition
+Position of Account Number
+ibanTotalLength
+Total Size of Iban
+File Types Supported
+File Name
+File Types Supported
+File Formats Supported
+File Naming Conventions
+IBAN Structure
+FULL
+TXT, XML
+IBANSTRUCTURE_FULL_YYYYMMDD
+IBAN Structure
+DELTA
+TXT, XML
+IBANSTRUCTURE_DELTA_YYYYMMDD
+AWS S3 Ingestion identifies this file when the file name starts with "IBANSTRUCTURE". The Full file is identified using the text FULL on the file name and the delta file is identified using the text DELTA.
+The client implementations should not modify the files names provided by industry sources and ingest the files as received.
+Mapping Definitions
+Iban Structure V2 file to Iban Structure Directory mapping
+Iban Structure V2 property
+Iban Structure property
+Comment
+iban_country_code
+ibanCountryCode
+iban_country_code_position
+ibanCountryCodePosition
+iban_country_code_length
+ibanCountryCodeLength
+iban_check_digits_position
+ibanCheckDigitsPosition
+iban_check_digits_length
+ibanCheckDigitsLength
+bank_identifier_position
+bankIdentifierPosition
+bank_identifier_length
+bankIdentifierLength
+branch_identifier_length
+branchIdentifierLength
+iban_national_id_length
+ibanNationalIdLength
+account_number_length
+accountNumberLength
+account_number_position
+accountNumberPosition
+iban_total_length
+ibanTotalLength
+Bellow table provides information about File type supported and File format.
+File Type Supported
+File Format Supported
+FULL/DELTA
+XML/TXT
+Example Mappings
+Source Record from Industry file
+<?xml version="1.0" encoding="UTF-8"?>
+<dataexport product="ibanstructure_v2" filetype="full" filedate="20190513">
+    <ibanstructure_v2>
+        <modification_flag>A</modification_flag>
+        <record_key>IS0000000001</record_key>
+        <iban_country_code>AD</iban_country_code>
+        <iban_country_code_position>1</iban_country_code_position>
+        <iban_country_code_length>2</iban_country_code_length>
+        <iban_check_digits_position>3</iban_check_digits_position>
+        <iban_check_digits_length>2</iban_check_digits_length>
+        <bank_identifier_position>5</bank_identifier_position>
+        <bank_identifier_length>4</bank_identifier_length>
+        <branch_identifier_position>9</branch_identifier_position>
+        <branch_identifier_length>4</branch_identifier_length>
+        <iban_national_id_length>8</iban_national_id_length>
+        <account_number_position>13</account_number_position>
+        <account_number_length>12</account_number_length>
+        <iban_total_length>24</iban_total_length>
+        <sepa>Y</sepa><optional_commence_date>20190301</optional_commence_date>
+        <mandatory_commence_date>20191201</mandatory_commence_date>
+        <iso13616>Y</iso13616>
+    </ibanstructure_v2>
+</dataexport>
+Destination Record IBAN Structure
+{
+  "ibanCountryCode": "AD",
+  "ibanCountryCodePosition": 1,
+  "ibanCountryCodeLength": 2,
+  "ibanCheckDigitsPosition": 3,
+  "ibanCheckDigitsLength": 2,
+  "bankIdentifierPosition": 5,
+  "bankIdentifierLength": 4,
+  "branchIdentifierLength": 4,
+  "ibanNationalIdLength": 8,
+  "accountNumberPosition": 13,
+  "accountNumberLength": 12,
+  "ibanTotalLength": 24
+}
+Exclusion List Directory
+SWIFTRef Bic Dir 2018

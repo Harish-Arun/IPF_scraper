@@ -1,0 +1,77 @@
+=== URL: https://docs.ipfdev.co.uk/functions/IPF_RELEASE_2024.3.0/businessfunctions/how-to-add-business-functions.html ===
+How to Add Business Functions
+Generating a new IPF solution preloaded with business functions
+Run the archetype as described in the
+IPF Archetype documentation
+with the following considerations:
+the IPF version used must be a release that includes business functions. 2024.1.0 or later.
+for business functions to be included by default.
+include/set
+-DincludeBusinessFunctions=y
+as a switch within the batch command you are running.
+You will see the business functions listed within your MPS project. They can be found at the package path
+com.iconsolutions.ipf.businessfunctions
+in the
+Solutions
+and
+DevKits
+folders of your
+Modules Pool
+.
+Adding business functions to an existing IPF solution
+Prerequisites
+Your project must be using IPF release 2024.1.0 or later.
+1. Update your maven dependency plugin executions
+Add the below
+unpack-ipf-business-functions-plugin
+execution to the
+maven-dependency-plugin
+build plugin included within your
+mps
+module. If your project was generated using the IPF Archetype this will be a submodule of
+<your-project-name>-domain
+.
+<execution>
+    <id>unpack-ipf-business-functions-plugin</id>
+    <phase>initialize</phase>
+    <goals>
+        <goal>unpack</goal>
+    </goals>
+    <configuration>
+        <artifactItems>
+            <artifactItem>
+                <groupId>com.iconsolutions.ipf.businessfunctions.aggregator.domain</groupId>
+                <artifactId>com.iconsolutions.ipf.businessfunctions.aggregator</artifactId>
+                <version>${icon-business-functions-aggregator.version}</version>
+                <type>zip</type>
+                <overWrite>true</overWrite>
+                <outputDirectory>${plugin_home}</outputDirectory>
+            </artifactItem>
+        </artifactItems>
+    </configuration>
+</execution>
+2. Add the aggregators external libraries as a dependency
+Add the below dependency to the pom.xml for your
+domain
+module. If your project was generated using the IPF Archetype this will be a submodule of
+<your-project-name>-domain
+.
+<dependency>
+	    <groupId>com.iconsolutions.ipf.businessfunctions.aggregator.domain</groupId>
+	    <artifactId>external-libraries</artifactId>
+	</dependency>
+3. Rebuild your MPS project
+Rebuild your project with
+mvn clean install
+.
+You will see the business functions listed within your MPS project. They can be found at the package path
+com.iconsolutions.ipf.businessfunctions
+in the
+Solutions
+and
+DevKits
+folders of your
+Modules Pool
+.
+Business Functions
+Duplicate Check

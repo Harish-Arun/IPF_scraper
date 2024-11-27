@@ -1,0 +1,15 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/test-fw/how-to/system-awareness-how-to.html ===
+How do I restrict a message to a given system?
+Data to the consumed message with the following entry:
+HeaderMetaConstants.RECEIVING_SYSTEM -> "system-1"
+All relevant message definitions should be associated with the system via the following builder property.
+.withDefaultSystem("system-1")
+All relevent MessageTransport instances should be associated with the system via the following builder property
+.withSystem("system-1")
+All common transports step invocations for the associated message type should have the receivingSystem and sendingSystem property associated
+When the 'system-1' sends the 'some message type'
+Finally, system awareness is enabled by the setting of the following java system property (default is disabled).
+ Note this is global and should be defined in the highest aggregating module containing the runners and stories
+system.aware=true
+How do I create a 'Web' Test?
+How do I create a step library?

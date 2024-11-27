@@ -1,0 +1,38 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/ipf-test-fw/home.html ===
+IPF Test Framework
+The IPF Test Framework is an extension of Icons Test Framework to provide out of the box steps and utility methods to support working with IPF based applications.
+Getting Started
+Dependencies
+To get started using the ipf-test-fw, include the core dependency in your project.
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.test</groupId>
+    <artifactId>ipf-test-fw-application</artifactId>
+    <scope>test</scope>
+</dependency>
+Creating a Runner
+The next thing youll need is a runner to execute your tests, to do this we simply extend the provided runner:
+@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@Import({AllTestConfig.class})
+public class FeatureTestRunner extends IPFFeatureTestRunner {}
+This allows you to extend the runner as needed. One common extension is to override the default threads.  You can do this for example by overriding the following:
+@Override
+public int threads() {
+    return 15;
+}
+This will make the tests run with 15 concurrent threads.  The default is 10.
+Another useful example is to override the metaFilters() method like:
+@Override
+public List<String> metaFilters() {
+   return List.of("+inprogress");
+}
+This will make the tests only run those with a meta tag of 'inprogress'. Often it is a good idea to make a second runner just for this process. Then it is possible to mark a test as inprogress in the bdd by setting the following at the start of the file:
+Meta:
+@inprogress
+When executing a runner like this, only story files with the meta tag associated will be run.
+To see other potential overrides, look at the 'IPFFeatureTestRunner' class.
+Creating story files
+Story files hold the Gherkin syntax BDD for your tests, these story files should be placed inside the resources folder of your test structure.  This will then be picked up by the default runner and executed.
+Running Test Files
+Once your runner and story files are in place, we simply can run the runner and wait for our results.
+Examples
+Step Library

@@ -1,0 +1,42 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/schematics/ng-new.html ===
+Ops Dashboard Installation
+Installing Angular CLI
+Install the CLI using the npm package manager:
+npm install -g @angular/cli
+Generate project
+Generate the new project by running the following command from the schematics folder:
+ng new --collection="." --dry-run
+Youll be prompted to enter your project name and multi-select which IPF modules you wish to install.
+Update your .npmrc to work with yarn.
+Open your .npmrc and make sure you have the extra lines below with the relevant auth token supplied.
+@iconsolutions:registry=https://nexus.ipf.iconsolutions.com/repository/ipf-npm/
+//nexus.ipf.iconsolutions.com/repository/:_authToken={AuthToken}
+//nexus.ipf.iconsolutions.com/repository/ipf-npm/:_authToken={AuthToken}
+To create, build, and serve the new application, go to the parent directory of your new workspace use the following commands:
+ng new --collection="." my-first-project
+cd my-first-project
+ng serve
+Example of creating a new project from a sibling folder:
+ng new --collection="../ops-gui-framework/schematics" my-first-project
+cd my-first-project
+ng serve
+In your browser, open
+localhost:4200/
+to see the new application run. When you use the ng serve command to build an application and serve it locally, the server automatically rebuilds the application and reloads the page when you change any of the source files.
+Customising your application
+Adding roles for routes
+Navigate to
+my-first-project/src/app/app.module.ts
+and add the roles to the required roots. Example:
+const routes: Routes = [{
+        path: 'ods',
+        loadChildren: () => import('@iconsolutions/ods').then((m) => m.OdsSearchModule),
+        data: { roles: ['ROLE_PAYMENT'] }
+    }]
+This will add the
+'ROLE_PAYMENT'
+role to the
+ods
+module.
+GUI Framework
+Common Library

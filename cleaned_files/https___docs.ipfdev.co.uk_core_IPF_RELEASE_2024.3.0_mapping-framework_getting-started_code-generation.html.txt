@@ -1,0 +1,255 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/mapping-framework/getting-started/code-generation.html ===
+Code Generation and use
+This page will cover how to generate the mapping code and then subsequently how to use those mappers.
+Generating the mapping report
+Sometimes we are faced with the daunting task of configuring the mapping between two similar, large, deep class
+structures (like two different versions of ISO 20022), so we consider using
+implicit mapping
+but like the idea of staying in control. In such a case it would be good to know what actual mappings would be
+applied. Luckily, the framework includes a Maven plugin to do just that:
+pom.xml
+<plugin>
+    <groupId>com.iconsolutions.ipf.core.mapper</groupId>
+    <artifactId>orika-transformation-report-plugin</artifactId>
+    <version>${ipf-mapping-framework.version}</version>
+    <dependencies>
+        <!-- Do not forget to list your domain class libraries here -->
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>my-iso20022-domain</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
+</plugin>
+This plugin will be run on the command line:
+$ mvn orika-transformation-report:mapping-report \
+-Dsource=eba.scti.iso.std.iso._20022.tech.xsd.pacs_002_001_003.FIToFIPaymentStatusReportV03 \
+-Ddestination=iso.std.iso._20022.tech.xsd.pacs_002_001_007.FIToFIPaymentStatusReportV07
+producing the an output made of two parts.
+The first part will explain what an implicit mapping would result in:
+Mapping report for eba.scti.iso.std.iso._20022.tech.xsd.pacs_002_001_003.FIToFIPaymentStatusReportV03 to iso.std.iso._20022.tech.xsd.pacs_002_001_007.FIToFIPaymentStatusReportV07
+  Mapped from source
+     grpHdr (SCTInstGroupHeader5) to grpHdr (GroupHeader53)  (1)
+       msgId (String) to msgId (String)                      (2)
+       creDtTm (XMLGregorianCalendar) to creDtTm (XMLGregorianCalendar)
+       instgAgt (SCTInstBranchAndFinancialInstitutionIdentification3) to instgAgt (BranchAndFinancialInstitutionIdentification5)
+         finInstnId (SCTInstFinancialInstitutionIdentification5Choice) to finInstnId (FinancialInstitutionIdentification8)
+           bic not mapped                                    (3)
+           bicfi in target but not mapped from source
+           clrSysMmbId in target but not mapped from source  (4)
+           nm in target but not mapped from source
+           pstlAdr in target but not mapped from source
+           othr in target but not mapped from source
+         brnchId in target but not mapped from source
+...
+Matching different classes by name
+Valid mapping
+bic
+should be mapped to
+bicfi
+below
+Fields missing a direct correspondence in the source class
+The second part of the report will contain a mapping suggestion, to get started with:
+source-class: eba.scti.iso.std.iso._20022.tech.xsd.pacs_002_001_003.FIToFIPaymentStatusReportV03
+destination-class: iso.std.iso._20022.tech.xsd.pacs_002_001_007.FIToFIPaymentStatusReportV07
+implicit-mapping: true
+target-class-name: ADD YOUR DESIRED CLASS NAME HERE                      # (1)
+mappings: [
+  {source: NO SOURCE DETECTED, destination: splmtryDatas, type: List}    # (2)
+  {source: NO SOURCE DETECTED, destination: grpHdr.instgAgt.brnchId, type: BranchData2}
+  {source: NO SOURCE DETECTED, destination: grpHdr.instgAgt.finInstnId.bicfi, type: String}
+  {source: NO SOURCE DETECTED, destination: grpHdr.instgAgt.finInstnId.clrSysMmbId, type: ClearingSystemMemberIdentification2}
+  {source: NO SOURCE DETECTED, destination: grpHdr.instgAgt.finInstnId.nm, type: String}
+  {source: NO SOURCE DETECTED, destination: grpHdr.instgAgt.finInstnId.pstlAdr, type: PostalAddress6}
+  {source: NO SOURCE DETECTED, destination: grpHdr.instgAgt.finInstnId.othr, type: GenericFinancialIdentification1}
+  {source: grpHdr.instgAgt.finInstnId.bic, destination: NO DESTINATION MATCHED, type: String}
+// ...
+]
+The target class name is needed. Also, a
+target-package
+must be added.
+This is the list of missing mappings according to Orika. Change as required.
+Generating the Java Code
+To generate the Java code, the user project will need to use Maven and configure the following Maven plugin:
+pom.xml
+<plugin>
+    <groupId>com.iconsolutions.ipf.core.mapper</groupId>
+    <artifactId>orika-transformation-generation-plugin</artifactId>
+    <version>${ipf-mapping-framework.version}</version>
+    <executions>
+        <execution>
+            <id>make-mappers</id>
+            <goals>
+                <goal>generate-code</goal>
+            </goals>
+            <configuration>
+                <!-- location of the HOCON files -->
+                <mapperPath>${project.basedir}/src/main/mappers</mapperPath>
+                <!-- where to place generated sources -->
+                <generatedMappersPath>${project.build.directory}/generated-sources/java</generatedMappersPath>
+                <!-- where to place generated test-sources -->
+                <generatedMappersTestPath>${project.build.directory}/generated-test-sources/java </generatedMappersTestPath>
+                <!-- the Java package they will belong to -->
+                <targetPackage>com.ipf.example.mapping</targetPackage>
+                <!-- Name the generated class that will instantiate our universal mapping service -->
+                <transformationServiceFactoryName>ExampleTransformationFactory</transformationServiceFactoryName>
+                <!-- You can code your own Orika mappings if you wish, just place them in the target package and list them below -->
+                <additionalCustomisers>
+                    <additionalCustomiser>MySpecialCustomiser</additionalCustomiser>
+                    <additionalCustomiser>MyPreciousCustomiser</additionalCustomiser>
+                </additionalCustomisers>
+            </configuration>
+        </execution>
+    </executions>
+    <dependencies>
+        <!--
+            The plugin needs to depend on your domain classes to generate the code.
+            List all domain model libraries as dependencies here.
+        -->
+        <dependency>
+            <groupId>com.iconsolutions.ipf.core.mapper</groupId>
+            <artifactId>example-model</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
+</plugin>
+When the build is run and the plugin goal is executed, a number of
+customiser
+classes are produced for both mappings and enrichments.
+These generated classes interact with the Orika mapping API to implement
+the actual mappings. Custom ones can be written by using the Orika API
+and then added to the
+<additionalCustomisers />
+above.
+Skip Java Test Code Generation
+In order to disable the test code generation set
+<skipTestsGeneration>true<skipTestsGeneration/>
+.
+By default,
+skipTestsGeneration
+is false, which requires
+generatedMappersTestPath
+to have a value.
+Example configuration shown below:
+pom.xml
+<configuration>
+    <!-- location of the HOCON files -->
+    <mapperPath>${project.basedir}/src/main/mappers</mapperPath>
+    <!-- where to place generated sources -->
+    <generatedMappersPath>${project.build.directory}/generated-sources/java</generatedMappersPath>
+    <!-- When true the test code is not generated - default is set to false -->
+    <skipTestsGeneration>true</skipTestsGeneration>
+    <!-- Not required when skipping test code generation -->
+    <!-- <generatedMappersTestPath>${project.build.directory}/generated-test-sources/java </generatedMappersTestPath> -->
+    <!-- the Java package they will belong to -->
+    <targetPackage>com.ipf.example.mapping</targetPackage>
+    <!-- Name the generated class that will instantiate our universal mapping service -->
+    <transformationServiceFactoryName>ExampleTransformationFactory</transformationServiceFactoryName>
+    <!-- You can code your own Orika mappings if you wish, just place them in the target package and list them below -->
+    <additionalCustomisers>
+        <additionalCustomiser>MySpecialCustomiser</additionalCustomiser>
+        <additionalCustomiser>MyPreciousCustomiser</additionalCustomiser>
+    </additionalCustomisers>
+</configuration>
+Writing Additional Customisers
+From Orikas documentation:
+Orika uses a declarative Java-based configuration of mappings from one class to another,
+whereby you define which fields from one type need to be matched up with which fields from another using a fluent-style API.
+ in Orika User Guide,
+Declarative Mapping Configuration
+This means we can leverage the full flexibility of the Orika framework to tackle edge cases, such as:
+Specifying a constructor to use for the target class
+class TestA {
+  private String foo;
+  private String bar;
+  // ...
+}
+class TestB {
+    public TestB(String arg1, String arg2) {
+        // ...
+    }
+}
+class MyCustomiser implements OrikaCustomiser {
+    public void customise(MapperFactory mapperFactory) {
+        mapperFactory.classMap(TestA.class, TestB.class)
+           .constructorB("foo","bar") // TestA's foo and bar used to instantiate TestB
+           //...
+           .register();
+    }
+}
+Mapping values of Map properties
+class TestA {
+  private Map<String, String> address;
+  // ...
+}
+class TestB {
+  private String firstLine;
+  private String secondLine;
+  // ...
+}
+class MyCustomiser implements OrikaCustomiser {
+    public void customise(MapperFactory mapperFactory) {
+        mapperFactory.classMap(TestA.class, TestB.class)
+           .field("address['line1']", "firstLine")
+           .field("address['town']", "secondLine")
+           .register();
+    }
+}
+See the Orikas guide to
+Declarative Mapping Configuration using the fluent-style ClassMapBuilder API
+'
+for more details and use cases.
+Using the Generated Code
+In the
+previous section
+, we showed how to configure the code generation. Part of the task was
+to choose a name for a Java class that would instantiate our mapping service:
+<transformationServiceFactoryName>ExampleTransformationFactory</transformationServiceFactoryName>
+Our generated
+ExampleTransformationFactory
+class will then be used to create a
+TransformationService
+,
+which is effectively our
+universal
+mapping service:
+Instantiating a TransformationService
+TransformationService transformationService = new ExampleTransformationFactory(
+    DefaultEnrichmentContext.builder().build()
+).transformationService();
+This single, generic mapper alone will cover all the mapping and enrichment configuration.
+Given it is stateless, sharing a single instance or running multiple ones is a matter of design choice.
+As we can see from the example above, the service factory needs an
+enrichment context
+and the framework provides us with a default implementation called
+DefaultEnrichmentContext
+, where:
+a UTC system clock is used
+HOCON configuration is read from files named "ipf.conf"
+randomly generated tokens are 32 characters long
+These three aspects can be configured as seen in the example below:
+Configuring the default enrichment context
+DefaultEnrichmentContext.builder()
+    .withClock(Clock.system(ZoneId.of("GMT+2")))                            // (1)
+    .withConfigProvider(new SimpleConfigProvider(
+            ConfigFactory.load("my-application.conf")))                     // (2)
+    .withRandomAlphaNumericGenerator(new RandomAlphanumericGenerator(16));  // (3)
+change the timezone
+supply a different source of configuration
+change the token length
+Now that we have a TransformationService, lets look at what we can do with it:
+Mapping an object to a different class
+TestA testA = new TestA();
+testA.setFoo("something magic");
+TestB testB = transformationService.map(testA, TestB.class);
+assertThat(testB.getBar(), is("something magic"));
+Enriching an object
+TestB testB = transformationService.enrich(new TestB());
+// testB has been applied any configured enrichment
+Mapping to a target class then enrich
+TestA testA = new TestA();
+testA.setFoo("something magic");
+TestB testB = transformationService.mapThenEnrichWithDefault(testA, TestB.class);
+// testB has been both mapped from testA and applied any configured enrichment
+Defining the Mapping Relationships
+Orika Transformation Implementation - Direct Usage

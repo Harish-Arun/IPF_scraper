@@ -1,0 +1,69 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/notification-service/features/data-handler.html ===
+Processing Data Handler
+It all starts with the Processing Data Handler, which simply acts as a proxy around the Resequencer actors.
+This class implements an IPF Processing Data Handler,
+which allows consuming instances of Data Envelope.
+The Notification Service receive connectors feature the following settings:
+Config key
+Description
+Default value
+ipf.processing-data.ingress.kafka.consumer.topic
+The topic that various services are publishing their IPF processing data events onto.
+IPF_PROCESSING_DATA
+ipf.processing-data.ingress.kafka.consumer.kafka-clients
+Kafka consumer settings
+for the response topic consumer, such as:
+Bootstrap servers
+(
+bootstrap.servers
+)
+TLS (
+ssl.*
+)
+(Kafka defaults)
+Which are overridden in
+ipf-impl.conf
+:
+ipf.processing-data.ingress.kafka.consumer {
+  kafka-clients = {
+    group.id = ipf-notification-service-ingress-consumer-group
+    auto.offset.reset = earliest
+  }
+}
+Its worth understanding what happens when the Data Envelope arrives the Processing Data Handler. The following diagram shows this.
+When the Data Envelope arrives the Processing Data Handler, it gets passed to according Resequencer actor for "reordering", and then all Object container objects are extracted from it.
+They can be of three types:
+MDS Object Container: they are handled by MDS Object Handler
+Custom Object Container: they are handled by Custom Object Handler
+Process Object Container: they are handled by Process Object Handler
+All MDS objects get processed first from passed Data envelope, before Process objects are passed to Process Object Handler.
+MDS Object Handler
+MDS Object Handler instantiates a
+payment data cache service
+. Then, it filters messages from the following object types:
+PAIN_001
+PAIN_001_PAYMENT_INSTRUCTION
+PAIN_001_CREDIT_TRANSFER_TRANSACTION
+Then it calls the caching service.
+Custom Object Handler
+Custom Object Handler instantiates a
+custom data cache service
+. Then it calls the caching service.
+Pds Object Handler
+Pds Object Handler instantiates a
+pds data cache service
+. Then it calls the caching service.
+Process Object Handler
+Process Object Handler instantiates a
+Payment Status Notification Settings Query
+and a
+Notification Sender
+. Then it filters messages from the following object type:
+PROCESS_FLOW_EVENT
+As you can see from the diagram, there are two new concepts that were introduced:
+Payment Status Notification Settings Query
+and
+Notification Sender
+. They are introduced and explained in detail in those sections.
+Features
+Payment Status Notification Settings Query

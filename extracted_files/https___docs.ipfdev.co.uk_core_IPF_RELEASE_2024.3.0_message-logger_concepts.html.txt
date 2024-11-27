@@ -1,0 +1,28 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/message-logger/concepts.html ===
+Concepts
+In order for sent/received messages to be logged in an IPF implementation, developers must implement a suitable message logger. There is no default logger (though out-of-the-box implementations are available that log to
+Mongo
+and
+Kafka
+) as every client has different requirements ; some may wish to use a corporate central log, some may wish to use
+ODS
+or maybe even a mix depending on the message in question. This section of the documentation contains technical information for developers that allows them to implement message logging for an IPF solution.
+A Message Logger in IPF is any class that implements this simple functional interface:
+public interface MessageLogger {
+    void logMessage(MessageLogEntry var1);
+}
+A common requirement is to log every message sent to or from a flow and an implementation of the MessageLogger can be provided for that purpose. We provide a logging implementation to a
+Connector
+for example.
+Connectors are a very common place where a logger is used, and the Connector framework offers the additional option to enrich message data by providing an implementation of the MessageLogEntryEnrichment functional interface:
+public interface MessageLogEntryEnricher<T> {
+    void enrich(ConnectorMessage<T> connectorMessage, MessageLogEntry messageLogEntry);
+}
+(see the
+Connector Message Logging docs
+)
+Before deciding to use a specific logger it’s worth considering where the message and other data logging fits into your overall strategy, especially if implementing ODS. See the
+Using ODS
+page for more on this.
+Getting started
+Features

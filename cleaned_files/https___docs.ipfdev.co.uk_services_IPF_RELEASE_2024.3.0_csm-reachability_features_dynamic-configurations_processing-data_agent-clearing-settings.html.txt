@@ -1,0 +1,43 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/processing-data/agent-clearing-settings.html ===
+Agent Clearing Settings
+Agent Clearing Settings are the configurations for an Agent that can be used for clearing of the payment messsages between the Processing Entity and the Agent. These settings are independent of the transfer currency and do not concern with actual settlement. Agent Clearing Settings are optional configurations and should be set up when these are required against an Agent.
+Dynamic Configuration Properties
+Name
+Description
+ProcessingEntity
+For Clients who may wish to configure different Settings for different entities within their organisation (e.g. different Branches) This value will define which Processing Entity this record applies to.
+For Clients who do not require different settings for different Processing Entities the value will be a constant.
+AgentUniqueId
+A unique identifier assigned by the Processing Entity to the Agent. The AgentUniqueId is defined on the Agent settings.
+CoverSerialMethod
+The mode of clearing of messages between the agent. This will be applicable for Correspondent agents in general. This can also apply to IngraGroup agent as well.
+If for the same agent, both the Cover and Serial methods apply (unlikely but possible), then that agent should be added as a separate Agent record for clean data set up.
+TimeZone
+Conditional on OpeningTime / ClosingTime. Needs to be populated when OpeningTime / ClosingTime are populated.
+Enum list of the tz based timezone lists. Extensible for client implementations.
+OpeningTime
+Opening time for concerning day of week (Local time as per the timezone specified)
+ClosingTime
+Closing time for concerning day of week (Local time as per the timezone specified)
+OpeningExtension
+Temporary extension of operating hours, specified in minutes.
++ ExtensionInMinutes
+An extension period to the standard Closing time. , specified in minutes.
+This should not exceed 360 minutes and when set, should be more than 0 minutes.
++ ExtensionExpiresOnDate
+The date when the extension should expire and regular closing time should be used.
+AgentBusinessCalendarId
+The Business calendar for the agent, this can be defined for any agent type but will particularly be required for Agent type of ACH. This can also be required for correspondent and IntraGroup type agents, but the need should be evaluated by Client Implementations.
+AgentBusinessHolidayCalendarId
+The holiday calendar with non-calendar Holidays. This can be defined for any agent type but will particularly be required for Agent type of ACH. This can also be required for correspondent and IntraGroup type agents, but the need should be evaluated by Client Implementations.
+Searchable Fields
+Searchable field for Agent Clearing Settings is:
+agentUniqueId
+For this field
+index
+in the database should be created.
+Please refer
+Dynamic Configuration Management Guidelines
+for steps to be followed for configuring the dynamic configurations.
+Agent Settlement Settings
+CS Agent Selection Settings

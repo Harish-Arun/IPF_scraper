@@ -1,0 +1,207 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/test-fw/api/index.html ===
+Test Executor API
+1. Endpoints
+1.1. ExecutorController
+1.1.1. addStory
+POST /stories/add-story
+Description
+Parameters
+Form Parameters
+Name
+Description
+Required
+Default
+Pattern
+file
+[file]
+X
+null
+Query Parameters
+Name
+Description
+Required
+Default
+Pattern
+tag
+X
+null
+Return Type
+AddStoryResponseDTO
+Content Type
+application/json
+Responses
+http response codes
+Code
+Message
+Datatype
+200
+OK
+AddStoryResponseDTO
+Samples
+1.1.2. getReport
+GET /stories/report
+Description
+Parameters
+Return Type
+JsonReportDTO
+Content Type
+application/json
+Responses
+http response codes
+Code
+Message
+Datatype
+200
+OK
+JsonReportDTO
+Samples
+1.1.3. getStories
+GET /stories/get-stories
+Description
+Parameters
+Query Parameters
+Name
+Description
+Required
+Default
+Pattern
+tag
+-
+null
+Return Type
+StoryDirectoryDTO
+Content Type
+application/json
+Responses
+http response codes
+Code
+Message
+Datatype
+200
+OK
+StoryDirectoryDTO
+Samples
+1.1.4. getStoryDetail
+GET /stories/story-detail
+Description
+Parameters
+Query Parameters
+Name
+Description
+Required
+Default
+Pattern
+name
+X
+null
+Return Type
+[String]
+Content Type
+text/plain
+Responses
+http response codes
+Code
+Message
+Datatype
+200
+OK
+[String]
+404
+The file cannot be found
+[String]
+Samples
+1.1.5. runStories
+POST /stories/run-stories
+Description
+Parameters
+Query Parameters
+Name
+Description
+Required
+Default
+Pattern
+tag
+-
+null
+name
+-
+null
+Return Type
+RunStoriesResponseDTO
+Content Type
+application/json
+Responses
+http response codes
+Code
+Message
+Datatype
+200
+OK
+RunStoriesResponseDTO
+Samples
+2. Models
+2.1.
+AddStoryResponseDTO
+Field Name
+Required
+Type
+Description
+Format
+status
+String
+Enum:
+SUCCESS, SUBMITTED, FAILURE, RUN_IN_PROGRESS,
+failures
+List  of
+[string]
+2.2.
+JSONObject
+Field Name
+Required
+Type
+Description
+Format
+empty
+Boolean
+2.3.
+JsonReportDTO
+Field Name
+Required
+Type
+Description
+Format
+status
+String
+Enum:
+SUCCESS, SUBMITTED, FAILURE, RUN_IN_PROGRESS,
+error
+String
+reports
+List  of
+JSONObject
+2.4.
+RunStoriesResponseDTO
+Field Name
+Required
+Type
+Description
+Format
+status
+String
+Enum:
+SUCCESS, SUBMITTED, FAILURE, RUN_IN_PROGRESS,
+2.5.
+StoryDirectoryDTO
+Field Name
+Required
+Type
+Description
+Format
+name
+String
+subdirectories
+List  of
+StoryDirectoryDTO
+fileNames
+List  of
+[string]

@@ -1,0 +1,75 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/installation/sizing.html ===
+Sizing Guidelines
+Database Resources
+ODS uses the following database collections to store payment information
+Summaries
+Summary objects represent a simple aggregate view representing a single payment / level of processing
+Payments
+All IPF Payment Model elements (ISO20022 messages elements etc.) used in the process flows are saved here in a standard ODS wrapper.
+CustomObjects
+If custom objects are being used in IPF processing flows, they will be persisted here with a standard ODS wrapper.
+Processes
+Process objects are a general term for a set of data points that are captured relating to the metadata on processing a payment through IPF, this includes:
+Process Flow Definitions
+Process Flow Invocation - start of IPF Process Flow
+Process Flow Event - standardised versions of the IPF Domain Events used within the Journal
+Message Logs - captures raw message exchange between IPF and external systems
+System Events - low-level system events used to trigger metrics, such as circuit breaker open.
+Due to the volume of system events, we would typically recommend that they are not loaded into ODS
+Collection Name
+Number of Indexes
+Calls per Flow
+Average Size per Payment (uncompressed)
+payments
+38
+5
+8KB
+customObjects
+9
+n/a
+n/a
+summaries
+31
+1
+6KB
+processes - Process Flow Events
+15
+[
+1
+]
+...
+...
+processes - Process Flow Invocation
+15
+1
+4KB
+processes - Message Logs
+15
+...
+[
+2
+]
+...
+[
+3
+]
+processes - System Events
+15
+...
+< 1 KB per event
+archiverCandidateSelectionState
+none
+N/A
+N/A
+purgeReports
+1
+N/A
+N/A
+1
+. All the different underlying process object types use the same underlying database collection and so the same indexes
+2
+. Based on number of external systems and whether they are send-only or request/response
+3
+. Total size will be based on the underlying raw message size including headers etc. plus the ODS standard wrapper
+Deployment Options
+System Requirements

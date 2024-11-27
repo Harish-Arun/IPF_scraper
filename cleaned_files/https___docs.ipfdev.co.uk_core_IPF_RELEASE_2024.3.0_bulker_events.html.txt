@@ -1,0 +1,363 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/events.html ===
+List of System Events
+The below table documents the system events that can be raised by
+Bulker
+. Payload schemas are documented as
+JSON Schema draft 4
+.
+Use a tool such as
+this one
+for a visual representation of the payload
+schemas.
+All events contain some basic top-level information, and a payload. The top-level information is represented as
+members of the
+IPFSystemEvent
+type, and their payloads are documented below.
+The schema for the top-level
+IPFSystemEvent
+type is as follows:
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "IPF System Event",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "name" : {
+      "type" : "string"
+    },
+    "level" : {
+      "type" : "string",
+      "enum" : [ "DEBUG", "INFO", "WARN", "ERROR" ]
+    },
+    "createdAt" : { },
+    "version" : {
+      "$ref" : "#/definitions/EventVersion"
+    },
+    "type" : {
+      "type" : "string",
+      "enum" : [ "TECHNICAL", "FUNCTIONAL" ]
+    },
+    "processingContext" : {
+      "$ref" : "#/definitions/ProcessingContext"
+    },
+    "source" : {
+      "type" : "string"
+    },
+    "metadata" : {
+      "type" : "object",
+      "additionalProperties" : {
+        "type" : "string"
+      }
+    },
+    "payload" : {
+      "$ref" : "#/definitions/Object"
+    }
+  },
+  "definitions" : {
+    "EventVersion" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "major" : {
+          "type" : "integer"
+        },
+        "minor" : {
+          "type" : "integer"
+        },
+        "patch" : {
+          "type" : "integer"
+        }
+      },
+      "required" : [ "major", "minor", "patch" ]
+    },
+    "ProcessingContext" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "associationId" : {
+          "type" : "string"
+        },
+        "checkpoint" : {
+          "type" : "string"
+        },
+        "unitOfWorkId" : {
+          "type" : "string"
+        },
+        "clientRequestId" : {
+          "type" : "string"
+        },
+        "processingEntity" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Object" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : { }
+    }
+  }
+}
+Bulker System Events
+Name
+Description
+Type
+Level
+Payload schema
+ArchiveBulkFailed
+Published when archiving a bulk file fails
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "bulkId" : {
+      "type" : "string"
+    },
+    "fileName" : {
+      "type" : "string"
+    }
+  }
+}
+BulkConfigurationError
+Published when an invalid bulk configuration results in failure
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    }
+  }
+}
+CommandValidationFailed
+Published when command validation fails
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "bulkId" : {
+      "type" : "string"
+    },
+    "command" : {
+      "type" : "string"
+    }
+  }
+}
+ComponentDeletionFailed
+Published when deleting component from database fails
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "bulkComponentId" : {
+      "type" : "string"
+    },
+    "bulkId" : {
+      "type" : "string"
+    }
+  }
+}
+ComponentSaveFailed
+Published when saving component to database fails
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "bulkComponentIds" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
+    }
+  }
+}
+FailedToLoadBulkState
+Published when loading bulk state fails
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "actorPath" : {
+      "type" : "string"
+    }
+  }
+}
+FailedToPersistBulkState
+Published when persisting bulk state fails
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "actorPath" : {
+      "type" : "string"
+    }
+  }
+}
+FileDeletionFailed
+Published when file deletion fails
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "bulkId" : {
+      "type" : "string"
+    },
+    "fileName" : {
+      "type" : "string"
+    }
+  }
+}
+NotificationFailure
+Published when handling of a notification fails
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "bulkId" : {
+      "type" : "string"
+    },
+    "type" : {
+      "type" : "string"
+    }
+  }
+}
+ProduceBulkFileFailed
+Published when produce bulk file fails
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "fileName" : {
+      "type" : "string"
+    },
+    "bulkId" : {
+      "type" : "string"
+    }
+  }
+}
+RootComponentGenerationFailed
+Published when root component generation fails
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "specificationName" : {
+      "type" : "string"
+    },
+    "bulkId" : {
+      "type" : "string"
+    }
+  }
+}
+ScheduleAutoCloseFailed
+Published when scheduling auto close fails
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "bulkId" : {
+      "type" : "string"
+    }
+  }
+}
+StateDeletionFailed
+Published when deleting state from database fails
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "bulkId" : {
+      "type" : "string"
+    }
+  }
+}
+Getting started
+Debulker

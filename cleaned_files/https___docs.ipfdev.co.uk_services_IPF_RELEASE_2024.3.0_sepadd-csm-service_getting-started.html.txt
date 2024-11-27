@@ -1,0 +1,325 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/getting-started.html ===
+Getting Started
+Configuration and Runtime
+The SEPA DD STEP2 CSM is essentially a stand-alone application that can be run as a service much like any other IPF application deployment.
+However you decide to run your IPF applications, you can do the same thing for this CSM.
+Configuration
+SEPA DD CSM Service
+The below configuration is the minimum required for the SEPA DD CSM Service
+ipf {
+  mongodb.url = "mongodb://ipf-mongo:27017/sepadd"
+(1)
+csm.sepa-dd {
+    bulk-file-processing.archive = true
+(2)
+debulker.processing-entity = "BANK_ENTITY_1"
+    debulker.archive-path = "sepa-archive"
+  }
+}
+common-kafka-client-settings {
+  bootstrap.servers = "kafka:9092"
+(3)
+auto.offset.reset = earliest
+}
+
+ipf.bulker {
+(4)
+outputstream.local.enabled = false
+  outputstream.s3 = ${s3.config}
+
+  archiver {
+    file-system = "s3"
+  }
+  configurations = [
+    {
+      name = "IDF"
+      file-name-prefix = "idf-"
+      file-path = "sepa-bulks"
+      archive-path = "sepa-archive"
+      component-hierarchy {
+        component-parser-name = "xml"
+        marker = "MPEDDIdfBlkDirDeb"
+        namespace-prefix = "S2SDDIdf"
+        children = [
+          {
+            marker = "FIToFICstmrDrctDbt"
+          }
+        ]
+      }
+      scheduled-auto-close = {
+        auto-close-by-age = 15s
+      }
+    },
+    {
+      name = "PACS_003"
+      file-name-prefix = "pacs003-"
+      component-hierarchy {
+        component-parser-name = "xml"
+        marker = "FIToFICstmrDrctDbt"
+        children = [
+          {
+            marker = "DrctDbtTxInf"
+          }
+        ]
+      }
+      parent-bulk {
+        configuration-name = "IDF"
+        path = "FIToFICstmrDrctDbt"
+      }
+    }
+  ]
+}
+
+ipf.debulker {
+(5)
+archiving {
+    file-system = "s3"
+  }
+}
+
+akka {
+(6)
+cluster.seed-nodes = [
+    "akka://"${actor-system-name}"@sepadd-csm-application-1:"${akka.remote.artery.canonical.port},
+    "akka://"${actor-system-name}"@sepadd-csm-application-2:"${akka.remote.artery.canonical.port}
+  ]
+  remote.artery {
+    canonical.port = 55001
+    canonical.hostname = 0.0.0.0
+    bind.hostname = 0.0.0.0
+    bind.port = 55001
+  }
+  kafka {
+    producer {
+      kafka-clients = ${common-kafka-client-settings}
+    }
+    consumer {
+      kafka-clients = ${common-kafka-client-settings}
+      kafka-clients.group.id = sepadd-consumer-group
+      health-check-settings.enabled = true
+    }
+  }
+}
+
+ipf.file-manager.local.enabled = false
+(7)
+ipf.file-manager.s3 = ${s3.config}
+
+s3.config {
+  enabled = true
+  region = "us-east-1"
+  upload-parallelism = 1
+  credentials {
+    access-key-id = "test"
+    secret-access-key = "test"
+  }
+  resiliency-settings {
+    # Determines the maximum number of retries to be made. Note that this includes the first failed attempt.
+    max-attempts = 3
+    # Retry if HTTP error code is in the list
+    retryable-status-codes = [500, 503]
+    attempt-timeout = 3s
+    call-timeout = 1s
+  }
+  endpoint-url = "http://s3.localhost.localstack.cloud:4566" #https://docs.localstack.cloud/user-guide/aws/s3/#path-style-and-virtual-hosted-style-requests
+}
+
+ipf.working-days-service.connector.http.client {
+(8)
+host = working-days-service-app
+  port = 8080
+}
+Note the following key aspects:
+1
+Set the mongo URL as appropriate to your environment
+2
+This enables archiving of bulk files produced, location is configured as part of the bulker configuration at point 4
+3
+Set this property appropriate to your environment
+4
+In this configuration, we have explicitly set archiving to s3 (you could also set this to local) see
+Bulk Output Stream Provider
+for more details
+5
+Explicitly set archiving for debulked files to s3
+6
+Akka configuration which sets up a multi node (2) cluster, for this application. If deploying to Kubernetes this will typically be empty as seed nodes are generally discovered dynamically
+7
+The example configuration includes configuration for s3, so the local file manager has been disabled. Alternatively, you could set
+ipf.file-manager.local.enabled
+to true and
+ipf.file-manager.s3.enabled
+to false to read and write files to the local file system. When using local file manager, the S3 config can be ommitted
+8
+This should correspond to the address and port exposed by the deployed Working Days Service component. As can be seen, the values match those provided in the deployment
+yml
+below
+S3 Container Configuration
+#!/bin/bash
+echo 'Creating S3 bucket'
+awslocal s3api create-bucket --bucket sepa-archive
+awslocal s3api create-bucket --bucket sepa-bulks
+Working Days Service Configuration
+ipf.mongodb.url = "mongodb://ipf-mongo:27017/ipf"
+Client Specific Configuration
+You can of course provide client specific configuration for certain things within the service.
+A common thing you might consider making specific are the Kafka topic names (for example
+Debulker Kafka Configuration
+).
+Other configurations are available and described in the relevant feature doc section (
+Features
+).
+Running
+The following docker compose is a SEPA DD CSM Service deployment that contains all the required infrastructure/applications (Kafka, Zookeeper, MongoDB, S3 and Working Days Service). You would need to select the appropriate section to "step2ddcsm-1" to take as a start point for your deployment environment.
+services:
+
+  # Infrastructure
+  ipf-mongo:
+    image: mongo:4.4.15
+    container_name: ipf-mongo
+    ports:
+      - "27018:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+
+  zookeeper:
+    image: zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka:2.13-2.7.1
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9099:9099"
+    environment:
+      - KAFKA_BROKER_ID=0
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LOG_RETENTION_MINUTES=10
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS=1
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=TEST:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_LISTENERS=PLAINTEXT://:9092,TEST://:9099
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,TEST://localhost:9099
+      - KAFKA_CREATE_TOPICS=IPF_PROCESSING_DATA:1:1,FILE_NOTIFICATION_REQUEST:1:1,COLLECTANDSETTLE_CREDITOR_TO_CSM:1:1,COLLECTANDSETTLE_CSM_TO_CREDITOR:1:1,COLLECTANDSETTLE_CSM_TO_VALIDATION:1:1,1:1,COLLECTANDSETTLE_TECHNICAL_RESPONSE:1:1,COLLECTANDSETTLE_VALIDATION_TO_CSM:1:1,CSM_NOTIFICATIONS:1:1,SEPA_CSM_SERVICE_NOTIFICATION:1:1,CLIENT_PROCESSING_REQUEST:1:1,CLIENT_PROCESSING_RESPONSE:1:1
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:v0.7.0
+    container_name: kafka-ui
+    ports:
+      - "8098:8080"
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+    depends_on:
+      - kafka
+
+  localstack:
+    image: localstack/localstack
+    container_name: localstack
+    ports:
+      - "4566:4566"
+      - "4572:4572"
+      - "8096:8080"
+    environment:
+      - SERVICES=s3
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - DEBUG=1
+      - LOCALSTACK_HOST=s3.localhost.localstack.cloud:4566
+    networks:
+      default:
+        aliases:
+          - sepa-archive.s3.localhost.localstack.cloud
+          - sepa-bulks.s3.localhost.localstack.cloud
+    volumes:
+      - ./config/localstack/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh
+(1)
+entrypoint: [ "bash", "-c", "chmod +x /etc/localstack/init/ready.d/init-aws.sh && docker-entrypoint.sh" ]
+
+  # Apps
+  working-days-service-app:
+    image: releases-registry.ipfdev.co.uk/working-days-service-app:1.0.11
+    container_name: working-days-service-app
+    ports:
+      - "8089:8080"
+      - "5003:5005"
+    volumes:
+      - ./logs:/ipf/logs
+      - ./config/working-days-service-app:/working-days-service-app/conf
+(2)
+user: "1000:1000"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+    depends_on:
+      - ipf-mongo
+
+  step2ddcsm-1:
+    image: registry.ipf.iconsolutions.com/sepadd-csm-application-kafka:1.0.0
+    container_name: sepadd-csm-application-1
+    ports:
+      - "8083:8080"
+      - "5009:5005"
+      - "9003:9001"
+      - "8559:8558"
+    volumes:
+      - ./logs:/ipf/logs
+      - ./config/step2csm:/sepadd-csm-application-kafka/conf
+(3)
+- ./bulk-output:/tmp/bulks
+      - ./bulk-input:/tmp/files
+    user: "1000:1000"
+    environment:
+      - IPF_JAVA_ARGS=-Dma.glasnost.orika.writeClassFiles=false -Dma.glasnost.orika.writeSourceFiles=false -Dconfig.override_with_env_vars=true -Dlogging.config=/sepadd-csm-application-kafka/conf/logback.xml
+      - CONFIG_FORCE_akka_remote_artery_canonical_hostname=sepadd-csm-application-1
+    depends_on:
+      - ipf-mongo
+      - kafka
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:8080/actuator/health" ]
+
+  step2ddcsm-2:
+    image: releases-registry.ipfdev.co.uk/sepadd-csm-application-kafka:1.0.0
+    container_name: sepadd-csm-application-2
+    ports:
+      - "8084:8080"
+      - "5010:5005"
+      - "9004:9001"
+    volumes:
+      - ./logs:/ipf/logs
+      - ./config/step2csm:/sepadd-csm-application-kafka/conf
+(4)
+- ./bulk-output:/tmp/bulks
+      - ./bulk-input:/tmp/files
+    user: "1000:1000"
+    environment:
+      - IPF_JAVA_ARGS=-Dma.glasnost.orika.writeClassFiles=false -Dma.glasnost.orika.writeSourceFiles=false -Dconfig.override_with_env_vars=true -Dlogging.config=/sepadd-csm-application-kafka/conf/logback.xml
+      - CONFIG_FORCE_akka_remote_artery_canonical_hostname=sepadd-csm-application-2
+    depends_on:
+      - ipf-mongo
+      - kafka
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:8080/actuator/health" ]
+Configuration files should be loaded as follows:
+1
+Configuration should be mounted as per
+S3 Container Configuration
+2
+Configuration should be mounted as per
+Working Days Service Configuration
+3
+Configuration should be mounted as per
+SEPA DD CSM Service Configuration
+(same for 3 & 4)
+4
+Configuration should be mounted as per
+SEPA DD CSM Service Configuration
+(same for 3 & 4)
+Notifications
+List of System Events

@@ -1,0 +1,74 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/features/character-replacement.html ===
+Character Replacement
+The character replacement module is a mechanism to use configurable character set rules to sanitize messages going via a scheme pack.
+Example usage
+The module uses spring configuration to define the rules used.  The interface CharacterReplacer has a default implementation provided by spring, so to use simply add the csm-character-replacement module to maven and then dependency injection will pull the implementation through.
+Then we simply pass the message (in string format) to our characterReplacer, this will return a sanitized string.
+System.out.println(characterReplacer.replaceCharacters("ÃÃÃ"))
+
+# prints AAA
+If you wish to only replace part of the message, you can include optional startFrom and endAfter strings, which will find the first instance of those strings; within the message; and will only replace characters within those boundaries, including the startFrom and endAfter strings.
+System.out.println(characterReplacer.replaceCharacters("ÃÃÃ Ã­Ã®Ã¯ Ã©Ã¨Ãª", Optional.of(Ã­Ã®Ã¯), Optional.empty())
+
+# prints ÃÃÃ iii eee
+(everything after and including Ã­Ã®Ã¯ is replaced)
+
+System.out.println(characterReplacer.replaceCharacters("ÃÃÃ Ã­Ã®Ã¯ Ã©Ã¨Ãª", Optional.empty(), Optional.of(Ã­Ã®Ã¯))
+
+# prints AAA iii Ã©Ã¨Ãª
+(everything before and including Ã­Ã®Ã¯ is replaced)
+
+System.out.println(characterReplacer.replaceCharacters("ÃÃÃ Ã­Ã®Ã¯ Ã©Ã¨Ãª", Optional.of(Ã­Ã®Ã¯), Optional.of(Ã­Ã®Ã¯))
+
+# prints ÃÃÃ iii Ã©Ã¨Ãª
+(only Ã­Ã®Ã¯ is replaced)
+Configuration
+There are 3 types of configuration available;
+Char-to-char - replace a single character with another
+list-to-char - replace any character in a list to a defined character
+regex-to-char - replace any character in a regular expression to a defined character
+Any combination of these 3 is possible if required.
+character-replacements {
+    char-to-char-replacements = [
+        {character = Ã, replaceWith = A, replaceInDomOnly = true/false},
+        {character = Ã¯, replaceWith = i, replaceInDomOnly = true/false},
+    ]
+    list-to-char-replacements = [
+        {list = [Ã,Ã,Ã,Ã], replaceWith = E, replaceInDomOnly = true/false}
+    ]
+    regex-to-char-replacements = [
+        {regex = "[\\p{InLatin-1Supplement}]", replaceWith = ., replaceInDomOnly = true/false}
+    ]
+}
+Config
+Type
+Description
+character-replacements.char-to-char-replacements.character
+Char
+Character to be replaced
+character-replacements.char-to-char-replacements.replaceWith
+Character
+Character replacement
+character-replacements.char-to-char-replacements.replaceInDomOnly
+Boolean
+Flag indicating whether the replacement should happen only in the text nodes of the DOM
+character-replacements.list-to-char-replacements.list
+List<Character>
+List of character’s to be replaced
+character-replacements.list-to-char-replacements.replaceWith
+Character
+Character replacement for list
+character-replacements.list-to-char-replacements.replaceInDomOnly
+Boolean
+Flag indicating whether the replacement should happen only in the text nodes of the DOM
+character-replacements.regex-to-char-replacements.regex
+String
+Regular expression for replaced characters
+character-replacements.regex-to-char-replacements.replaceWith
+Character
+Character replacement for regex
+character-replacements.regex-to-char-replacements.replaceInDomOnly
+Boolean
+Flag indicating whether the replacement should happen only in the text nodes of the DOM
+On-us via CSM determination
+Status Request Scheduler (SRS)

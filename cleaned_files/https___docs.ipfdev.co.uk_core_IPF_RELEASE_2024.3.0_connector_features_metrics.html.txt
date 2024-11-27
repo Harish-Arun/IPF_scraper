@@ -1,0 +1,73 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/features/metrics.html ===
+Metrics
+The connector library exposes a series of metrics which can be used to monitor the health of a particular connector.
+By default, metrics are exposed using
+Prometheus
+.
+The default location where connector metrics are hosted is
+localhost:9001
+. If statistics are not displaying, then ensure that the Lightbend Telemetry agent is running.
+For more information check out the
+Cinnamon Agent Documentation
+.
+Connector Metrics Breakdown
+Each connector has its own set of metrics in the table below.
+Every metric is tagged with the relevant connectors name.
+To distinguish which metrics relate to which connector, use the
+connector
+hint in the Prometheus exporter.
+Metric name
+Type
+Description
+Source
+application_ipf_requests_sent
+Counter
+Logs the number of messages sent through a sending connector
+Akka Cinnamon (default TCP/9001)
+application_ipf_requests_received
+Counter
+Logs the number of messages received through a receiving connector
+Akka Cinnamon (default TCP/9001)
+application_ipf_correlations_saved
+Counter
+The number of correlation records persisted by the correlation service
+Akka Cinnamon (default TCP/9001)
+application_ipf_correlations_found
+Counter
+The number of correlation records fetched from the correlation service
+Akka Cinnamon (default TCP/9001)
+application_ipf_failed_correlations
+Histogram/Recorder
+The number of failed correlation lookups from the correlation service
+Akka Cinnamon (default TCP/9001)
+application_ipf_failed_requests
+Counter
+The number of failed message requests through a sending connector
+Akka Cinnamon (default TCP/9001)
+application_ipf_failed_receives
+Counter
+The number of failed message receives through a receiving connector
+Akka Cinnamon (default TCP/9001)
+application_ipf_response_times
+Histogram/Recorder
+A complex
+Recorder
+type which records min/max/average and percentiles for response times for this connector
+Akka Cinnamon (default TCP/9001)
+WARNING: These metrics are based on the  CorrelationFound system event, so it only applies for async request reply operations where we found the correlation, so its per-connector and only for connectors that participate in a request-reply session by using the correlation ID service
+Circuit Breaker Metrics
+Circuit breaker metrics use
+MeterRegistry
+implementations to publish metrics. This can be set at a per connector level through ResiliencySettings:
+ResiliencySettings.builder()
+    .initialRetryWaitDuration(Duration.ofMillis(10))
+    .maxAttempts(1)
+    .resetTimeout(Duration.ofSeconds(1))
+    .meterRegistry(SIMPLE_METER_REGISTRY)
+    .build()
+Alternatively this can be set through the
+SendingConnector
+interface. This allows setting the meterRegistry implementation at an application level.
+For example, if we want to set all the sendingConnectors to have the same meterRegistry implementation we can loop through and set them with the API after we have already built the connectors. This allows us to quickly switch implementations without the need to change each connector definition.
+Resilience
+Getting Started

@@ -1,0 +1,98 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/getting-started/ipf-read.html ===
+Defining The Read Side
+The ipf-read-starter provides a base mongo setup that can be extended for use in implementations.
+The read side supports multiple different flows running with a single read side.
+The key to the read side setup is the abstract 'MongoReadModelEntity' class.
+It provides:
+persistenceId
+- the persistence id (the IPF ID e.g. Payoutflow|ABC)
+originatingId
+- the originating id of the flow (e.g. UPRID)
+originatingMessageType
+- the originating message type (e.g. ExecutePaymentRequest)
+firstEventTime
+- the time the first event was record on the transaction
+lastProcessedEventTime
+- the time the most recent event was record on the transaction
+lastEventName
+- the most recent event name
+initiatingTimestamp
+- when the flow as initiated.
+alternativeIds
+- a list of alternative ids that the transaction may be known by
+eventSummaries
+- a list of event summary details for all the events on the transaction
+payload
+- the payload for the transaction, as per the api (for example could be CreditTransferPayload, ReturnsPayload etc.)
+The implementation of this class, if application specific as it depends on being populated by data received on custom events.
+For this reason, it is necessary for the application to provide the concrete implementation.
+To do this, the following methods will need to be implemented:
+protected abstract Supplier<T> payloadCreator();
+
+    protected abstract BiFunction<Event, T, T> payloadUpdater();
+payloadCreator - this is required to provide a new instance of the payload type.
+payloadUpdater - this is required to determine how the given event should update the current payload.
+originatingMessageTypeSupplier - this is required to specify the name (from the message log) of the initiating message for the flow.
+In addition to the above 3 methods, there are a number of methods that have default implementations that can be overriden:
+protected Set<String> getAlternativeIdsFrom(Event event) {
+        return Collections.emptySet();
+    }
+getAlternativeIdsFrom - by defaulting returning an empty collection, this method should extract any ids that should be used for searching on.
+getInitiatingTimestampFrom - by default this uses the createdAt time of the first event received, but can be overriden to use the data from any event.
+getOriginatingIdFrom - by default this uses the commandId of the first event received, but can be overriden to use the data from any event.
+Once the concrete implementation of the MongoReadModelEntity has been created, it needs to be registered by creating a factory that will determine which implementation should be used based on the IPF ID that is received.
+public interface ReadModelEntityFactory {
+    ReadModelEntity create(String persistenceId);
+}
+com.iconsolutions.ipf.platform.read.transaction This needs to be registered as a spring bean.
+Example
+The following shows an example implementation of the MongoReadModelEntity.
+@Data
+@AllArgsConstructor
+public class TestCreditTransferTransactionReadModel extends MongoReadModelEntity<CreditTransferPayload> {
+
+
+    @Override
+    protected Supplier<CreditTransferPayload> payloadCreator() {
+        return () -> CreditTransferPayload.builder().build();
+    }
+
+    @Override
+    protected BiFunction<Event, CreditTransferPayload, CreditTransferPayload> payloadUpdater() {
+        return (evt, returnPayload) -> {
+            if (evt instanceof TestFIToFICustomerCreditTransferEvent) {
+                returnPayload.setCreditTransfer(((TestFIToFICustomerCreditTransferEvent) evt).getCreditTransfer());
+            }
+            return returnPayload;
+        };
+    }
+
+}
+To register this we create the factory:
+@Slf4j
+public class ReadModelEntityTestFactory implements ReadModelEntityFactory {
+
+    @Override
+    public ReadModelEntity create(String persistenceId) {
+        log.debug("PersistenceId found on read side: {}", persistenceId);
+        return new ReadSideFlowTestModel();
+    }
+}
+Indexing
+The ipf-read-starter has default configuration to automatically create MongoDB indexes on initialisation.
+The creation of default indexes can be disabled with:
+ipf.read-starter.mongodb.create-indexes=false
+Indexes can be disabled globally with:
+ipf.mongodb.create-indexes=false
+To disable indexing globally but retain it for the transaction cache, apply the following, retaining the order:
+ipf.mongodb.create-indexes=false
+ipf.read-starter.mongodb.create-indexes=true
+Commit Quorum
+The
+commit quorum
+can similarly be controlled with:
+ipf.read-starter.mongodb.commit-quorum=1
+Or overridden globally with:
+ipf.mongodb.commit-quorum=1
+Create a new IPF Application Project
+Persistence

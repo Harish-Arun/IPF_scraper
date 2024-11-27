@@ -1,0 +1,19 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/database-settings/database-settings.html ===
+Database Settings
+List of CSM Reachability dynamic settings collections can be split to industry data and processing data structures.
+Industry data
+Participant
+IbanPlus
+IbanStructure
+ExclusionList
+PartyEntity
+BicDir2018
+Processing data
+ProcessingEntity
+AgentSettings
+AgentClearingSettings
+AgentSettlementSettings
+CsAgentSelectionSettings
+GenericProcessingSettings
+Getting Started
+Indexes

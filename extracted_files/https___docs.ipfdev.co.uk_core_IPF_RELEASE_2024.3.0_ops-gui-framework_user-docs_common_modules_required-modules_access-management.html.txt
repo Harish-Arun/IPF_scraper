@@ -1,0 +1,135 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/common/modules/required-modules/access-management.html ===
+Access Management Module
+The Access Management Module is responsible for all forms of user access rights and permissions.
+This includes the user’s current processing entity and the current user’s roles.
+Processing Entity and Roles Management
+The users roles are assigned directly to the users selected processing entity.
+This means that the user can have different roles for different processing entities.
+When the user changes their processing entity, their roles will also change.
+{
+   "auth":{
+      "user":{
+         "roles":{
+            "BANK_ENTITY_1":[
+               "ROLE_HTM_VIEWER"
+            ],
+            "BANK_ENTITY_2":[
+               "ROLE_HTM_VIEWER",
+               "ROLE_HTM_EXECUTE",
+               "ROLE_HTM_APPROVER"
+            ]
+         }
+      },
+      "activeEntity":"BANK_ENTITY_1",
+      "processingEntities":[
+         "BANK_ENTITY_1",
+         "BANK_ENTITY_2"
+      ]
+   }
+}
+The above example shows a user with 2 processing entities,
+BANK_ENTITY_1
+and
+BANK_ENTITY_2
+. The user has the
+ROLE_HTM_VIEWER
+role for
+BANK_ENTITY_1
+and the
+ROLE_HTM_VIEWER
+,
+ROLE_HTM_EXECUTE
+and
+ROLE_HTM_APPROVER
+roles for
+BANK_ENTITY_2
+. The user is currently viewing
+BANK_ENTITY_1
+. If the user changes their processing entity to
+BANK_ENTITY_2
+, their roles will also change to the roles assigned to
+BANK_ENTITY_2
+.
+ProcessingEntitySelectorComponent
+A simple component to change the users processing entity.
+This component is tightly tied to the store so only the users available processing entities will appear.
+When the user selects a processing entity from the list it will redirect them to the home page for the new processing entity.
+Example usage:
+<ops-gui-processing-entity></ops-gui-processing-entity>
+ErrorPageComponent
+A component that can be added to a route as a simple way of displaying errors.
+You will need to supply the translation keys for the title, the messageKey and the icon as seen in the example below.
+Where 'icon' is a material icon name (
+fonts.google.com/icons
+) Example usage:
+RouterModule.forChild([{
+    path: '403',
+    canActivate: [AuthGuard],
+    component: ErrorPageComponent,
+    data: {
+        titleKey: 'pageForbiddenTitle',
+        messageKey: 'pageForbiddenMessage',
+        icon: 'warning_amber'
+    }
+}]);
+IfUserHasRoleDirective
+A directive that will show or hide the element depending on whether the user has the specified role.
+The directive will also update if the user changes their processing entity.
+This directive is tightly tied to the store so only the users available roles will work.
+If no roles are supplied then the element will show.
+<div *ipfIfUserHasRoles="['ROLE_HTM_VIEWER']">
+    <p>Only users with the ROLE_HTM_VIEWER role will see this</p>
+</div>
+AuthGuard
+A guard that checks the store to see if the user is authenticated.
+If not, the route will not load.
+Example usage:
+const routes: Routes = [
+    {
+        path: 'home',
+        component: HomeComponent,
+        canActivate: [AuthGuard]
+    }
+];
+ProcessingEntityGuard
+A guard that will check if the user has selected a valid processing entity.
+It the user has entered a invalid processing entity then they are redirected to the 404 page not found page.
+The guard will set the current processingEntityId from the route to the store so that all child modules can reference it easily.
+Example usage:
+const routes: Routes = [
+    {
+        path: 'home',
+        component: HomeComponent,
+        canActivate: [ProcessingEntityGuard]
+    }
+];
+RoleGuard
+A guard that will check if the user has one of the specified roles assigned to their JWT token.
+If the user does not have the role then they will be redirected to the 403 forbidden page.
+A list of roles that are valid for this route will need to be provided in the data for the route (see example below).
+If no roles are provided then the page will not show and there will be a warning to the developer in the console.
+Example usage:
+const routes: Routes = [
+    {
+        path: 'home',
+        component: HomeComponent,
+        canActivate: [RoleGuard],
+        data: {
+            roles: ['ROLE_HTM_VIEWER']
+        }
+    }
+];
+AuthInterceptor
+An interceptor that will add the user’s token to all requests.
+The interceptor will also check if the user’s token has expired and if it has, the user will be redirected to the login page.
+{
+        provide: HTTP_INTERCEPTORS,
+        useClass: AuthInterceptor,
+        multi: true
+    }
+AuthenticationService
+A service that will handle all authentication related functionality.
+This includes logging in, logging out, checking if the user is logged in and getting the user’s token.
+JwtService
+A service that will handle all JWT related functionality.
+This includes getting the token from the store, checking if the token has expired and decoding the token.

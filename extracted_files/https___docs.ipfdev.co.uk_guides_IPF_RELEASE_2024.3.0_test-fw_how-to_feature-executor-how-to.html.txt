@@ -1,0 +1,109 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/test-fw/how-to/feature-executor-how-to.html ===
+How do I use the feature-test executor?
+The test framework can be run as a containerised black box test environment.
+The feature test executor library allows project implementations to create a container that houses all the test framework steps, configuration and allow stories to be executed with the help of a
+Rest API
+.
+Configuration
+The test feature executor exposes the following configuration:
+test-fw.executor {
+  # The path where stories will be placed when uploaded and after passing dry run.
+  stories-directory-path = stories
+
+  # The path where stories will be temporarily placed for dry run during an upload.
+  # Once the story has passed dry run they will be moved to the location configured by ${test-fw.executor.stories-directory-path}
+  stories-staging-directory-path = staging
+
+  # The directory on the classpath where existing stories will be uploaded into the filesystem.
+  # These stories will also run through a dry run before being moved.
+  stories-preload-path = stories
+
+  # The directory where the preloaded stories will be placed once dry run has passed.
+  # Target location will be ${test-fw.executor.stories-directory-path}/${test-fw.executor.stories-preload-tag}
+  stories-preload-tag = default
+}
+Dry Run
+Both the preload and upload functions will first execute a
+JBehave dry run
+. The dry run mostly checks if there are any unimplemented steps. These will appear as PENDING steps in the logs and
+API
+responses. If any stories fail dry run they will not be copied to the stories directory but rather discarded and errors logged or returned.
+REST Operations
+Only one test run can be executed at any time. If another test run is attempted then we will return an error message indicating that another run is in progress. The same applies to uploading due to the fact we do a dry run on upload. Uploads can also not be done when a run is in progress. For more details on the rest api refer to
+API
+.
+How to absorb into a client implementation
+Assuming all the necessary custom steps,definitions and stories exists already then the following steps need to be completed to deploy a containerised version of the tests:
+Create a new module and add the following dependency into your pom.xml:
+<dependency>
+   <groupId>com.iconsolutions.test</groupId>
+   <artifactId>test-fw-feature-executor</artifactId>
+   <version>${latest-version}</version>
+</dependency>
+Also add any test dependencies you need for building your test steps and message definitions, or if this already exists in another module just import that module into this one.
+This module needs to be a container project, so we will also need to have the
+docker-maven-plugin
+to create a container:
+<build>
+    <plugins>
+        <plugin>
+            <groupId>io.fabric8</groupId>
+            <artifactId>docker-maven-plugin</artifactId>
+...
+Create a @Configuration class and add the following class and bean:
+/**
+         * This represents a FeatureTestRunner for execution in the container environment.
+         * Here we just need to override the config method to inject the @Configuration class needed
+         * to bootstrap the app with steps and message definitions.
+         *
+         * This mirrors what you would define in a typical maven project.
+         */
+        public static class TestExecutorRunner extends AbstractExecutorTestRunner {
+            @Override
+            protected List<Class<?>> config() {
+                return Collections.singletonList(TestConfig.class);
+            }
+        }
+
+        /**
+         * A bean to register the AbstractExecutorTestRunner which is responsible for launching the FeatureTestRunner.
+         * All we need to override here is the runner method to register the AbstractExecutorTestRunner
+         */
+        @Bean
+        public AbstractTestLauncher testExecutor() {
+            return new AbstractTestLauncher() {
+                @Override
+                public Class<? extends FeatureTestRunner> runner() {
+                    return TestExecutorRunner.class;
+                }
+            };
+        }
+Update the
+configuration
+parameters to appropriate values.
+Add the container to a deployment and launch. Once the container is up and running the API is exposed and can be viewed at
+<host>/swagger-ui/index.html
+. The HTML and JSON specifications are available
+here
+.
+Add, view or run stories using the API. The JBehave report is expose at
+/stories/report-view
+, which redirects to the hosted JBehave files if it exists. If a run is in progress or a report does not exist then a 404 will be returned with an appropriate error message. The report-view will always return the latest report, reports are not cleaned down or archived.
+Open Api
+HTML
+OpenApi
+spec
+Raw
+Open Api
+spec
+Troubleshooting
+My preloaded stories are not appearing when I run
+/stories/get-stories
+.
+Check the logs for any errors during preloading, this means the dry run failed for the particular stories that are missing.
+My JBehave report keeps showing the previous runs report.
+Access the url
+/stories/report-view
+and see if there is any error returned, most likely a run is in progress and the new report has not been generated yet.
+How do I create a step library?
+Examples

@@ -1,0 +1,5 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/akka-discovery-mongodb/getting-started.html ===
+Getting Started
+Set up Cluster Bootstrap with MongoDB discovery
+Akka Discovery MongoDB
+Set up Cluster Bootstrap with MongoDB discovery

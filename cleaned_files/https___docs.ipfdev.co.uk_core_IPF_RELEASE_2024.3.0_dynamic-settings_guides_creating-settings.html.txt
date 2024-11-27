@@ -1,0 +1,287 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/dynamic-settings/guides/creating-settings.html ===
+Create Settings
+The following is an example of how to add a setting, in this case a
+CsmAgent
+Setting that will be managed by the platform. You need to configure a domain project and a repository project
+Domain Project Setup
+In order to add a setting to be managed by the Dynamic Processing Settings Platform you need to create the following:
+Setting Definition
+Domain Object
+Search Fields for the setting
+Setting Definition
+Specifies how to calculate the logical unique key for the setting and associates all the other components (domain object and search fields) to the setting concept
+@Bean
+    SettingDefinition csmAgentSettingDefinition(final Notifier systemEventSender) {
+        return SettingDefinition.<CsmAgent>builder()
+                .name("csmagent")
+                .clazz(CsmAgent.class)
+                .idFunction(setting -> setting.getProcessingEntity() + "-" + setting.getPayload().getCsmAgentId())
+                .approvalFunction((requiresApproval, persistanceId, inputSetting) -> CompletableFuture.completedStage(requiresApproval))
+                .searchableFields(CsmAgentSearchableFields.class)
+                .notificationFunction(systemEventSender::notify)
+                .build();
+    }
+Domain Object
+This will be the payload of a setting object and should contain all the relevant attributes for the setting you wish to define
+@Data
+@Builder(toBuilder = true)
+public class CsmAgent {
+    @NotNull
+    private String csmAgentId;
+    private String csmAgentBic;
+    @Size(max = 70)
+    private String csmAgentName;
+    @NotNull
+    @Size(max = 35)
+    private String csmAgentType;
+    @NotNull
+    @Size(max = 15)
+    private String csmParticipantIdentifierType;
+    @NotNull
+    @Size(max = 35)
+    private String csmAgentConnector;
+    @Size(max = 70)
+    private String csmAgentConnectorAddress;
+    @Size(min=1)
+    @Valid
+    private List<CsmAgentMessageStandard> csmAgentMessageStandards;
+    private Boolean onUsCSM;
+    private Boolean higherParticipantLimitNotAllowed;
+    private Boolean instantPayments;
+
+    @Data
+    @Builder
+    public static class CsmAgentMessageStandard {
+        @NotNull
+        @Size(max = 35)
+        private String messageStandard;
+        @NotNull
+        @Size(max = 35)
+        private String messageStandardVersion;
+        @NotNull
+        private Instant activeFrom;
+    }
+
+    public boolean isHigherParticipantLimitNotAllowed() {
+        return BooleanUtils.isTrue(higherParticipantLimitNotAllowed);
+    }
+
+    public boolean isOnUsCSM() {
+        return BooleanUtils.isTrue(onUsCSM);
+    }
+
+    public boolean isInstantPayments() {
+        return BooleanUtils.isTrue(instantPayments);
+    }
+
+
+}
+Setting class:
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class Setting <T> implements Serializable {
+    private String id;
+    @Size(max = 15, min = 1)
+    private String processingEntity;
+    private Instant activeFromDate;
+    private String source;
+    private String status;
+    private int version;
+    private String createdBy;
+    private String rejectedBy;
+    private String approvedBy;
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, property = "className")
+    private T payload;
+
+    @JsonIgnore
+    public boolean isActive() {
+        return "ACTIVE".equalsIgnoreCase(status);
+    }
+}
+Search Fields
+Define the fields which are searchable on the setting, in this case the CsmAgent can be searched by CsmAgentId.
+package com.iconsolutions.ipf.dynamicsettings.search;
+
+public enum CsmAgentSettingSearchFields implements SearchField {
+    CSM_AGENT_ID;
+
+    @Override
+    public String getName() {
+        return this.name();
+    }
+}
+In addition to the search fields you define for the setting, all settings are searchable via CommonSearchFields (status, processingEntity, activeFrom and source)
+@Data
+public class CommonSearchableFields implements SearchableFields {
+    private String status;
+    private String processingEntity;
+    private Instant activeFrom;
+    private List<String> idList;
+    @Pattern(regexp = "import|manual", flags = Pattern.Flag.CASE_INSENSITIVE)
+    private String source;
+
+    public CommonSearchableFields populateFromRequest(ServerRequest serverRequest) {
+        CommonSearchableFields commonSearchableFields = newInstance();
+        serverRequest.queryParam("status").ifPresent(commonSearchableFields::setStatus);
+        serverRequest.queryParam("processingEntity").ifPresent(commonSearchableFields::setProcessingEntity);
+        serverRequest.queryParam("source").ifPresent(commonSearchableFields::setSource);
+        serverRequest.queryParam("activeFrom").ifPresent(activeFrom1 -> commonSearchableFields.setActiveFrom(Instant.parse(activeFrom1)));
+        return commonSearchableFields;
+    }
+
+    public CommonSearchableFields newInstance() {
+        return new CommonSearchableFields();
+    }
+
+    @Override
+    public List<Criterion> criteria() {
+        final List<Criterion> criteria = new ArrayList<>();
+
+        if (status != null) {
+            criteria.add(Criterion.equalTo(SettingSearchFields.STATUS, status));
+        } else {
+            criteria.add(Criterion.notEqualTo(SettingSearchFields.STATUS, "INITIAL"));
+        }
+
+        if (activeFrom != null) {
+            criteria.add(Criterion.gte(SettingSearchFields.ACTIVE_FROM, activeFrom));
+        }
+
+        if (source != null) {
+            criteria.add(Criterion.equalTo(SettingSearchFields.SOURCE, source));
+        }
+
+        if (processingEntity != null) {
+            criteria.add(Criterion.equalTo(SettingSearchFields.PROCESSING_ENTITY, processingEntity));
+        }
+
+        if(idList != null) {
+            criteria.add(Criterion.in(SettingSearchFields.ID, idList));
+        }
+
+
+        return criteria;
+    }
+}
+The below tells the framework how to extract the search fields from the requests received
+@Data
+public class CsmAgentSearchableFields extends CommonSearchableFields {
+    private String csmAgentId;
+
+    @Override
+    public CsmAgentSearchableFields populateFromRequest(ServerRequest serverRequest) {
+        CsmAgentSearchableFields searchableFields = (CsmAgentSearchableFields) super.populateFromRequest(serverRequest);
+        serverRequest.queryParam("csmAgentId").ifPresent(searchableFields::setCsmAgentId);
+        return searchableFields;
+    }
+
+    @Override
+    public CsmAgentSearchableFields newInstance() {
+        return new CsmAgentSearchableFields();
+    }
+
+    @Override
+    public List<Criterion> criteria() {
+        final List<Criterion> criteria = new ArrayList<>(super.criteria());
+
+        if (csmAgentId != null) {
+            criteria.add(equalTo(CsmAgentSettingSearchFields.CSM_AGENT_ID, csmAgentId));
+        }
+
+
+        return criteria;
+    }
+}
+You also need to update the search fields map which specifies the path to the searchable field from the perspective of a setting
+@PostConstruct
+    void updateSearchFieldsMap() {
+        settingSearchFieldsMapper.putMapping(CsmAgentSettingSearchFields.CSM_AGENT_ID.getName(), "payload.csmAgentId");
+    }
+Repository Project Setup
+Additionally, the following read side infrastructure needs to be defined:
+Repository
+ModelEntity
+ModelEntityProvider
+IndexInitialiser
+Repository
+Repository, which extends ReactiveCRUDRepository and exposes the query functionality of the setting stored in the database
+public interface CsmAgentSettingsRepository extends SettingRepository<CsmAgentSettings> {
+
+    String CSMAGENT = "csmagent-";
+
+    Flux<CsmAgentSettings> findAll(Sort sort);
+
+    @Override
+    default boolean supports(String id) {
+        return id.toLowerCase().contains(CSMAGENT);
+    }
+}
+ModelEntity
+ModelEntity, defines how the setting will be represented in the DB and also defines how the payload for the settings is created/updated
+@Document(collection = "settings-csm-agent")
+@Data
+public class CsmAgentSettings extends MongoSettingReadModelEntity<CsmAgent> {
+
+    @Override
+    protected Supplier<CsmAgent> payloadCreator() {
+        return () -> CsmAgent.builder().build();
+    }
+
+    @Override
+    protected BiFunction<Event, CsmAgent, CsmAgent> payloadUpdater() {
+        return (event, csmAgent) -> csmAgent;
+    }
+
+}
+ModelEntityProvider
+ModelEntityProvider, is responsible for creating the appropriate ModelEntity, based on the identifier that is input
+@Component
+public class CsmAgentMongoSettingModelEntityProvider implements MongoSettingModelEntityProvider {
+    // "-" suffix added to avoid partial match e.g. csmagent matching csmagentcurrency
+    private static final String CSMAGENT = "csmagent-";
+
+    @Override
+    public MongoSettingReadModelEntity provide() {
+        return new CsmAgentSettings();
+    }
+
+    @Override
+    public Class<? extends MongoSettingReadModelEntity> getEntityClazz() {
+        return CsmAgentSettings.class;
+    }
+
+    @Override
+    public boolean supports(String id) {
+        return id.toLowerCase().contains(CSMAGENT);
+    }
+}
+IndexInitialiser
+Index Initialiser, is responsible for creating indexes on the collection
+@Slf4j
+@AllArgsConstructor
+public class CsmAgentMongoSettingRecordIndexInitialiser {
+
+    private static final String STATUS = "status";
+    private static final String PROCESSING_ENTITY = "processingEntity";
+    private static final String PAYLOAD_CSM_AGENT_ID = "payload.csmAgentId";
+    private static final String COLLECTION_NAME = "CsmAgentSettings";
+    private final ReactiveMongoTemplate reactiveMongoTemplate;
+    private final RepositoryRetryProvider repositoryRetryProvider;
+
+    @EventListener(ContextRefreshedEvent.class)
+    public void initialise() {
+        log.info("creating indexes");
+        final ReactiveIndexOperations indexOperations = reactiveMongoTemplate
+                .indexOps(CsmAgentSettings.class);
+
+        createIndex(indexOperations, STATUS, COLLECTION_NAME, repositoryRetryProvider);
+        createIndex(indexOperations, PROCESSING_ENTITY, COLLECTION_NAME, repositoryRetryProvider);
+        createIndex(indexOperations, PAYLOAD_CSM_AGENT_ID, COLLECTION_NAME, repositoryRetryProvider);
+    }
+
+
+}
+Create a Project Based on Dynamic Settings Workflow
+Bulker

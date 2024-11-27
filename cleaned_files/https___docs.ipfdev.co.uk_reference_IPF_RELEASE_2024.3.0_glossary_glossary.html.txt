@@ -1,0 +1,526 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/glossary/glossary.html ===
+Glossary
+Term
+Meaning
+Useful Links
+Accounting / Postings
+Accounting/Postings are invoked to determines and makes the necessary account postings to customer, nostro/vostro or other accounts based on the payments MOP and any associated value added services as part of the execution of a service.
+Actor
+An Akka programming entity that has a state, a behaviour, an address to receive messages and a mailbox to store received messages in the order they arrive. An Actor is responsible for performing a discreet piece of system behaviour, and is the basic unit of the Akka Actor System.
+Actors communicate by exchanging messages.
+Akka
+Open source framework (toolkit and runtime) for building concurrent, distributed, and resilient message-driven applications on the JVM, via microservice-style components.
+akka.io/
+Alerts
+/Notifications
+Notification is an action to send significant events that occur during payment and cash processing. It encompasses production of specific transactional reporting towards external partners ie. with customers, clients, schemes etc... and is usually a concern of the full client solution.
+Amazon Web
+Services (AWS)
+Cloud computing service - Cloud computing service used as the deployment environment for the IPF demonstration implementation.
+aws.amazon.com/
+Analytics
+Analytics provides insights of payments data using machine learning, adhoc reports, dashboards etc.
+Additional Optional Module (AOM)
+On top of the core IPF offering additional modules can be utilised for example ODS
+AOMs Home :: IPF Developer Documentation
+Additional Optional Services (AOS)
+Optional services provided by some payments schemes which members may choose to adopt or not. For example, for the SCT Inst scheme, these are value-added or complementary services that scheme participants can choose to provide in addition to the core, scheme-mandated instant payment transaction. IPF scheme packs usually cover the mandatory functionality by default and AOS via specific agreement.
+Application Programming Interface (API)
+Application Programming Interface
+Application
+Services
+Defines the packages (custom/Pre-packaged) and its sub-components required to perform one or more business functions.
+Archiving
+Archiving is done in order to store historical data, reports etc for legal purpose by following the Data protection act rules.
+All inactive data are archived in appropriate repositories in data hub. All archived data must follow the retention policies and once it passed the retention period the archived data MUST be deleted/removed from banks systems/data hub.
+Available
+(Endpoint)
+One of the possible statuses that IPF assigns to an endpoint. aAvailablea is the normal operating state, indicating that the system with which the endpoint is communicating is available and responding normally.
+Automatic Client Identification
+Identification and verification of client details using their BIC Code and IBAN number (SEPA)
+Automatic Creation
+of Unique ID
+A unique identifier assigned to a single transaction for internal processing.
+Business As Usual (BAU)
+Typically the process that is implemented or reverted to after a change has been delivered
+Behaviour Driven Development   (BDD)
+A software development approach that promotes the use of a shared, simplified language for the specification and testing of systems that deliver verifiable business value.
+Beneficiary Bank
+The bank that receives an instant payment request message (Inbound Customer Credit Transfer).
+Business Identifier Code (BIC)
+A universal identifier for financial and non-financial institutions, used for addressing messages, routing business transactions and identifying business parties.
+The BIC format is defined by ISO standard 9362:2014. BICs are issued by SWIFT in its role as the ISO registration authority.
+Note: Under earlier versions of the ISO 9362 standard, BIC stood for aBank Identifier Codea and this term is still widely used.
+Bulking/
+De-Bulking
+Bulking is a capability which groups one or more payment instructions or messages into a bulk file.
+Bulking is usually done for ISO20022 messages.
+Bulking is required when the bank sends multiple transactions into the same scheme for processing a specific type of payment (Bulk files) or when its   a scheme mandatory requirement to send a bulk   payment message i.e SEPA Credit transfer.
+All internal processing   are done on individual transactions level and its bulked by the Bulker before sending it to the CSM.
+De-bulking is a capability which splits the bulk message   into individual instructions. De-bulking is done for ISO20022   messages.
+All de-bulked messages are treated on transaction level during internal payments processing   and the internal debiting/crediting is done on single transaction level.
+Camel
+(Apache)
+Integration library - IPF uses Camel to enable and configure endpoints for communication with channels, bank systems and scheme gateways. Camel is configured using a standard API (irrespective of the protocol being used), meaning IPF endpoints can be added and configured quickly and in a standard, structured way.
+camel.apache.org/
+camt.
+Prefix of the ISO 20022 aCash Management a group of messages. For the SCT Inst scheme, the camt.056 message is used by an Originating Bank to request the return of a payment and the camt.029 is used by the Beneficiary Bank to send a negative response to a return request.
+SEPA for Corporates
+Canonical
+Data Model
+The single, standard, structured data format used internally by IPF to store payment message data.
+The canonical format is based on the ISO20022 payment message formats, enriched with flexible proprietary data elements and using a compact (JSON) form of representation to avoid the heavy processing and storage overheads of XML.
+Messages from payment schemes, channels and banking systems are mapped to/from the canonical format. The format is structured to accommodate all the data elements for all the different message types that IPF will process.
+Canonical-data-model
+Central
+Infrastructure
+In the context of an instant payments scheme, the term central infrastructure refers to a system that sits between the sending and receiving institutions to provide centralised message processing, clearing, liquidity and settlement functionality. See also CSM.
+Change the Bank (CTB)
+This is the enhancement of bank functionality through improvements in IT, operations, customer service, sales, and marketing.  *  *
+Charging
+Charges are amounts of money charged for processing a payment.  Typical charges are:
+Bank Charge - how much a bank charges a customer for a service (e.g. make payment)
+Scheme Charge - how much a scheme charges to process a payment.
+The charging service is invoked on outbound payments. Who pays the charge depends on the charge code.
+Charges can be billed from the customer separately, or deducted from the payment amount itself. Charges can be stored against clearing profile, or potentially different charging schemes can be created for specific customers, with the charging scheme used stored against the customer.
+Charges may also be known as fees.
+Circuit Breaker
+An Akka pattern/actor used  to provide stability and prevent cascading failures in distributed systems.
+Client Services
+Support function provided by Icon to assist in the resolution of any issues directly related to Icon technology that is in client infrastructure.
+Codec
+Coder-Decoder. Each IPF endpoint has an associated codec to manage the transformation of messages between IPFas canonical data format and the native message format of the endpoint system. A single Codec may be shared by multiple endpoints.
+Collection
+A grouping of documents in a NoSQL document database, broadly analogous to a table in a relational database. Typically, all documents in a collection have a similar or related purpose.
+Concept
+An Idea to change the IPF product which will be reviewed and discussed via the SFD process
+Consumer
+A configuration of a communications protocol that enables messages to be received (consumed) from an endpoint. The counterpart of a Producer.
+Container
+An immutable collection of software (application & supporting components, not operating system), packaged in a standardised format. Allows applications to be rapidly deployed in a repeatable and efficient way (since many containers can share a single operating system instance while remaining isolated)
+What is a Container?
+Control Services
+Check
+Legal and compliance checks for both the ordering party and beneficiary party details.
+L&C checks determines whether its OK to execute the payment instruction.
+Sanction checking is a capability to check entities/customers which are sanctions listed, PEPs marked   etc by various regulators, FATF , OFAC, EU etc and if caught during sanction checking process needs to be stopped further processing until approved by compliance teams.
+There are two results during a Sanctions check which are "HIT" or "No HIT". "HIT" could be:
+1. "HIT-REFER" are stopped from further processing and logged to Case management tool which is looked upon by a Case investigation (usually Legal and Compliance Teams).
+2. "FALSE HIT" hits are processed to the next steps of payments processing.
+"No HIT" means its a safe transaction and should be executed in next steps of payments processing.
+Sanctions check can be used to stop payments by a combination of criteria (some of which are optional):
+1. Account Identity
+2. Originator identity
+3. Instruction reference
+4. Agreement or mandate reference
+5. Min or Max amount
+Every Sanction list, data etc are stored in the centralized data hubs for ease of use and they are invoked by appropriate Control Services.
+Fraud check is a Risk prevention requirement which is done by calling appropriate Fraud checking applications.
+Any standard Fraud checking applications does the below mandatory checks:
+1. Scanning instructions against "Hot" lists.
+2. Detection of suspicious behaviours patterns, transactions, events involving multiple payments
+3. Multi-level risk identifications (party, party group, country, region, party type etc)
+4. Generating alerts to notify entity service.
+Fraud databases are managed by banks by liaison with external partners or government bodies i.e. CIFAS or 3rd party suppliers FiServ, Actimize etc
+Every transaction in a bank MUST be fraud checked by calling appropriate services. Ops filter checks are done for both the ordering party and beneficiary party by invoking the Ops Filters applications. Ops Filtering is done for lists provided by the Ops team or by the customers.
+Clearing and Settlement Mechanism (CSM)
+The term CSM is used to refer to any central infrastructure solution providing clearing and settlement support for an instant payment scheme.
+Cucumber
+Automated testing tool - Cucumber runs automated acceptance tests written in the behaviour-driven development (BDD) style, using a aGivenaWhenaThena syntax.
+cucumber.io/
+Closed User Group (CUG)
+SCT Inst supports the concept of closed user groups, whereby different validation rules can be established for processing SCT Inst transactions between a defined group of participants. For example, a different maximum payment amount or/and processing time could be agreed for a domestic flavour of SCT Inst within a particular country.
+Decision
+An internal decision within a payment flow, made by IPF without reference to other systems.
+Design
+Design is the process in presenting a technological solution that can meet the business need.
+This process incorporates specific products such as high level and detailed design documents and will capture the intended technical solution.
+Docker
+Software packaging and deployment tool - Docker packages all elements of a software product (binaries, configurations, scripts, utilities etc.) into a single, lightweight
+container
+. This ensures that the software will always run the same, regardless of its environment. Because the Docker container is operating-system neutral, the packaged software can be deployed to different environments and on different flavours of Unix / Linux.
+www.docker.com/
+Direct Debit
+Mandate
+A mandate is an approval that gives the authority to process direct debits from an account.
+It states the status of the mandate (active, cancelled etc) and is checked when direct debit instructions are requested.
+EBA Clearing
+A bank-owned provider of pan-European payment infrastructure solutions.
+EBA Clearingas RT1 product provides a clearing and settlement mechanism for the SCT  Inst scheme.
+EBA
+EBICS
+Electronic Banking Internet Communication Standard - A transmission protocol for sending payment information between banks over the internet.
+EBICS is one of the initial methods supported by EBA Clearing for connecting to its SCT Inst clearing and settlement infrastructure, RT1. See also SIAnet
+EBICS
+European Central Bank (ECB)
+European Central Bank
+ECB
+Enrich
+Enrichment   will update or add   specific data in a payments message in order to processes the payments successfully without any issues.
+Enrichment includes referential management which checks the referential data associated with the instruction .
+The payment is successfully executed only when there is a correctness-coherence between the payment and the reference record.
+Enrichment is usually done in some of the below use cases:
+1. For processing purpose(adding source etc)
+2. For fees purpose.
+3. For reporting purpose(BOPR- Balance of Payments Reports   sent to National Bank of Belgium etc)
+4. For filtering purpose (FATF etc)
+5. Manual repair
+Epic
+An epic captures a large body of workaperformance-related work, for exampleain a release. Its essentially a large user story that can be broken down into a number of smaller stories. An epic can span more than one project, if multiple projects are included in the board where the epic is created.
+euroSIC
+Swiss (RTGS) system for euro payments between banks within Switzerland & cross border, operated by SIX Interbank Clearing Ltd.
+www.eurosic.ro/
+Eurosystem
+The monetary authority of the euro area. The Eurosystem comprises the European Central Bank and the national central banks of the Member States whose currency is the euro.
+Financial Institution (FI)
+Financial Institution.
+Format
+Transformation
+Data structure transformation from one format to another.
+Faster Payments Service (FPS)
+Faster Payments Service. The UKas instant payments scheme.
+FPS org
+Funding
+Account
+An account that an Organisation is used to fund disbursements and payments. Not necessarily the account that is debited at point of PayOut.
+Funds Check
+The funds check is done after all previous checks are successful and ready to check the customer account details for Funds availability.
+This capability is responsible for checking the Payment instruction will not breach the control limits involving:
+1. Get Account balance and available funds from account management systems.
+2. Calculate whether the instruction is within the available funds.
+3. Reject/Hold for review.
+FX rate
+management
+FX Rate is invoked to get a definitive exchange rate required to execute a specific International Payments in a different currency.
+Gateway
+Management
+Gateway management is invoked   to connect to different schemes depending on the payment criteria and gateway management rules.
+It is connected directly or indirectly with the schemes i.e. Target 2, Stet , SWIFT etc.
+Generation of
+Payments Message
+It is invoked when payment is ready to be send to the scheme by the scheduler. This capability is usually used for outbound payments messages. Payment messages could be either single payment or batch payment message.
+The payments message generated should be scheme specific i.e. Generation of pacs message for SEPA Credit transfer or MT103 message for International Payments (SWIFT)
+Git
+Software version control system - Open-source, distributed, software version control system. Used for IPF to perform version control across the IPF development environments.
+Git (git-scm.com)
+HOCON
+Human-Optimized Config Object Notation. A human-friendly configuration file syntax, used to define IPF configuration.
+Hocon Reference Docs
+IBAN
+International Bank Account Number.
+Inbound
+Payment
+For the purposes of our documentation, an inbound payment is a payment request received into IPF from the central infrastructure of the instant payment scheme. Compare with Outbound Payment.
+Incremental
+Delivery
+Incremental delivery is the practice of repeatedly delivering a system into production (or the marketplace) in a series of expanding capabilities .
+The practice is promoted by IID and agile methods. Incremental deliveries are often between three and twelve months.
+Incremental delivery is often confused with iterative development.
+Infrastructure
+Services
+Refers to the hardware, software, network and facilities (including data centres) used to used to develop, test, deliver, monitor, control or support IT services.
+Scheduler:  manages when and how activities are executed when conditions are met. Can be time/event based.
+Development tools:  encompasses all the software tools required to support the development activities i.e team collaboration, ticket management,
+Instruction
+Validation
+Validation of payment instruction. It ensures all relevant system parameters and data are present in order to process the payment message to the next steps.
+Interaction
+Receiving a payment instruction from an authorized channel or scheme(s).
+The instruction could be single message or bulk message or an API request.
+Eg. Payments message could be a pain.001 or pacs.008 message for SEPA Payments or MT103/MT103+ message for an International payment.
+Initiate
+The process of planning a successful project.
+Integration
+Integration refers to the process of combining two pieces of software in order to solve the problem of isolated data.   For IPF projects, Icon software will be integrated onto client systems / software.
+Integration
+Services
+Provides a solution for the reliable exchange of messages between the payment engine and other systems: internal fulfilment system, third parties and schemes.
+Investigations
+Investigations deals with client and counter party inquiries related to payment instructions and transactions.
+It provides a discrete service for case management and interfaces with   the ODS Data service for Inquiry.
+Investigations are usually done by Repair team as well as Legal and Compliance, Fraud teams for their respective work.
+IPF
+"Icon Payments Framework".
+IPF SIAnet Gateway (ISG)
+IPF SIAnet Gateway. Solution developed under the IPG banner, offering connectivity to SIANnetas FEMS XS Gateway.
+Connection via the FEMS XS Gateway enables IPF to use SIAnetas proprietary network to connect to EBA Clearingas SCT Inst clearing and settlement infrastructure, RT1.
+International Organization for Standardization (ISO)
+International Organization for Standardization.
+International body that develops and publishes technology and business standards.
+www.iso.org/home.html
+ISO 20022
+aISO 20022 Financial Services - Universal financial industry message schemea.
+Standard for electronic data interchange between financial institutions, published by the International Organization for   Standardization. ISO 20022 defines a common platform for the development of financial messages.
+www.iso20022.org/
+Jackson
+JSON/XML processor - Open-source Java-based library used to serialize or map Java objects to JSON and vice versa.
+GitHub - FasterXML/jackson
+JaCoCo
+Java Code Coverage library. Used as part of internal quality assurance. Provides analysis of unit test coverage in Development environment.
+www.jacoco.org/jacoco/
+JAVA
+Programming language. Main IPF programming language, used to develop IPF functional components including: Flow Engine, Store & Forward / Stand-in processing, Format conversions, Message Validation, Routing, Matching & Correlation, Exception Handling and Compensation.
+Java Development Kit (JDK)
+A software development environment used for developing Java applications and applets.
+Jenkins
+Build server - Located on the server where the projects main build is created, Jenkins triggers a new build every time a user checks in changes to the source code. This supports the process of continuous integration for testing and development. Icon use Jenkins internally for managing IPF builds.
+Jenkins reference docs
+JUnit
+Unit testing framework for Java
+junit.org/junit4
+Java Virtual Machine (JVM)
+Virtual machine environment under which IPF runs.
+JVM
+Kubernetes
+Deployment, scaling and cluster management. Used to Extract IPF Docker containers from the Nexus repository, Deploy IPF into the target environment, Manage the deployed configuration.
+kubernetes.io/
+Launch
+The release of Icon / integrated software into a live / production status.
+Liquidity
+Management
+Banks liquidity check to ensure sufficient funds before transmitting   the payments file to Scheme, i.e EBA/Equens etc.
+If the bank does not have sufficient funds in the scheme account(Target2/EBA account)   then the file will fail due to lack of   enough funds and the entire file will be rejected back to the bank.
+Low Code
+Low-code is a visual development approach to application development. Low-code enables developers of varied experience   levels to create applications for web and mobile, using drag-and-drop components and model driven logic through a graphic user interface.
+LSV
+Stands for Lastschriftverfahren (direct debit procedure). LSV+  & BDD are Swiss direct debit schemes for the processing of domestic & cross-border collections in francs and euros.
+Message
+Schema
+The model that formally defines the structure, format and content of a specific message type.
+Method
+of Payment (MOP)
+Determination of payments scheme for further processing   i.e. Process the payments in SEPA Payments flows or SEPA Inst or SWIFT International Payments flows. For payments this is made by information provided by the Terms and Conditions and payments Agreement.
+MNB
+Magyar Nemzeti Bank. The Hungarian Central Bank. Responsible for mandating and regulating the Hungarian domestic instant payments service, due to be live in 2019.
+MNB
+MongoDB
+Document-oriented database. MongoDBas document storage model is ideally suited for ISO20022 XML-style messages used for instant payments. It offers fast access and data retrieval for online transaction processing.
+IPF uses MongoDB for Transaction logging and enquiry, Message logging and enquiry, operational data such as States of   endpoints, scheme participant availability, scheme specific data (for example, settlement cycles), Reference data, such as sorting code and participant directories.
+www.mongodb.com/
+Nexus Repository Manager
+Binary repository manager - Structured, version-controlled, software component repository. Icon uses Nexus to store a copy of the Docker container for each IPF deployment, effectively creating a reference library of all internal and customer-installed builds
+Nexus
+On Us
+Payment
+A payment where both the debtor account and the creditor account are held with the same financial institution (or within the same group). IPF offers support for on-us payment flows, although typically this type of payment would be made as an internal transfer rather than via an instant payment scheme.
+Originating
+Bank
+The bank that originates (sends) an instant payment request message (Outbound Customert Credit Transfer).
+Outbound
+Payment
+For the purposes of our documentation, an outbound payment is a payment request sent from IPF to the central infrastructure of the instant payment scheme. Compare with Inbound Payment.
+PaCoS
+Payments Committee Switzerland. The committee is responsible for consulting and supporting financial institutions and SIX Interbank Clearing regarding product and market design and for communication.
+It also deals with the coordination and interest representation in national and international committees.
+Six-Group
+pacs.
+Prefix of the ISO 20022 aPayments Clearing and Settlementa group of messages.
+For ISO 20022-based schemes, a payment request is sent as a pacs.008 message and a response to a payment request is sent as a pacs.002.
+ISO 20022 Message Definitions
+pain.
+Prefix of the ISO 20022 aPayments Initiationa group of messages.
+Typically, a pain.001 message will be routed to IPF to initiate an instant payment, and the status of that payment will be reported back to the initiator with a pain.002 message.
+ISO 20022 Message Definitions
+Pay In
+The process of funding a settlement account to ensure ahead of PayOut. Part of the  Accounts Payable Function- Level 3, realised by  Fund Accounts Payable- BP  .
+Pay Out
+The process of creating and issuing payment instructions to pay out owed amounts to creditors. Part of the  Accounts Payable Function- Level 3.
+Portfolio
+A centralized body of projects being managed by a project / programme manager.
+Payment Scheme
+A payment scheme is a set of rules which have agreed upon to execute transactions through a specific payment instrument (such as credit transfer, direct debit, card, etc). It is different from a payment system, which is a technical infrastructure that processes transactions in line with the rules defined in a payment scheme.
+EPC reference
+Payment Type
+Specifically a combination of currency, destination, and direction, i.e. credit/debit.
+Producer
+A configuration of a communications protocol that enables messages to be sent (produced) to an endpoint. The counterpart of a Consumer.
+Product
+"business" products which are sold to Customers, e.g. a retail account, which are in themselves combinations of "technical" products, which represent lower level services that can sold across multiple business products (e.g. the account, faster payments service, BACS service, mobile app etc). The business product also covers pricing information and other product specifics.
+Project
+A project is a set of tasks which must be completed in order to arrive at a particular goal or outcome. Depending on the size and scope of the project, these tasks may be simple or elaborate, but all projects can be broken down into objectives and what needs to be done to achieve them.
+Programme
+A programme is a set of related projects which collectively deliver an overall change for the business.
+Payment Services Provider (PSP)
+Payment Services Provider - in the context of the Payments CoE - Payments Blueprint this is the entity which owns and runs the Payments Processing capability (aka Payments Processor). This might not be a bank or a Financial Institution, it could be run by another entity,
+Payment Status Report (PSR)
+For IPF, this refers to the ISO20022 "FI to FI Payment Status Report" message (pacs.002), which is principally used to respond (accept or reject) to a pacs.008 instant payment request.
+ISO 20022 Message Definitions
+Python
+Programming language. For IPF, Python is the scripting language used to generate Java code from Modelio .xmi output files.
+Python.org
+Receipt Handling
+Receipt handing handles all the the response messages i.e. ACK/NACK from schemes and is able to process them accordingly.
+Reconciliation
+/matching
+Reconciliation is an accounting process that uses two sets of records to ensure figures are correct and in agreement as per the payments message and bank accounts. It confirms whether the money leaving an account matches the amount thats been spent, and making sure the two are balanced at the end of the recording period.
+Reconciliations are usually done my Finance teams and manual in nature but automated reconciliation is also possible by using specialist reconciliation tools.
+Recovery
+IPF functionality triggered when a previously unresponsive or unavailable endpoint system becomes available again. The recovery process controls the internal transition of the endpoint states back to full availability.
+Release
+Any major or minor release of tested code into a pre-production or production environment.
+Repair
+Repair is invoked when payments systems are unable to validate any payments instruction due to lack of appropriate data or wrong format or errors present in the instruction.
+There are two types of repairs as described below:
+1. Auto-Repair- Auto-repair is a capability which is invoked to   repair payment messages by the Auto-repair systems/services without any manual intervention.
+Auto-correction is done for some of the below scenarios :
+i. To avoid manual repetitive corrections (wrong fields, etc)
+ii. To increase STP rate.
+Auto repair capability is usually done for BIC Code repair, IBAN repair, system parameters missing etc.
+Auto repair capability is usually the first step in repairing a payments message. In case Auto repair fails then it is send to a Manual repair queue.
+This is usually invoked for outbound payments processing.
+2. Manual Repair:
+Manual repair is a capability which is provided to a Payments operator depending on Role based access control(RBAC), so that they can repair/fix the payments message after appropriate change/review/approve process in order to process the payments successfully without any issues.
+Reporting
+Reporting is a capability of generating and sending reports to appropriate entities/teams for either reconciliation, legal and compliance purpose or customer reporting purpose. Reports can be generated on weekly, monthly , annually or adhoc basis.
+Request Administrator
+IPF component that manages a request-response message pair sent to/from an endpoint.
+RT1
+EBA Clearingas clearing and settlement infrastructure for SCT Inst. Currently banks and other PSPs can connect to RT1 via SIAnet or EBICS.
+Overview (ebaclearing.eu)
+Request To Pay
+An additional value-added service offered by some instant payment schemes (including TCH in the USA, GIRO in Hungary).
+The Request To Pay is a message initiated by a party (business or individual) that wants to be paid, containing all relevant details of the payment required. The request to pay is sent from the requestera bank to the bank of the party being asked for payment, via the central infrastructure of the instant payment scheme.
+The receiver of the request can then simply review details and either accept or reject it. Accepting the request will trigger the sending of an instant payment using the details contained in the request to pay.
+Retrospective
+A meeting held by a project team at the end of a project or process (often after an iteration) to discuss what was successful about the project or time period covered by that retrospective, what could be improved, and how to incorporate the successes and improvements in future iterations or projects.
+Routing
+Route the transformed messages to internal systems or external schemes for further processing.
+SASS
+Short for SIX Advanced Secured Server. The SASS system will be used for the SIC and euroSIC payment systems as well as for the SECOM securities settlement system. It guarantees the secure and unadulterated transmission of messages in the Swiss Value Chain within the Swiss financial center infrastructure and forms the interface between the Gateway application and the HSM hardware components (Hardware Security Module; Primus HSM S500).
+Six-Group
+SCALA
+Programming language - Object-oriented programming language (Scalable LAnguage) in which Akka is written.
+scala-lang.org/
+Schedule
+Scheduler ensures that the execution of payments is started at a time that allows any needed value added services(Future dated payments, Batch payments etc) to be applied and their value date time to be met. The scheduler monitors the payment data store for individual and bulk payments whose value date & time and associated value added services(Netting, Bulking, Enrichment, Remittance handling etc.) makes them eligible for execution.
+The scheduler also monitors the payment data store for any re-occurring payment schedules that require a payment to be created and executed in order for value added services to be applied and the value date & time schedule to be met.
+Whenever a payment is found or created that is eligible for execution the scheduler invokes any needed value added services and triggers the execution of the payment.
+Scheduler is usually used for make payments i.e.:
+1. Future Dated Payments
+2. SEPA CT Payments
+3. SEPA DD etc
+Schema
+See Message Schema
+Scheme Pack
+Scheme Packs are a specific type of AOM each related to the processing concerns for a specific CSM within a scheme. Each available Scheme Pack is licensed separately. A Scheme Pack is developed by Icon and includes the functionality that is required to process outgoing and incoming payments/transactions with respect to a specific CSM
+Scheme Pack
+Scheme Packs are a specific type of AOM each related to the processing concerns for a specific CSM within a scheme. Each available Scheme Pack is licensed separately. A Scheme Pack is developed by Icon and includes the functionality that is required to process outgoing and incoming payments/transactions with respect to a specific CSM
+SCT Inst
+SEPA Credit Transfer Instant Payments.
+Scheme layer of Euro instant payments. Based on SEPA Credit Transfer.
+The scheme is defined and managed by the European Payments Council and implemented by multiple CSMs.
+Security Services
+Encapsulates the technologies and standards that ensures  confidentiality, integrity and availability of the system and its data.
+Identity Management/Provider: system that creates, maintains, and manages identity information for users while providing authentication services to applications within a federation or a network.
+SSL and Certificates management:  Is a standard for securing exchange of information over a network.
+Single-Sign-On (SSO):  Allows user to logon to a multiple website using multiple credentials.
+Identity Access Management (IAM):  ensures individuals have right levels of access to right resources at the right time.
+SDV
+Stammdatensverwaltung (German for master data administration) of SIX Interbank Clearing. Administers the master data of the SIC & euroSIC systems.
+SECB
+SECB Swiss Euro Clearing Bank GmbH, Frankfurt. Multipurpose bank, specializing specifically in euro payment traffic and all related cash & collateral management services. It supervises and manages the Swiss RTGS system euroSIC.
+www.secb.de/
+SECOM
+Online system of the Swiss banks for securities transactions both nationally and abroad.
+Secom Ref
+Settlement Account
+An account that is debited at point of PayOut. Not necessarily the account that is used to fund the PayOut.
+SIAnet
+SIAnet is one of the initial methods supported by EBA Clearing for connecting to its SCT Inst clearing and settlement infrastructure, RT1. See also EBICS.
+sia.eu
+SIC
+Swiss (RTGS) system for the payment traffic in francs between banks, operated by SIX Interbank Clearing Ltd on behalf & under supervision of the Swiss National Bank.
+snb.ch
+Side Effect
+A specific effect of IPF processing on a system outside of IPF. For example, a posting to an accounts system. Side effects can be recorded by IPF during processing, so that the system can automatically recover transactions that are affected by unexpected technical failures.
+Signature Check/Validation
+Checking the file signature present in every inbound or outbound payments message. While receiving the message it must be checked and validated.
+If the validation fails then the payments instruction is rejected otherwise it is processed to the next stages of payments flow.
+SIX Interbank Clearing
+Operator of the Swiss RTGS  systems SIC & euroSIC, in addition to other payment transaction services on behalf of banks for the Swiss financial center.
+snb.ch
+SonarQube
+Source code quality management tool - Used during IPF development as part of internal quality assurance.
+www.sonarqube.org/
+Spring Framework
+Application development framework - For IPF, Spring is used only for the dependency injection functionality it provides. This enables Java classes and beans to be dynamically loaded into IPF, to provide an extra layer of flexibility in the configuration of the system and enhance the reusability of the IPF Java code.
+spring.io/
+Sprint
+In Agile product development, a sprint is a set period of time during which specific work has to be completed and made ready for review. Each sprint begins with a planning meeting. During the meeting, the product owner (the person requesting the work) and the development team agree upon exactly what work will be accomplished during the sprint.
+Standard Settlement Instructions (SSI)
+These are details about standard banking relationships between banks by currency.
+Note: "SWIFT Ref SSI Plus" is a SWIFT supplied set of reference files.
+It is possible for customer preferences ("Correspondent Bank Preferences") to override those published by the Bank, as these only reflect the Banks agreements with other Banks. Where a customer (i.e. an agency bank) has other agreements in place, these may override the Banks agreements.
+State
+A UML notation element used in constructing State Machine Diagrams.
+A State Machine Diagram can have multiple states.
+Stereotype
+A UML mechanism for extending or enhancing another element of a UML model. For IPF, stereotypes are used to associate a standard piece of functionality with a state, transition or decision (choice).
+A stereotype may have associated tags, that allow parameterised values to be set whenever it is used.
+UML stereotypes
+STET
+STETs Instant Payments CSM (IP CSM) is a  clearing and settlement mechanisms for SCT Inst transactions.
+www.stet.eu/en/
+Story
+In agile software development, a story is a particular business need assigned to the software development team. Stories must be broken down into small enough components that they may be delivered in a single development iteration.
+Support
+'Support' provides use cases for some of the below :
+1. BAM(Business Activities Monitoring) :
+2. Monitor Production Systems behaviour.
+3. Collect System information
+4. Send information to appropriate teams/services during system fails, wrong transactions etc so that system/services can be fixed for smooth processing of payments messages.
+N.B: BAM team does not solve any problem
+Swagger
+API toolkit - Used to develop IPFas APIs.
+swagger.io
+Tag
+An attribute associated with a UML stereotype that enables values to be assigned to pre-defined parameters when the stereotype is used.
+TCH
+The Clearing House. Long-established US payments clearing and settlements provider, currently developing a central infrastructure to deliver Real-Time Payments to the US market.
+www.theclearinghouse.org/
+Technical Duplicate Check
+Technical duplicate check for an inbound or outbound payments message using hash techniques or any other solution to ensure that a file is not   duplicate.
+Technical duplicate check is intended to detect files/messages that are totally identical which are usually caused by malfunction application or middle ware. This service is often provided by the channel.
+Technical duplicate check is different from business duplicate check. If a payment is found to be a duplicate (with same payment reference, amount, sender and beneficiary etc) then the payment is rejected   back to the originator.
+Terms and Conditions
+Determination of terms and conditions of the involved parties. This step determines the charges, tariffs etc for the customers by reading the customer profiles. Profiles may contain the combination of the below data:
+1. Customer conditions
+2. Fees
+3. Products
+4. Covenant management( contract, signatures etc)
+Timeout Watchman
+IPF component that monitors timeouts on endpoint systems.
+TARGET Instant Payment Settlement service (TIPS)
+TARGET Instant Payment Settlement service.
+ECB Ref
+Transaction
+Data about events that have happened, e.g. payments.
+Transition
+A UML notation element used in constructing State Machine Diagrams. A transition represents the change from one state to another. A State Machine Diagram can include multiple transitions.
+Transmission
+Transmission is invoked when the payments file is ready to be transmitted to relevant scheme i.e. EBA, Target 2, STET etc.
+Depending on the payment type the file is batched or sent as single file to the scheme. i.e. SCT Inst goes as a single file and SCT goes as a bulk file.
+Unified Modelling Language (UML)
+Unified Modelling Language
+UML Guide
+Unavailable
+One of the possible states that IPF assigns to an endpoint.
+Uniform Resource Identifier (URI)
+Uniform Resource Identifier
+Value Added Service
+A service providing extra functionality above and beyond payments functionality. These services can be charged for to provide revenue streams for the bank. See Value Added Services(VAS)
+Velocity
+Velocity is a metric for work done, which is often used in agile software development. Measuring velocity is sometimes called velocity tracking. The velocity metric is used for planning sprints and measuring team performance.
+Vostro & Nostro Accounts
+The words come from from Italian, nostro and vostro; in English, 'ours' and 'yoursa.
+A  nostro  is our account of our money, held by the other bank
+A  vostro  is our account of other bank money, held by us
+WoW (Ways of Working)
+Ways of working is how a team collaborates. The WoW will be documented and agreed and adhered to throughout the duration of a project.
+.xmi
+XML Metadata Interchange. The file format used to export diagrams from Modelio and import into IPF.
+YAML
+API mark-up language - Mark-up language used to describe APIs. YAML enables you to describe an API and generate client code, server code and documentation (HTML). YAML is used with Swagger to define IPFas APIs.
+What is YAML
+Migration Steps for IPF-2023.1.0.4
+Frequently Asked Questions

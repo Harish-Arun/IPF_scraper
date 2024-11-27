@@ -1,0 +1,37 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/direct-debit-api/schema.html ===
+Direct Debit API
+Summary
+Description
+This API is used to exchange direct debit information between a payment engine and a CSM Service.
+Integration Pattern
+Asynchronous
+Reply Method
+Separate request/response queues/topics
+Integration Method
+JMS, Kafka
+Message Format
+JSON
+Message Model
+ISO20022
+Security
+TLS
+Resiliency Strategies
+Circuit Breaker, Backpressure, Automatic Retries
+Models
+CollectAndSettleRequest
+Version:
+pacs.003.001.08
+Details:
+View the json schema
+CollectAndSettleResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+TechnicalResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+Clear and Settle API
+Direct Debit Validation API

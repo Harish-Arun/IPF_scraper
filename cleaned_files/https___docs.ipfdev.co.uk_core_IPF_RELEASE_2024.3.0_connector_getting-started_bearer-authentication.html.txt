@@ -1,0 +1,213 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/getting-started/bearer-authentication.html ===
+Bearer Authentication
+Bearer Authentication (or token authentication) is an HTTP authentication scheme that involves using security tokens called bearer tokens. Support for Bearer Authentication is included with IPF, this guide explains how to implement Bearer Authentication on a
+RequestReplyConnectorTransport
+. For additional details on configuring a
+HTTPConnectorTransport
+please refer to
+HTTP Quickstart.
+Step 1: Configure
+AutoRefreshingAuthTokenManager
+The
+AutoRefreshingAuthTokenManager
+class is provided by the
+connector-http
+dependency
+@Bean(destroyMethod = "shutdown")
+    AutoRefreshingAuthTokenManager authTokenManager(SendingConnector<Object, AccessToken> authTokenConnector,
+(2)
+Clock clock,
+(3)
+EventBus eventBus) {
+(4)
+var tokenConfiguration = apiClientProperties.getToken();
+(5)
+return new AutoRefreshingAuthTokenManager(
+            actorSystem,
+(6)
+new OAuthTokenProvider(authTokenConnector, clock),
+(7)
+tokenConfiguration.getRefreshInterval(),
+(8)
+tokenConfiguration.getThrottleInterval(),
+(9)
+tokenConfiguration.getTtlBeforeRefresh(),
+(10)
+eventBus
+(11)
+);
+    }
+1
+Specify the destroy method, to ensure that the
+killSwitch
+is invoked to gracefully terminate the Akka Stream used by
+AutoRefreshingAuthTokenManager
+2
+AutoRefreshingAuthTokenManager
+should be configured as a spring bean
+3
+A
+Clock
+is injected to assist in mapping from a proprietary
+AccessToken
+to an IPF
+AuthToken
+4
+The
+AutoRefreshingAuthTokenManager
+publishes events on the
+eventBus
+in the case of authentication failure - injected at point
+11
+5
+Configuration can be optionally parameterized as a
+ConfigurationProperties
+so facilitate configurability see
+Step 2
+6
+AutoRefreshingAuthTokenManager
+uses Akka Streams so an
+ActorSystem
+needs to be injected
+7
+Inject a class which implements the
+AuthTokenProvider
+interface.
+AutoRefreshingAuthTokenManager
+will delegate to this class to actually retrieve an access token from a token provider, based on the refreshInterval, throttleInterval and ttlBeforeRefresh values. As the
+AuthTokenProvider
+will actually make the call to retrieve a token from a token provider, we are injecting a
+SendingConnector
+, see
+Step 3
+8
+A duration after which a token refresh is triggered automatically.
+9
+A duration within which only a single get token request will be allowed through (not counting retries).
+10
+A duration which specifies the minimal remaining time-to-live of a token. A token refresh will be triggered for all tokens whose remaining TTL is below this value.
+Step 2: Config
+As per step 1, some values have been exposed as configuration properties, so should be configured as appropriate
+token {
+(1)
+refresh-interval = 7h
+(2)
+throttle-interval = 5s
+(3)
+ttl-before-refresh = 5m
+(4)
+}
+1
+In the above example the
+ConfigurationProperties
+prefix is
+token
+2
+Specified in a
+format accepted by Spring Boot
+.
+3
+Specified in a
+format accepted by Spring Boot
+.
+4
+Specified in a
+format accepted by Spring Boot
+.
+Step 3: Create
+SendingConnector
+Below is a SendingConnector to retrieve an
+AccessToken
+SendingConnector<Object, AccessToken> authTokenSendConnector() {
+(1)
+var connectorTransport = apiTransportBuilderWithName("AuthTokenConnectorTransport").build();
+(2)
+return new RequestReplySendConnector.Builder<Object, Object, AccessToken, AccessToken>("AuthTokenRequestReplyConnector")
+            .withActorSystem(actorSystem)
+            .withTargetToTransportMessageConverter(new TransportAuthTokenMessageConverter(apiClientProperties))
+            .withTransportMessageToTargetConverter(this::transportMessageToAuthToken)
+            .withConnectorTransport(connectorTransport)
+            .build();
+    }
+1
+AccessToken
+is the proprietary token format returned by an external token provider. This should be converted in the
+TokenProvider
+implementation to an
+AuthToken
+for handling in IPF
+2
+Configure a
+HttpConnectorTransport
+for retrieving an
+AccessToken
+, for additional details on configuring a
+HTTPConnectorTransport
+see
+HTTP Quickstart
+Step 4: Add
+BearerTokenEnricher
+For endpoints which implement Bearer Authentication, a
+BearerTokenEnricher
+can be added to the
+RequestReplyHttpConnectorTransport
+, which then uses the
+AutoRefreshingAuthTokenManager
+(or any class which implements the
+AuthTokenProvider
+interface)
+@Bean
+    @SneakyThrows
+    RequestReplyHttpConnectorTransport exampleConnectorTransport(AutoRefreshingAuthTokenManager tokenManager) {
+(1)
+var transportBuilder = new RequestReplyHttpConnectorTransport
+            .Builder()
+            .withName("ExampleTransport")
+            .withActorSystem(actorSystem)
+            .withHost(apiClientProperties.getBaseUrl())
+(2)
+.withPort(apiClientProperties.baseUriPort())
+(3)
+.withProxyHost(apiClientProperties.proxyHost())
+(4)
+.withProxyPort(apiClientProperties.proxyPort())
+(5)
+.withEnricher(new BearerTokenEnricher(tokenManager));
+(6)
+return apiClientProperties.isHttpsUri(apiClientProperties.baseUri())
+(7)
+? transportBuilder.withSslContext(SSLContext.getDefault()).build()
+(8)
+: transportBuilder.build();
+(9)
+}
+1
+Injecting
+AutoRefreshingAuthTokenManager
+configured in
+Step 1
+2
+Host name of the endpoint as retrieved from application configuration
+3
+Host port as retrieved from application configuration
+4
+Proxy settings (optional)
+5
+Proxy settings (optional)
+6
+BearerTokenEnricher
+is a class provided by the
+connector-http
+module, it takes in an
+AuthTokenProvider
+in the example provided we are using the
+AutoRefreshingAuthTokenManager
+which implements the
+AuthTokenProvider
+interface
+7
+In this example, a check is done to verify if the uri contains "https", if so, it configures the transport with an
+SSLContext
+as per point 8, otherwise it is configured without this context as per point 9
+File Connector Quickstart
+Persistence

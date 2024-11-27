@@ -1,0 +1,26 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/fednow-csm-service/features/csm-events.html ===
+CSM Events
+The FedNow CSM Service publishes the standard set of CSM Events
+Event Name
+Description
+com.iconsolutions.instantpayments.csm.event.LiquidityAdjustmentReceived
+Published when a liquidity adjustment notification is received from the CSM
+com.iconsolutions.instantpayments.csm.event.InvalidMessageReceived
+Published when there is a technical issue with the message being received from CSM
+com.iconsolutions.instantpayments.csm.event.ParticipantUnavailableReceived
+Published when a participant unavailable notification is received from the CSM
+com.iconsolutions.instantpayments.csm.event.SchemeCorrelationError
+Published when status request was not able to be correlated by the CSM
+com.iconsolutions.ipf.core.systemevents.functional
+.FunctionalSystemEvent
+Parent event for all functional events raised from the IPF domain
+com.iconsolutions.instantpayments.csm.event.OutgoingMessageTechnicalIssue
+Published when there is a technical issue with message sent to the CSM
+com.iconsolutions.instantpayments.csm.event.LiquidityPositionReceived
+Published when a liquidity position notification is received from the CSM
+com.iconsolutions.instantpayments.csm.event.OrphanPaymentStatusReportReceived
+Published when a payment status report that doesnât correspond to a previous payment is received
+com.iconsolutions.instantpayments.csm.event.DuplicatePaymentStatusReportReceived
+Published when a duplicate payment status report is received
+FedNow CSM Service Configuration
+Supported Transports

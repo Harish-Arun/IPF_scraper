@@ -1,0 +1,28 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/fednow-csm-service/features/validations.html ===
+FedNow Validations
+Further details of the standard validations are available
+CSM Validations
+Supported?
+Customisations
+Acceptance Date Validator
+Y
+Where to retrieve Acceptance Date Time in request
+Timeout
+BIC Validator
+Y
+Creditor Agent routing code Allowed List
+Debtor Agent routing code Allowed List
+CSM Field Mutual Exclusivity Validator
+Y
+Overrides the standard set of fields and checks the following:
+GrpHdrIBAN / GrpHdrOthrId
+GrpHdrCd / GrpHdrPrtry
+CdTrfInfCd / CdTrxInfPrtry
+CdtTrfTxInfRemittanceInfoStandard / CdtTrfTxInfRemittanceInfoNotStandard
+XSD Schema Validator
+Y
+Validated against FedNow message schemas
+Outbound XSD Validator
+Y
+FedNow CSM Service Application Structure
+FedNow CSM Service Configuration

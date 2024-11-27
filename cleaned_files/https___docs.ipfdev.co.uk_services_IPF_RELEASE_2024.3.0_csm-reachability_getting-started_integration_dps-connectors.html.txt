@@ -1,0 +1,73 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/integration/dps-connectors.html ===
+DPS Connectors
+CSM Reachability provides HTTP DPS Connectors
+To use DPS connectors next Maven dependency should be added:
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-api-connector</artifactId>
+</dependency>
+Instead of using DPS connectors directly, domain APIs should be used.
+Configuration
+In order to set up the connectors, we should have the following configuration:
+ipf.csm-reachability.settings-api.connection = http
+Dps transport configuration:
+This configuration is deprecated and scheduled for removal in future releases.
+settings-api.http.client {
+    host = "localhost"
+    endpoint-url = "/settings-objects/"
+    port = 8080
+}
+Changed to follow IPF standard, but it is still backward compatible with the old naming:
+ipf.csm-reachability.settings-api {
+  http.client {
+    host = "localhost"
+    endpoint-url = "/settings-objects/"
+    port = 8080
+  }
+  http.client = ${?settings-api.http.client}
+
+  connection = http
+  connection = ${?settings-api.connection}
+}
+We have the default connector configuration which every connector inherits and can override:
+ipf.csm-reachability.settings-api {
+  connector {
+    get-all-bicdir = ${ipf.csm-reachability.settings-api.default-connector}
+    get-batch-bicdir = ${ipf.csm-reachability.settings-api.default-connector}
+    get-bicdir-ids = ${ipf.csm-reachability.settings-api.default-connector}
+    generic-processing-settings = ${ipf.csm-reachability.settings-api.default-connector}
+    agent-settings = ${ipf.csm-reachability.settings-api.default-connector}
+    agent-clearing-settings = ${ipf.csm-reachability.settings-api.default-connector}
+    agent-settlement-settings = ${ipf.csm-reachability.settings-api.default-connector}
+    cs-agent-selection-settings = ${ipf.csm-reachability.settings-api.default-connector}
+    participant = ${ipf.csm-reachability.settings-api.default-connector}
+    participant-batch = ${ipf.csm-reachability.settings-api.default-connector}
+    participant-get-ids = ${ipf.csm-reachability.settings-api.default-connector}
+    processing-entity = ${ipf.csm-reachability.settings-api.default-connector}
+    get-all-iban-structure = ${ipf.csm-reachability.settings-api.default-connector}
+    get-batch-iban-structure = ${ipf.csm-reachability.settings-api.default-connector}
+    get-all-iban-plus = ${ipf.csm-reachability.settings-api.default-connector}
+    get-batch-iban-plus = ${ipf.csm-reachability.settings-api.default-connector}
+    get-all-exclusion-list = ${ipf.csm-reachability.settings-api.default-connector}
+    get-batch-exclusion-list = ${ipf.csm-reachability.settings-api.default-connector}
+    get-party-entity = ${ipf.csm-reachability.settings-api.default-connector}
+    get-party-entity-ids = ${ipf.csm-reachability.settings-api.default-connector}
+    get-batch-party-entity = ${ipf.csm-reachability.settings-api.default-connector}
+    get-setting-ids = ${ipf.csm-reachability.settings-api.default-connector}
+    delete-setting = ${ipf.csm-reachability.settings-api.default-connector}
+  }
+
+  default-connector {
+    resiliency-settings {
+      # Determines the maximum number of retries to be made. Note that this includes the first failed attempt.
+      max-attempts = 2
+      # Retry if HTTP error code is in the list
+      retryable-status-codes = [500, 503]
+      # Determines the minimum number of calls (within a sliding window period) that need to be made before the circuit breaker can calculate the error rate to determine the transport health.
+      minimum-number-of-calls = 10
+    }
+    resiliency-settings = ${?csm-reachability-api.resiliency-settings}
+  }
+}
+Client Library
+Customisations

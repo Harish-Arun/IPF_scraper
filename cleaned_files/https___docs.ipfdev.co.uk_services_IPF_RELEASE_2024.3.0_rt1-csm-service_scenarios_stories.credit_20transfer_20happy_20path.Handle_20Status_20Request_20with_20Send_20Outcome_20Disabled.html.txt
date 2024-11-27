@@ -1,0 +1,22 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.credit%20transfer%20happy%20path.Handle%20Status%20Request%20with%20Send%20Outcome%20Disabled.html ===
+Handle Status Request with Send Outcome Disabled.story
+Scenario: Handling status request with Send Outcome Disabled
+When
+the i12Payment Servicei12  sends a Clear
+And
+Settle Request
+Then
+the i12CSMi12  receives a Customer Credit Transfer
+When
+the i12Payment Servicei12  sends a Status Request
+Then
+the i12CSMi12  receives a Payment Status Request
+Then
+i12Payment Servicei12  receives a Technical Response with values:
+| status | SUCCESS |
+When
+the i12CSMi12  sends a Payment Status Report with values:
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.orgnlMsgId   | #StatusRequest.payload.content.grpHdr.msgId |
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.orgnlMsgNmId | pacs.028.001.001                            |
+Then
+the i12Payment Servicei12  receives a Status Request Response

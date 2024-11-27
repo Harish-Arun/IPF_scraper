@@ -1,0 +1,117 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-3-0/release-IPF-2024-3-0-dps-v2.html ===
+Dynamic Processing Settings v2 - Changes & Fixes
+This page covers the DPS (Dynamic Processing Settings) v2 module changes and fixes provided in release IPF-2024.3.0.
+Dynamic Processing Settings v2
+Dynamic Processing Settings API
+New
+Implemented client library for DPS. DPS has generic API and with this client library DPS provides all applications to use it. It is implemented for CRUD and Search APIs. There are two ways how they can be implemented: via connectors or directly. When we  use it via connectors we need to set client-type to be connector (that is also default value for connectors). If you want to use it directly, you should set client-type to direct (which is also default value when we are using direct approach).
+Added /setting-objects/schemas endpoint for getting payload and searchable fields schemas for all available setting objects. Also implemented client connectors for it.
+SettingsTypeIdResolver used for custom JSON (de)serialization. Response contains
+@type
+field which contains information about generic type instead of having
+className
+field with fully qualified class name.
+All settings have to set
+@SettingTypeId
+annotation with unique value. This value is set as
+@type
+field in JSON response.
+dynamic-processing-settings-client-notification-port
+module that represents an interface for receiving dps notifications
+dynamic-processing-settings-client-notification-kafka
+module that represents implementation for receiving dps notifications via kafka
+DpsCrudNotification
+type in
+dynamic-proessing-settings-model
+Error handling is compatible with DPS V1
+Approval API response contains new fields (approvalType, recordType, createdDate)
+deletedBy query parameter to the DELETE Setting API and the corresponding field on SettingDTO
+processingEntity as an optional query parameter for GET Approvals API
+Changed
+Get approvals endpoint response extended to include the differences between persisted settings and approved settings.
+Approval Document (DB) structure has changed, old fields (approvedBy, rejectedBy, approvedReason, rejectedReason) are replaced by new fields (createdDate, resolvedBy, resolvedReason, resolvedDate, resolvedStatus)
+Configuration
+ipf.dps-api.client-type=connector
+Client library implementation is done via connectors
+ipf.dps-api.client-type=direct
+Client library implementation is done via direct implementation
+ipf.dps-api.default-connector
+Default values for connectors
+ipf.dps-api.default-connector.resiliency-settings
+Default values for resiliency settings
+ipf.dps-api.default-connector.resiliency-settings.max-attempts
+Determines the maximum number of retries to be made. Note that this includes the first failed attempt. Default is set to 2.
+ipf.dps-api.default-connector.resiliency-settings.retryable-status-codes
+Retry if HTPP error code is in the list. Default values are [500, 503]
+ipf.dps-api.default-connector.resiliency-settings.minimum-number-of-calls
+Determines the minimum number of calls (within a sliding window period) that need to be made before the circuit breaker can calculate the error rate to determine the transport health
+ipf.dps-api.connector.create-setting
+Custom settings for create-setting connector. If not specified, default values are set.
+ipf.dps-api.connector.update-setting
+Custom settings for update-setting connector. If not specified, default values are set.
+ipf.dps-api.connector.delete-setting
+Custom settings for delete-setting connector. If not specified, default values are set.
+ipf.dps-api.connector.get-setting
+Custom settings for get-setting connector. If not specified, default values are set.
+ipf.dps-api.connector.search-setting
+Custom settings for search-setting connector. If not specified, default values are set.
+ipf.dps-api.connector.search-ids-setting
+Custom settings for search-ids-setting connector. If not specified, default values are set.
+ipf.dps-api.connector.search-request-setting
+Custom settings for search-request-setting connector. If not specified, default values are set.
+ipf.dps-api.connector.setting-schemas
+Custom settings for setting-schemas connector. If not specified, default values are set.
+ipf.dps-api.client.notification
+Custom settings for kafka consumer for dps crud notifications
+Dynamic Processing Settings
+New
+CRUD service v1 backward compatibility.
+DPS v2 can work with settings created by DPS v1 without any DB migration. It is necessary to configure DPS v2 with information on how to convert the v1 data structure to v2 for each setting definition. Configuration is done via property ipf.dps.settings.<setting-definition>. More details can be found in Configuration
+Search implementation which can return currently active setting value or setting value which is scheduled to be active in the future. Which value will be returned depends on the query parameter
+atTime
+. If the
+atTime
+parameter points to a time when the current value is active, then the current value will be used. If the
+atTime
+parameter points to a time in the future when the scheduled value will be active, then the scheduled value will be used. This parameter is optional. If not set, the current time is used.
+dynamic-processing-settings-notification-service with api module
+dynamic-processing-settings-notification-service-port
+and kafka implementation
+dynamic-processing-settings-notification-service-kafka
+for crud operations notifications
+in the
+dynamic-processing-settings-repository-mongo
+there is DpsIndexCreator bean that creates indexes per setting type based on hocon config
+Added History service implementation
+deletedBy field to the Setting document
+processingEntity as an optional parameter for GET Approvals
+Changed
+activeFromDate
+is the parameter available in both
+create
+and
+update
+setting requests. This value tells us when the setting is active from. In case when this value
+is not provided in a request, the service will set current date at the moment of either creating or updating the setting.
+Configuration
+ipf.dps.settings.<setting-type>.type-mapping.from-type
+Defines which v1 setting-specific repository model should be mapped to v2 repository model e.g. com.iconsolutions.ipf.dynamicsettings.repository.DpsSampleSettings
+ipf.dps.settings.<setting-type>.type-mapping.to-type
+V2 repository model used for v1 backward compatibility (which is no longer setting-specific and is used for all v1 settings). For v1 settings, it should be set to this value com.iconsolutions.ipf.dynamicsettings.v2.repository.mongo.entity.SettingDocumentV1
+ipf.dps.settings.<setting-type>.type-mapping.payload-type
+Setting definition class (which can remain the same as it used to be) e.g. com.iconsolutions.ipf.dynamicsettings.domain.DpsSample
+ipf.dps.notification-service
+Settings for dynamic-processing-settings-notification-service-kafka
+Backward Incompatibility
+activeFrom
+parameter is removed from search query. Its usage is replaced with
+atTime
+parameter.
+Get approvals endpoint response extended to include the differences between persisted settings and approved settings.
+SettingsTypeIdResolver set
+@type
+field which contains information about generic type instead of having
+className
+field with fully qualified class name.
+CSM Reachability - Changes & Fixes
+ODS & GUI - Changes & Fixes

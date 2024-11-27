@@ -1,0 +1,83 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-persistent-scheduler/getting-started/scheduling-first-job.html ===
+Scheduling Your First Job
+There are a few things to set up to start scheduling your first IPF Scheduler job. We’ll do them in the most sensible
+order possible.
+You will create a command, a
+JobSpecification
+that uses that command to define the job to run, and an
+SchedulingHelper
+which gets given that command at the scheduled run time(s).
+Step 0: Add dependency
+You will need to add this to
+pom.xml
+:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.platform</groupId>
+    <artifactId>scheduler-core</artifactId>
+</dependency>
+If importing the Icon BOM, or using the Icon BOM as a parent, there’s no need to supply a version.
+Alternatively, to find the latest version, you can use
+this Nexus query
+.
+Step 1: Create a command
+This is a command that will be sent to your
+SchedulingHelper
+, which has to extend
+com.iconsolutions.ipf.core.shared.scheduling.SchedulingCommand
+.
+Here’s an example of one:
+public static class MyCommand implements SchedulingCommand {
+    }
+Step 2: Create a
+SchedulingHelper
+and define it as a Spring bean
+This is the class that will receive a notification to run your job at a specific time, with the given command from step 1:
+public static class MySchedulingHelper implements SchedulingHelper {
+        @Override
+        public CompletionStage<Void> execute(String id, SchedulingCommand command) {
+            //do some really important work here that can possibly take a long time...or not?
+            log.info("Look I'm being scheduled! The ID was: {}", id);
+            return CompletableFuture.completedFuture(null);
+        }
+
+        @Override
+        public boolean supports(SchedulingCommand command) {
+            return command instanceof MyCommand;
+        }
+    }
+You will also need to define it as a bean:
+@Bean
+        public SchedulingHelper mySchedulingHelper() {
+            return new MySchedulingHelper();
+        }
+Step 3: Schedule the job
+Now we tell the
+SchedulingModuleInterface
+to schedule our job with our command at a specific time.
+In the below example we are running our job every 5 seconds.
+public void scheduleJob() {
+        schedulingModuleInterface.scheduleJob(JobSpecificationDto.builder()
+                .jobRequestor("test-requestor")
+                .jobSpecificationKey(new JobSpecificationKeyDto("my-special-job-wow"))
+                .triggerCommand(new MyCommand())
+                .triggerIdentifier("my-trigger-id")
+                .schedulingSpecification("*/5 * * ? * *")
+                .build());
+    }
+Note that if you want a non-repeating job, you can use
+singleSchedule
+and pass in a
+Calendar
+instance representing
+the desired trigger time, instead of supplying a cron-style
+schedulingSpecification
+.
+Step 4: Run it!
+If we run this application we can see that every 5 seconds our log message is printed out:
+28-02-2023 15:29:00.002 [DefaultQuartzScheduler_Worker-1] INFO  c.i.i.c.p.s.persistent.DocsExamples.execute - Look I'm being scheduled! The ID was: my-trigger-id
+28-02-2023 15:29:05.001 [DefaultQuartzScheduler_Worker-2] INFO  c.i.i.c.p.s.persistent.DocsExamples.execute - Look I'm being scheduled! The ID was: my-trigger-id
+28-02-2023 15:29:10.000 [DefaultQuartzScheduler_Worker-3] INFO  c.i.i.c.p.s.persistent.DocsExamples.execute - Look I'm being scheduled! The ID was: my-trigger-id
+28-02-2023 15:29:15.001 [DefaultQuartzScheduler_Worker-4] INFO  c.i.i.c.p.s.persistent.DocsExamples.execute - Look I'm being scheduled! The ID was: my-trigger-id
+28-02-2023 15:29:20.000 [DefaultQuartzScheduler_Worker-5] INFO  c.i.i.c.p.s.persistent.DocsExamples.execute - Look I'm being scheduled! The ID was: my-trigger-id
+Getting Started
+Dynamic Settings

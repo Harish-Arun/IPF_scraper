@@ -1,0 +1,36 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/guides/troubleshooting-error-msgs.html ===
+Troubleshooting Error Messages
+The events in the following table are ERROR events logged by IPF and describe
+recommended remediation steps to follow if encountered.
+Error events
+Name
+Description
+Level
+Remediation
+AuthenticationFailed
+Published when authentication fails
+ERROR
+If an Authentication error occurs please check the following:
+the logs of the service the connector belongs to for any errors
+CorrelationNotFound
+Published when an CorrelationId cannot be matched with a UnitOfWorkId
+ERROR
+If an CorrelationId cannot be found please check the following:
+the correlation service is available
+the mapping of fields is correct
+the field is available in the input message
+InboundMessageFailed
+Event published when any aspect of the message receive process fails (mapping, receiver function,etc.) - contains the exception that was raised
+ERROR
+If an Inbound Message Failure occurs please check the following:
+the logs of the service the connector belongs to for any errors
+OutboundMessageFailed
+Published when any error relating to sending of messages is raised (mapping, enqueue, etc.)
+ERROR
+If an Outbound Message Failure occurs please check the following:
+the logs of the service the connector belongs to for any errors
+OutboundMessageValidationFailed
+Published in case of outgoing message validation failure
+ERROR
+How to handle schema evolution in IPF events
+How to secure IPF HTTP Endpoints

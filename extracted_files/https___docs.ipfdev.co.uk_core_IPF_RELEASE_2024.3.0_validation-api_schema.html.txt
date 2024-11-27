@@ -1,0 +1,67 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/validation-api/schema.html ===
+Validation API
+Summary
+Description
+This API is used to do validation between a payment engine and a CSM Service.
+Integration Pattern
+Asynchronous
+Reply Method
+Separate request/response queues/topics
+Integration Method
+JMS, Kafka
+Message Format
+JSON
+Message Model
+ISO20022
+Security
+TLS 1.2
+Resiliency Strategies
+Circuit Breaker, Backpressure, Automatic Retries
+Models
+TechnicalResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+ValidatePaymentCancellationRequestSchemeRulesRequest
+Version:
+camt.056.001.08
+Details:
+View the json schema
+ValidatePaymentReturnSchemeRulesRequest
+Version:
+pacs.004.001.09
+Details:
+View the json schema
+ValidatePaymentStatusReportSchemeRulesRequest
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+ValidatePaymentStatusRequestSchemeRulesRequest
+Version:
+pacs.028.001.10
+Details:
+View the json schema
+ValidateResolutionOfInvestigationSchemeRulesRequest
+Version:
+camt.029.001.09
+Details:
+View the json schema
+ValidateSchemeRulesRequest
+Version:
+pacs.008.001.08
+Details:
+View the json schema
+ValidateSchemeRulesResponse
+Version:
+N/A
+Details:
+View the json schema
+ValidationFailure
+Version:
+N/A
+Details:
+View the json schema
+Direct Debit Validation API
+Payment Initiation API

@@ -1,0 +1,30 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/system-events/guides/subscribetoandlogevents.html ===
+Subscribing to - then logging - all
+WARN
+and
+ERROR
+events
+First we have a
+switch
+statement which filters the received events to only ERROR and WARN, and then we log the events
+using SLF4J (for example).
+eventBus.subscribe(new EventProcessor<>() {
+            @Override
+            public Predicate<IPFSystemEvent<?>> predicate() {
+                return evt -> evt.getLevel() == EventLevel.WARN || evt.getLevel() == EventLevel.ERROR;
+            }
+
+            @Override
+            public void notify(IPFSystemEvent<?> event) {
+                switch (event.getLevel()) {
+                    case ERROR:
+                        log.error("An error event was raised: {}", event);
+                        break;
+                    case WARN:
+                        log.warn("A warning event was raised: {}", event);
+                        break;
+                }
+            }
+        });
+How to guides
+Logging all events of a specific type

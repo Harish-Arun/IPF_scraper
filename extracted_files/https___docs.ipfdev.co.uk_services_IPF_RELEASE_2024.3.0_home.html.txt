@@ -1,0 +1,21 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/home.html ===
+Services Home
+This section documents IPF runnable services that we provide to run outside of a typical IPF Application that a client would build.
+These are usually pre-built by Icon and expected to then be used by the client in a standalone fashion (in some cases you will need to build an application service using a specified set of dependencies and configuration - where necessary this is documented).
+Operational Data Store (ODS)
+Operational Dashboard
+GUI Service
+CSM Services
+CSM Services Core
+FedNow CSM Service
+RT1 CSM Service
+SIC CSM Service
+SEPA CT STEP2 CSM Service
+SEPA DD STEP2 CSM Service
+TIPS CSM Service
+SWIFT AGI Gateway
+CSM Reachability
+Working Days Service
+Identity Resolution
+Payment Notification Service
+Operational Data Store (ODS)

@@ -1,0 +1,78 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/features/bank-filtering-rules.html ===
+Bank Filtering Rules
+The Bank filtering service offers means to filter the transactions based on criteria defined through aDynamicallya configurable rules. The rules can be configured using the aDynamic Process Settingsa solution on IPF. This enables the rules to be updated without needing a restart on IPF implementation.
+Rules Definition
+Bank Filtering Rules 'Dynamic Configuration' follows below format.
+Field name
+Optionality
+Description
+processingEntity
+M
+A processing entity defines a sub-organization within an organization. A dedicated bank exclusion/blocking list can be defined for each sub-organization. Processing Entity is part of Dynamic Processing Setting (DPS) SettingDTO which is the superclass of BankFilteringRule, and is therefore not part of the payload.
+ruleId
+M
+A unique rule Id as assigned by the client implementation.
+ruleName
+M
+A short rule name as given by the client implementation.
+ruleDescription
+M
+A comprehensive rule description
+csmAgentIds
+O
+A list of CSM Agent Ids that should be applied for filtering. When the rule has a CSM Agent Id defined, the rule is matched only when the input request to the service API has the CSM Agent Id specified.
+country
+C
+The country attribute, if defined creates a country wide rule and the rule is applied when the counterparty belongs to the country. The counterparty country is extracted from the BIC on service API request or from the NCC country when NCC is provided. A country wide rule applies to all the parties in the country.
+currency
+C
+A currency filter can be defined by specifying a currency on the rule. The currency filter is applied even if the counterypartys do not match between the service API requests and on the rules and irrespective of the direction on the rules.
+bic
+C
+The BIC attribute allows a BIC to be set for filtering. This field can follow a length of 4, 6, 8 or 11 characters and signifies below
+- 4 Character - The rule will be applied to all the input BICs that start with 4 character bank code on the BIC
+- 6 Character - The rule will be applied to all the input BICs where first 6 characters match with that specified on the rule (Bank Code + Country)
+- 8 Character - The rule will be applied to all the input BICs where first 8 characters match with that specified on the rule (Bank Code + Country + City)
+- 11 Character - The rule will be applied to all the input BICs where all 11 characters match with that specified on the rule (Bank Code + Country + City + Branch)
+ncc
+C
+The National Clearing code for the counterparties that should be subject to filtering. The NCCs follow exact matching.
++nccValue
+M
+A list of National Clearing code values that should be subject to filtering.
++country
+M
+The Country to which the National clearing codes belong. The country code must be provided when NCCs are provided on the rule.
+direction
+M
+The direction value determines whether the rule is applied to the debtor on the service API request, creditor or both.
+- DEBTOR - The rule is applied when the BIC or NCC on the service API request matches with the Debtor BIC, Debtor NCC or the country of the Debtor counterparty on service API request matches with the country specified on the rule.
+- CREDITOR - The rule is applied when the BIC or NCC on the service API request matches with the Creditor BIC, Creditor NCC or the country of the Creditor counterparty on service API request matches with the country specified on the rule.
+- ANY -  The rule is applied when the BIC or NCC on the service API request matches with either of Creditor or Debtor BIC, Creditor or Debtor NCC or the country of the Creditor or Debtor counterparty on service API request matches with the country specified on the rule.
+startDate
+O
+Optional field, which defines when the rule starts to be active. If not set, the rule is assumed to be active. The field follows a date time format with the timezone specified in UTC. Any client implementations setting the startDate field will need to set the time of activation in UTC timezone by converting the local time value to UTC.
+endDate
+O
+Optional field, which defines when the rule starts to be inactive. If not set, its assumed that rule will never become inactive. The field follows a date time format with the timezone specified in UTC. Any client implementations setting the startDate field will need to set the time of activation in UTC timezone by converting the local time value to UTC.
+severity
+M
+A severity of a rule of a bank exclusion/blocking list is returned to a process flow, so further decisions can be made. Possible values are 1 to 10 where 10 is the highest severity.
+At least one of Country, Currency, BIC or NCC must be set on a rule.
+IPF DPS Implementation also provides standard attributes against dynamic configurations to allow effective management of dynamic configurations. These can be referred on the DPS Setting Management API specs here.
+Bank Filtering Setting Management API
+.
+Ways to configure rules
+There are two ways to configure / maintain the Bank Filtering rules.
+Using IPF GUI
+If the client implementations have access to IPF GUI through licensing, Bank filtering rules can be configured using IPF GUI.
+For user documentation on how to configure rules using IPF GUI, refer
+<Documentation awaited>
+Using DPS Setting Management APIs
+For client implementations who do not have access to IPF GUI, the rules can be configured using the DPS Setting Management APIs.
+IPF DPS implementation provides a standard set of APIs that allows management of dynamic configurations and these are available for Bank Filtering rule management.
+The API specifications for
+Bank Filtering Setting Management API
+.
+Why Bank Filtering?
+Bank Filtering Service API

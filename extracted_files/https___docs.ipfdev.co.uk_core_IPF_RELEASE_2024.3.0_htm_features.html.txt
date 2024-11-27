@@ -1,0 +1,188 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/htm/features.html ===
+Features
+The key features of the HTM application are:
+The ability to register tasks to a manual operational team, supplying details which allows them to manage, filter and sort tasks.
+The ability to allocate a task to a specific operator for investigation and actioning.
+The ability to mark a task as having being executed and to enter information relevant to the action taken, which will be logged and available for audit reporting.
+The (optional) ability to require one or more approvals on an executed task.
+Audit history of the steps taken in the workflow for any given task is logged and can be queried.
+The ability to allocate and execute multiple tasks of the same type (bulk of tasks). The same action can be performed on multiple tasks at the same time.
+The ability to send Task Manager Domain Events to IPF Processing Data to enable archival of HTM task and domain events data through ODS Archival solution or through client implementation specific archival as needed from IPF Processing data. This feature ensures that the data can be archived by client implementations as tasks are created / executed before they are purged upon reaching terminal states.
+HTM Task Purging that allows purging (deletion) of all tasks and their history once they become eligible
+Publishing Task Manager Domain Events to IPF Processing Data
+HTM has the ability to publish a complete Task Manager Domain Event for each task lifecycle.
+For more detail around how to configure an application to publish data to IPF Processing Data using the processing-data egress plugin,
+see
+here
+.
+When running HTM on Azure CosmosDB for MongoDB, and
+delegating event processor mode
+is
+NOT
+used,
+you should re-test HTM application and increase
+RUs
+according to test results.
+HTM Task Purging
+HTM Task Purging involves removing items from the
+task
+and
+task-history
+collections.
+This process ensures that completed or cancelled tasks are deleted, which helps to reduce collection size and enhances the application’s overall performance.
+Items become eligible for purging once they reach terminal states (
+Completed
+or
+Cancelled
+) and the default retention (TTL) period has expired.
+To enable HTM Task Purging, the following actions are required:
+Create TTL (Time-To-Live) indexes
+: This step is mandatory as it allows the database to automatically purge items in the collections.
+Without these indexes, no purging will occur.
+Set
+ttl
+and
+expiryDate
+fields
+: The HTM application itself sets the
+ttl
+field for CosmosDB and the
+expiryDate
+field for MongoDB when a task reaches a terminal
+state (
+Completed
+or
+Cancelled
+). These fields determine the retention period for the items before they are purged.
+The default retention period is 30 days, but it can be adjusted using the
+ipf.htm.mongodb.purging.time-to-live
+property.
+TTL indexes must be created because the database relies on these indexes to purge entries.
+Without TTL indexes, tasks and task history will not be purged from the collections.
+By default, these indexes are created automatically at application startup and support both
+MongoDB
+and
+Azure CosmosDB for MongoDB
+.
+For manual index creation, refer to
+MongoDB
+or
+Azure CosmosDB for MongoDB
+.
+The following configuration controls HTM Purging:
+# Configuration for HTM purging of the task and task-history collections.
+# When a task (and its history) reach a terminal status (completed or cancelled), a corresponding TTL field will be set,
+# instructing the database to purge the item after the configured TTL duration.
+ipf.htm.mongodb.purging {
+
+  # This flag determines if indexes should be created during application startup.
+  # The default value is true.
+  create-indexes = true
+(1)
+# If ipf.mongodb.create-indexes is specified, it will take precedence over this setting.
+  create-indexes = ${?ipf.mongodb.create-indexes}
+(2)
+# Specifies the database type the application is using. This is crucial as each database requires a slightly different configuration.
+  # The default mode is "mongo". Available options are: "mongo" for MongoDB and "cosmosdb" for Azure CosmosDB for MongoDB.
+  database-mode = mongo
+(3)
+# If ipf.mongodb.database-mode is specified, it will take precedence over this setting.
+  database-mode = ${?ipf.mongodb.database-mode}
+(4)
+# After a task (and its history) reach a terminal status, they will become eligible for purging.
+  # They will be deleted after the configured time-to-live duration has elapsed.
+  time-to-live = 30d
+(5)
+# The commit quorum to use when creating indexes,
+  # see https://www.mongodb.com/docs/manual/reference/command/createIndexes/#create-index-with-commit-quorum for more info
+  commit-quorum = "votingMembers"
+(6)
+commit-quorum = ${?ipf.mongodb.commit-quorum}
+(7)
+}
+1
+create-indexes
+is enabled by default. If HTM Purging is not needed, or if indexes will be created manually (e.g., via deployment scripts), you can disable this by setting it to
+false
+.
+2
+You can use
+ipf.mongodb.create-indexes
+instead of the
+ipf.htm.mongodb.purging.create-indexes
+property.
+3
+database-mode
+specifies which supported database you are using. Set this to
+mongo
+for MongoDB or
+cosmosdb
+for Azure CosmosDB for MongoDB. The application will create the appropriate TTL indexes based on this setting.
+4
+You can use
+ipf.mongodb.database-mode
+instead of the
+ipf.htm.mongodb.purging.database-mode
+property.
+5
+time-to-live
+specifies the retention period. Even after a task reaches a terminal state, it will be retained for this period before being deleted.
+The duration format is any format supported by
+HOCON
+.
+6
+commit-quorum
+dictates how many replicas must acknowledge index creation before it is considered successful. For more details, refer to
+creating indexes with commit quorum
+.
+7
+You can use
+ipf.mongodb.commit-quorum
+instead of the
+ipf.htm.mongodb.purging.commit-quorum
+property.
+Manual Creation of TTL Indexes for MongoDB
+For MongoDB, create TTL indexes on the
+expiryDate
+field, which indicates the exact date an item should be purged. For more details, refer to
+Expire Documents at a Specific Clock Time
+.
+db.getCollection("task").createIndex({ "expiryDate": 1 }, { expireAfterSeconds: 0 })
+db.getCollection("task-history").createIndex({ "expiryDate": 1 }, { expireAfterSeconds: 0 })
+ipf.htm.mongodb.purging.time-to-live
+is used to calculate the future date when the document will be deleted.
+Manual Creation of TTL Indexes for Azure CosmosDB for MongoDB
+For Azure CosmosDB for MongoDB, create TTL indexes on the internal
+_ts
+field, which contains a timestamp of the last modification. Additionally, documents need a
+ttl
+integer field representing the retention period in seconds. For more information, check out
+Time to Live (TTL) in Azure Cosmos DB
+and
+Expire data with Azure Cosmos DB’s API for MongoDB
+.
+db.getCollection("task").createIndex({"_ts":1}, {expireAfterSeconds: -1})
+db.getCollection("task-history").createIndex({"_ts":1}, {expireAfterSeconds: -1})
+ipf.htm.mongodb.purging.time-to-live
+is converted to seconds and set in the
+ttl
+field. Azure CosmosDB for MongoDB will purge the document after this period.
+How to disable purging?
+HTM Task Purging can be disabled by simply dropping TTL indexes on
+task
+and
+task-history
+collections.
+Make sure that you disable automatic index creation by setting
+ipf.htm.mongodb.purging.create-indexes
+to
+false
+,
+as otherwise the indexes would be created again on next application startup.
+Even though indexes are dropped, the HTM will continue to set
+ttl
+and
+expiryDate
+fields which has no effect on purging until indexes are recreated.
+Concepts
+Bulk Task Actions

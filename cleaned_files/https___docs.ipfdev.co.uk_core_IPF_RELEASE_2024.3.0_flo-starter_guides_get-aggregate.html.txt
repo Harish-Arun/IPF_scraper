@@ -1,0 +1,33 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/guides/get-aggregate.html ===
+Get Aggregate Data for Use in an External Call
+Getting the aggregate data for use in an external domain function can be done with the help of the domain functions as mentioned in
+Domain Operations
+.
+All domain operations are asynchronous and return a CompletionStage. So if we want to use the result of the getAggregate we need to chain calls with thenCompose/thenApply to ensure we are not blocking anywhere.
+Below is an example of sending some data out to a SendConnector after we have retrieved the aggregate data, as it is required to populate some data in the request message of the SendConnector.
+public class SampleFraudActionAdapter implements FraudActionPort {
+
+    private final SendConnector<FraudRequest, OlafRequest> fraudSendConnector;
+
+    @Override
+    public CompletionStage<Void> execute(CheckFraudAction action) {
+        FraudRequest fraudRequest = new FraudRequest();
+        fraudRequest.fiToFICustomerCreditTransfer = action.getCustomerCreditTransfer();
+        return CredittransferDomain.getAggregate(action.getId())
+                .thenCompose(
+                        aggregate -> {
+                            fraudRequest.customFields.put("mykey", aggregate.getStatus().getStatus());
+                            return fraudSendConnector.send(action.getProcessingContext(), fraudRequest)
+                                    .thenAccept(deliveryOutcome -> log.debug("FraudAdapter completed with {}", deliveryOutcome.getDeliveryReport().getOutcome()));
+                        }
+                );
+    }
+
+
+    private class FraudRequest {
+        public FIToFICustomerCreditTransfer fiToFICustomerCreditTransfer;
+        public Map<String, String> customFields;
+    }
+}
+How to implement a duplicate check function
+How to handle retries across non-completing requests

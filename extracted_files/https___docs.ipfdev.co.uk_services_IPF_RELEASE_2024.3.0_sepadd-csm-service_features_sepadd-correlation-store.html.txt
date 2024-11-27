@@ -1,0 +1,14 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/features/sepadd-correlation-store.html ===
+Correlation Store
+When a Bulk file containing <N> payments (e.g. an IDF containing <N> pacs.003s) has been sent out by the sepadd-csm-service, after a period of time, it will then receive a response for a subset of these payments in another Bulk file (e.g. pacs.002s in a DVF). The sepadd-csm-service needs to be able to find and link the payments in this received response to the original outbound payments.
+The sepadd-correlation-store module provides a correlation store that is used to persist the Transaction ID of the DrctDbtTxInf passed to the bulker and the unique Bulk ID of the pacs.003 Bulk it is stored in. This ensures that when a pacs.002 is received from SEPA DD, it is possible to identify all the message IDs that were in it.
+The correlation store is used in this way, during the processing of all message types, to link scheme responses to their original request.
+Time To Live
+The store is implemented via MongoDB. By default, it will persist correlation entries for 30 days based on the
+createdAt
+field. It does this by creating a TTL on the MongoDB collection. Once the time has expired, entries will be evicted from the collection and will no longer be available.
+You can use the following configuration key in the ipf.conf file to override the default ttl value:
+ipf.csm.sepa-common.correlation-store.ttl-duration = P30D
+The format of the provided String value should be a Java Duration as an ISO-8601 representation, for example P30D (30 days).
+Business Day Calculation
+Bulk File Creation

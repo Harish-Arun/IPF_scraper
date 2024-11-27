@@ -1,0 +1,23 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/validation-api/schema/ValidationFailure.html ===
+Json Schema for ValidationFailure
+Json Schema:
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Validation Failure",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "reasonCode" : {
+      "type" : "string"
+    },
+    "description" : {
+      "type" : "string"
+    },
+    "expectedValue" : {
+      "type" : "string"
+    },
+    "actualValue" : {
+      "type" : "string"
+    }
+  }
+}

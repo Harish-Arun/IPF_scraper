@@ -1,0 +1,112 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/features/bankfiltering-check-payment-risk.html ===
+Endpoint - Bank Filtering Check Payment Risk
+Date introduced on IPF: 22-November-2024
+Request
+Input Parameter
+Optionality
+Multiplicity
+Description
+gigit
+processingEntity
+M
+1..1
+The Processing Entity for which the filtering rules should be applied.
+csmAgentID
+O
+0..1
+The CSM Agent Id for which the filtering rules should be applied. When provided on the request, only those rules where provided CSM Agent Id is registered will be applied. The rules which do not state a CSM Agent Id are also applied as those rules are designed to be applicable across the board. The only rules which are not applied in the scenario where the CSM Agent Id on the rule does not have an entry for CSM Agent Id supplied on the request.
+debtor
+C
+0..1
+The party which is going to be debited in the settlement scenario.  Conditionally mandatory, at least one of debtor, creditor and currency must be provided on the request.
++bic
+C
+0..1
+The BIC of the debtor party. Conditionally mandatory, at least the BIC or NCC value must be specified when debtor is provided on the request.
++ncc
+C
+0..1
+The NCC of the debtor party. Conditionally mandatory, at least the BIC or NCC value must be specified when debtor is provided on the request.
++value
+M
+1..1
+The value of the NCC being provided.
++country
+M
+1..1
+The country code value of the NCC. Must be ISO 3166 - alpha 2 code.
+creditor
+C
+0..1
+The party which is going to be credited in the settlement scenario.  Conditionally mandatory, at least one of debtor, creditor and currency must be provided on the request.
++bic
+C
+0..1
+The BIC of the creditor party. Conditionally mandatory, at least the BIC or NCC value must be specified when creditor is provided on the request.
++ncc
+C
+0..1
+The NCC of the debtor party. Conditionally mandatory, at least the BIC or NCC value must be specified when creditor is provided on the request.
++value
+M
+1..1
+The value of the NCC being provided.
++country
+M
+1..1
+The country code value of the NCC. Must be ISO 3166 - alpha 2 code.
+currency
+C
+0..1
+The currency of the payment, any rule that has the specified currency is applied and corresponding currency severity returned in the request.
+Response
+Output Parameter
+Optionality
+Multiplicity
+Description
+debtorRisk
+O
+0..1
+Returned when the debtor party on the request matched with an active rule with direction registered as "debtor".
++highestRiskSeverity
+M
+1..1
+Highest severity from all the rules that matched debtor criteria (when multiple rules matched, rule with the highest severity returned). When no rules matched or when the debtor is not specified on the request, the severity value of '0' is returned.
++matchingRules
+O
+0..1
+The rule Ids of all matching rules for debtor that have got the highest severity value against them. (all rules with the returned the highest severity returned as list). Matching rules not returned when the severity of '0' is returned.
+creditorRisk
+O
+0..1
+Returned when the creditor party on the request matched with an active rule with direction registered as "creditor".
++highestRiskSeverity
+M
+1..1
+Highest severity from all the rules that matched creditor criteria (when multiple rules matched, rule with the highest severity returned). When no rules matched or when the creditor is not specified on the request, the severity value of '0' is returned.
++matchingRules
+O
+0..1
+The rule Ids of all matching rules for creditor that have got the highest severity value against them. (all rules with the returned the highest severity returned as list). Matching rules not returned when the severity of '0' is returned.
+currencyRisk
+O
+0..1
+Returned when the currency on the input request matched with an active rule currency.
++highestRiskSeverity
+M
+1..1
+Highest severity from all the rules that matched currency criteria (when multiple rules matched, rule with the highest severity returned). When no rules matched or when the currency is not specified on the request, the severity value of '0' is returned.
++matchingRules
+O
+0..1
+The rule Ids of all matching rules for currency that have got the highest severity value against them. (all rules with the returned the highest severity returned as list). Matching rules not returned when the severity of '0' is returned.
+Detailed API specifications can be found
+here
+.
+Select 'Bank Filtering API V2' definition in upper right corner in Swagger documentation.
+Filtering
+The filtering behaviour used by the Service API can be found here
+Bank Filtering Behaviour
+The endpoint "/api/v2/bankfiltering/check-payment-risk" endpoint accepts BICs as well as NCC values for debtor and creditor and uses Common filtering, filtering by BIC, filtering by NCCs and filtering by currencies behaviour.
+Endpoint - Bank Filtering BIC
+Bank Filtering Behaviour

@@ -1,0 +1,15 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/common/services/app-audit.html ===
+App Audit
+The app audit service saves an audit record by sending a http post request to './api/audit'.
+The service is used to create an audit record as can be seen in the example below.
+Example usage:
+private createAuditRecord(url: string) {
+        const record: AppAuditRecord = {
+            action: 'FORBIDDEN_ACCESS',
+            request: {
+                url: url
+            }
+        };
+        this.appAuditService.saveAuditRecord(record).subscribe((result: any) => console.debug(result));
+    }
+View example in source code

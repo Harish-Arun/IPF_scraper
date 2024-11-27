@@ -1,0 +1,90 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability-data-ingestion/file-ingestion-configuration.html ===
+S3 bucket File Ingestion Configuration
+Overview
+This is default configuration which will work, but some settings are mandatory as well (as credentials which must be set).
+Configuration Options
+Key
+Description
+Default Value
+ipf.csm-reachability.file-ingestion.s3.enabled
+Toggles the s3 bucket file ingestion.
+false
+ipf.csm-reachability.file-ingestion.notification-service.kafka.producer.topic
+Name of the topic for producer
+FILE_PROCESSED_NOTIFICATION
+ipf.csm-reachability.file-ingestion.notification-service.kafka.producer.restart-settings
+Restart settings to tell the connector what to do on failover.
+default connector values
+ipf.csm-reachability.file-ingestion.notification-service.kafka.producer.kafka-clients.group.id
+Group Id for the producer.
+file-processing-notification-group
+ipf.csm-reachability.file-ingestion.notification-service.kafka.consumer.topic
+Name of the topic for consumer.
+FILE_AVAILABLE_NOTIFICATION
+ipf.csm-reachability.file-ingestion.notification-service.kafka.consumer.restart-settings
+Restart settings to tell the connector what to do on failover.
+default connector values
+ipf.csm-reachability.file-ingestion.notification-service.kafka.consumer.kafka-clients.group.id
+Group Id for the consumer.
+file-available-notification-group
+ipf.file-manager.s3.endpoint-url
+Endpoint url for AWS S3 bucket
+{bucket-name}.s3.{region}.amazonaws.com
+ipf.file-manager.s3.region
+AWS S3 bucket region
+us-east-1
+ipf.file-manager.s3.credentials.access-key-id
+AWS S3 bucket access key id
+Must be set
+ipf.file-manager.s3.credentials.secret-access-key
+AWS S3 bucket secret access key
+Must be set
+ipf.file-manager.s3.path-style-requests
+Enable path style requests
+true
+ipf.file-manager.s3.resiliency-settings.max-attempts
+Determines the maximum number of retries to be made. Note that this includes the first failed attempt.
+2
+ipf.file-manager.s3.resiliency-settings.retryable-status-codes
+Retry if HTTP error code is in the list
+[500, 503]
+ipf.file-manager.s3.resiliency-settings.attempt-timeout
+Timeout attempt
+2s
+ipf.file-manager.s3.resiliency-settings.call-timeout
+Timeout call
+3s
+Example of hocon configuration:
+The csm-reachability-file-notification-s3 configuration example:
+ipf.file-manager.s3 {
+  region = "us-east-1"
+  upload-parallelism = 1
+  credentials {
+    access-key-id = "accessKey"
+    secret-access-key = "secretAccessKey"
+  }
+  resiliency-settings {
+    # Determines the maximum number of retries to be made. Note that this includes the first failed attempt.
+    max-attempts = 2
+    # Retry if HTTP error code is in the list
+    retryable-status-codes = [500, 503]
+    attempt-timeout = 2s
+    call-timeout = 3s
+  }
+}
+
+ipf.file-manager.s3 {
+  region = "us-east-1"
+  upload-parallelism = 1
+  credentials {
+    access-key-id = "accessKey"
+    secret-access-key = "secretAccessKey"
+  }
+
+  resiliency {
+    retry = 3
+    api-call-timeout = 10s # duration
+  }
+}
+CSM Reachability Data Ingestion Configuration Reference
+Dynamic Configuration Set Up

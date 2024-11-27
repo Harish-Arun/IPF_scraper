@@ -1,0 +1,114 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.credit%20transfer%20happy%20path.Handle%20Receive%20Payment%20Request.html ===
+Handle Receive Payment Request.story
+Scenario: Handling of payment request
+Steps
+When the CSM sends a '<FileName>' 'Customer Credit Transfer'
+Then the Payment Service receives a 'Receive Payment Request'
+When Payment Service sends a 'Receive Payment Response'
+Then CSM receives a 'Payment Status Report'
+When the CSM sends a 'Psr Conf Response' 'Payment Status Report'
+Then the Payment Service receives a 'Receive Payment Settled Request'
+Examples:
+FileName
+With Dt And Plc Of Birth Structured Address
+With Any Bic Ctgy Purp Cd Rmtinf Ustrd
+With Org Id Othr
+With Prvt Id Othr
+With Schme Nm Prtry And Ctgy Purp Prtry
+With Prvt Id Schme Nm Prtry
+With Prvt Id Rmt Inf Strd
+Example: {FileName=With Dt And Plc Of Birth Structured Address}
+When
+the ï½CSMï½  sends a ï½With Dt
+And
+Plc Of Birth Structured Addressï½  Customer Credit Transfer
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Request
+When
+ï½Payment Serviceï½  sends a Receive Payment Response
+Then
+ï½CSMï½  receives a Payment Status Report
+When
+the ï½CSMï½  sends a Psr Conf Response Payment Status Report
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Settled Request
+Example: {FileName=With Any Bic Ctgy Purp Cd Rmtinf Ustrd}
+When
+the ï½CSMï½  sends a ï½With Any Bic Ctgy Purp Cd Rmtinf Ustrdï½  Customer Credit Transfer
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Request
+When
+ï½Payment Serviceï½  sends a Receive Payment Response
+Then
+ï½CSMï½  receives a Payment Status Report
+When
+the ï½CSMï½  sends a Psr Conf Response Payment Status Report
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Settled Request
+Example: {FileName=With Org Id Othr}
+When
+the ï½CSMï½  sends a ï½With Org Id Othrï½  Customer Credit Transfer
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Request
+When
+ï½Payment Serviceï½  sends a Receive Payment Response
+Then
+ï½CSMï½  receives a Payment Status Report
+When
+the ï½CSMï½  sends a Psr Conf Response Payment Status Report
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Settled Request
+Example: {FileName=With Prvt Id Othr}
+When
+the ï½CSMï½  sends a ï½With Prvt Id Othrï½  Customer Credit Transfer
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Request
+When
+ï½Payment Serviceï½  sends a Receive Payment Response
+Then
+ï½CSMï½  receives a Payment Status Report
+When
+the ï½CSMï½  sends a Psr Conf Response Payment Status Report
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Settled Request
+Example: {FileName=With Schme Nm Prtry And Ctgy Purp Prtry}
+When
+the ï½CSMï½  sends a ï½With Schme Nm Prtry
+And
+Ctgy Purp Prtryï½  Customer Credit Transfer
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Request
+When
+ï½Payment Serviceï½  sends a Receive Payment Response
+Then
+ï½CSMï½  receives a Payment Status Report
+When
+the ï½CSMï½  sends a Psr Conf Response Payment Status Report
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Settled Request
+Example: {FileName=With Prvt Id Schme Nm Prtry}
+When
+the ï½CSMï½  sends a ï½With Prvt Id Schme Nm Prtryï½  Customer Credit Transfer
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Request
+When
+ï½Payment Serviceï½  sends a Receive Payment Response
+Then
+ï½CSMï½  receives a Payment Status Report
+When
+the ï½CSMï½  sends a Psr Conf Response Payment Status Report
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Settled Request
+Example: {FileName=With Prvt Id Rmt Inf Strd}
+When
+the ï½CSMï½  sends a ï½With Prvt Id Rmt Inf Strdï½  Customer Credit Transfer
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Request
+When
+ï½Payment Serviceï½  sends a Receive Payment Response
+Then
+ï½CSMï½  receives a Payment Status Report
+When
+the ï½CSMï½  sends a Psr Conf Response Payment Status Report
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Settled Request

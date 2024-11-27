@@ -1,0 +1,103 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/concepts/rt1-service-apis.html ===
+Messages Handled by RT1-CSM-Service
+Interfaces
+The RT1 CSM Service handles the following canonical messages:
+Message
+API
+ReceivePaymentRequest
+Credit Transfer API
+ReceivePaymentResponse
+Credit Transfer API
+ReceivePaymentSettledRequest
+Credit Transfer API
+ReceivePaymentSettledResponse
+Credit Transfer API
+ClearAndSettleRequest
+Credit Transfer API
+ClearAndSettleResponse
+Credit Transfer API
+ReceivePaymentStatusInquiryRequest
+Credit Transfer API
+ReceivePaymentStatusInquiryResponse
+Credit Transfer API
+StatusRequest
+Payment Status API
+StatusRequestResponse
+Payment Status API
+ReceiveSettlementConfirmation
+CSM Recalls Returns ROI API
+SendPositiveAnswerToCSMRequest
+CSM Recalls Returns ROI API
+SendPositiveAnswerToCSMResponse
+CSM Recalls Returns ROI API
+SendNegativeAnswerToCSMRequest
+CSM Recalls Returns ROI API
+SendNegativeAnswerToCSMResponse
+CSM Recalls Returns ROI API
+SendRecallEnquiryToCSMRequest
+CSM Recalls Returns ROI API
+SendRecallEnquiryToCSMResponse
+CSM Recalls Returns ROI API
+SendRecallToCSMRequest
+CSM Recalls Returns ROI API
+SendRecallToCSMResponse
+CSM Recalls Returns ROI API
+SendRecallAnswerToCsmRequest
+CSM Recalls Returns ROI API
+TechnicalResponse
+CSM Recalls Returns ROI API
+ExecuteNegativeAnswer
+Recalls Returns ROI API
+ExecutePositiveAnswer
+Recalls Returns ROI API
+ExecuteRecallEnquiryRequest
+Recalls Returns ROI API
+ExecuteRecallEnquiryResponse
+Recalls Returns ROI API
+ExecuteRecallRequest
+Recalls Returns ROI API
+NotifyNegativeAnswer
+Recalls Returns ROI API
+NotifyPositiveAnswer
+Recalls Returns ROI API
+NotifyRecallEnquiryRequest
+Recalls Returns ROI API
+NotifyRecallRequest
+Recalls Returns ROI API
+NotifyRecallResponse
+Recalls Returns ROI API
+ReceiveNegativeAnswer
+Recalls Returns ROI API
+ReceivePositiveAnswer
+Recalls Returns ROI API
+ReceivePositiveAnswerResponse
+Recalls Returns ROI API
+ReceiveRecallEnquiryRequest
+Recalls Returns ROI API
+ReceiveRecallRequest
+Recalls Returns ROI API
+ReceiveRecallResponse
+Recalls Returns ROI API
+TechnicalResponse
+Recalls Returns ROI API
+In addition to the canonical messages above, the RT1 CSM Service also handles the following scheme specific messages:
+Message
+ISO Version
+PaymentStatusReport
+pacs.002.001.03
+PaymentReturn
+pacs.004.001.02
+CustomerCreditTransfer
+pacs.008.001.02
+PaymentStatusRequest
+pacs.028.001.01
+ResolutionOfInvestigation
+camt.029.001.03
+BankToCustomerDebitCreditNotification
+camt.054.001.06
+PaymentCancellation
+camt.056.001.01
+SystemEventNotification
+admi.004.001.02
+RT1 Scenarios
+Features

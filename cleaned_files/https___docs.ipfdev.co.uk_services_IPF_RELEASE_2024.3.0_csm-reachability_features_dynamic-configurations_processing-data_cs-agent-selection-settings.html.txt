@@ -1,0 +1,47 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/processing-data/cs-agent-selection-settings.html ===
+CS Agent Selection Settings
+When multiple Agents exist that can facilitate the clearing and settlement of a payment with a counter-party / Financial Institution, it becomes important to know which one should be used.
+This is usually possible when the Processing Entity is a participant to one or more Clearing Houses that can be used to clear and settle a payment, but not only limited to this scenario.
+A counter-party on the payment can also be reachable through intermediaries or even directly if the counter-party is also an agent (Processing Entity holds direct account relationship with the counter-party)
+It then becomes important for clients to be able to specify a preference of which agents should be used for given Payment Type, Service Level and Transfer Currency and also state the order in which those Agents should be selected to clear and settle the payment.
+CS Agent Selection Settings is a dynamic configuration that allows this preference to be set up across a range of payment types, service levels and transfer currencies.
+It is important to note that the Payment Types and Service Levels are not prescribed by IPF and are defined by the Client implementations before they are set up on the CS Agent Selection Settings.
+The Agents are specified on the CS Agent Selection Settings in the order in which they should be selected during reachability check. The order is an order of preference so the Agents that appear first in the selection order are checked first for reachability of the counter-party using the settlement relationship with that agent.
+It is possible that the counter-party on the payment being processed is reachable through one, more than one, all or none of the agents specified on the CS Agent Selection Settings. CSM Reachability Service uses CS Agent Selection Settings to check reachability of the counter-party through all the agents specified and returns the first Agent that should be selected for clearing and settlement of the payment with the counter-party. The counter-party on the payment can be the agent itself or a participant that is reachable through the given agent.
+The CS Agent Selection Settings are used during the feature of Select CSM Agent on CSM Reachability Service.
+Dynamic Configuration Properties
+Name
+Description
+ProcessingEntity
+The Processing entity namespace from IPF implementation / deployment point of view. This identifies the IPF deployment entity rather than individual processing entity.
+SelectionId
+A unique identifier that identifies the selection settings.
+TransferCurrencies
+A list of transfer currencies for which the Setting record is applicable.
+PaymentType
+Payment type as assigned to the payment (by business function Determine Payment Type)
+ServiceLevel
+Service Level as assigned to the payment (by business function Determine Payment Type)
+CSMAgentSelectionOptions
+One or more CSM Agent options for the combination payment type / service level / currency
++ SelectionOrder
+Defines the order in which the different CSM Agent options need to be assessed
++ ClearingSettlementMethod
+The type of the agents that should be selected in the order
++ AgentUniqueId
+Agent Unique identifier.
+Searchable Fields
+Searchable fields for CS Agent Selection Settings are:
+clearingSettlementMethod (csmAgentSelectionOptions.clearingSettlementMethod)
+paymentType
+serviceLevel
+transferCurrency
+selectionId
+For these fields
+indexes
+in the database should be created.
+Please refer
+Dynamic Configuration Management Guidelines
+for steps to be followed for configuring the dynamic configurations.
+Agent Clearing Settings
+Industry Data

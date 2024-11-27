@@ -1,0 +1,35 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/csm-reachability-operations/service-apis/validate-csm-reachability/validate-csm-reachability.html ===
+1. /validate-csm-reachability
+Validates the reachability for a counterparty against a specific CSM Agent.
+Purpose
+In some cases, the client implementation flows or channels applications may have a preferred CSM Agent pre-defined (due to customer preference or organizational policies). In these cases, the reachability check for given counterparty may be needed against a specific CSM Agent rather than selecting a CSM Agent from pre-defined list on CS Agent Selection settings dynamic configuration.
+Validate CSM Reachability API allows this reachability check to be done for the counterparty against a specific CSM Agent for given transfer currency and optionally transfer amount.
+The reachability check is done against below criteria:
+Settlement - Can the provided transfer currency be settled with the specified CSM Agent?
+Participation - Is the counterparty and CSM Agent the same entities or is the counterparty a participant to the CSM Agent?
+Limits - Is the transfer amount within the specified limits? Few important points about limits criteria check:
+The limits criteria is applied only when the request specifies the transfer amount.
+The limits can be specified at different levels and all applicable limits are checked when limit criteria is applicable. Any limits if specified on dynamic configurations cannot be bypassed by the API and if the client implementations want the limits not to be applied, the limits will need to be removed or reachability checks performed without transfer amounts.
+Please refer
+Determining Applied Limits
+for more details on how the applied limits are determined during Reachability checks.
+Usage
+Request and Response
+Please refer
+CSM Reachability Service API
+for the API specifications and example request and responses.
+Reason Codes
+Possible reason codes are. Please refer
+Reachability Reason Codes
+for details on reason codes and descriptions.
+IPFRCH001
+IPFRCH002
+IPFRCH003
+IPFRCH004
+IPFRCH005
+IPFRCH006
+IPFRCH007
+IPFRCH008
+IPFRCH012
+Validate Intra Entity Reachability
+Determining Applied Limits

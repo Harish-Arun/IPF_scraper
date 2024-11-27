@@ -1,0 +1,21 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2023-1-0-3/release-IPF-2023-1-0-3.html ===
+Release Notes for IPF-2023.1.0.3
+This page details everything required to get going on IPF Fix Release 2023.1.0.3 made available on 14th August 2023.
+Details
+Binaries
+The core binaries are available from
+IPF-Releases
+.
+The lightbend cinnamon binaries are available from
+IPF Lightbend
+.
+Archetype
+The latest version of the archetype is 1.7.0
+Developer App
+The latest version of the developer app is 1.0.29
+Features and Changes
+Akka Discovery MongoDB
+Bug fix: Container orchestration engine forcibly terminating the IPF application results in orphaned entries in the 'akka-discovery-mongodb' collection
+Discovery plugin uses SLF4J instead of Akka Logging
+Migration Steps for IPF-2023.1.0.1
+Migration Steps for IPF-2023.1.0.3

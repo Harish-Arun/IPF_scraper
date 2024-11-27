@@ -1,0 +1,48 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/features/sepadd-generator.html ===
+Message Generator
+This module provides java generators for SEPA DD messages. They are registered as spring beans in autoconfiguration.
+Maven Dependency
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.sepadd</groupId>
+    <artifactId>sepadd-generator</artifactId>
+</dependency>
+Interface
+The Generator interface is defined as follows.
+public interface Generator<T> {
+    T generate();
+(1)
+Class<T> forType();
+(3)
+boolean requiresNumberedNamespaceRemoval();
+(3)
+}
+1
+generate
+- generates an object of specific type T
+2
+forType
+- returns a
+Class
+type of object which will be created by the generator.
+3
+requiresNumberedNamespaceRemoval
+- determines if namespaces require removal from generated XML, for example on the IDF file (as namespaces belong on child elements instead)
+Implementations
+IDFGenerator
+SDDFIToFICustomerDirectDebitGenerator
+IDF Generator Configuration
+The following fields for the generated messages can be set via configuration:
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-dd.generator-config.idf.receiving-institution
+String
+Receiving Institution is the clearing BIC for EBA STEP2
+ZYDOFRP0
+ipf.csm.sepa-dd.generator-config.idf.test-code
+String
+Property that can contains "T" of "P" values, depending on the environment used
+T
+Extension Points
+Core Configuration

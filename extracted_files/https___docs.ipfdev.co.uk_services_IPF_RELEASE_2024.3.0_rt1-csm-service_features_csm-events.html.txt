@@ -1,0 +1,30 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/features/csm-events.html ===
+CSM Events
+The RT1 CSM Service publishes the standard set of CSM Events
+Event Name
+Description
+com.iconsolutions.instantpayments.csm.event.LiquidityAdjustmentReceived
+Published when a liquidity adjustment notification is received from the CSM
+com.iconsolutions.instantpayments.csm.event.InvalidMessageReceived
+Published when there is a technical issue with the message being received from CSM
+com.iconsolutions.instantpayments.csm.event.ParticipantUnavailableReceived
+Published when a participant unavailable notification is received from the CSM
+com.iconsolutions.instantpayments.csm.event.SchemeCorrelationError
+Published when status request was not able to be correlated by the CSM
+com.iconsolutions.ipf.core.systemevents.functional.FunctionalSystemEvent
+Parent event for all functional events raised from the IPF domain
+com.iconsolutions.instantpayments.csm.event.OutgoingMessageTechnicalIssue
+Published when there is a technical issue with message sent to the CSM
+com.iconsolutions.instantpayments.csm.event.LiquidityPositionReceived
+Published when a liquidity position notification is received from the CSM
+com.iconsolutions.instantpayments.csm.event.OrphanPaymentStatusReportReceived
+Published when a payment status report that doesnât correspond to a previous payment is received
+com.iconsolutions.instantpayments.csm.event.DuplicatePaymentStatusReportReceived
+Published when a duplicate payment status report is received
+In addition, the following events have been created specifically for the RT1 CSM Service:
+Event Name
+Description
+com.iconsolutions.instantpayments.rt1.adapter.events.RecallStatusEnquiryError
+Published when a error occurs while sending recall status request or when negative pacs.002 is received for pacs.028 request
+RT1 CSM Service Configuration
+Supported Transports

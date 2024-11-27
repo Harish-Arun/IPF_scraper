@@ -1,0 +1,8 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/features/supported-transports.html ===
+Supported Transports
+The SIC CSM Service supports integration via JMS and Kafka.
+Please refer to
+Transport Reference
+for additional details.
+CSM Events
+SEPA CT STEP2 CSM Service

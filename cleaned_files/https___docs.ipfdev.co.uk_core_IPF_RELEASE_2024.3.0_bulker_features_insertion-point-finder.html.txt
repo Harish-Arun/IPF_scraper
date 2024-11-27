@@ -1,0 +1,35 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/features/insertion-point-finder.html ===
+Insertion Point Finder
+A
+InsertionPointFinder
+is a pluggable component whose purpose is to detect byte position where child components will be injected into that component. Those positions are called Insertion Points.
+A component hierarchy is used to define how each component relates to each other, and where within one components content its child components content should be placed.
+Concrete implementation are expected to know the format of the content of a component, i.e. xml, json , csv, etc.. This is required, since the joining of the components is dependent on the way the data is structured. That is why a separate
+InsertionPointFinder
+implementation is going to be needed for each format.
+Interface
+The
+InsertionPointFinder
+interface is defined as follows.
+public interface InsertionPointFinder {
+    String getName();
+(1)
+List<InsertionPoint> find(String content, Node node);
+(2)
+}
+1
+getName
+returns a name of the InsertionPointFinder.
+2
+find
+takes a bulk component
+Content
+, a bulk specification
+Node
+and returns a
+InsertionPoint
+list.
+Implementations
+Currently only supports XML.
+Automatic Finalisation of a Bulk
+Joiner

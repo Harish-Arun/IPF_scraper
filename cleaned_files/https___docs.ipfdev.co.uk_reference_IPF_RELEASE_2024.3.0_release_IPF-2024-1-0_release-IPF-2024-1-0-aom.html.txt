@@ -1,0 +1,32 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-1-0/release-IPF-2024-1-0-aom.html ===
+Optional Modules - Changes & Fixes
+This page covers the optional module changes and fixes provided in release IPF-2024.1.0.
+Bank Filtering
+Fixed responses for getAll BankFilteringRules, CsmAgents, ProcessingEntity in Swagger UI.
+Filtering by currency was taking lowest severity, now it takes the highest.
+The location of country code in BIC is fixed.
+Removed filtering by NCC, this will be re-introduced in the PI 2024.2
+Rule direction changed from DEBTOR, CREDITOR, BOTH to DEBTOR, CREDITOR, ANY. Handling direction ANY implemented to work as logical OR, which means its applied to input debtor agent or creditor agent.
+Country code extraction from input BIC handles successfully any BIC (even 4 characters BIC).
+Working Day Service
+Working-days-service separated to api, components and app repository: working-days-service, working-days-service-api and working-days-service-app.
+Scheme Packs
+In memory configuration holder which has a standard format defined for a dynamic configuration.
+Services RT1, TIPS, SIC5, and STEP2 SCT are updated to use DynamicConfigHolder, as the first step in updating CSM services to use dynamic configuration. DynamicConfigHolder is filled with data from HOCON configuration.
+Notification Service
+IPF Core Notification Service provides a capability to send notification messages to different Kafka topics, based on a processing entity attribute enabled.
+Added optional predicates to PaymentStatusNotification endpoints that can be configured through
+payment-status-notification.notification-settings.endpoints
+:
+[
+  {
+    "topic": "PAYMENT_STATUS_NOTIFICATION",
+    "predicate": "eventId == 1"
+  },
+  {
+    "topic": "PAYMENT_SECONDARY_TOPIC",
+    "predicate": "eventId == 2"
+  }
+]
+IPF-2024.1.0 - Release Notes
+Bulker & Debulker - Changes & Fixes

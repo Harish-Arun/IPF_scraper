@@ -1,0 +1,93 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-persistent-scheduler/concepts/job-spec.html ===
+Job Specification and Status
+This page explains the job specification and status:
+Job Specification
+The job specification is the way to tell the IPF Persistent Scheduler how to run a scheduled job. It consists of the
+following parts:
+Name
+Mandatory?
+Description
+jobSpecificationKey
+Yes
+a unique identifier for this job
+jobRequestor
+Yes
+A unique identifier for the requestor (a requestor can have multiple jobs)
+schedulingSpecification
+Yes
+The cron expression for this job
+triggerCommand
+Yes
+The
+Command
+to send to the SchedulingHelper at the scheduled time(s)
+triggerIdentifier
+Yes
+An ID to use to send to the SchedulingHelper at the scheduled time(s)
+failureCommand
+Yes
+When a failed execution is detected, the SchedulingHelper will receive this message.
+failureIdentifier
+Yes
+An ID to use to send to the SchedulingHelper at the scheduled time(s)
+calendar
+No
+Calendar to use for this job (see
+Calendars
+)
+zoneId
+No
+A time-zone id, such as
+Europe/Paris
+, used to override default system time zone when scheduling a task. List of
+zone ids
+.
+deleteTime
+No
+Used for TTL index.
+One time jobs that have been executed successfully. One time jobs that have failed execution. All jobs that have been cancelled.
+All these jobs, will be updated with a "delete time" and will no longer be available when querying them in the database.
+It will allow us to quickly retrieve the latest job specifications, and filter out (in case of rehydration) the jobs that have been excluded.
+Job Execution Status
+The
+JobExecutionStatus
+collection is linked to the
+JobSpecification
+collection by the
+jobSpecificationId
+field.
+The
+JobExecutionStatus
+collection is going to change more frequently, because the status of a job changes more frequently than its specification.
+It contains the
+jobSpecificationId
+, the
+executionStatus
+the
+updatedTime
+and the
+deleteTime
+.
+It is an append only collection and in order to get the current job execution status we just need to order by
+updatedTime
+and get the latest more recent entry.
+Similarly to the
+JobSpecification
+collection, the
+deleteTime
+field is used for TTL index.
+In addition, for recurrent jobs, when a job is triggered, the previous entry will be marked for deletion. Only the most recent entry is worth keeping.
+Status definitions
+The different statuses are:
+SCHEDULED
+: Is scheduled to run (and may have run in the past)
+TRIGGERED
+: Has already run and will not run again
+CANCELED
+: Was previously
+SCHEDULED
+but was not triggred
+FAILED
+: Failed to execute
+Failed Jobs
+Scheduling Module

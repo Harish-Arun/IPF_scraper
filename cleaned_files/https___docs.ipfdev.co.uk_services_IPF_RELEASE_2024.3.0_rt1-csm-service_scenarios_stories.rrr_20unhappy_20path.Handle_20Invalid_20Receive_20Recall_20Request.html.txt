@@ -1,0 +1,14 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20unhappy%20path.Handle%20Invalid%20Receive%20Recall%20Request.html ===
+Handle Invalid Receive Recall Request.story
+Scenario: Handling of invalid recall request from RT1
+When
+the i12CSMi12  sends a Invalid Payment Cancellation Request
+Then
+i12Payment Servicei12  receives a System Event using predicate:
+| level | ERROR                |
+| name  | InboundMessageFailed |
+| type  | TECHNICAL            |
+And
+i12CSMi12  receives a Payment Status Report using predicate:
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.grpSts           | RJCT |
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.stsRsnInf.Rsn.Cd | FF01 |

@@ -1,0 +1,11 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/features.html ===
+Features
+Foundational IPF capabilities often used in IPF application and solution builds
+Normalised Types
+Fluent API
+Json serialisation
+XML Serialisation
+Validation
+Future Enhancements
+Core Classes
+Normalised Types

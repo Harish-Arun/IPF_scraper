@@ -1,0 +1,37 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/concepts/scenarios/stories.orphan.Handle%20Orphan%20Clear%20And%20Settle%20Reponse.html ===
+Handle Orphan Clear And Settle Reponse.story
+Scenario: Handling orphan clear and settle responses
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseMeta(java.lang.String)
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseLegacy(java.lang.String)
+When
+i12the Payment Servicei12  sends a Clear
+And
+Settle Request
+Then
+i12the CSMi12  receives a Customer Credit Transfer
+When
+i12CSMi12  sends a Payment Status Report with values:
+| FIToFIPmtStsRpt.txInf*And*Sts[0].clrSysRef                              | EXC002               |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].orgnlTxId                              | ThisIsAnOrphanedPacs |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].orgnlGrpInf.orgnlMsgId                 | ThisIsAnOrphanedPacs |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].stsRsnInf[0].orgtr.id.orgId.othr[0].id | 318668               |
+Then
+i12Payment Servicei12  receives a System Event using predicate:
+| level                                 | WARN                                                               |
+| name                                  | OrphanPaymentStatusReportReceived                                  |
+| type                                  | FUNCTIONAL                                                         |
+| processingContext.associationId.value | #PaymentStatusReport_sent.fIToFIPmtStsRpt.txInf*And*Sts[0].orgnlTxId |
+Then
+the i12Payment Servicei12  receives a Dead Letter Message using predicate:
+| error.receivedMessage.message.targetMessage.payload.class.simpleName                                    | Clear*And*SettleResponse                                      |
+| error.receivedMessage.message.transportMessage.messageHeaders.getHeader(CorrelationId).orElse(none) | #Clear*And*SettleRequest.processingContext.unitOfWorkId.value |
+Then
+the i12Payment Servicei12  receives a System Event using predicate:
+| level | ERROR                   |
+| name  | MessageSentToDeadletter |
+| type  | TECHNICAL               |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()

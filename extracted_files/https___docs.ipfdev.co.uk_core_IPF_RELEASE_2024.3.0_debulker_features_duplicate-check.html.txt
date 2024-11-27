@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/duplicate-check.html ===
+Duplicate check
+The Debulker can be configured to perform a Duplicate check on the file before it starts to process it. The Debulker is not able to check the individual components it is splitting out for duplicates (as it has no understanding of what the content of the file means), but is can check  if the file as a whole has been processed before. If configured to perform the duplicate check, the file name will be ignored, only the contents will be checked, in oder to prevent a file being renamed and resubmitted.
+Config
+Type
+Comment
+Default
+ipf.debulker.duplicate-check.enabled
+Boolean
+Property which represents the feature toggle
+true
+Polling For New Files
+Schema Validation

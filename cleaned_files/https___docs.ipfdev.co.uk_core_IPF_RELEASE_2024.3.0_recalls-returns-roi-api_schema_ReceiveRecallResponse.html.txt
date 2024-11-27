@@ -1,0 +1,317 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/recalls-returns-roi-api/schema/ReceiveRecallResponse.html ===
+Json Schema for ReceiveRecallResponse
+Json Schema:
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Receive Recall Response",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "responseId" : {
+      "type" : "string"
+    },
+    "requestId" : {
+      "type" : "string"
+    },
+    "processingContext" : {
+      "$ref" : "#/definitions/ProcessingContext"
+    },
+    "version" : {
+      "$ref" : "#/definitions/Version"
+    },
+    "createdAt" : { },
+    "ipfId" : {
+      "type" : "string"
+    },
+    "responseCode" : {
+      "type" : "string"
+    },
+    "status" : {
+      "type" : "string",
+      "enum" : [ "SUCCESS", "REJECT", "FAILURE", "PENDING" ]
+    },
+    "customBusinessData" : {
+      "$ref" : "#/definitions/SupportingContext"
+    },
+    "schemeName" : {
+      "type" : "string"
+    },
+    "payload" : {
+      "$ref" : "#/definitions/Payload(ReceiptAcknowledgementV01)"
+    }
+  },
+  "definitions" : {
+    "ProcessingContext" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "associationId" : {
+          "type" : "string"
+        },
+        "checkpoint" : {
+          "type" : "string"
+        },
+        "unitOfWorkId" : {
+          "type" : "string"
+        },
+        "clientRequestId" : {
+          "type" : "string"
+        },
+        "processingEntity" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Version" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "major" : {
+          "type" : "integer"
+        },
+        "minor" : {
+          "type" : "integer"
+        },
+        "patch" : {
+          "type" : "integer"
+        }
+      }
+    },
+    "SupportingContext" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "headers" : {
+          "$ref" : "#/definitions/SupportingHeader"
+        },
+        "metaData" : {
+          "$ref" : "#/definitions/SupportingMetaData"
+        }
+      }
+    },
+    "SupportingHeader" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "values" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "SupportingMetaData" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "values" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "Payload(ReceiptAcknowledgementV01)" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "content" : {
+          "$ref" : "#/definitions/ReceiptAcknowledgementV01"
+        },
+        "version" : {
+          "$ref" : "#/definitions/Version"
+        }
+      }
+    },
+    "ReceiptAcknowledgementV01" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "msgId" : {
+          "$ref" : "#/definitions/MessageHeader10"
+        },
+        "rpt" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/ReceiptAcknowledgementReport2"
+          }
+        },
+        "splmtryData" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/SupplementaryData1"
+          }
+        }
+      }
+    },
+    "MessageHeader10" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "msgId" : {
+          "type" : "string"
+        },
+        "creDtTm" : { },
+        "qryNm" : {
+          "type" : "string"
+        }
+      }
+    },
+    "ReceiptAcknowledgementReport2" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "rltdRef" : {
+          "$ref" : "#/definitions/MessageReference1"
+        },
+        "reqHdlg" : {
+          "$ref" : "#/definitions/RequestHandling2"
+        }
+      }
+    },
+    "MessageReference1" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "ref" : {
+          "type" : "string"
+        },
+        "msgNm" : {
+          "type" : "string"
+        },
+        "refIssr" : {
+          "$ref" : "#/definitions/PartyIdentification136"
+        }
+      }
+    },
+    "PartyIdentification136" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "id" : {
+          "$ref" : "#/definitions/PartyIdentification120Choice"
+        },
+        "lei" : {
+          "type" : "string"
+        }
+      }
+    },
+    "PartyIdentification120Choice" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "anyBIC" : {
+          "type" : "string"
+        },
+        "prtryId" : {
+          "$ref" : "#/definitions/GenericIdentification36"
+        },
+        "nmAndAdr" : {
+          "$ref" : "#/definitions/NameAndAddress5"
+        }
+      }
+    },
+    "GenericIdentification36" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "issr" : {
+          "type" : "string"
+        },
+        "schmeNm" : {
+          "type" : "string"
+        }
+      }
+    },
+    "NameAndAddress5" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "nm" : {
+          "type" : "string"
+        },
+        "adr" : {
+          "$ref" : "#/definitions/PostalAddress1"
+        }
+      }
+    },
+    "PostalAddress1" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "adrTp" : {
+          "type" : "string",
+          "enum" : [ "ADDR", "PBOX", "HOME", "BIZZ", "MLTO", "DLVY" ]
+        },
+        "adrLine" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "strtNm" : {
+          "type" : "string"
+        },
+        "bldgNb" : {
+          "type" : "string"
+        },
+        "pstCd" : {
+          "type" : "string"
+        },
+        "twnNm" : {
+          "type" : "string"
+        },
+        "ctrySubDvsn" : {
+          "type" : "string"
+        },
+        "ctry" : {
+          "type" : "string"
+        }
+      }
+    },
+    "RequestHandling2" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "stsCd" : {
+          "type" : "string"
+        },
+        "stsDtTm" : { },
+        "desc" : {
+          "type" : "string"
+        }
+      }
+    },
+    "SupplementaryData1" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "plcAndNm" : {
+          "type" : "string"
+        },
+        "envlp" : {
+          "$ref" : "#/definitions/SupplementaryDataEnvelope1"
+        }
+      }
+    },
+    "SupplementaryDataEnvelope1" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "any" : {
+          "$ref" : "#/definitions/Object"
+        }
+      }
+    },
+    "Object" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : { }
+    }
+  }
+}

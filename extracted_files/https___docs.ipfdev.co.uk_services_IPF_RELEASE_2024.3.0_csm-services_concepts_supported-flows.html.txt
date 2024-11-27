@@ -1,0 +1,15 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/concepts/supported-flows.html ===
+Supported Flows
+The CSM Service currently supports the following flows, the sequence diagrams below illustrates where the CSM service fits in the broader context of mediating between flows and CSMs.
+*
+aCSM
+- specific instance of a CSM which a particular csm-service is integrating to e.g. RT1/TIPS/SIC
+NOTE: Interactions with the CSM are indicated with a dotted line, as they are subject to change depending on the scheme that is being integrated to - the details of which are specified in the scheme specific CSM service documentation.
+Credit Transfer Flows
+Creditor CT Flow
+Debtor CT Flow
+Recall, Return, ROI Flows
+Creditor RRR Flows
+Debtor RRR Flows
+CSM Service APIs
+Features

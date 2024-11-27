@@ -1,0 +1,108 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/json-splitter.html ===
+JSON Splitter
+The JSON Splitter provided by IPF is implemented using the
+Actson JSON streaming parser
+library under the hood.
+It takes a component hierarchy, defining the structure of JSON elements to split out.
+It is worth noting that the outputted JSON element data will be compacted.
+That is to say that any extraneous whitespace in the original document will be removed from the components that are published.
+Future versions may include configuration to preserve the source formatting.
+Maven Dependency
+To use the JSON splitter, the following dependency must be provided, with a version matching
+ipf-debulker-core
+to ensure compatibility.
+<dependency>
+    <groupId>com.iconsolutions.ipf.debulk</groupId>
+    <artifactId>ipf-debulker-json-splitter</artifactId>
+    <version>${ipf-debulker-core.version}</version>
+</dependency>
+Usage Example
+Imagine we want to process potentially large JSON files containing data about books in a library and split it into smaller chunks, so they can be used by some downstream system.
+The example file is small for demonstration purposes, but it could contain a large number of book elements.
+example.json
+{
+  "name": "Library of Alexandria",
+  "meta": {
+    "bookCount": 2,
+    "authorCount": 2,
+    "mixedValueList": [
+      1, {}, 2.0, [], true, false, null, {}, [], {}
+    ],
+    "listOfList": [[],[],[]]
+  },
+  "books": [
+    {
+      "title": "Clean Code",
+      "author": "Martin, Robert",
+      "price": 39.99,
+      "chapters": [
+        {
+          "name": "Clean Code",
+          "startPage": 1
+        },
+        {
+          "name": "Meaningful Names",
+          "startPage": 17
+        }
+      ]
+    },
+    {
+      "title": "Effective Java",
+      "author": "Bloch, Joshua",
+      "price": 55.00,
+      "chapters": [
+        {
+          "name": "Introduction",
+          "startPage": 1,
+          "meta": {
+            "x": "wow"
+          }
+        },
+        {
+          "name": "Creating and Destroying Objects",
+          "startPage": 5
+        }
+      ]
+    }
+  ]
+}
+Given our example JSON data, we might decide to split it using the following hierarchy.
+library
+aaa books
+    aaa chapters
+With these prerequisites out the way; lets write the program.
+Bear in mind, this example makes use of
+Project Reactor
+to convert the Java 9
+Flow.Publisher
+to a
+Flux
+to make subscribing to the data a bit simpler, but this could be replaced with another reactive library that is compatible with the Java 9 reactive libraries, e.g. RxJava.
+ActorSystem system = ActorSystem.create();
+AkkaJsonSplitter splitter = new AkkaJsonSplitter(system);
+
+InputStream stream = getClass().getClassLoader().getResourceAsStream("example.json");
+
+ComponentHierarchy root = ComponentHierarchy.root("$");
+ComponentHierarchy book = root.addChild("books[]");
+book.addChild("chapters[]");
+
+Flow.Publisher<DebulkComponent> publisher = splitter.split(stream, root);
+Flux<DebulkComponent> flux = JdkFlowAdapter.flowPublisherToFlux(publisher);
+List<DebulkComponent> components = flux.collectList().blockOptional().orElseThrow();
+
+System.out.println();
+components.stream()
+        .map(DebulkComponent::getContent)
+        .forEach(System.out::println);
+Running this code should print a series of extracted components to the console.
+output
+{"name":"Clean Code","startPage":1}
+{"name":"Meaningful Names","startPage":17}
+{"title":"Clean Code","author":"Martin, Robert","price":39.99}
+{"name":"Introduction","startPage":1,"meta":{"x":"wow"}}
+{"name":"Creating and Destroying Objects","startPage":5}
+{"title":"Effective Java","author":"Bloch, Joshua","price":55.0}
+{"name":"Library of Alexandria","meta":{"bookCount":2,"authorCount":2,"mixedValueList":[1,{},2.0,[],true,false,null,{},[],{}],"listOfList":[[],[],[]]}}
+Splitter
+XML Splitter

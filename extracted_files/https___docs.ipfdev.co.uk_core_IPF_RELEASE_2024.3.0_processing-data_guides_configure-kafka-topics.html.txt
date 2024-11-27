@@ -1,0 +1,88 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/processing-data/guides/configure-kafka-topics.html ===
+Configuring Kafka Topics
+Use this guide to configure a process flow application for egress of specific data types to specific Kafka Topics.
+This guide relies on your application depending on and enabling the
+Egress Kafka Transport
+module.
+Default Topic Configuration
+By default, all data types are produced to the default
+IPF_PROCESSING_DATA
+topic. You can change this via config, e.g.
+ipf.processing-data.egress.kafka.producer.topic = SOME_OTHER_TOPIC
+.
+Multiple Topic Configuration
+Each IPF Processing Data type can be configured to be delivered to different topics. The available types are:
+Type
+Description
+Config Path
+Events
+Events produced by the IPF payment processing flows
+ipf.processing-data.egress.transports.events
+Data Structures
+MDS and PDS objects, usually produced by either the IPF payment processing flows
+ipf.processing-data.egress.transports.data-structures
+Message Logs
+Message logs of all exchanged messages with other systems
+ipf.processing-data.egress.transports.message-logs
+System Events
+System events produced by the running application
+ipf.processing-data.egress.transports.system-events
+Models
+IPF payment processing flow definitions, e.g. metadata about the flows themselves
+ipf.processing-data.egress.transports.models
+Examples
+Message Logs and System Events
+ipf.processing-data.egress {
+  transports {
+    message-logs.kafka.producer.topic = MESSAGE_LOG_TOPIC
+    system-events.kafka.producer.topic = SYSTEM_EVENT_TOPIC
+  }
+}
+With this configuration, any egress plugin that exports either a message log or system event, will produce that data to the configured topics. Any remaining data types will be produced to the default IPF_PROCESSING_DATA` topic.
+All Data Types
+It’s possible to deliver all data types to different topics, e.g.
+ipf.processing-data.egress {
+  transports {
+    events.kafka.producer.topic = EVENTS_TOPIC
+    data-structures.kafka.producer.topic = DATA_STRUCTURES_TOPIC
+    message-logs.kafka.producer.topic = MESSAGE_LOGS_TOPIC
+    system-events.kafka.producer.topic = SYSTEM_EVENTS_TOPIC
+    models.kafka.producer.topic = MODELS_TOPIC
+  }
+}
+With this configuration, no data will be exported to the default
+IPF_PROCESSING_DATA
+topic.
+Logging
+A summary of the configured Kafka Topics is logged upon startup.
+Example kafka topic summary log
+11:04:42.035 [main] INFO com.iconsolutions.ipf.processingdata.KafkaTopicLogger --
+------------------------------------------------------------------------------------------------------------------------------------------------------
+ IPF Processing Data Egress KafkaConnectorTransport Configurations
+------------------------------------------------------------------------------------------------------------------------------------------------------
+     ----------------------------------------------------------------------------------------------------------------------------------------------
+                Data Type                Connector Transport Name                                                                Kafka Topic Name
+     ----------------------------------------------------------------------------------------------------------------------------------------------
+                   EVENTS          IpfProcessingDataEgressKafka-1                                                                    EVENTS_TOPIC
+          DATA_STRUCTURES          IpfProcessingDataEgressKafka-2                                                           DATA_STRUCTURES_TOPIC
+             MESSAGE_LOGS          IpfProcessingDataEgressKafka-3                                                              MESSAGE_LOGS_TOPIC
+            SYSTEM_EVENTS          IpfProcessingDataEgressKafka-4                                                             SYSTEM_EVENTS_TOPIC
+                   MODELS          IpfProcessingDataEgressKafka-5                                                                    MODELS_TOPIC
+Consume from Kafka
+By default, all data types are produced to the default
+IPF_PROCESSING_DATA
+topic. You can change this via config, e.g.
+ipf.processing-data.ingress.kafka.consumer.topic = SOME_OTHER_TOPIC
+.
+If IPF Processing Data types are produced to different topics, you can configure this with
+ipf.processing-data.ingress.kafka.consumer.topics = [ EVENTS_TOPIC, DATA_STRUCTURES_TOPIC, MESSAGE_LOGS_TOPIC, SYSTEM_EVENTS_TOPIC, MODELS_TOPIC ]
+.
+Either
+ipf.processing-data.ingress.kafka.consumer.
+topic
+or
+ipf.processing-data.ingress.kafka.consumer.
+topics
+should be configured, but not both.
+How to Configure a Process Flow Application for Egress of Data
+Data Model Specifications

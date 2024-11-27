@@ -1,0 +1,49 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20unhappy%20path.Handle%20Recall%20Request%20Rejection%20From%20CSM%20GrpSts.html ===
+Handle Recall Request Rejection From CSM GrpSts.story
+Scenario: Recall rejected by CSM GrpSts
+Steps
+When the Recall Service sends a 'Send Recall To Csm Request'
+Then the CSM receives a 'Payment Cancellation Request'
+Then Recall Service receives a 'Technical Response' with values:
+| status | SUCCESS |
+When the CSM sends a 'for-camt056' 'Payment Status Report' with values:
+| FIToFIPmtStsRpt.orgnlGrpInfAndSts.orgnlMsgNmId     | camt.056.001.01                                                 |
+| FIToFIPmtStsRpt.orgnlGrpInfAndSts.grpSts           | <GrpSts>                                                        |
+| FIToFIPmtStsRpt.orgnlGrpInfAndSts.stsRsnInf.rsn.cd | <GrpStsRsnCd>                                                   |
+| FIToFIPmtStsRpt.txInfAndSts.orgnlTxId              | #PaymentCancellationRequest.FIToFIPmtCxlReq.undrlyg.txInf.cxlId |
+Then Recall Service receives a 'Send Recall To Csm Response' with values:
+| payload.content.orgnlGrpInfAndSts[0].orgnlMsgNmId        | camt.056.001.01                                                 |
+| payload.content.orgnlGrpInfAndSts[0].grpSts              | <GrpSts>                                                        |
+| payload.content.orgnlGrpInfAndSts[0].stsRsnInf[0].rsn.cd | <GrpStsRsnCd>                                                   |
+| payload.content.txInfAndSts[0].orgnlTxId                 | #PaymentCancellationRequest.FIToFIPmtCxlReq.undrlyg.txInf.cxlId |
+Examples:
+GrpSts
+GrpStsRsnCd
+TxSts
+SctRespCd
+SctRespPrtry
+RJCT
+FF01
+NOT_SET
+NOT_SET
+NOT_SET
+Example: {GrpSts=RJCT, GrpStsRsnCd=FF01, TxSts=NOT_SET, SctRespCd=NOT_SET, SctRespPrtry=NOT_SET}
+When
+the ï½Recall Serviceï½  sends a Send Recall To Csm Request
+Then
+the ï½CSMï½  receives a Payment Cancellation Request
+Then
+ï½Recall Serviceï½  receives a Technical Response with values:
+| status | SUCCESS |
+When
+the ï½CSMï½  sends a for-camt056 Payment Status Report with values:
+| FIToFIPmtStsRpt.orgnlGrpInf*And*Sts.orgnlMsgNmId     | camt.056.001.01                                                 |
+| FIToFIPmtStsRpt.orgnlGrpInf*And*Sts.grpSts           | ï½RJCTï½                                                         |
+| FIToFIPmtStsRpt.orgnlGrpInf*And*Sts.stsRsnInf.rsn.cd | ï½FF01ï½                                                    |
+| FIToFIPmtStsRpt.txInf*And*Sts.orgnlTxId              | #PaymentCancellationRequest.FIToFIPmtCxlReq.undrlyg.txInf.cxlId |
+Then
+ï½Recall Serviceï½  receives a Send Recall To Csm Response with values:
+| payload.content.orgnlGrpInf*And*Sts[0].orgnlMsgNmId        | camt.056.001.01                                                 |
+| payload.content.orgnlGrpInf*And*Sts[0].grpSts              | ï½RJCTï½                                                         |
+| payload.content.orgnlGrpInf*And*Sts[0].stsRsnInf[0].rsn.cd | ï½FF01ï½                                                    |
+| payload.content.txInf*And*Sts[0].orgnlTxId                 | #PaymentCancellationRequest.FIToFIPmtCxlReq.undrlyg.txInf.cxlId |

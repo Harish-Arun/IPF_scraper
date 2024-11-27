@@ -1,0 +1,2079 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/concepts/sepadd_model.html ===
+sepadd Model
+Table of Contents
+Flows
+Process To Scheme Message
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+FIToFIPmtStsRptS2 Processing
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+DVF Processing
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+RSF Processing
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+FIToFIPmtStsRptS2 Processing for RSF
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Supporting Libraries
+Business Data Libraries
+Sepa Direct Debit Data Library
+Business Data Elements
+External Domains
+SEPA Scheme
+Requests
+Notifications
+Instructions
+Client Processing
+Requests
+Notifications
+Instructions
+IPF Debulker Domain
+Requests
+Notifications
+Instructions
+Mapping Functions
+Debulk Mapping Functions
+Mapping Functions
+Process To Scheme Message
+Mapping Functions
+Common Event Libraries
+Debulk Processing Events
+Events
+IPF Threshold Events
+Events
+Decision Libraries
+Sepa Direct Debit Decision
+Decisions
+Domain Function Libraries
+Message Validation
+Domain Functions
+Message Submission
+Domain Functions
+Settlement Response
+Domain Functions
+Response Code Libraries
+Bulk Initiating Pacs002S2 flows Outcomes
+Response Codes
+Bulk Initiating Pacs002S2 flows Outcomes
+Response Codes
+Reason Code Libraries
+SEPA DD Reason Codes
+Reason Codes
+Placeholder Libraries
+Global State Libraries
+Flows
+Process To Scheme Message
+Flow Properties
+Flow Name:
+Process To Scheme Message
+Version:
+0
+Description:
+Processing flow for messages to be sent to the SEPA DD Scheme
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Validating Message
+Validating  Message
+PENDING
+No
+No
+No
+Generating IPF Validation Pacs.002 Response
+Generating Pacs.002 Response to indicate status to the client after IPF validation
+PENDING
+No
+No
+No
+Sending IPF Validation Pacs.002 Response
+Sending Pacs.002 Response to indicate status to the client after processing verification from the scheme
+PENDING
+No
+No
+No
+Generating Bulk Name
+Generating name of the bulk to which transaction will be sent
+PENDING
+No
+No
+No
+Transaction Bulking
+Send  transaction to bulker
+PENDING
+No
+No
+No
+Registering Bulk Correlation
+Storing correlation between bulker and transaction that was sent to it
+PENDING
+No
+No
+No
+Transaction Submit Complete
+Transaction is submitted or failed to submit
+PENDING
+No
+No
+No
+Waiting For Scheme Responses
+Waiting For Scheme Response Notifications
+PENDING
+No
+No
+No
+Generating Scheme Validation Pacs.002 Response
+Generating the pacs002 response following scheme response
+PENDING
+No
+No
+No
+Sending Scheme Validation Pacs.002 Response
+Sending pacs.002 Response
+PENDING
+No
+No
+No
+Validation Rejected
+Processing has failed during validation in to scheme processing
+REJECTED
+Yes
+No
+No
+Waiting for Settlement Response
+Waiting for settlement response from scheme
+PENDING
+No
+No
+No
+Submission Rejected
+Processing has failed during submission in to scheme processing
+REJECTED
+Yes
+No
+No
+Check Pacs.002 Group Status Rejected
+Check if the pacs.002 group status is REJECTED
+PENDING
+No
+No
+No
+Transaction Level Duplicate Check
+Check for duplicates in transaction within message
+PENDING
+No
+No
+No
+Generating Settlement Validation Pacs.002 Response
+Generating pacs.002 response following settlement response
+PENDING
+No
+No
+No
+Sending Settlement Validation Pacs.002 Response
+Sending Settlement pacs.002 response
+PENDING
+No
+No
+No
+Settlement Rejected
+Processing has failed during settlement in to schem processing
+REJECTED
+Yes
+No
+No
+Settlement Complete
+Payment has been successfully
+ACCEPTED
+Yes
+No
+No
+Check Scheme Pacs.002 Group Status Rejected
+Generated state
+none
+No
+No
+No
+Message Contains Transactions
+Generated state
+none
+No
+No
+No
+Expecting More Scheme Response Notifications
+Generated state
+none
+No
+No
+No
+Check IPF Pacs.002 Group Status Rejected
+Generated state
+none
+No
+No
+No
+Expecting More Settlement Response Notifications
+Generated state
+none
+No
+No
+No
+Check Settlement Pacs.002 Group Status Rejected
+Generated state
+none
+No
+No
+No
+Message Duplicate Checking Message Duplicate Checking
+Generated state
+none
+No
+No
+No
+Message Duplicate Checking Perform Pacs003 Message Validation
+Performing pacs003 duplicate check
+PENDING
+No
+No
+No
+Message Duplicate Checking Perform Camt056 Message Validation
+Performing camt056 duplicate check
+PENDING
+No
+No
+No
+Message Duplicate Checking Duplicate Check To Perform
+Generated state
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Message Data Structure Wrapper
+Original Request Id
+Submit Transaction Counter
+Message Validation Passed
+Message Validation Passed
+Modified SEPA Message Wrapper
+Collection of TxInfAndSts
+Reason Type
+Interbank Settlement Date
+Message Validation Failed
+Message Validation Failed
+Modified SEPA Message Wrapper
+Interbank Settlement Date
+Collection of TxInfAndSts
+Reason Type
+IPF Pacs.002 Generation Passed
+Validation Pacs.002 Generation Passed
+Payment Status Report
+IPF Pacs.002 Generation Failed
+Validation Pacs.002 Generation Failed
+none
+Send IPF Pacs.002 Passed
+Send Pacs.002 To Client Passed
+none
+Send IPF Pacs.002 Failed
+Send Pacs.002 To Client Failed
+none
+Bulk Name Generated
+Bulk Name Generation Success
+Bulk Identifier
+Bulk Name Generation Failed
+Bulk Name Generation Failed
+none
+All Transactions Processed
+All transactions for submission to the scheme have been processed
+none
+Submit Transaction Counter Incremented
+Submit Transaction Counter
+Transaction Sent To Bulk
+Transaction successfully sent to Bulk
+Bulk Component Id
+Bulk Id
+Root Component Id
+Transaction Not Sent To Bulk
+Failed to send transaction to Bulk
+none
+Bulk Correlation Registered
+Bulk correlation registered successfully
+none
+Bulk Correlation Not Registered
+Bulk correlation not registered
+none
+Scheme Response Notification Received
+Response received from scheme
+Scheme Response Notification
+TxInfAndSts Updated
+Collection of TxInfAndSts has been updated successfully upon receipt of scheme response
+Collection of TxInfAndSts
+TxInfAndSts Update Failed
+Updating of TxInfAndSts has failed
+none
+Scheme Pacs.002 Generation Passed
+Generation of scheme pacs.002 passed
+Payment Status Report
+Scheme Pacs.002 Generation Failed
+Generation of scheme pacs.002 failed
+none
+Send Scheme Pacs.002 Passed
+Send Pacs.002 to Client Passed
+none
+Send Scheme Pacs.002 Failed
+none
+Transaction Duplicate Check Passed
+Transaction Duplicate Check Passed
+Collection of TxInfAndSts
+Modified SEPA Message Wrapper
+Transaction Duplicate Check Failed
+Transaction Duplicate Check Failed
+Collection of TxInfAndSts
+Modified SEPA Message Wrapper
+Settlement Response Notification Received
+RSF Scheme Response Received
+Settlement Response Notification
+Settlement TxInfAndSts Updated
+Updated TxInfAndSts with Settlement Response
+Collection of TxInfAndSts
+Settlement TxInfAndSts Update Failed
+Failed to update TxInfAndSts with Settlement Response information
+none
+Settlement Pacs.002 Generation Passed
+Successfully generated settlement pacs.002
+Payment Status Report
+Settlement Pacs.002 Generation Failed
+Failed to generate settlement pacs.002
+none
+Send Settlement Pacs.002 Passed
+Successfully sent settlement pacs.002 to client
+none
+Send Settlement Pacs.002 Failed
+Failed to send settlement pacs.002 to client
+none
+Check Pacs.002 Group Status Rejected YES
+none
+Check Pacs.002 Group Status Rejected NO
+none
+Message Contains Transactions YES
+none
+Message Contains Transactions NO
+none
+Expecting More Scheme Responses YES
+none
+Expecting More Scheme Responses NO
+none
+Message Duplicate Checking Duplicate Check Passed
+Duplicate check passed
+none
+Message Duplicate Checking Duplicate Check Failed
+Duplicate check failed
+none
+Message Duplicate Checking Duplicate Checking Type PACS_003_MSG_DUPLICATE_CHECK
+none
+Message Duplicate Checking Duplicate Checking Type CAMT_056_MSG_DUPLICATE_CHECK
+none
+Aggregate Functions
+On Event
+Call Mapping Function
+Message Validation Passed
+Set Message Duplicate Processing Indicator
+Message Duplicate Checking Duplicate Check Failed
+Message Duplicate Checking Duplicate Response Code Mapping
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Process To Scheme Message (V0)
+none
+Flow Initiated
+Validate Entire Message Response
+Accepted
+Message Validation Passed
+Validate Entire Message Response
+Rejected
+Message Validation Failed
+Generate IPF Response
+Accepted
+IPF Pacs.002 Generation Passed
+Generate IPF Response
+Rejected
+IPF Pacs.002 Generation Failed
+Send IPF Pacs.002 Response
+Accepted
+Send IPF Pacs.002 Passed
+Send IPF Pacs.002 Response
+Rejected
+Send IPF Pacs.002 Failed
+Increment Submit Transaction Counter Response
+none
+Submit Transaction Counter Incremented
+Send Transaction To Bulker Response
+Accepted
+Transaction Sent To Bulk
+Send Transaction To Bulker Response
+Rejected
+Transaction Not Sent To Bulk
+Bulk Name Response
+Accepted
+Bulk Name Generated
+Bulk Name Response
+Rejected
+Bulk Name Generation Failed
+Register Correlation Response
+Accepted
+Bulk Correlation Registered
+Register Correlation Response
+Rejected
+Bulk Correlation Not Registered
+Scheme Response Notification
+none
+Scheme Response Notification Received
+Update TxInfAndSts Response
+Accepted
+TxInfAndSts Updated
+Update TxInfAndSts Response
+Rejected
+TxInfAndSts Update Failed
+Generate Scheme Pacs.002 Response
+Accepted
+Scheme Pacs.002 Generation Passed
+Generate Scheme Pacs.002 Response
+Rejected
+Scheme Pacs.002 Generation Failed
+Send Scheme Pacs.002 Response
+Accepted
+Send Scheme Pacs.002 Passed
+Send Scheme Pacs.002 Response
+Rejected
+Send Scheme Pacs.002 Failed
+Transaction Duplicate Check Response
+Accepted
+Transaction Duplicate Check Passed
+Transaction Duplicate Check Response
+Rejected
+Transaction Duplicate Check Failed
+Settlement Scheme Response Notification
+none
+Settlement Response Notification Received
+Settlement Update TxInfAndSts
+Accepted
+Settlement TxInfAndSts Updated
+Settlement Update TxInfAndSts
+Rejected
+Settlement TxInfAndSts Update Failed
+Generate Settlement Pacs.002 Response
+Accepted
+Settlement Pacs.002 Generation Passed
+Generate Settlement Pacs.002 Response
+Rejected
+Settlement Pacs.002 Generation Failed
+Send Settlement Pacs.002 Response
+Accepted
+Send Settlement Pacs.002 Passed
+Send Settlement Pacs.002 Response
+Rejected
+Send Settlement Pacs.002 Failed
+checkDuplicateResponse
+DUPLICATE
+Message Duplicate Checking Duplicate Check Failed
+checkDuplicateResponse
+NOT_DUPLICATE
+Message Duplicate Checking Duplicate Check Passed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Validating Message
+Call Function
+:
+Validate Entire Message
+Validating Message
+On
+Message Validation Passed
+Message Duplicate Checking Duplicate Check To Perform
+Call Decision
+:
+Duplicate Checking Type
+and then:
+On
+PACS_003_MSG_DUPLICATE_CHECK
+raise event
+Message Duplicate Checking Duplicate Checking Type PACS_003_MSG_DUPLICATE_CHECK
+On
+CAMT_056_MSG_DUPLICATE_CHECK
+raise event
+Message Duplicate Checking Duplicate Checking Type CAMT_056_MSG_DUPLICATE_CHECK
+Validating Message
+On
+Message Validation Failed
+Generating IPF Validation Pacs.002 Response
+Call Function
+:
+Generate IPF Pacs.002
+Generating Scheme Validation Pacs.002 Response
+On
+Scheme Pacs.002 Generation Passed
+Sending Scheme Validation Pacs.002 Response
+Call Function
+:
+Send Scheme Pacs.002
+Generating Scheme Validation Pacs.002 Response
+On
+Scheme Pacs.002 Generation Failed
+Submission Rejected
+Sending Scheme Validation Pacs.002 Response
+On
+Send Scheme Pacs.002 Passed
+Check Scheme Pacs.002 Group Status Rejected
+Call Decision
+:
+Check Pacs.002 Group Status Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 Group Status Rejected YES
+On
+NO
+raise event
+Check Pacs.002 Group Status Rejected NO
+Sending Scheme Validation Pacs.002 Response
+On
+Send Scheme Pacs.002 Failed
+Submission Rejected
+Generating Bulk Name
+On
+Bulk Name Generated
+Transaction Bulking
+Call Function
+:
+Send Transaction To Bulker
+Generating Bulk Name
+On
+Bulk Name Generation Failed
+Transaction Submit Complete
+Call Decision
+:
+More Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Submit Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Transaction Submit Complete
+On
+Submit Transaction Counter Incremented
+Generating Bulk Name
+Call Function
+:
+Generate Bulk Name
+Transaction Submit Complete
+On
+All Transactions Processed
+Message Contains Transactions
+Call Decision
+:
+Message Contains Transactions
+and then:
+On
+YES
+raise event
+Message Contains Transactions YES
+On
+NO
+raise event
+Message Contains Transactions NO
+Message Contains Transactions
+On
+Message Contains Transactions NO
+Submission Rejected
+Message Contains Transactions
+On
+Message Contains Transactions YES
+Waiting For Scheme Responses
+Transaction Bulking
+On
+Transaction Sent To Bulk
+Registering Bulk Correlation
+Call Function
+:
+Register Bulk Correlation
+Transaction Bulking
+On
+Transaction Not Sent To Bulk
+Transaction Submit Complete
+Call Decision
+:
+More Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Submit Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Registering Bulk Correlation
+On any of
+Bulk Correlation Registered
+Bulk Correlation Not Registered
+Transaction Submit Complete
+Call Decision
+:
+More Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Submit Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Waiting For Scheme Responses
+On
+Scheme Response Notification Received
+Waiting For Scheme Responses
+Call Function
+:
+Update TxInfAndSts
+Waiting For Scheme Responses
+On
+TxInfAndSts Update Failed
+Submission Rejected
+Waiting For Scheme Responses
+On
+TxInfAndSts Updated
+Expecting More Scheme Response Notifications
+Call Decision
+:
+Expecting More Scheme Responses
+and then:
+On
+YES
+raise event
+Expecting More Scheme Responses YES
+On
+NO
+raise event
+Expecting More Scheme Responses NO
+Expecting More Scheme Response Notifications
+On
+Expecting More Scheme Responses YES
+Waiting For Scheme Responses
+Expecting More Scheme Response Notifications
+On
+Expecting More Scheme Responses NO
+Generating Scheme Validation Pacs.002 Response
+Call Function
+:
+Generate Scheme Pacs.002
+Generating IPF Validation Pacs.002 Response
+On
+IPF Pacs.002 Generation Failed
+Validation Rejected
+Generating IPF Validation Pacs.002 Response
+On
+IPF Pacs.002 Generation Passed
+Sending IPF Validation Pacs.002 Response
+Call Function
+:
+Send IPF  Pacs.002
+Sending IPF Validation Pacs.002 Response
+On
+Send IPF Pacs.002 Passed
+Check IPF Pacs.002 Group Status Rejected
+Call Decision
+:
+Check Pacs.002 Group Status Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 Group Status Rejected YES
+On
+NO
+raise event
+Check Pacs.002 Group Status Rejected NO
+Sending IPF Validation Pacs.002 Response
+On
+Send IPF Pacs.002 Failed
+Validation Rejected
+Check Pacs.002 Group Status Rejected
+On
+Bulk Name Generated
+Transaction Bulking
+Call Function
+:
+Send Transaction To Bulker
+Check Pacs.002 Group Status Rejected
+On
+Bulk Name Generation Failed
+Transaction Submit Complete
+Call Decision
+:
+More Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Submit Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Check Scheme Pacs.002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected YES
+Submission Rejected
+Check Scheme Pacs.002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected NO
+Waiting for Settlement Response
+Check IPF Pacs.002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected YES
+Validation Rejected
+Check IPF Pacs.002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected NO
+Generating Bulk Name
+Call Function
+:
+Generate Bulk Name
+Transaction Level Duplicate Check
+On any of
+Transaction Duplicate Check Passed
+Transaction Duplicate Check Failed
+Generating IPF Validation Pacs.002 Response
+Call Function
+:
+Generate IPF Pacs.002
+Waiting for Settlement Response
+On
+Settlement Response Notification Received
+Waiting for Settlement Response
+Call Function
+:
+Settlement Update TxInfAndSts
+Waiting for Settlement Response
+On
+Settlement TxInfAndSts Update Failed
+Settlement Rejected
+Waiting for Settlement Response
+On
+Settlement TxInfAndSts Updated
+Expecting More Settlement Response Notifications
+Call Decision
+:
+Expecting More Scheme Responses
+and then:
+On
+YES
+raise event
+Expecting More Scheme Responses YES
+On
+NO
+raise event
+Expecting More Scheme Responses NO
+Expecting More Settlement Response Notifications
+On
+Expecting More Scheme Responses YES
+Waiting for Settlement Response
+Expecting More Settlement Response Notifications
+On
+Expecting More Scheme Responses NO
+Generating Settlement Validation Pacs.002 Response
+Call Function
+:
+Generate Settlement Pacs.002
+Generating Settlement Validation Pacs.002 Response
+On
+Settlement Pacs.002 Generation Passed
+Sending Settlement Validation Pacs.002 Response
+Call Function
+:
+Send Settlement Pacs.002
+Generating Settlement Validation Pacs.002 Response
+On
+Settlement Pacs.002 Generation Failed
+Settlement Rejected
+Sending Settlement Validation Pacs.002 Response
+On
+Send Settlement Pacs.002 Passed
+Check Settlement Pacs.002 Group Status Rejected
+Call Decision
+:
+Check Pacs.002 Group Status Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 Group Status Rejected YES
+On
+NO
+raise event
+Check Pacs.002 Group Status Rejected NO
+Check Settlement Pacs.002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected NO
+Settlement Complete
+Check Settlement Pacs.002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected YES
+Settlement Rejected
+Sending Settlement Validation Pacs.002 Response
+On
+Send Settlement Pacs.002 Failed
+Settlement Rejected
+Message Duplicate Checking Duplicate Check To Perform
+On
+Message Duplicate Checking Duplicate Checking Type PACS_003_MSG_DUPLICATE_CHECK
+Message Duplicate Checking Perform Pacs003 Message Validation
+Call Function
+:
+checkDuplicate
+Message Duplicate Checking Duplicate Check To Perform
+On
+Message Duplicate Checking Duplicate Checking Type CAMT_056_MSG_DUPLICATE_CHECK
+Message Duplicate Checking Perform Camt056 Message Validation
+Call Function
+:
+checkDuplicate
+Message Duplicate Checking Perform Camt056 Message Validation
+On
+Message Duplicate Checking Duplicate Check Passed
+Transaction Level Duplicate Check
+Call Function
+:
+Transaction Level Duplicate Check
+Message Duplicate Checking Perform Pacs003 Message Validation
+On
+Message Duplicate Checking Duplicate Check Passed
+Transaction Level Duplicate Check
+Call Function
+:
+Transaction Level Duplicate Check
+Message Duplicate Checking Perform Pacs003 Message Validation
+On
+Message Duplicate Checking Duplicate Check Failed
+Generating IPF Validation Pacs.002 Response
+Call Function
+:
+Generate IPF Pacs.002
+Message Duplicate Checking Perform Camt056 Message Validation
+On
+Message Duplicate Checking Duplicate Check Failed
+Generating IPF Validation Pacs.002 Response
+Call Function
+:
+Generate IPF Pacs.002
+FIToFIPmtStsRptS2 Processing
+Flow Properties
+Flow Name:
+FIToFIPmtStsRptS2 Processing
+Version:
+0
+Description:
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Complete
+The flow has completed
+ACCEPTED
+Yes
+No
+No
+Processing Transactions
+Transactions are being processed
+PENDING
+No
+No
+No
+Failed
+Message Processing Failed
+REJECTED
+Yes
+No
+No
+Waiting For Extension Point
+Call to extension point made, awaiting response
+PENDING
+No
+No
+No
+Extension Point Enabled
+Generated state
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Debulk Identifier
+Debulk Component Data
+Payment Journey Type
+Related Unit Of Work
+Transaction Correlation Processing Succeeded
+Successfully initiated transaction correlation processing to respond to request
+none
+Transaction Correlation Processing Failed
+Failed initiating transaction correlation processing to respond to request
+none
+Extension Point Success
+Extension Point responded with a positive response, proceed with processing
+none
+Extension Point Failure
+Extension Point responded with a negative response, do not proceed
+none
+Extension Point Enabled YES
+none
+Extension Point Enabled NO
+none
+Aggregate Functions
+On Event
+Call Mapping Function
+Flow Initiated
+Map message raw content to PDS
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate FIToFIPmtStsRptS2 Processing (V0)
+none
+Flow Initiated
+Outbound Transaction Processing Response
+Accepted
+Transaction Correlation Processing Succeeded
+Outbound Transaction Processing Response
+Rejected
+Transaction Correlation Processing Failed
+Extension Point Response
+Accepted
+Extension Point Success
+Extension Point Response
+Rejected
+Extension Point Failure
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Extension Point Enabled
+Call Decision
+:
+Extension Point Enabled
+and then:
+On
+YES
+raise event
+Extension Point Enabled YES
+On
+NO
+raise event
+Extension Point Enabled NO
+Processing Transactions
+On
+Transaction Correlation Processing Failed
+Failed
+Processing Transactions
+On
+Transaction Correlation Processing Succeeded
+Complete
+Extension Point Enabled
+On
+Extension Point Enabled NO
+Processing Transactions
+Call Function
+:
+Outbound Transaction Processing
+Extension Point Enabled
+On
+Extension Point Enabled YES
+Waiting For Extension Point
+Call Request
+:
+Call Extension Point
+Waiting For Extension Point
+On
+Extension Point Success
+Processing Transactions
+Call Function
+:
+Outbound Transaction Processing
+Waiting For Extension Point
+On
+Extension Point Failure
+Failed
+DVF Processing
+Flow Properties
+Flow Name:
+DVF Processing
+Version:
+0
+Description:
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Complete
+DVF processing completed successfully
+ACCEPTED
+Yes
+No
+No
+Awaiting Message Results
+Triggered message processing flows, awaiting response
+PENDING
+No
+No
+No
+Failed
+DVF processing has failed
+REJECTED
+Yes
+No
+No
+Initiating Pacs002S2 flows
+System generated state used by bulk flow
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Debulk Identifier
+Payment Journey Type
+Debulk Component Data
+Initiating Pacs002S2 flows Acknowledged
+Auto generated ack that the bulk call to FIToFIPmtStsRptS2 Processing has been accepted.
+Debulk Counter
+Initiating Pacs002S2 flows Complete
+Generated domain event to represent receipt from the called child flow
+Debulk Result Status
+Initiating Pacs002S2 flows Failed
+Generated domain event to represent receipt from the called child flow
+Debulk Result Status
+Aggregate Functions
+On Event
+Call Mapping Function
+Initiating Pacs002S2 flows Complete
+Increase Counter
+Initiating Pacs002S2 flows Failed
+Increase Counter
+Flow Initiated
+Map file raw content to PDS
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate DVF Processing (V0)
+none
+Flow Initiated
+Initiating Pacs002S2 flows Acknowledgement
+none
+Initiating Pacs002S2 flows Acknowledged
+Call FIToFIPmtStsRptS2 Processing Response
+FIToFIPmtStsRptS2 Processing Complete
+Initiating Pacs002S2 flows Complete
+Call FIToFIPmtStsRptS2 Processing Response
+FIToFIPmtStsRptS2 Processing Failed
+Initiating Pacs002S2 flows Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Initiating Pacs002S2 flows
+Call Request
+:
+Bulk Call FIToFIPmtStsRptS2 Processing
+Initiating Pacs002S2 flows
+On
+Initiating Pacs002S2 flows Acknowledged
+Awaiting Message Results
+Awaiting Message Results
+On any of
+Initiating Pacs002S2 flows Complete
+Initiating Pacs002S2 flows Failed
+Awaiting Message Results
+Call Decision
+:
+IPF Threshold Check
+and then:
+On
+Do Nothing
+On
+Passed
+raise event
+Threshold Passed
+On
+Failed
+raise event
+Threshold Failed
+Awaiting Message Results
+On
+Threshold Failed
+Failed
+Call Notification
+:
+Notify Debulk Processing Failure
+Awaiting Message Results
+On
+Threshold Passed
+Complete
+Call Notification
+:
+Notify Debulk Processing Success
+RSF Processing
+Flow Properties
+Flow Name:
+RSF Processing
+Version:
+0
+Description:
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Complete
+RSF processing completed successfully
+ACCEPTED
+Yes
+No
+No
+Awaiting Message Results
+Triggered message processing flows, awaiting response
+PENDING
+No
+No
+No
+Failed
+RSF processing has failed
+REJECTED
+Yes
+No
+No
+Initiating Pacs002S2 flows
+System generated state used by bulk flow
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Debulk Identifier
+Debulk Component Data
+Payment Journey Type
+Initiating Pacs002S2 flows Acknowledged
+Auto generated ack that the bulk call to FIToFIPmtStsRptS2 Processing for RSF has been accepted.
+Debulk Counter
+Initiating Pacs002S2 flows Complete
+Generated domain event to represent receipt from the called child flow
+Debulk Result Status
+Initiating Pacs002S2 flows Failed
+Generated domain event to represent receipt from the called child flow
+Debulk Result Status
+Aggregate Functions
+On Event
+Call Mapping Function
+Initiating Pacs002S2 flows Complete
+Increase Counter
+Initiating Pacs002S2 flows Failed
+Increase Counter
+Flow Initiated
+Map file raw content to PDS
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate RSF Processing (V0)
+none
+Flow Initiated
+Initiating Pacs002S2 flows Acknowledgement
+none
+Initiating Pacs002S2 flows Acknowledged
+Call FIToFIPmtStsRptS2 Processing for RSF Response
+FIToFIPmtStsRptS2 Processing for RSF Complete
+Initiating Pacs002S2 flows Complete
+Call FIToFIPmtStsRptS2 Processing for RSF Response
+FIToFIPmtStsRptS2 Processing for RSF Failed
+Initiating Pacs002S2 flows Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Initiating Pacs002S2 flows
+Call Request
+:
+Bulk Call FIToFIPmtStsRptS2 Processing for RSF
+Initiating Pacs002S2 flows
+On
+Initiating Pacs002S2 flows Acknowledged
+Awaiting Message Results
+Awaiting Message Results
+On any of
+Initiating Pacs002S2 flows Complete
+Initiating Pacs002S2 flows Failed
+Awaiting Message Results
+Call Decision
+:
+IPF Threshold Check
+and then:
+On
+Do Nothing
+On
+Passed
+raise event
+Threshold Passed
+On
+Failed
+raise event
+Threshold Failed
+Awaiting Message Results
+On
+Threshold Failed
+Failed
+Call Notification
+:
+Notify Debulk Processing Failure
+Awaiting Message Results
+On
+Threshold Passed
+Complete
+Call Notification
+:
+Notify Debulk Processing Success
+FIToFIPmtStsRptS2 Processing for RSF
+Flow Properties
+Flow Name:
+FIToFIPmtStsRptS2 Processing for RSF
+Version:
+0
+Description:
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Complete
+The flow has completed
+ACCEPTED
+Yes
+No
+No
+Processing Transactions
+Transactions are being processed
+PENDING
+No
+No
+No
+Failed
+Message Processing Failed
+REJECTED
+Yes
+No
+No
+Waiting For Extension Point
+Call to extension point made, awaiting response
+PENDING
+No
+No
+No
+Extension Point Enabled
+Generated state
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Debulk Identifier
+Debulk Component Data
+Payment Journey Type
+Related Unit Of Work
+Transaction Correlation Processing Succeeded
+Successfully initiated transaction correlation processing to respond to request
+none
+Transaction Correlation Processing Failed
+Failed initiating transaction correlation processing to respond to request
+none
+Extension Point Success
+Extension point responded with a positive response, proceed with processing
+none
+Extension Point Failure
+Extension point responded with a negative response, do not proceed
+none
+Extension Point Enabled YES
+none
+Extension Point Enabled NO
+none
+Aggregate Functions
+On Event
+Call Mapping Function
+Flow Initiated
+Map message raw content to PDS
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate FIToFIPmtStsRptS2 Processing for RSF (V0)
+none
+Flow Initiated
+Outbound Transaction Processing Response
+Accepted
+Transaction Correlation Processing Succeeded
+Outbound Transaction Processing Response
+Rejected
+Transaction Correlation Processing Failed
+Extension Point Response
+Accepted
+Extension Point Success
+Extension Point Response
+Rejected
+Extension Point Failure
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Extension Point Enabled
+Call Decision
+:
+Extension Point Enabled
+and then:
+On
+YES
+raise event
+Extension Point Enabled YES
+On
+NO
+raise event
+Extension Point Enabled NO
+Processing Transactions
+On
+Transaction Correlation Processing Failed
+Failed
+Processing Transactions
+On
+Transaction Correlation Processing Succeeded
+Complete
+Extension Point Enabled
+On
+Extension Point Enabled NO
+Processing Transactions
+Call Function
+:
+Outbound Transaction Processing
+Extension Point Enabled
+On
+Extension Point Enabled YES
+Waiting For Extension Point
+Call Request
+:
+Call Extension Point
+Waiting For Extension Point
+On
+Extension Point Success
+Processing Transactions
+Call Function
+:
+Outbound Transaction Processing
+Waiting For Extension Point
+On
+Extension Point Failure
+Failed
+Supporting Libraries
+Business Data Libraries
+Sepa Direct Debit Data Library
+Business Data Elements
+Name
+Description
+Data Type
+Data Category
+Duplicate Checking Type
+What type of duplicate check to perform
+java.lang.String
+Duplicate Check Reason Code
+Reason code if duplicate check fails
+java.lang.String
+Message Raw Content
+Raw content retrieved from the component store
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+File Raw Content
+Raw content retrieved from the component store
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Settlement Response Notification
+RSF Response Notification
+com.iconsolutions.ipf.payments.csm.sepa.common.SchemeResponseNotification
+PROCESSING_DATA_STRUCTURE
+External Domains
+SEPA Scheme
+Contains messages exchanged with the SEPA direct debit scheme
+Requests
+No requests defined.
+Notifications
+No notifications defined.
+Instructions
+Name
+Description
+Business Data
+Scheme Response Notification
+DVF responses are mapped into this format for processing by the Process To Scheme flow
+Scheme Response Notification
+Settlement Scheme Response Notification
+RSF responses are mapped into this format for processing by the Process To Scheme flow
+Settlement Response Notification
+Client Processing
+Functions related to processing to be performed by the client
+Requests
+Name
+Description
+Business Data
+Response
+Call Extension Point
+Call out to an interface which will allow clients to implement a service to potentially pass or fail the processing at the message level
+Debulk Identifier
+Debulk Component Data
+Name:
+Extension Point Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Notifications
+No notifications defined.
+Instructions
+No instructions defined.
+IPF Debulker Domain
+Requests
+Name
+Description
+Business Data
+Response
+Bulk Call FIToFIPmtStsRptS2 Processing
+Generated action to provide the call out to the bulk flow.
+Debulk Identifier
+Payment Journey Type
+Debulk Component Data
+Name:
+Initiating Pacs002S2 flows Acknowledgement
+Description:
+description
+Business Data:
+Debulk Counter
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Name:
+Call FIToFIPmtStsRptS2 Processing Response
+Description:
+description
+Business Data:
+Debulk Result Status
+ResponseCodes:
+Bulk Initiating Pacs002S2 flows Outcomes
+ReasonCodes:
+none
+Completing:
+Yes
+Bulk Call FIToFIPmtStsRptS2 Processing for RSF
+Generated action to provide the call out to the bulk flow.
+Debulk Identifier
+Debulk Component Data
+Payment Journey Type
+Name:
+Initiating Pacs002S2 flows Acknowledgement
+Description:
+description
+Business Data:
+Debulk Counter
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Name:
+Call FIToFIPmtStsRptS2 Processing for RSF Response
+Description:
+description
+Business Data:
+Debulk Result Status
+ResponseCodes:
+Bulk Initiating Pacs002S2 flows Outcomes
+ReasonCodes:
+none
+Completing:
+Yes
+Notifications
+No notifications defined.
+Instructions
+No instructions defined.
+Mapping Functions
+Debulk Mapping Functions
+Mapping Functions
+Name
+Description
+Input Data
+Output Data
+Map file raw content to PDS
+Maps the component content to a PDS so that it is sent to ODS
+Debulk Component Data
+File Raw Content
+Map message raw content to PDS
+Maps the component content to a PDS so that it is sent to ODS
+Debulk Component Data
+Message Raw Content
+Process To Scheme Message
+Mapping Functions
+Name
+Description
+Input Data
+Output Data
+Set Message Duplicate Processing Indicator
+Set indicator for message duplicate check
+Modified SEPA Message Wrapper
+Duplicate Checking Type
+Duplicate Map for SEPA message
+Mapping function for creating duplicate check key
+Modified SEPA Message Wrapper
+DuplicateCheckKey
+Duplicate Response Code Mapping
+Map the appropriate response code for validation failures
+Duplicate Checking Type
+Duplicate Check Reason Code
+Common Event Libraries
+Debulk Processing Events
+Events
+Name
+Description
+Business Data
+Persisted component content
+This event persists the component content which this flow is processing. Component raw content is tagged as a PDS so that it is sent to ODS
+none
+IPF Threshold Events
+Events
+Name
+Description
+Business Data
+Threshold Passed
+none
+Threshold Failed
+none
+Decision Libraries
+Sepa Direct Debit Decision
+Decisions
+Name
+Description
+Business Data
+Outcomes
+Duplicate Checking Type
+Set message type of duplicate check so that they are stored under a dedicated transaction key
+Duplicate Checking Type
+PACS_003_MSG_DUPLICATE_CHECK
+CAMT_056_MSG_DUPLICATE_CHECK
+Extension Point Enabled
+Is message level extension point enabled
+none
+YES
+NO
+Domain Function Libraries
+Message Validation
+Domain Functions
+Name
+Description
+Business Data
+Response
+Validate Entire Message
+Performs all validations (transaction and message level) on the input message
+Message Data Structure Wrapper
+Name:
+Validate Entire Message Response
+Description:
+description
+Business Data:
+Message Data Structure Wrapper
+Modified SEPA Message Wrapper
+Collection of TxInfAndSts
+Interbank Settlement Date
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA DD Reason Codes
+Completing:
+Yes
+Generate IPF Pacs.002
+Generate a pacs002 to indicate if the status of message validation
+Message Data Structure Wrapper
+Modified SEPA Message Wrapper
+Collection of TxInfAndSts
+Interbank Settlement Date
+Failure Reason Code
+Reason Type
+Duplicate Check Reason Code
+Name:
+Generate IPF Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send IPF  Pacs.002
+Send Pacs.002 To Client
+Message Data Structure Wrapper
+Payment Status Report
+Original Request Id
+Name:
+Send IPF Pacs.002 Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Transaction Level Duplicate Check
+Perform duplicate check on all transactions within message
+Modified SEPA Message Wrapper
+Collection of TxInfAndSts
+Name:
+Transaction Duplicate Check Response
+Description:
+description
+Business Data:
+Modified SEPA Message Wrapper
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA DD Reason Codes
+Completing:
+Yes
+Message Submission
+Domain Functions
+Name
+Description
+Business Data
+Response
+Generate Bulk Name
+Generate a bulk name to which the transaction will be sent
+Modified SEPA Message Wrapper
+Submit Transaction Counter
+Name:
+Bulk Name Response
+Description:
+description
+Business Data:
+Bulk Identifier
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Transaction To Bulker
+Send Transaction to Bulker
+Modified SEPA Message Wrapper
+Submit Transaction Counter
+Bulk Identifier
+Name:
+Send Transaction To Bulker Response
+Description:
+description
+Business Data:
+Bulk Id
+Bulk Component Id
+Root Component Id
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Increment Submit Transaction Counter
+Increments counter so that the next transaction can be processed
+Submit Transaction Counter
+Name:
+Increment Submit Transaction Counter Response
+Description:
+description
+Business Data:
+Submit Transaction Counter
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Register Bulk Correlation
+Register correlation entry for bulk name, transaction and flow
+Modified SEPA Message Wrapper
+Submit Transaction Counter
+Bulk Identifier
+Bulk Id
+Root Component Id
+Bulk Component Id
+Name:
+Register Correlation Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Update TxInfAndSts
+Update TxInfAndSts for transactions following receipt of a Scheme Response Notification
+Modified SEPA Message Wrapper
+Message Data Structure Wrapper
+Scheme Response Notification
+Collection of TxInfAndSts
+Name:
+Update TxInfAndSts Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Generate Scheme Pacs.002
+Generate a pacs.002 to indicate the status after scheme verification
+Message Data Structure Wrapper
+Modified SEPA Message Wrapper
+Collection of TxInfAndSts
+Scheme Response Notification
+Failure Reason Code
+Name:
+Generate Scheme Pacs.002 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Scheme Pacs.002
+Send pacs.002 to client
+Payment Status Report
+Original Request Id
+Modified SEPA Message Wrapper
+Name:
+Send Scheme Pacs.002 Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Outbound Transaction Processing
+Process outbound transaction response
+Debulk Identifier
+Debulk Component Data
+Message Raw Content
+Name:
+Outbound Transaction Processing Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Settlement Response
+Domain Functions
+Name
+Description
+Business Data
+Response
+Settlement Update TxInfAndSts
+Update TxInfAndSts from Settlement
+Collection of TxInfAndSts
+Settlement Response Notification
+Modified SEPA Message Wrapper
+Message Data Structure Wrapper
+Name:
+Settlement Update TxInfAndSts
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Generate Settlement Pacs.002
+Generate a pacs002 to indicate the status of the payment after scheme settlement
+Settlement Response Notification
+Failure Reason Code
+Collection of TxInfAndSts
+Modified SEPA Message Wrapper
+Message Data Structure Wrapper
+Name:
+Generate Settlement Pacs.002 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Settlement Pacs.002
+Send settlement pacs.002 back to the client
+Original Request Id
+Payment Status Report
+Modified SEPA Message Wrapper
+Name:
+Send Settlement Pacs.002 Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Response Code Libraries
+Bulk Initiating Pacs002S2 flows Outcomes
+Response Codes
+Name
+Description
+Is Failure?
+FIToFIPmtStsRptS2 Processing Complete
+No
+FIToFIPmtStsRptS2 Processing Failed
+No
+Bulk Initiating Pacs002S2 flows Outcomes
+Response Codes
+Name
+Description
+Is Failure?
+FIToFIPmtStsRptS2 Processing for RSF Complete
+No
+FIToFIPmtStsRptS2 Processing for RSF Failed
+No
+Reason Code Libraries
+SEPA DD Reason Codes
+Reason Codes
+Name
+Description
+Text
+AM05
+Duplication
+none
+DT01
+Invalid date
+none
+B00
+Bulk/batch entirely valid
+none
+B01
+Bulk/batch partially valid
+none
+B03
+Invalid Number of Transactions
+none
+B05
+Interbank Settlement Amount does not match the sum of individual transactions
+none
+B09
+All transactions rejected
+none
+B10
+Instructing Agent mismatch or not valid
+none
+B13
+Total Interbank Settlement Amount is Zero
+none
+B14
+Payment is a duplicate of another payment
+none
+B15
+Invalid Interbank Settlement Date
+none
+B16
+Invalid Settlement Info details
+none
+XT13
+Unsupported XML field
+none
+XT33
+Invalid data format
+none
+XT73
+Invalid country code
+none
+XT91
+Not Allowed in SEPACOM
+none
+Placeholder Libraries
+No placeholders libraries have been defined.
+Global State Libraries
+No global state libraries have been defined.
+SEPA DD STEP2 Flows
+Multi Level Bulking

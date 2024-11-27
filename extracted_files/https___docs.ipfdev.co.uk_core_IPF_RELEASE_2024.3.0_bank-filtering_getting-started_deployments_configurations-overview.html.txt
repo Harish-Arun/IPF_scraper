@@ -1,0 +1,100 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/getting-started/deployments/configurations-overview.html ===
+Configurations
+All the configurations
+are done via
+spring-boot-starters
+.
+Available spring-boot-starter are listed bellow:
+bank-filtering-client-direct (Option 1)
+bank-filtering-client-connector (Option 2)
+For DPS Setting Management Embedded (Option 2*), not supported at the moment, internal cache for
+ACTIVE
+settings can be configured via bank-filtering-starter-cache-concurrenthashmap, and bank filtering Spring REST configuration can be added for REST endpoints.
+Adding dynamic configuration can be done via
+Bank Filtering Setting Management API
+.
+bank-filtering-client-direct (Option 1)
+It is placed in BankFilteringClientDirectAutoConfiguration, and dependency is :
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-client-direct</artifactId>
+    <version>${bank-filtering-api.version}</version>
+</dependency>
+In this configuration we are setting
+ipf.bank-filtering.direct.enabled = true
+In order to use bank filtering as embedded service we can import the following dependency which provides necessary direct implementation.
+By default, direct implementation is enabled. It can be disabled with
+ipf.bank-filtering.direct.enabled = false
+bank-filtering-client-connector (Option 2)
+It is placed in BankFilteringClientConnectorAutoConfiguration, and dependency is :
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-client-connector</artifactId>
+    <version>${bank-filtering-api.version}</version>
+</dependency>
+In this configuration we are setting
+ipf.bank-filtering.connector {
+  enabled = true
+  http {
+    client {
+      host = "localhost"
+      endpoint-url = "/bankfiltering"
+      port = 8080
+    }
+  }
+  call-timeout = 2s
+  resiliency-settings {
+    enabled = true
+    minimum-number-of-calls = 50
+    max-attempts = 5
+    reset-timeout = 1s
+    initial-retry-wait-duration = 1s
+    backoff-multiplier = 2
+    retry-on-failure-when = true
+    retry-on-result-when = false
+    retryable-status-codes = [500, 502, 503, 504]
+  }
+}
+In order to use bank filtering as external service we can import the following dependency which provides necessary connector implementation.
+By default, connector is enabled. It can be disabled with
+ipf.bank-filtering.connector.enabled = false
+bank-filtering-starter-cache-concurrenthashmap
+It is placed in BankFilteringConcurrentHashMapCacheAutoConfiguration, and dependency is :
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-starter-cache-concurrenthashmap</artifactId>
+    <version>${bank-filtering.version}</version>
+</dependency>
+In this configuration we are only setting
+ipf.bank-filtering.cache.concurrenthashmap.reload = PT1H
+which means that reload time for our cache is set to 1 hour.
+bank-filtering-controller
+It is placed in BankFilteringControllerAutoConfiguration, and dependency is :
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-controller</artifactId>
+    <version>${bank-filtering-api.version}</version>
+</dependency>
+In this configuration we are setting
+spring.mvc.throw-exception-if-no-handler-found = true
+spring.web.resources.add-mappings = false
+with this we tell the spring boot that we have error handler controller defined and not to use the default one by
+specifying the below properties as below.
+We also have configuration for
+cache-caffeine-starter
+but that module is deprecated now.
+Dynamic Configuration
+Dynamic Configuration is used to store
+BankFilteringRule
+settings. This configuration also provides following abilities:
+Create, update, list and delete settings
+Approve and reject settings
+Keep track of changes on settings
+Only
+ACTIVE
+settings are being pulled into cache.
+Check
+Bank Filtering Setting Management API
+.
+Deployments
+Integration

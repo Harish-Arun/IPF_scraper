@@ -1,0 +1,498 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/tutorials/running_kubernetes.html ===
+RUN 1 - Running on Kubernetes
+Prerequisites
+In order to run this tutorial you will need to run a kubernetes cluster locally:
+Below are some possible options you could use:
+Docker Desktop
+minikube
+Rancher desktop
+Install and startup your desired solution for running a Kubernetes cluster locally.
+Kubernetes (K8s) is an open-source system for automating deployment, scaling and management of containerised applications.
+Deploy IPF Tutorial on Kubernetes
+For running the IPF tutorial as a clustered application on Kubernetes, we will do the following:
+Step 1 - Create a Namespace
+Step 2 - Create Service Account
+Step 3 - Create Configmap
+Step 4 - Create imagePullSecret
+Step 5 - Create MongoDB
+Step 6 - Create Developer App
+Step 7 - Create a Deployment
+Requirements
+Step 1 - Create a Namespace
+kubectl create namespace ipf-tutorial
+Step 2 - Create Service Account
+Create a 'serviceAccount.yaml' file and copy the following admin service account manifest.
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ipf-tutorial
+  namespace: ipf-tutorial
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "watch", "list"]
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ipf-tutorial
+  namespace: ipf-tutorial
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ipf-tutorial
+  namespace: ipf-tutorial
+subjects:
+  - kind: ServiceAccount
+    name: ipf-tutorial
+    namespace: ipf-tutorial
+roleRef:
+  kind: Role
+  name: ipf-tutorial
+  apiGroup: rbac.authorization.k8s.io
+The 'serviceAccount.yaml' creates a ipf-tutorial role, 'ipf-tutorial' ServiceAccount and binds the 'Role' to the service account.
+The 'ipf-tutorial' role has all the permissions to query the API for IPF pods running within the namespace.
+Now create the service account using kubectl.
+kubectl apply -f serviceAccount.yaml
+Step 3 - Create Configmap
+Create a Configmap file named 'configmap.yaml' and copy the following config manifest.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ipf-tutorial-service-cm
+  namespace: ipf-tutorial
+data:
+  application.conf: |
+    akka {
+      loglevel = "INFO"
+      cluster {
+        # undefine seed nodes to allow for Kubernetes to describe cluster topography
+        seed-nodes = []
+        sharding {
+          distributed-data.majority-min-cap = 2
+        }
+      }
+      # Use Kubernetes API to discover the cluster
+      discovery {
+        kubernetes-api {
+          pod-label-selector = "app=%s"
+        }
+      }
+      actor.provider = cluster
+    }
+    akka.remote.artery.canonical.hostname = ${POD_IP}
+    akka.management {
+      # available from Akka management >= 1.0.0
+      health-checks {
+        readiness-path  = "health/ready"
+        liveness-path   = "health/alive"
+      }
+      # use the Kubernetes API to create the cluster
+      cluster.bootstrap {
+        contact-point-discovery {
+          service-name              = "ipf-tutorial-service"
+          discovery-method          = kubernetes-api
+          required-contact-point-nr = 2
+        }
+      }
+    }
+    management.endpoints.web.exposure.include = "*"
+    flow-restart-settings {
+      min-backoff = 1s
+      max-backoff = 5s
+      random-factor = 0.25
+      max-restarts = 5000
+      max-restarts-within = 3h
+    }
+    ipf.behaviour.retries.initial-timeout = 3s
+    ipf.behaviour.config.action-recovery-delay = 3s
+    #Change the Mongo URL for your specific setup
+    ipf {
+      mongodb.url = "mongodb://ipf-mongo:27017/ipf"
+      processing-data.egress {
+        enabled = true
+        transport = http
+        http {
+          client {
+            host = "ipf-developer-service"
+            port = 8081
+            endpoint-url = "/ipf-processing-data"
+          }
+        }
+      }
+    }
+  logback.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+      <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+          <pattern>[%date{ISO8601}] [%level] [%logger] [%marker] [%thread] - %msg MDC: {%mdc}%n</pattern>
+        </encoder>
+      </appender>
+      <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="CONSOLE" />
+      </appender>
+      <logger name="akka" level="WARN" />
+      <root level="INFO">
+        <appender-ref ref="ASYNC"/>
+      </root>
+    </configuration>
+Now create the config map using kubectl.
+kubectl apply -f configmap.yaml
+Step 4 - Create imagePullSecret
+Substitute docker-server, docker-username and docker-password for appropriate values
+kubectl create secret docker-registry registrysecret --docker-server=**** --docker-username=********* --docker-password=******* --namespace ipf-tutorial
+Step 5 - Create MongoDB
+Create a statefulset file named 'infrastructure.yaml' and copy the following manifest. This creates MongoDB which is required by the tutorial application
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+  namespace: ipf-tutorial
+spec:
+  selector:
+    matchLabels:
+      role: mongo
+  serviceName: "ipf-mongo"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: mongo
+    spec:
+      imagePullSecrets:
+        - name: "registrysecret"
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: mongo
+          image: mongo:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 27017
+        - name: mongo-exporter
+          image: bitnami/mongodb-exporter:0.11.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: mongo-exporter
+              containerPort: 9216
+              protocol: TCP
+          env:
+            - name: MONGODB_URI
+              value: "mongodb://localhost:27017"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ipf-mongo
+  namespace: ipf-tutorial
+  labels:
+    name: ipf-mongo
+    type: mongo
+spec:
+  ports:
+    - port: 27017
+      name: mongo
+      protocol: TCP
+      targetPort: 27017
+  selector:
+    role: mongo
+kubectl apply -f infrastructure.yaml
+Step 6 - Create Developer App
+Create a deployment file named
+developerApp.yaml
+and copy the following manifest. This creates the developer application which is required by the tutorial application to view flow events
+${registry_service}
+- substitute for the location of the docker registry
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ipf-developer-service
+  namespace: ipf-tutorial
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/"
+    prometheus.io/port: "9001"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ipf-developer-service
+      product: ipfv2
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/"
+        prometheus.io/port: "9001"
+      labels:
+        app: ipf-developer-service
+        product: ipfv2
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - ipf-developer-service
+              topologyKey: kubernetes.io/hostname
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: ipf-tutorial
+      imagePullSecrets:
+        - name: "registrysecret"
+      containers:
+        - name: ipf-developer-service
+          image: $\{registry_service}/ipf-developer-app:latest
+          imagePullPolicy: Always
+          ports:
+            - name: actuator
+              containerPort: 8081
+          env:
+            - name: "POD_NAME"
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: "POD_IP"
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: "KUBERNETES_NAMESPACE"
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: "IPF_JAVA_ARGS"
+              value: "-Dma.glasnost.orika.writeClassFiles=false -Dma.glasnost.orika.writeSourceFiles=false"
+          resources:
+            limits:
+              memory: "2Gi"
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+          volumeMounts:
+            - mountPath: /ipf-developer-app/conf/logback.xml
+              name: config-volume
+              subPath: logback.xml
+            - mountPath: /ipf-developer-app/conf/application.conf
+              name: config-volume
+              subPath: application.conf
+      volumes:
+        - name: config-volume
+          configMap:
+            name: ipf-developer-service-cm
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ipf-developer-service-cm
+  namespace: ipf-tutorial
+data:
+  application.conf: |
+    flow-restart-settings {
+     min-backoff = 1s
+     max-backoff = 5s
+     random-factor = 0.25
+     max-restarts = 5
+     max-restarts-within = 10m
+    }
+    spring.data.mongodb.uri = ${?ipf.mongodb.url}
+    actor-system-name = ipf-developer
+    ipf.mongodb.url = "mongodb://ipf-mongo:27017/ipf"
+    ods.security.oauth.enabled = false
+    application.write.url="http://localhost:8080"
+    ipf.processing-data.ingress.transport=http
+  logback.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+      <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+          <pattern>[%date{ISO8601}] [%level] [%logger] [%marker] [%thread] - %msg MDC: {%mdc}%n</pattern>
+        </encoder>
+      </appender>
+      <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="CONSOLE" />
+      </appender>
+      <logger name="akka" level="WARN" />
+      <root level="INFO">
+        <appender-ref ref="ASYNC"/>
+      </root>
+    </configuration>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ipf-developer-service
+  namespace: ipf-tutorial
+  labels:
+    name: ipf-developer-service
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8081
+      targetPort: 8081
+      nodePort: 30200
+      name: ipf-developer-service
+  selector:
+    app: ipf-developer-service
+Step 7 - Create a Deployment
+Create a Deployment file named 'deployment.yaml' and copy the following deployment manifest.
+${registry_service} - substitute for the location of the docker registry
+${tutorial-service-version} - version of tutorial app
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ipf-tutorial-service
+  namespace: ipf-tutorial
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/"
+    prometheus.io/port: "9001"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ipf-tutorial-service
+      product: ipfv2
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/"
+        prometheus.io/port: "9001"
+      labels:
+        app: ipf-tutorial-service
+        product: ipfv2
+    spec:
+      #      affinity:
+      #        podAntiAffinity:
+      #          requiredDuringSchedulingIgnoredDuringExecution:
+      #            - labelSelector:
+      #                matchExpressions:
+      #                  - key: app
+      #                    operator: In
+      #                    values:
+      #                      - ipf-tutorial-service
+      #              topologyKey: kubernetes.io/hostname
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: ipf-tutorial
+      imagePullSecrets:
+        - name: "registrysecret"
+      containers:
+        - name: ipf-tutorial-service
+          image: ${registry_service}/ipf-tutorial-app:${tutorial-service-version}
+          imagePullPolicy: Always
+          ports:
+            - name: actuator
+              containerPort: 8080
+            - name: akka-artery
+              containerPort: 55001
+            - name: akka-management
+              containerPort: 8558
+            - name: akka-metrics
+              containerPort: 9001
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health/alive
+              port: akka-management
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health/ready
+              port: akka-management
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            successThreshold: 10
+            timeoutSeconds: 1
+          env:
+            - name: "POD_NAME"
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: "POD_IP"
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: "KUBERNETES_NAMESPACE"
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: "IPF_JAVA_ARGS"
+              value: "-Dma.glasnost.orika.writeClassFiles=false -Dma.glasnost.orika.writeSourceFiles=false"
+          resources:
+            limits:
+              memory: "2Gi"
+            requests:
+              memory: "2Gi"
+              cpu: "1000m"
+          volumeMounts:
+            - mountPath: /ipf-tutorial-app/conf/logback.xml
+              name: config-volume
+              subPath: logback.xml
+            - mountPath: /ipf-tutorial-app/conf/application.conf
+              name: config-volume
+              subPath: application.conf
+      volumes:
+        - name: config-volume
+          configMap:
+            name: ipf-tutorial-service-cm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ipf-tutorial-service
+  namespace: ipf-tutorial
+  labels:
+    name: ipf-tutorial-service
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30100
+      name: ipf-tutorial-service
+  selector:
+    app: ipf-tutorial-service
+the affinity rules (commented out), if used are a way of specifying where/on which nodes pods should be scheduled. This can be useful for ensuring that pods are scheduled on different nodes for example.
+In this IPF Kubernetes deployment we have used the following:
+securityContext
+for IPF pod
+Liveness and readiness probe to monitor the health of the IPF pod.
+Application and logging configuration files stored as Kubernetes ConfigMap items.
+Create the deployment using
+kubectl
+.
+kubectl apply -f deployment.yaml
+Check the deployment status.
+kubectl get deployments -n ipf-tutorial
+Now, you can get the deployment details using the following command.
+kubectl describe deployments --namespace=ipf-tutorial
+Send a payment using the following command.
+curl -X POST http://<cluster-node-ip-address>:30100/submit | jq
+Check the payment in the developer app at the following URL.
+http://<cluster-node-ip-address>:30200/explorer.html
+Consult the documentation of your chosen cluster option on how to get the node IP address. Some possible options are:
+'kubectl get nodes -o wide', 'minikube ip'.
+RES1 - Resiliency and retry settings (HTTP)
+Create your own project

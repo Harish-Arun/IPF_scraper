@@ -1,0 +1,11 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ipf-operational-dashboard/installation/options.html ===
+Deployment Options
+Deployment Topography
+The below is the suggested deployment configuration for operational dashboard.
+Operational dashboard is stateless, and should be scaled as required. One instance is typically enough, but 3 instances would make it more resilient.
+Operational Dashboard will use the same MongoDB databases both ODS services.
+Indexing
+For indexes please refer to ods indexes
+docs.ipfdev.co.uk/aom/IPF_RELEASE_2023.3.0/ods/installation/options.html
+Guidelines
+Requirements

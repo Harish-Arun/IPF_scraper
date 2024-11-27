@@ -1,0 +1,126 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-2-0/release-IPF-2024-2-0-core.html ===
+Core - Improvements, Changes & Fixes
+This page covers core improvements, bug fixes, changes and fixes provided in release IPF-2024.2.0.
+Core improvements, bug fixes & changes
+New
+IPF Platform
+: Journal processor documentation added to
+Flo Starter Projects
+Connector
+: Configuration property added for timing out call to the
+CorrelationService
+in
+SendConnector
+.
+Default value provided at
+ipf.connector.default-send-connector.correlation-stage-timeout
+of 5s.
+If the value provided for
+correlation-stage-timeout
+is not less than the
+call-timeout
+specified for a particular connector the correlation stage timeout will be reduced to be less than the call timeout (200ms less) and the updated value will be logged alongside a warning message.
+MongoDB
+: Added capability to set the
+commit quorum
+.
+Can be globally set for all index creation with
+ipf.mongodb.commit-quorum
+. See individual component documentation for how to override per-component.
+IPF Processing Data
+: Exporters can produce data to different Kafka topics, configurable per data type.
+Flo-lang and Akka-persistence-mongo-db
+: Added configurable purging functionality for the journal and snapshot collections. Default functionality it to not purge documents from either collection. Implementation utilises Mongo and Cosmos ttl indexes which will need to be created manually. Configuration guides found in docs:
+Flo-lang Docs
+Persistence Plugin Docs
+Persistent Scheduler
+added timezone support to persistent scheduler
+Changed
+IPF File Poller
+-
+Breaking change
+- To support multiple processing entities the IPF File Poller can now poll from multiple locations. This means the following config has now changed from a single item to a list of items:
+ipf.file-poller
+→
+ipf.file-poller.pollers
+Dynamic Settings Workflow
+- Redundant call to file converter during file ingestion was removed from file processor.
+This issue was affecting CSM Reachability Data Ingestion: FileEntrySkippedEvent and PartyEntityDirectorySubTypeMappingSkippedEvent file processing events were raised twice and errors were logged twice.
+Dynamic Settings Workflow
+- Added new event and enriched existing events. It will improve monitoring, for already existing
+FileEntrySkippedEvent
+with type and fileName,
+ProcessingCompleteEvent
+with type, outcome, file_name and process_name and
+ProcessingFailedEvent
+with processName and fileName. Also added new
+FileEntryProcessedEvent
+with metrics type and fileName(more about it in Csm Reachability and Industry Data ingestion)
+Replacing Caffeine sync cache implementation with async cache implementation to fix multiple calls to callback in
+getOrDefault
+method in
+ipf-cache-caffeine
+module.
+Updated
+EventProcessorStream
+to use
+mapAsyncPartitioned
+instead of the previous
+mapAsync
+operator.
+Now, even when processing parallelism is enabled we won’t be processing related events in parallel within a single stream, thus journal processors to be safely parallelised.
+Ipf-file-manager - S3FileReader fixed to be able to download bigger files.
+Connector
+:
+IngestedFile
+as
+ReceivedMessage’s receive context has been replaced with `IngestedFileContext
+IPF Processing Data
+: Updated
+MdsWrapper
+class’s generic type constraint. The generic parameter
+T
+must now implement
+java.io.Serializable
+Changed from
+MdsWrapper<T>
+to
+MdsWrapper<T extends Serializable>
+Fixed
+Connector
+- Memory consumption in
+LocalDirectoryConnectorTransport
+component
+IPF Archiver
+- Fixed an issue where errors delivering archive bundles to Kafka were not correctly propagated, resulting in missing archive bundles.
+Configuration
+Deprecated
+event-processor.upstream-event-demand
+Backward compatibility is maintained for this release but
+event-processor.processing-parallelism
+should be used instead
+Deprecated
+stream.processor.cluster-role
+Backward compatibility is maintained for this release but
+event-processor.cluster-role
+should be used instead
+Introduced
+event-processor.event-streaming-type
+configuration property
+Defaults to
+EVENT_STREAM_PER_TAG
+, which represents the previous behaviour that relies on user-provided list of global tags.
+Before switching an existing system to use
+EVENT_STREAM_PER_FLOW
+— required for rolling upgrades of your orchestration services — please ensure you have performed the necessary database migrations (please refer to the migrations). Failing to do so will effectively reset the offsets in your journal processors, causing them to reprocess every event in your journal.
+Introduced
+ipf.processing-data.egress.transports.(events|data-structures|message-logs|system-events|models|custom-objects)
+These transports default to existing Kafka transport configuration, with the default
+IPF_PROCESSING_DATA
+topic.
+Kafka clients, and by extension the topics, can be configured per data type, e.g. all message logs can go to a different topic, e.g.
+ipf.processing-data.egress.transports.message-logs.kafka.producer.topic = MESSAGE_LOG_TOPIC
+.
+This change is non-breaking and behaves as before unless explicitly configured to use different topics.
+IPF-2024.2.0 - Release Notes
+Optional Modules - Changes & Fixes

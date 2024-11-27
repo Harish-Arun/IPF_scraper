@@ -1,0 +1,509 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods-api/inquiry/inquiry.html ===
+ODS Inquiry API
+This document describes Version 2 of the ODS Inquiry API. For more information about Inquiry API versioning, and the Version 1 documentation, see the
+versioning overview
+.
+Overview
+The ODS Inquiry API exposes data captured by ODS, and is split into several layers of abstraction. For the complete OpenAPI specification, see
+ODS Inquiry V2 Specification
+.
+Object Layer
+The object layer allows searching for raw low-level ODS data types.
+This API has no knowledge of the more specific implementations of these types, and therefore search is limited.
+If you need to search for a data object with type-specific attributes, refer to the Catalogue APIs.
+This API returns objects that generally map one-to-one with stored types.
+Object Layer Examples
+Searching For
+URL
+All process objects
+/api/v2/all/process-objects
+All custom objects
+/api/v2/all/custom-objects
+All MDS objects
+/api/v2/all/mds-objects
+All PDS objects
+/api/v2/all/pds-objects
+Catalogue Layer
+The catalogue layer is a strongly typed API, which allows for type-specific search parameters, e.g. searching for a pain.001 credit transfer transaction MDS object, by creditorAgentBic, or searching for a system event process object, by level, source, and type.
+Catalogue Layer Examples
+Type
+Example URL
+ISO 20022 MDS Objects
+/api/v2/catalogue/mds-objects/PAIN_001_CREDIT_TRANSFER_TRANSACTION?creditorAgentBIC=SOMEBIC01
+Message Logs
+/api/v2/catalogue/process-objects/message-logs?direction=SENT&unitOfWork=some-unit-of-work-id
+System Events
+/api/v2/catalogue/process-objects/system-events?type-FUNCTIONAL&level=INFO&source=some-application
+Process Flow Events
+/api/v2/catalogue/process-objects/process-flow-events?unitOfWorkId=some-unit-of-work-id
+Process Flow Definitions
+/api/v2/catalogue/process-objects/process-flow-definitions?name=SomeFlowName
+View Layer
+The view layer is a high-level business centric API.
+The data is typically built from the raw ODS data types at ingestion time, although it may also be built from the ODS data at query time.
+The search parameters for these types is specific to the type being searched.
+View Layer Examples
+Type
+Example URL
+Search Payment Summaries
+/api/v2/views/summaries/payment
+Get Payment Summary by unitOfWorkId
+/api/v2/views/summaries/payment/some-unit-of-work-id
+Get Unit Of Work Details
+/api/v2/views/details/some-unit-of-work-id
+Get Unit Of Work Graphs
+/api/v2/views/process-flow-graphs/some-unit-of-work-id
+API Use Cases
+Find a Payment
+The quickest way to search for a payment is via the payment summary endpoint which supports a large number of search parameters.
+curl "http://localhost:8080/api/v2/views/summaries/payments?transactionId=some-transaction-id"
+Find a Payment by a Custom Identifier
+This can be achieved using the Alternative Identifiers that have been associated with a unit of work.
+curl "http://localhost:8080/api/v2/views/summaries/payments?alternativeIdentifierName=SomeClientIdentifier&alternativeIdentifierValue=some-clients-custom-identifier-value"
+The alternative identifier must be associated with the unit of work beforehand, either through IPF Processing Data, or submitted separately via the
+ODS Ingestion API attachments endpoint
+.
+See Payment Summary and Details
+If the payment’s unitOfWorkId is known, this can be used to get the summary, and also the details of a unit of work.
+curl "http://localhost:8080/api/v2/views/summaries/payments/some-unit-of-work-id"
+curl "http://localhost:8080/api/v2/views/details/some-unit-of-work-id"
+Find an ISO 20022 MDS Object
+You can find MDS objects using the lower-level search API.
+This API does not support search parameters for specific ISO 20022 types.
+You can provide the unitOfWorkId if it’s known.
+curl "http://localhost:8080/api/v2/all/mds-objects?unitOfWorkId=some-unit-of-work-id"
+If you know the type of the MDS object you’re looking for, use the MDS object catalogue API, which accepts type-specific search parameters, e.g. creditorName for a pain.001 transaction.
+curl "http://localhost:8080/api/v2/catalogue/mds-objects/PAIN_001_CREDIT_TRANSFER_TRANSACTION?creditorName=Emma"
+Find a Request Sent to Another System
+If you know the unitOfWorkId, clientRequestId, or primaryAssociation you can find all messages sent/received as part of the unit of work associated with that id, using the message logs process object catalogue API.
+curl "http://localhost:8080/api/v2/catalogue/process-objects/message-logs?clientRequestId=998436be-4815-4dfd-9c96-77d6d888a365&direction=SENT&messageType=SanctionsRequest"
+Module Structure
+The
+ods-inquiry
+module is composed of several submodules.
+ods-inquiry-api
+Contains the OpenAPI specifications, generated Java model types, search field types (grouping search fields into a single POJO), validation (e.g. summary date, and summary amount search fields), and URI building.
+ods-inquiry-spring
+Generates spring controller scaffolding from each specification, includes spring controller implementations, and spring configuration.
+The minimum required for a spring webflux application, hosting the ODS Inquiry API.
+The controller implementations delegate to interfaces in
+ods-inquiry-port
+, and the application must provide an implementation of these interfaces.
+ods-inquiry-port
+Contains interfaces that must be implemented by the application to support the controllers in
+ods-inquiry-spring
+.
+ods-inquiry-client
+A connector-based Java client, for use by down-stream projects, such as client-implementations that require ODS Inquiry connectivity, and the GUI back-end, which proxies requests from the browser-based UI, to ODS.
+ods-inquiry-test-client
+ODS Inquiry test clients for each Inquiry Api version, intended for use within e2e test suites. Lacks many important features that the connector-based client offers.
+This client will likely be deprecated for removal, or wrap the connector-based client and provide a simpler interface for tests.
+ods-inquiry-test-data-generators
+Generates random, but valid instances of ODS Inquiry model types for use within tests.
+Sometimes you need some valid data, but you don’t actually care what that data is.
+Generators are provided for request types, such as search fields, or query/path parameters, and response types, such as
+PaymentSummaryView
+.
+Code Generation
+Each specification version in
+ods-inquiry-api
+is processed by
+openapi-generator
+, using the
+openapi
+generator back-end, configured to produce a single json specification for each input yaml specification.
+Java code generation is done in two parts, first the models, and then the spring controller scaffolding.
+Models
+Each specification version in
+ods-inquiry-api
+is processed by
+openapi-generator
+, using the
+spring
+generator back-end, configured to generate models only, under the package
+com.iconsolutions.ipf.ods.inquiry.model
+.
+The result of building this module, is a jar containing json OpenAPI specifications for each Inquiry Api version, and all the generated Inquiry model types.
+It also includes some non-generated code for API type validations, URI building, and search field groupings.
+This jar can be used downstream providing access to the generated types, and/or to generate additional code from each specification.
+This jar is used in the next step, generating the Spring controller scaffolding.
+Spring Controllers
+The
+ods-inquiry-spring
+module depends on
+ods-inquiry-api
+, and uses the json specifications contained within its output jar.
+Each specification is processed by
+openapi-generator
+, using the
+spring
+generator back-end, configured to generate interfaces only, under the package
+com.iconsolutions.ipf.ods.inquiry.api.{api-version}
+.
+The result of building this module, is a jar containing the generated spring controller scaffolding, including the controller implementations, and the spring config required to enable these spring controllers in a Spring Boot application.
+ODS Inquiry API Version 1 controllers and generated interfaces are under the package
+com.iconsolutions.ipf.ods.inquiry.api
+. Subsequent versions are generated under their own packages, e.g.
+com.iconsolutions.ipf.ods.inquiry.api.v2
+.
+See the
+Spring Server
+section for more information.
+Spring Server
+The
+ods-inquiry-spring
+module is intended as a starter, that can be included in any Spring Boot application looking to serve the ODS Inquiry API.
+It generates the Spring controller interfaces, and implements those controllers.
+The controllers delegate to search interfaces, defined in
+ods-inquiry-port
+.
+When the application serving the ODS Inquiry API starts up, it will log the ODS Inquiry API release version.
+2023-04-12 13:34:03.295  INFO 1 --- [           main] c.i.i.o.inquiry.api.OdsInquiryApiConfig  : ODS Inquiry API Version 2.2.34
+Error Handling
+ODS Inquiry APIs defines an API Error type.
+Any generated controller that produces a
+jakarta.validation.ConstraintViolationException
+, results in a 400 http response, with a payload containing information about the validation errors.
+Graphs
+Graphs are built using unit of work details, and process flow definitions.
+The application serving the ODS Inquiry API does not need to know how to build graphs, only how to return unit of work details, and process flow definitions.
+Ports
+The application serving the ODS Inquiry API using the generated controller scaffolding, and provided controller implementations, must provide beans for each of the types defined in
+ods-inquiry-port
+.
+These are search interfaces that are persistence agnostic, and currently implemented in the ODS Inquiry Application.
+Stub implementations can stand-in for these interfaces if required, to build a "lite" ODS Inquiry application.
+This is how the controller functionality is tested.
+Spring Boot Actuator
+The ODS Inquiry API release version is added to the Spring Boot Actuator Info endpoint.
+{
+    "ODS Inquiry API": {
+        "version": "2.2.34"
+    }
+}
+Security & Configuration
+It is expected that the controllers will be served from a Spring Boot WebFlux application.
+See the
+Spring
+documentation for more information.
+Security is left to the implementing application, in this case, the ODS Inquiry application.
+As an example, the ODS Inquiry application can be configured to require an OAuth2 authentication server, and all requests (with some whitelist exceptions) must be authenticated.
+Client
+The client is split into several different client APIs, each is disabled by default, and must be enabled explicitly. By default, the enabled client APIs utilise the Inquiry API V2 specification. Configuring a different Inquiry API version will enable client APIs for the specified version and disable all other versions.
+See
+Configure Client APIs
+for the APIs that can be enabled.
+If your application already enables the V1 Client APIs, and you want to continue to use the V1 Client APIs, the version
+MUST
+be configured as
+ods.inquiry.client.version=1
+. For More information about the V1 Client APIs and versioning, see the
+versioning overview
+.
+Quick Start
+If you know the client API you require, e.g. you need to find batch summaries using Inquiry API V2, the minimum configuration required, sans authentication, is as follows:
+ods.inquiry.client {
+  version = 2
+  summaries.enabled = true
+  http.client {
+    host = "ods-inquiry-host"
+    port = 80
+  }
+}
+A Spring bean of type
+com.iconsolutions.ipf.ods.inquiry.Summaries
+is then made available, and can be autowired within your Spring application.
+For more configuration options, see the
+Configuration
+documentation.
+Usage Patterns
+All client API methods take a request object, and return a response object.
+The request and response objects differ depending on the type of request.
+There are two types, search, and get by id.
+Search
+Search requests take an optional/nullable
+PageableParameters
+.
+If they are not provided, configured defaults are used, with the property
+ods.inquiry.client.pagination.default-page-size
+.
+The default page size is
+50
+.
+Search requests take an optional search fields object, and its type depends on the client API being used.
+The search fields object must not be null, and defaults to an empty instance.
+final class BatchSummaryFinder {
+
+    private final Summaries summaries;
+
+    BatchSummaryFinder(final Summaries summaries) {
+        this.summaries = summaries;
+    }
+
+    CompletionStage<List<SummaryView>> findCompletedBatchSummaries() {
+        return summaries.search(SearchSummariesRequest.builder()
+                        .journeyType(JourneyType.BATCH)
+                        .searchFields(SummarySearchFields.builder().globalStatus("COMPLETED").build())
+                        .build())
+                .thenApply(response -> response.getValue().getItems());
+    }
+
+    CompletionStage<List<SummaryView>> findCompletedBatchSummariesWithPagination() {
+        return summaries.search(SearchSummariesRequest.builder()
+                        .journeyType(JourneyType.BATCH)
+                        .searchFields(SummarySearchFields.builder().globalStatus("COMPLETED").build())
+                        .pageable(PageableParameters.builder().size(100).build())
+                        .build())
+                .thenApply(response -> response.getValue().getItems());
+    }
+
+    CompletionStage<List<SummaryView>> findCompletedBatchSummariesWithContexts(final ProcessingContext processingContext,
+                                                                               final SupportingContext supportingContext) {
+        return summaries.search(SearchSummariesRequest.builder()
+                        .processingContext(processingContext)
+                        .supportingContext(supportingContext)
+                        .journeyType(JourneyType.BATCH)
+                        .searchFields(SummarySearchFields.builder().globalStatus("COMPLETED").build())
+                        .build())
+                .thenApply(response -> response.getValue().getItems());
+    }
+}
+Get By Id
+Get by id requests require a non-null id, and the response (an instance of
+com.iconsolutions.ipf.ods.inquiry.GetResponse
+) is either
+Found
+, or
+NotFound
+.
+For a get by id request with http response with status
+404
+,
+NotFound
+is returned to the caller of the client.
+final class BatchSummaryGetter {
+
+    private final Summaries summaries;
+
+    BatchSummaryGetter(final Summaries summaries) {
+        this.summaries = summaries;
+    }
+
+    CompletionStage<SummaryView> getBatchSummaryOrThrow(final String unitOfWorkId) {
+        return summaries.get(GetSummaryByUnitOfWorkIdRequest.builder()
+                        .id(unitOfWorkId)
+                        .journeyType(JourneyType.BATCH)
+                        .build())
+                .thenApply(response -> response.getValue().getItem()); //Throws an exception when there is no item
+    }
+
+    CompletionStage<SummaryView> getBatchSummaryOrLogAndThrow(final String unitOfWorkId) {
+        return summaries.get(GetSummaryByUnitOfWorkIdRequest.builder()
+                        .id(unitOfWorkId)
+                        .journeyType(JourneyType.BATCH)
+                        .build())
+                .thenApply(Response::getValue)
+                .thenApply(response -> {
+                    if (response instanceof SummaryNotFound) {
+                        log.info("Couldn't find batch summary by unitOfWorkId {}, but it really should exist!", unitOfWorkId);
+                        throw new IllegalStateException("Cannot proceed, no batch summary");
+                    }
+                    return response.getItem();
+                });
+    }
+
+    CompletionStage<SummaryView> getBatchSummaryWithContexts(final String unitOfWorkId,
+                                                             final ProcessingContext processingContext,
+                                                             final SupportingContext supportingContext) {
+        return summaries.get(GetSummaryByUnitOfWorkIdRequest.builder()
+                        .id(unitOfWorkId)
+                        .journeyType(JourneyType.BATCH)
+                        .processingContext(processingContext)
+                        .supportingContext(supportingContext)
+                        .build())
+                .thenApply(response -> response.getValue().getItem());
+    }
+}
+Processing and Supporting Contexts
+All request objects take an optional processing context, and an optional supporting context.
+They cannot be null, and default to their empty instances if not provided in the request.
+The processing context, and supporting context, will be present in the message log entries, if logged.
+The fields from the processing context will be sent as http headers.
+Message Logger
+Message logging is conditional on a bean of type
+com.iconsolutions.ipf.core.messagelogger.MessageLogger
+.
+If it doesn’t exist, then message logging is skipped.
+The request/response pattern outlined above means the message log entries have meaningful names, e.g. a request/response for a batch summary might see two message log entries with the names
+GetSummaryByUnitOfWorkIdRequest
+, and
+SummaryFound
+.
+Message log entries can be customized, including their names, with an instance of
+com.iconsolutions.ipf.core.connector.MessageLogEntryEnricher
+.
+If a bean of this type is present, then it will be applied to all request/response message log entries.
+Resiliency
+By default, the client will retry http requests that receive response status codes in the configured list at
+ods.inquiry.client.resiliency-settings.retryable-status-codes
+.
+Any other response code is treated as an error, and the request will not be retried.
+Retries are attempted a configured number of times, and when those are exhausted, an exception is thrown.
+Get by id requests receiving a
+404
+response
+will not be retried
+, and a
+NotFound
+is returned to the client.
+If you need to retry in this case, e.g. you expect the summary to eventually exist, then you will need to handle this yourself.
+See
+Configuring Resiliency
+for configuration options.
+Authentication
+OAuth2
+When OAuth authentication is enabled, with
+ods.inquiry.client.security.oauth2.enabled = true
+, requests made using the client API will be enriched with a bearer token, that is obtained from an authentication server.
+See
+Configuring OAuth2 Authentication
+for configuration options.
+Configuration
+The client API needs to be configured to select which Inquiry API version to use, and which client APIs to enable.
+Configure Client APIs
+Property
+Default
+Notes
+ods.inquiry.client.version
+2
+Select which Inquiry API version to create client APIs for. Available options:
+1
+and
+2
+The following configuration properties are specific for the V2 Client APIs. If you want to use the V1 Client APIs, the version
+MUST
+be configured as
+ods.inquiry.client.version=1
+. For More information about the V1 Client APIs and versioning, see the
+versioning overview
+.
+All client API configuration lives under
+ods.inquiry.client
+, and all properties listed below must be prefixed with this.
+Configure Client APIs
+Property
+Default
+Notes
+summaries.enabled
+false
+Enable the
+Summaries
+bean when set to
+true
+details.enabled
+false
+Enable the
+Details
+bean when set to
+true
+process-flow-graphs.enabled
+false
+Enable the
+ProcessFlowGraphs
+bean when set to
+true
+process-objects.enabled
+false
+Enable the
+ProcessObjects
+bean when set to
+true
+custom-objects.enabled
+false
+Enable the
+CustomObjects
+bean when set to
+true
+mds-objects.enabled
+false
+Enable the
+MdsObjects
+bean when set to
+true
+pds-objects.enabled
+false
+Enable the
+PdsObjects
+bean when set to
+true
+Configuring the HTTP Client
+Property
+Default
+Notes
+http.client.host
+localhost
+The ODS Inquiry host
+http.client.port
+8080
+The ODS Inquiry port
+Configuring Resiliency
+Property
+Default
+Notes
+call-timeout
+5s
+An
+ISO8601
+duration. The max time to wait for a response from the server, at which point an exception is thrown.
+resiliency-settings.minimum-number-of-calls
+100
+The minimum number of failed calls to make before opening the circuit breaker
+resiliency-settings.max-attempts
+[500, 502, 503, 504]
+Requests will only be retried if the response http status code is one of these values
+resiliency-settings.retryable-status-codes
+5
+The maximum number of requests to make before giving up and throwing an exception.
+Configuring Pagination
+Property
+Default
+Notes
+pagination.default-page-size
+50
+The page size to use in searches when not provided programmatically
+Configuring OAuth2 Authentication
+Property
+Default
+Notes
+security.oauth2.enabled
+false
+Enable Oauth2 authentication
+security.oauth2.http.client.endpoint-url
+/auth/realms/demo/protocol/openid-connect/token
+The url from which to request a token
+security.oauth2.http.client.host
+localhost
+The authentication server host
+security.oauth2.http.client.host
+8080
+The authentication server port
+security.oauth2.refresh-interval-duration
+7h
+How often to fetch an authentication token
+security.oauth2.ttl-before-refresh-duration
+5m
+How soon before the token expires should the token be refreshed
+security.oauth2.grant-type
+grant type
+Forms part of the credentials required to obtain a token
+security.oauth2.client-id
+client id
+Forms part of the credentials required to obtain a token
+security.oauth2.client-secret
+client secret
+Forms part of the credentials required to obtain a token
+security.oauth2.scope
+scope
+Forms part of the credentials required to obtain a token
+Specifications
+Versioning

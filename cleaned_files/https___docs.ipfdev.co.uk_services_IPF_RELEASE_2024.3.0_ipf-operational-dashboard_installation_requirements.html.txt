@@ -1,0 +1,6 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ipf-operational-dashboard/installation/requirements.html ===
+System Requirements
+Operational Dashboard
+Operational Dashboard should be deployed with a minimum of three instances, each given at least 2 CPU, and 500MB (Xms and Xmx) of memory.
+Options
+GUI Service

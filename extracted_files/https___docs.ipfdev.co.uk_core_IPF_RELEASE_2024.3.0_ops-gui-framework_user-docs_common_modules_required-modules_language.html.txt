@@ -1,0 +1,5 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/common/modules/required-modules/language.html ===
+Language Module
+The Language Module is responsible for global language related features.
+The most important output from this module are the actions, these consist of the nav being loaded, the language being changed and the language being loaded.
+You can subscribe to these actions to perform any language related functionality and potentially stop language related race conditions.

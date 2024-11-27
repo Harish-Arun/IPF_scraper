@@ -1,0 +1,93 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/csm-reachability-operations/domain-apis/party-entities.html ===
+4. /party-entities
+Purpose
+Party Entities API can be used by client implementations to query the industry reference data for retrieving additional details of the parties involved on the payment. The details returned include other identifiers the party is known by, name and address details.
+The details retrieved through /party-entities API can be used by client implementations for payment enrichment purposes.
+Dynamic Configurations
+The /party-entities API uses below dynamic configurations for retrieval of party entities.
+Dynamic Configuration
+Optionality
+Purpose
+Reference
+Party Entity Directory
+Mandatory
+The Party Entity Directory holds the records loaded through Industry reference data and is the source of look ups for /party-entities API.
+Party Entity Directory
+IBAN Plus
+Optional
+IBANPlus Directory is needed if the client implementations want to use IBAN type identifiers for looking up the party entity records.
+IBAN Plus Directory
+IBAN Structure
+Optional
+IBAN Structure Directory is needed if the client implementations want to use IBAN type identifiers for looking up the party entity records.
+IBAN Structure Directory
+Exclusion List
+Optional
+IBAN Exclusion List is needed if the client implementations want to use IBAN type identifiers for looking up the party entity records.
+Exclusion List Directory
+Industry Reference Data
+The Party Entity directory can be loaded through the industry data loads to enable the look-ups of party entity records. IPF CSM Reachability service supports ingestion of below industry reference data files to Party Entity Directory.
+SWIFTRef Bank Directory Plus
+SIX Bank Master
+For more information on mapping from each industry reference data file into party entity directory, please refer
+Party Entity Directory
+.
+Usage
+/party-entities API can be used by the client implementations to retrieve additional details about the parties involved on the payment for identifier / address enrichment of the payments.
+Party entity look up is also used by other service implementations on CSM Reachability service to perform identifier look ups for reachability checks when the reachability requests do not have required identifiers as used by the CSM Agents for registering memberships on CSM Participants dynamic configuration.
+Below CSM Reachability endpoints use party entities look up internally (Refer
+CSM Reachability Operations
+)
+Validate Intra Entity Reachability
+Validate CSM Reachability
+Select CSM Agent
+Request and Response
+/party-entities follows below request and response structure. This section provides information on the request and response properties, for detailed API specs, please refer
+CSM Reachability Service API
+API Version 2
+Request
+Request Property
+Description
+entityIdentifier
+The identifier that should be used to look up the Entity record in the Party Entity Directory.
+entityIdentifierType
+The type of identifier being used for looking up an entity. Refer
+Party Identifiers Explained
+entityIdentifierSubType
+1. The sub-type of the identifier type being used for look up.
+2. For BIC type identifiers, both ACCOUNT_ISSUING_BIC and SCHEME_MEMBERSHIP_BIC values will lead to retrieval of the record identifier with matching BIC value.
+3. Though party entity directory holds the NCC sub-type values as defined by respective industry data source (e.g. Bank Directory Plus), the /party-entities API supports the NCC sub-type values as defined under ISO20022 External Clearing System codes for look ups.
+entityCountry
+ISO3166-2 country code of the entity record being queried. entityCountry is required when querying records of type NCC and LEI.
+entityDataSource
+The industry data source that must be used for look up of the record on Party Entity Directory.
+Response
+Response Property
+Description
+entityUniqueId
+The unique Id assigned to the entity as per the mapping from respective data source into Party Entity Directory.
+entityDataSource
+Industry / Custom data source that has been used for look up of the party entity record.
+entityType
+The type of the entity where available on Party Entity Directory.
+entityName
+Name of the entity as per the industry / custom data source.
+entityAddress
+Address of the entity as mapped from industry / custom data source. The address fields are aligned to ISO20022 specified address field format.
+entityIdentifiers (*)
+1. A list of identifiers derived from the Party Entity Directory. Multiple identifiers of same type can be registered against a record (in case of mergers) and multiple identifiers of different types can be returned if recorded on Party Entity directory.
+2. Refer
+Party Identifiers Explained
+for more details on identifier types supported on CSM Reachability Service.
++identifier
+The identifier value for the entity.
++IdentifierType
+The type value associated with the entity identifier.
++identifierSubType
+Subtype of the identifier type returned.
+entityEmail
+Email for the entity as recorded on Party Entity Directory.
+entityPhoneNumber
+The phone number for the entity as recorded on Party Entity Directory.
+IBAN deconstruct
+Processing Entities

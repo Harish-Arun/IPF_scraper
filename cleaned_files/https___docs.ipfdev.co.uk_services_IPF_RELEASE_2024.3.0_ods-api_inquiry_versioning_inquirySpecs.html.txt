@@ -1,0 +1,5 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods-api/inquiry/versioning/inquirySpecs.html ===
+ODS Inquiry OpenAPI Specifications
+SwaggerUI
+Versioning
+V2 Migration Guide

@@ -1,0 +1,344 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability-data-ingestion/data-ingestion-configuration-reference.html ===
+CSM Reachability Data Ingestion Configuration Reference
+Overview
+The following ingestion configuration values can be overriden if required:
+To turn the ingestion mechanism off
+To change the amount of time to wait before polling
+To change the interval at which directories are polled for files
+To change the ID of metadata
+To change the path of the directory to poll for files
+Scheme Routing Directory Ingestion Configuration (CSM Participant)
+RT1 Routing Table Ingestion Configuration
+Deprecated Key
+Key
+Description
+Default Value
+rt1.process-participant.enabled
+ipf.csm-reachability.participant.rt1.process-participant.enabled
+Toggles the ingestion mechanism on and off.
+true
+rt1.file-ingestion-connector.file-ingestion.initial-delay
+ipf.csm-reachability.participant.rt1.file-ingestion.initial-delay
+The amount of time to wait before polling the directories for the first time.
+5s
+rt1.file-ingestion-connector.file-ingestion.interval
+ipf.csm-reachability.participant.rt1.file-ingestion.interval
+The interval at which directories are polled for files.
+30s
+rt1.file-ingestion-connector.file-ingestion.directory-id
+ipf.csm-reachability.participant.rt1.file-ingestion.directory-id
+The ID metadata to assign to files picked up by the poller
+"RT1"
+rt1.file-ingestion-connector.file-ingestion.files-directory
+ipf.csm-reachability.participant.rt1.file-ingestion.files-directory
+The path of the directory to poll for files
+"/import/csm-participant/eba-rt1-routing-tables/"
+STEP2 (SCT) Routing Table Ingestion Configuration
+Deprecated Key
+Key
+Description
+Default Value
+step2.process-participant.enabled
+ipf.csm-reachability.participant.step2.process-participant.enabled
+Toggles the ingestion mechanism on and off.
+true
+step2.file-ingestion-connector.file-ingestion.interval
+ipf.csm-reachability.participant.step2.file-ingestion.interval
+The interval at which directories are polled for files.
+30s
+step2.file-ingestion-connector.file-ingestion.files-directory
+ipf.csm-reachability.participant.step2.file-ingestion.files-directory
+The path of the directory to poll for files
+"/import/csm-participant/eba-step2-sct-routing-tables/"
+step2.file-ingestion-connector.file-ingestion.directory-id
+ipf.csm-reachability.participant.step2.file-ingestion.directory-id
+The ID metadata to assign to files picked up by the poller
+"STEP2 SCT"
+step2.file-ingestion-connector.file-ingestion.initial-delay
+ipf.csm-reachability.participant.step2.file-ingestion.initial-delay
+The amount of time to wait before polling the directories for the first time.
+5s
+TIPS Routing Table Ingestion Configuration
+Deprecated Key
+Key
+Description
+Default Value
+tips.file-ingestion-connector.file-ingestion.files-directory
+ipf.csm-reachability.participant.tips.file-ingestion.files-directory
+The path of the directory to poll for files
+"/import/csm-participant/eurosystem-tips-directory"
+tips.file-ingestion-connector.file-ingestion.interval
+ipf.csm-reachability.participant.tips.file-ingestion.interval
+The interval at which directories are polled for files.
+30s
+tips.process-participant.enabled
+ipf.csm-reachability.participant.tips.process-participant.enabled
+Toggles the ingestion mechanism on and off.
+true
+tips.file-ingestion-connector.file-ingestion.directory-id
+ipf.csm-reachability.participant.tips.file-ingestion.directory-id
+The ID metadata to assign to files picked up by the poller
+"TIPS"
+tips.file-ingestion-connector.file-ingestion.initial-delay
+ipf.csm-reachability.participant.tips.file-ingestion.initial-delay
+The amount of time to wait before polling the directories for the first time.
+5s
+SIC Routing Table Ingestion Configuration
+Deprecated Key
+Key
+Description
+Default Value
+sic-participant.process-participant.mode
+ipf.csm-reachability.participant.sic.process-participant.mode
+Specify the source of the SIC Participant directory.
+Two modes are available:
+http
+and
+file-ingestion
+.
+"http"
+sic-participant.http.client.endpoint-url
+ipf.csm-reachability.participant.sic.http.client.endpoint-url
+"https://api.six-group.com/api/epcd/bankmaster/v2/public"
+sic-participant.resiliency-settings.minimum-number-of-calls
+ipf.csm-reachability.participant.sic.resiliency-settings.minimum-number-of-calls
+Used when
+sic-participant.process-participant.mode
+is set to
+http
+. Determines the minimum number of calls (within a sliding window period) that need to be made before the circuit breaker can calculate the error rate to determine the transport health.
+10
+sic-participant.resiliency-settings.reset-timeout
+ipf.csm-reachability.participant.sic.resiliency-settings.reset-timeout
+Used when
+sic-participant.process-participant.mode
+is set to
+http
+. Tells the circuit-breaker how long to wait while in the OPEN state before transitioning to HALF_OPEN and attempting to close.
+3s
+sic-participant.resiliency-settings.max-attempts
+ipf.csm-reachability.participant.sic.resiliency-settings.max-attempts
+Used when
+sic-participant.process-participant.mode
+is set to
+http
+. Determines the maximum number of retries to be made. Note that this includes the first failed attempt.
+10
+sic-participant.resiliency-settings.initial-retry-wait-duration
+ipf.csm-reachability.participant.sic.resiliency-settings.initial-retry-wait-duration
+Used when
+sic-participant.process-participant.mode
+is set to
+http
+. How long to wait before retrying. This sets the initial duration and may increase on successive retry attempts due to the backoff multiplier.
+1s
+sic-participant.resiliency-settings.backoff-multiplier
+ipf.csm-reachability.participant.sic.resiliency-settings.backoff-multiplier
+Used when
+sic-participant.process-participant.mode
+is set to
+http
+. Each successive retry will wait the previous wait duration multiplied by the backoff multiplier.
+2
+sic-participant.file-ingestion.directory-id
+ipf.csm-reachability.participant.sic.file-ingestion.directory-id
+The ID metadata to assign to files picked up by the poller
+"SIC"
+sic-participant.load-settings.six-bankmaster-version
+ipf.csm-reachability.participant.sic.load-settings.six-bankmaster-version
+The version of the BankMaster schema to use in the ingester.
+"3.0"
+sic-participant.file-ingestion.interval
+ipf.csm-reachability.participant.sic.file-ingestion.interval
+Used when
+sic-participant.process-participant.mode
+is set to
+file-ingestion
+. The interval at which directories are polled for files.
+30s
+sic-participant.file-ingestion.files-directory
+ipf.csm-reachability.participant.sic.file-ingestion.files-directory
+Used when
+sic-participant.process-participant.mode
+is set to
+file-ingestion
+. The path of the directory to poll for files.
+"/import/csm-participant/six-bank-master-3.0/"
+sic-participant.file-ingestion.initial-delay
+ipf.csm-reachability.participant.sic.file-ingestion.initial-delay
+Used when
+sic-participant.process-participant.mode
+is set to
+file-ingestion
+. The amount of time to wait before polling the directories for the first time.
+5s
+sic-participant.process-participant.enabled
+ipf.csm-reachability.participant.sic.process-participant.enabled
+Toggles the ingestion mechanism on and off.
+true
+sic-participant.load-settings.load-csmagent-sicinst
+ipf.csm-reachability.participant.sic.load-settings.load-csmagent-sicinst
+This flag enables/disables load of SicInst participant types.
+true
+sic-participant.load-settings.load-csmagent-eurosic
+ipf.csm-reachability.participant.sic.load-settings.load-csmagent-eurosic
+This flag enables/disables load of euroSIC participant types.
+true
+sic-participant.load-settings.load-csmagent-sic
+ipf.csm-reachability.participant.sic.load-settings.load-csmagent-sic
+This flag enables/disables load of SIC participant types.
+true
+Generic Processing Directories Ingestion Configuration
+IBAN Structure Ingestion Configuration
+Deprecated Key
+Key
+Description
+Default Value
+ibanstructure.process-ibanstructure.enabled
+ipf.csm-reachability.iban-structure.enabled
+Toggles the ingestion mechanism on and off.
+true
+iban-structure-file-connector.file-ingestion.files-directory
+ipf.csm-reachability.iban-structure.file-ingestion.files-directory
+The path of the directory to poll for files
+"/import/iban-plus-directory/swiftref-iban-structure/"
+iban-structure-file-connector.file-ingestion.initial-delay
+ipf.csm-reachability.iban-structure.file-ingestion.initial-delay
+The amount of time to wait before polling the directories for the first time.
+5s
+iban-structure-file-connector.file-ingestion.interval
+ipf.csm-reachability.iban-structure.file-ingestion.interval
+The interval at which directories are polled for files.
+30s
+iban-structure-file-connector.file-ingestion.directory-id
+ipf.csm-reachability.iban-structure.file-ingestion.directory-id
+The ID metadata to assign to files picked up by the poller
+"iban-structure"
+IBAN Plus Ingestion Configuration
+Deprecated Key
+Key
+Description
+Default Value
+swift.ibanplus.process-ibanplus.enabled
+ipf.csm-reachability.iban-plus.enabled
+Toggles the ingestion mechanism on and off.
+true
+swift.ibanplus.file-ingestion-connector.file-ingestion.initial-delay
+ipf.csm-reachability.iban-plus.file-ingestion.initial-delay
+The amount of time to wait before polling the directories for the first time.
+9s
+swift.ibanplus.file-ingestion-connector.file-ingestion.files-directory
+ipf.csm-reachability.iban-plus.file-ingestion.files-directory
+The path of the directory to poll for files
+"/import/iban-plus-directory/swiftref-iban-plus/"
+swift.ibanplus.file-ingestion-connector.file-ingestion.directory-id
+ipf.csm-reachability.iban-plus.file-ingestion.directory-id
+The ID metadata to assign to files picked up by the poller
+"IBANPLUS"
+swift.ibanplus.file-ingestion-connector.file-ingestion.interval
+ipf.csm-reachability.iban-plus.file-ingestion.interval
+The interval at which directories are polled for files.
+30s
+Exclusion List Ingestion Configuration
+Deprecated Key
+Key
+Description
+Default Value
+exclusionlist.process-exclusionlist.enabled
+ipf.csm-reachability.exclusion-list.enabled
+Toggles the ingestion mechanism on and off.
+true
+exclusionlist.file-ingestion-connector.file-ingestion.interval
+ipf.csm-reachability.exclusion-list.file-ingestion.interval
+The interval at which directories are polled for files.
+30s
+exclusionlist.file-ingestion-connector.file-ingestion.initial-delay
+ipf.csm-reachability.exclusion-list.file-ingestion.initial-delay
+The amount of time to wait before polling the directories for the first time.
+5s
+exclusionlist.file-ingestion-connector.file-ingestion.directory-id
+ipf.csm-reachability.exclusion-list.file-ingestion.directory-id
+The ID metadata to assign to files picked up by the poller
+"exclusion-list"
+exclusionlist.file-ingestion-connector.file-ingestion.files-directory
+ipf.csm-reachability.exclusion-list.file-ingestion.files-directory
+The path of the directory to poll for files
+"/import/iban-plus-directory/swiftref-exclusion-list"
+BICDIR 2018 Ingestion Configuration
+Deprecated Key
+Key
+Description
+Default Value
+bic-dir-2018.process-bics.enabled
+ipf.csm-reachability.bic-dir-2018.enabled
+Toggles the ingestion mechanism on and off.
+true
+bic-dir-2018.file-ingestion-connector.file-ingestion.directory-id
+ipf.csm-reachability.bic-dir-2018.file-ingestion.directory-id
+The ID metadata to assign to files picked up by the poller
+"BICDIR2018"
+bic-dir-2018.file-ingestion-connector.file-ingestion.initial-delay
+ipf.csm-reachability.bic-dir-2018.file-ingestion.initial-delay
+The amount of time to wait before polling the directories for the first time.
+5s
+bic-dir-2018.file-ingestion-connector.file-ingestion.interval
+ipf.csm-reachability.bic-dir-2018.file-ingestion.interval
+The interval at which directories are polled for files.
+30s
+bic-dir-2018.file-ingestion-connector.file-ingestion.files-directory
+ipf.csm-reachability.bic-dir-2018.file-ingestion.files-directory
+The path of the directory to poll for files
+"/import/bic-dir-2018/swiftref-bic-dir-2018/"
+Party Entity Directories Ingestion Configuration
+Bank Directory Plus Ingestion Configuration
+Deprecated Key
+Key
+Description
+Default Value
+party-entity.swift.bankplus.process-bank-directory-plus.enabled
+ipf.csm-reachability.party-entity.swift-bankplus.enabled
+Toggles the ingestion mechanism on and off.
+true
+party-entity.swift.bankplus.file-ingestion-connector.file-ingestion.files-directory
+ipf.csm-reachability.party-entity.swift-bankplus.file-ingestion.files-directory
+The path of the directory to poll for files
+"/import/party-entity-directory/swiftref-bank-directory-plus"
+party-entity.swift.bankplus.file-ingestion-connector.file-ingestion.initial-delay
+ipf.csm-reachability.party-entity.swift-bankplus.file-ingestion.initial-delay
+The amount of time to wait before polling the directories for the first time.
+5s
+party-entity.swift.bankplus.file-ingestion-connector.file-ingestion.interval
+ipf.csm-reachability.party-entity.swift-bankplus.file-ingestion.interval
+The interval at which directories are polled for files.
+30s
+party-entity.swift.bankplus.file-ingestion-connector.file-ingestion.directory-id
+ipf.csm-reachability.party-entity.swift-bankplus.file-ingestion.directory-id
+The ID metadata to assign to files picked up by the poller
+"party-entity-swift"
+Bank Master Ingestion Configuration
+Deprecated Key
+Key
+Description
+Default Value
+party-entity.six.bankmaster.process-bank-master.enabled
+ipf.csm-reachability.party-entity.six-bankmaster.enabled
+Toggles the ingestion mechanism on and off.
+true
+party-entity.six.bankmaster.file-ingestion-connector.file-ingestion.files-directory
+ipf.csm-reachability.party-entity.six-bankmaster.file-ingestion.files-directory
+The path of the directory to poll for files
+"/import/party-entity-directory/six-bank-master-3.0/"
+party-entity.six.bankmaster.file-ingestion-connector.file-ingestion.initial-delay
+ipf.csm-reachability.party-entity.six-bankmaster.file-ingestion.initial-delay
+The amount of time to wait before polling the directories for the first time.
+5s
+party-entity.six.bankmaster.file-ingestion-connector.file-ingestion.interval
+ipf.csm-reachability.party-entity.six-bankmaster.file-ingestion.interval
+The interval at which directories are polled for files.
+30s
+party-entity.six.bankmaster.file-ingestion-connector.file-ingestion.directory-id
+ipf.csm-reachability.party-entity.six-bankmaster..file-ingestion.directory-id
+The ID metadata to assign to files picked up by the poller
+"party-entity-bank-master"
+Configurations overview
+File Ingestion Configuration

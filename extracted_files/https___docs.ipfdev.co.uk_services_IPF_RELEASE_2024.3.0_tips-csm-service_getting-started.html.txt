@@ -1,0 +1,6 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/tips-csm-service/getting-started.html ===
+Getting Started
+Running as a Standalone Application
+java -jar tips-csm-application-jms-1.2.107-runnable.jar
+Validation API
+System Events

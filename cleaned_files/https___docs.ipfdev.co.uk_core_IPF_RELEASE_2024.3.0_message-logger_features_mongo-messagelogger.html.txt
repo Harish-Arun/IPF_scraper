@@ -1,0 +1,57 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/message-logger/features/mongo-messagelogger.html ===
+Mongo MessageLogger
+Before deciding to use a specific logger its worth considering where the message and other data logging fits into your overall strategy. For example if you are using ODS, you should use the MessageLogger implementations provided by
+IPF Processing Data
+, specifically see
+Processing Data egress
+.
+Message-logger-impl provides a Mongo implementation of MessageLogger, and its specific logMessage implementation is saving the messageLogEntry to a Mongo repository:
+@Override
+public void logMessage(final MessageLogEntry messageLogEntry) {
+    var mongoMessageLogEntry = new com.iconsolutions.ipf.core.messagelogger.mongo.MessageLogEntry(
+            messageLogEntry.getMessageTime(),
+            messageLogEntry.getProcessingContext(),
+            messageLogEntry.getMessageType(),
+            messageLogEntry.getDirection().name(),
+            messageLogEntry.getSupportingData(),
+            messageLogEntry.getMessage()
+    );
+
+    Mono.defer(() -> messageLogRepository.save(mongoMessageLogEntry))
+            .retryWhen(repositoryRetryProvider.retry())
+            .subscribe();
+}
+You can also see above the Mongo MessageLogEntry being accessed, its definition is:
+class MessageLogEntry {
+    private Instant messageTime;
+    private ProcessingContext processingContext;
+    private String messageType;
+    private String direction;
+    private Map<String, Object> supportingData;
+    private String message;
+}
+Dependencies
+A starter is provided which will wire in both Mongo and Kafka loggers
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.messagelogger</groupId>
+    <artifactId>message-logger-starter</artifactId>
+</dependency>
+Alternatively you can bring in the specific Mongo dependency only:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.messagelogger</groupId>
+    <artifactId>message-logger-mongo</artifactId>
+</dependency>
+Configuration
+To configure the messageLogger you wish to use you will need to set the following in your application configuration file:
+message.logger.type=mongo
+message.logger.enabled=true
+Indexing
+The Mongo Message Logger has default configuration to automatically create indexes on initialisation.
+Indexes can be disabled with:
+Unresolved include directive in modules/message-logger/pages/features/mongo-messagelogger.adoc - include::example$ipf.conf[]
+Indexes can be disabled globally with:
+Unresolved include directive in modules/message-logger/pages/features/mongo-messagelogger.adoc - include::example$ipf.conf[]
+To disable indexing globally but retain it for the Mongo Message Logger, apply the following, retaining the order:
+Unresolved include directive in modules/message-logger/pages/features/mongo-messagelogger.adoc - include::example$ipf.conf[]
+Kafka MessageLogger
+Getting Started

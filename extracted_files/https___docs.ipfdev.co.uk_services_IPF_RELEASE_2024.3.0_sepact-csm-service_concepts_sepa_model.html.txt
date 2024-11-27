@@ -1,0 +1,9136 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/concepts/sepa_model.html ===
+sepa Model
+Table of Contents
+Flows
+Validate
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Submit
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Settlement Response
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Validate Inbound USM
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Validate Pacs.004
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Validate Camt.029
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Submit Pacs004
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Submit Camt.029
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Settlement Response Pacs.004
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Validate Camt056
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Submit Camt.056
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Validate Pacs028
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Submit Pacs.028
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Generate Message Camt.0x7
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Submit Camt.0x7
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Bulk File Processing
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Message Processing
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+PCF File Transactions Processing
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Supporting Libraries
+Business Data Libraries
+Sepa CT Data Library
+Business Data Elements
+PCF File Transactions Data Library
+Business Data Elements
+External Domains
+Debulked Component Handler
+Requests
+Notifications
+Instructions
+Flow Passivation Handler
+Requests
+Notifications
+Instructions
+Scheduler Command Handler
+Requests
+Notifications
+Instructions
+Component Processing
+Requests
+Notifications
+Instructions
+Mapping Functions
+Submit
+Mapping Functions
+Bulk File Processing
+Mapping Functions
+Message Processing
+Mapping Functions
+Common Event Libraries
+Decision Libraries
+Submit Decisions
+Decisions
+Submit Pacs004 Decisions
+Decisions
+Submit Camt.029 Decisions
+Decisions
+Common Decisions
+Decisions
+Submit Camt.056 Decisions
+Decisions
+PCF File Transaction Decision Library
+Decisions
+Camt.0x7 Decisions
+Decisions
+Domain Function Libraries
+Validate Message
+Domain Functions
+Configuration Provider
+Domain Functions
+Mapping Library
+Domain Functions
+Validate Payments
+Domain Functions
+Validate Transaction
+Domain Functions
+Submit Domain Functions
+Domain Functions
+Settlement Response Domain Functions
+Domain Functions
+Inbound USM Domain Functions
+Domain Functions
+Pacs.004 Message Validation Functions
+Domain Functions
+Camt.029 Message Validation Functions
+Domain Functions
+Validate Camt.029 Functions
+Domain Functions
+Submit Pacs004 Functions
+Domain Functions
+Validate Pacs.004 Functions
+Domain Functions
+Pacs.004 Validate Transaction
+Domain Functions
+Submit Camt.029 Functions
+Domain Functions
+Camt.029 Validate Transaction
+Domain Functions
+Validate Camt.056 Functions
+Domain Functions
+Camt.056 Message Validation Functions
+Domain Functions
+Camt.056 Validate Transaction Functions
+Domain Functions
+Submit Camt.056 Functions
+Domain Functions
+Validate Pacs.028 Functions
+Domain Functions
+Pacs.028 Message Validation Functions
+Domain Functions
+Pacs.028 Validate Transaction Functions
+Domain Functions
+Submit Pacs.028 Functions
+Domain Functions
+Generate Message Camt.0x7 Functions
+Domain Functions
+Submit Camt.0x7 Functions
+Domain Functions
+Message Processing Domain Functions
+Domain Functions
+PCF File Transaction Functions
+Domain Functions
+Response Code Libraries
+Camt.029 Response
+Response Codes
+Reason Code Libraries
+SEPA CT Reason Codes
+Reason Codes
+Placeholder Libraries
+Global State Libraries
+Flows
+Validate
+Flow Properties
+Flow Name:
+Validate
+Version:
+0
+Description:
+Payments Validation Flow
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Getting Configurations
+Getting Configuration
+PENDING
+No
+No
+No
+Mapping to Scheme
+Mapping to Scheme Format
+PENDING
+No
+No
+No
+Validating Scheme Schema
+Validating Scheme Schema
+PENDING
+No
+No
+No
+Generating Pacs.002
+Generating Pacs.002
+PENDING
+No
+No
+No
+Sending Pacs.002
+Sending Pacs.002 Response
+PENDING
+No
+No
+No
+Sending for Submission
+Sending pacs008 to Submit flow
+PENDING
+No
+No
+No
+Rejected
+Rejected
+REJECTED
+Yes
+No
+No
+Completed
+Completed
+ACCEPTED
+Yes
+No
+No
+Check Pacs002 Group Status Rejected
+Generated state
+none
+No
+No
+No
+Pacs008 Message Validation Pacs008 Message Validation
+Generated state
+none
+No
+No
+No
+Transaction Validation Transaction Validation
+Generated state
+none
+No
+No
+No
+Pacs008 Message Validation Checking Functional Duplicate
+Checking Functional Duplicate
+PENDING
+No
+No
+No
+Pacs008 Message Validation Validating Group Header Totals
+Validating Group Header Totals
+PENDING
+No
+No
+No
+Pacs008 Message Validation Validating Settlement Date
+Validating Settlement Date
+PENDING
+No
+No
+No
+Pacs008 Message Validation Validating Scheme Rules Group Header
+Validating Scheme Rules Group Header
+PENDING
+No
+No
+No
+Transaction Validation Generating Modified pacs.008
+Generating modified pacs.008 for encrichment
+PENDING
+No
+No
+No
+Transaction Validation Checking Transaction Duplicate
+Checking Transaction Duplicate
+PENDING
+No
+No
+No
+Transaction Validation Validating Transaction Rules
+Validating Transaction Rules
+PENDING
+No
+No
+No
+Transaction Validation Updating After Validation
+Updating After Validation
+PENDING
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Customer Credit Transfer
+ConfigurationData
+Original Request Id
+Configuration Check Completed
+Configuration Check Completed
+none
+Map To Scheme Passed
+Map To Scheme Passed
+SCTFIToFICustomerCreditTransfer
+Map To Scheme Failed
+Map To Scheme Failed
+Reason Type
+Scheme Schema Validation Passed
+Scheme Schema Validation Passed
+none
+Scheme Schema Validation Failed
+Scheme Schema Validation Failed
+Reason Type
+Send Pacs.002 Passed
+Sending Pacs.002 Passed
+none
+Pacs008 Sent to Submit Flow Successfully
+Pacs008 Sent to Submit Flow Successfully
+none
+Sending Pacs008 to Submit Flow Failed
+Sending Pacs008 to Submit Flow Failed
+none
+Pacs.002 Response Generation Passed
+Pacs.002 Response Generation Passed
+Payment Status Report
+Pacs.002 Response Generation Failed
+Pacs.002 Respone Generation Failed
+none
+Check Pacs.002 Group Status Rejected YES
+none
+Check Pacs.002 Group Status Rejected NO
+none
+Pacs008 Message Validation Functional Duplicate Check Passed
+Functional Duplicate Check Passed
+none
+Pacs008 Message Validation Functional Duplicate Check Failed
+Functional Duplicate Check Failed
+Reason Type
+Pacs008 Message Validation Group Header Totals Validation Passed
+Group Header Totals Validation Passed
+none
+Pacs008 Message Validation Group Header Totals Validation Failed
+Group Header Totals Validation Failed
+Reason Type
+Pacs008 Message Validation Settlement Date Validation Passed
+Settlement Date Validation Passed
+none
+Pacs008 Message Validation Settlement Date Validation Failed
+Settlement Date Validation Failed
+Reason Type
+Pacs008 Message Validation EBA Scheme Rule Validation Passed
+EBA Scheme Rule Validation Passed
+none
+Pacs008 Message Validation EBA Scheme Rule Validation Failed
+EBA Scheme Rule Validation Failed
+Reason Type
+Transaction Validation Generate Modified pacs.008 Passed
+Generate Modified pacs.008 Passed
+Modified SCTFIToFICustomerCreditTransfer
+Interbank Settlement Date
+Collection of TxInfAndSts
+Transaction Validation Generate Modified pacs.008 Failed
+Generate Modified pacs.008 Failed
+none
+Transaction Validation Transaction Duplicate Check Passed
+Transaction Duplicate Check Passed
+Collection of TxInfAndSts
+Modified SCTFIToFICustomerCreditTransfer
+Transaction Validation Transaction Duplicate Check Failed
+Transaction Duplicate Check Failed
+Collection of TxInfAndSts
+Modified SCTFIToFICustomerCreditTransfer
+Transaction Validation Transaction Rule Validation Passed
+Transaction Rule Validation Passed
+Collection of TxInfAndSts
+Modified SCTFIToFICustomerCreditTransfer
+Transaction Validation Transaction Rule Validation Failed
+Transaction Rule Validation Failed
+Collection of TxInfAndSts
+Modified SCTFIToFICustomerCreditTransfer
+Transaction Validation Data Updated
+Data updated successfully
+Modified SCTFIToFICustomerCreditTransfer
+Transaction Validation Data Update Failed
+Data update failed
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Validate (V0)
+none
+Flow Initiated
+Get Configurations Response
+none
+Configuration Check Completed
+Map Pacs008 To Scheme Response
+Accepted
+Map To Scheme Passed
+Map Pacs008 To Scheme Response
+Rejected
+Map To Scheme Failed
+Validate Scheme Schema Response
+Accepted
+Scheme Schema Validation Passed
+Validate Scheme Schema Response
+Rejected
+Scheme Schema Validation Failed
+Send Pacs.002 Response
+none
+Send Pacs.002 Passed
+Send For Submission Response
+Accepted
+Pacs008 Sent to Submit Flow Successfully
+Send For Submission Response
+Rejected
+Sending Pacs008 to Submit Flow Failed
+Generate Pacs.002 Response
+Accepted
+Pacs.002 Response Generation Passed
+Generate Pacs.002 Response
+Rejected
+Pacs.002 Response Generation Failed
+Check Functional Duplicate Response
+Accepted
+Pacs008 Message Validation Functional Duplicate Check Passed
+Check Functional Duplicate Response
+Rejected
+Pacs008 Message Validation Functional Duplicate Check Failed
+Validate Group Header Totals Response
+Accepted
+Pacs008 Message Validation Group Header Totals Validation Passed
+Validate Group Header Totals Response
+Rejected
+Pacs008 Message Validation Group Header Totals Validation Failed
+Validate Settlement Date Response
+Accepted
+Pacs008 Message Validation Settlement Date Validation Passed
+Validate Settlement Date Response
+Rejected
+Pacs008 Message Validation Settlement Date Validation Failed
+Validate EBA Scheme Rules Response
+Accepted
+Pacs008 Message Validation EBA Scheme Rule Validation Passed
+Validate EBA Scheme Rules Response
+Rejected
+Pacs008 Message Validation EBA Scheme Rule Validation Failed
+Transaction Duplicate Check Response
+Accepted
+Transaction Validation Transaction Duplicate Check Passed
+Transaction Duplicate Check Response
+Rejected
+Transaction Validation Transaction Duplicate Check Failed
+Transaction Rules Validation Response
+Accepted
+Transaction Validation Transaction Rule Validation Passed
+Transaction Rules Validation Response
+Rejected
+Transaction Validation Transaction Rule Validation Failed
+Generate Modified pacs.008 Response
+Accepted
+Transaction Validation Generate Modified pacs.008 Passed
+Generate Modified pacs.008 Response
+Rejected
+Transaction Validation Generate Modified pacs.008 Failed
+Update Data Response
+Accepted
+Transaction Validation Data Updated
+Update Data Response
+Rejected
+Transaction Validation Data Update Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Getting Configurations
+Call Function
+:
+Get Configurations
+Getting Configurations
+On
+Configuration Check Completed
+Mapping to Scheme
+Call Function
+:
+Map Pacs008 To Scheme
+Mapping to Scheme
+On
+Map To Scheme Passed
+Pacs008 Message Validation Checking Functional Duplicate
+Call Function
+:
+Check Functional Duplicate
+Mapping to Scheme
+On
+Map To Scheme Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002
+Validating Scheme Schema
+On
+Scheme Schema Validation Passed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002
+Validating Scheme Schema
+On
+Scheme Schema Validation Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002
+Generating Pacs.002
+On
+Pacs.002 Response Generation Passed
+Sending Pacs.002
+Call Function
+:
+Send Pacs.002
+Generating Pacs.002
+On
+Pacs.002 Response Generation Failed
+Rejected
+Sending Pacs.002
+On
+Send Pacs.002 Passed
+Check Pacs002 Group Status Rejected
+Call Decision
+:
+Check Pacs.002 Group Status Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 Group Status Rejected YES
+On
+NO
+raise event
+Check Pacs.002 Group Status Rejected NO
+Check Pacs002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected YES
+Rejected
+Check Pacs002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected NO
+Sending for Submission
+Call Function
+:
+Send For Submission
+Sending for Submission
+On
+Pacs008 Sent to Submit Flow Successfully
+Completed
+Sending for Submission
+On
+Sending Pacs008 to Submit Flow Failed
+Rejected
+Pacs008 Message Validation Checking Functional Duplicate
+On
+Pacs008 Message Validation Functional Duplicate Check Passed
+Pacs008 Message Validation Validating Group Header Totals
+Call Function
+:
+Validate Group Header Totals
+Pacs008 Message Validation Checking Functional Duplicate
+On
+Pacs008 Message Validation Functional Duplicate Check Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002
+Pacs008 Message Validation Validating Group Header Totals
+On
+Pacs008 Message Validation Group Header Totals Validation Passed
+Pacs008 Message Validation Validating Settlement Date
+Call Function
+:
+Validate Settlement Date
+Pacs008 Message Validation Validating Group Header Totals
+On
+Pacs008 Message Validation Group Header Totals Validation Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002
+Pacs008 Message Validation Validating Settlement Date
+On
+Pacs008 Message Validation Settlement Date Validation Passed
+Pacs008 Message Validation Validating Scheme Rules Group Header
+Call Function
+:
+Validate EBA Scheme Rules
+Pacs008 Message Validation Validating Settlement Date
+On
+Pacs008 Message Validation Settlement Date Validation Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002
+Pacs008 Message Validation Validating Scheme Rules Group Header
+On
+Pacs008 Message Validation EBA Scheme Rule Validation Passed
+Transaction Validation Generating Modified pacs.008
+Call Function
+:
+Generate Modified pacs.008
+Pacs008 Message Validation Validating Scheme Rules Group Header
+On
+Pacs008 Message Validation EBA Scheme Rule Validation Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002
+Transaction Validation Generating Modified pacs.008
+On
+Transaction Validation Generate Modified pacs.008 Passed
+Transaction Validation Checking Transaction Duplicate
+Call Function
+:
+Check Transaction Duplicate
+Transaction Validation Generating Modified pacs.008
+On
+Transaction Validation Generate Modified pacs.008 Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002
+Transaction Validation Checking Transaction Duplicate
+On
+Transaction Validation Transaction Duplicate Check Passed
+Transaction Validation Validating Transaction Rules
+Call Function
+:
+Validate Transaction Rules
+Transaction Validation Checking Transaction Duplicate
+On
+Transaction Validation Transaction Duplicate Check Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002
+Transaction Validation Validating Transaction Rules
+On
+Transaction Validation Transaction Rule Validation Passed
+Transaction Validation Updating After Validation
+Call Function
+:
+Update Data
+Transaction Validation Validating Transaction Rules
+On
+Transaction Validation Transaction Rule Validation Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002
+Transaction Validation Updating After Validation
+On
+Transaction Validation Data Updated
+Validating Scheme Schema
+Call Function
+:
+Validate Scheme Schema
+Transaction Validation Updating After Validation
+On
+Transaction Validation Data Update Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002
+Submit
+Flow Properties
+Flow Name:
+Submit
+Version:
+0
+Description:
+Flow responsible for submitting pacs.008 transaction to appropriate bulks
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Generating Bulk Name
+Generating name of the bulk to which transaction will be sent
+PENDING
+No
+No
+No
+Transaction Bulking
+Sending transaction to bulker
+PENDING
+No
+No
+No
+Registering Bulk Correlation
+Storing correlation between bulker and transaction that was sent to it
+PENDING
+No
+No
+No
+Transaction Submit Complete
+Transaction is submitted or failed to submit
+PENDING
+No
+No
+No
+Waiting For Scheme Responses
+Waiting for Scheme Response Notifications
+PENDING
+No
+No
+No
+Generating Validation pacs.002 Response
+Generating the pacs002 response following scheme response
+PENDING
+No
+No
+No
+Sending Pacs002
+Sending pacs002 response
+PENDING
+No
+No
+No
+Sending For Settlement Response
+Send To Settlement Response Flow
+PENDING
+No
+No
+No
+Submission Complete
+The flow has completed
+ACCEPTED
+Yes
+No
+No
+Submission Rejected
+The flow has resulted in a rejection.
+REJECTED
+Yes
+No
+No
+Message Contains Transactions
+Generated state
+none
+No
+No
+No
+Is Group Status Rejected
+Generated state
+none
+No
+No
+No
+Expecting More Scheme Response Notifications
+Generated state
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Modified SCTFIToFICustomerCreditTransfer
+Collection of TxInfAndSts
+Submit Transaction Counter
+Original Request Id
+Bulk Correlation Not Registered
+Bulk correlation not registered
+none
+Bulk Correlation Registered
+Bulk correlation registered successfully
+none
+Transaction Not Sent To Bulk
+Transaction not sent to bulk
+none
+Transaction Sent To Bulk
+Transaction successfully sent to bulk
+Bulk Component Id
+Bulk Id
+Root Component Id
+Bulk Name Generation Failed
+Bulk Name generation failed
+none
+Transaction Counter Incremented
+Transaction counter incremented
+Submit Transaction Counter
+All Transactions Processed
+All transactions processed by submit flow
+none
+Bulk Name Generated
+Bulk Name generated successfully
+Bulk Identifier
+Scheme Response Notification Received
+Scheme Response Notification
+Scheme Response Notification
+TxInfAndSts Generation Failed
+TxInfAndSts Generation Failed
+none
+Validation Pacs.002 Generation Passed
+Validation Pacs.002 Generation Passed
+Payment Status Report
+Validation Pacs.002 Generation Failed
+Validation Pacs.002 Generation Failed
+none
+Send Pacs002 Passed
+Send Pacs002 passed
+none
+Send To Settlement Response Flow Successfully
+Send To Settlement Response Flow Successfully
+none
+Send To Settlement Response Flow Failed
+Send To Settlement Response Flow Failed
+none
+TxInfAndSts Updated
+TxInfAndSts are partially updated
+Collection of TxInfAndSts
+Message Contains Transactions YES
+none
+Message Contains Transactions NO
+none
+Group Status is Rejected YES
+none
+Group Status is Rejected NO
+none
+Expecting More Scheme Response Notifications YES
+none
+Expecting More Scheme Response Notifications NO
+none
+Aggregate Functions
+On Event
+Call Mapping Function
+Bulk Name Generation Failed
+Map SEPA data wrapper
+Transaction Not Sent To Bulk
+Map SEPA data wrapper
+Bulk Correlation Registered
+Map SEPA data wrapper
+Bulk Correlation Not Registered
+Map SEPA data wrapper
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Submit (V0)
+none
+Flow Initiated
+Bulk Name Response
+Accepted
+Bulk Name Generated
+Bulk Name Response
+Rejected
+Bulk Name Generation Failed
+Bulker Response
+Accepted
+Transaction Sent To Bulk
+Bulker Response
+Rejected
+Transaction Not Sent To Bulk
+Correlation Registration Response
+Accepted
+Bulk Correlation Registered
+Correlation Registration Response
+Rejected
+Bulk Correlation Not Registered
+Increment Counter Response
+none
+Transaction Counter Incremented
+Scheme Response Notification
+none
+Scheme Response Notification Received
+Generate TxInfAndSts Response
+Accepted
+TxInfAndSts Updated
+Generate TxInfAndSts Response
+Rejected
+TxInfAndSts Generation Failed
+Generate Validation Pacs.002 Response
+Accepted
+Validation Pacs.002 Generation Passed
+Generate Validation Pacs.002 Response
+Rejected
+Validation Pacs.002 Generation Failed
+Send Pacs.002 Response
+none
+Send Pacs002 Passed
+Send For Settlement Response
+Accepted
+Send To Settlement Response Flow Successfully
+Send For Settlement Response
+Rejected
+Send To Settlement Response Flow Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Generating Bulk Name
+Call Function
+:
+Generate Bulk Name
+Generating Bulk Name
+On
+Bulk Name Generated
+Transaction Bulking
+Call Function
+:
+Send Transaction To Bulker
+Generating Bulk Name
+On
+Bulk Name Generation Failed
+Transaction Submit Complete
+Call Decision
+:
+More Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Transaction Bulking
+On
+Transaction Sent To Bulk
+Registering Bulk Correlation
+Call Function
+:
+Register Bulk Correlation
+Transaction Bulking
+On
+Transaction Not Sent To Bulk
+Transaction Submit Complete
+Call Decision
+:
+More Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Registering Bulk Correlation
+On
+Bulk Correlation Registered
+Transaction Submit Complete
+Call Decision
+:
+More Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Registering Bulk Correlation
+On
+Bulk Correlation Not Registered
+Transaction Submit Complete
+Call Decision
+:
+More Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Transaction Submit Complete
+On
+Transaction Counter Incremented
+Generating Bulk Name
+Call Function
+:
+Generate Bulk Name
+Transaction Submit Complete
+On
+All Transactions Processed
+Message Contains Transactions
+Call Decision
+:
+Message Contains Transactions
+and then:
+On
+YES
+raise event
+Message Contains Transactions YES
+On
+NO
+raise event
+Message Contains Transactions NO
+Waiting For Scheme Responses
+On
+Scheme Response Notification Received
+Waiting For Scheme Responses
+Call Function
+:
+Update TxInfAndSts
+Waiting For Scheme Responses
+On
+TxInfAndSts Generation Failed
+Submission Rejected
+Generating Validation pacs.002 Response
+On
+Validation Pacs.002 Generation Passed
+Sending Pacs002
+Call Function
+:
+Send Pacs.002
+Generating Validation pacs.002 Response
+On
+Validation Pacs.002 Generation Failed
+Submission Rejected
+Sending Pacs002
+On
+Send Pacs002 Passed
+Is Group Status Rejected
+Call Decision
+:
+Group Status is Rejected
+and then:
+On
+YES
+raise event
+Group Status is Rejected YES
+On
+NO
+raise event
+Group Status is Rejected NO
+Is Group Status Rejected
+On
+Group Status is Rejected YES
+Submission Rejected
+Is Group Status Rejected
+On
+Group Status is Rejected NO
+Sending For Settlement Response
+Call Function
+:
+Send For Settlement Response
+Sending For Settlement Response
+On
+Send To Settlement Response Flow Failed
+Submission Rejected
+Sending For Settlement Response
+On
+Send To Settlement Response Flow Successfully
+Submission Complete
+Expecting More Scheme Response Notifications
+On
+Expecting More Scheme Response Notifications NO
+Generating Validation pacs.002 Response
+Call Function
+:
+Generate Validation Pacs.002
+Expecting More Scheme Response Notifications
+On
+Expecting More Scheme Response Notifications YES
+Waiting For Scheme Responses
+Waiting For Scheme Responses
+On
+TxInfAndSts Updated
+Expecting More Scheme Response Notifications
+Call Decision
+:
+Expecting More Scheme Response Notifications
+and then:
+On
+YES
+raise event
+Expecting More Scheme Response Notifications YES
+On
+NO
+raise event
+Expecting More Scheme Response Notifications NO
+Message Contains Transactions
+On
+Message Contains Transactions YES
+Waiting For Scheme Responses
+Call Notification
+:
+Passivate Flow Request
+Message Contains Transactions
+On
+Message Contains Transactions NO
+Submission Rejected
+Settlement Response
+Flow Properties
+Flow Name:
+Settlement Response
+Version:
+0
+Description:
+Settlement Response Flow
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Generating EOD Pacs.002 Response
+EOD pacs.002 Created
+PENDING
+No
+No
+No
+Waiting For CGS EOD Cutoff
+Waiting for trigger which will send EOD Pacs.002 to the client
+PENDING
+No
+No
+No
+Sending EOD Pacs.002
+Sending EOD Pacs.002
+PENDING
+No
+No
+No
+Rejected
+The flow has resulted in a rejection.
+REJECTED
+Yes
+No
+No
+Completed
+The flow has resulted in a completion
+ACCEPTED
+Yes
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Payment Status Report
+Interbank Settlement Date
+Original Request Id
+Generation EOD Pacs.002 Response Success
+Generation EOD Pacs.002 Response Success
+Modified Payment Status Report
+Generation EOD Pacs.002 Response Failed
+Generation EOD Pacs.002 Response Failed
+none
+Optional Update Scheme Response Notification Received
+Optional Update Scheme Response Notification
+Optional Update Scheme Response Notification
+EOD Pacs.002 Updated
+EOD Pacs.002 is updated
+Modified Payment Status Report
+CGS EOD Output Delivery Cutoff Time Reached
+CGS EOD Output Delivery Cutoff Time Reached
+none
+Send EOD Pacs.002 Passed
+Send EOD Pacs.002 Passed
+none
+Send EOD Pacs.002 Failed
+Send Eod Pacs.002 Failed
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Settlement Response (V0)
+none
+Flow Initiated
+Generate EOD Pacs.002 Response
+Accepted
+Generation EOD Pacs.002 Response Success
+Generate EOD Pacs.002 Response
+Rejected
+Generation EOD Pacs.002 Response Failed
+Optional Update Scheme Response Notification
+none
+Optional Update Scheme Response Notification Received
+Update EOD Pacs.002 Response
+none
+EOD Pacs.002 Updated
+CGS EOD Output Trigger
+none
+CGS EOD Output Delivery Cutoff Time Reached
+Send EOD Pacs.002 Response
+Accepted
+Send EOD Pacs.002 Passed
+Send EOD Pacs.002 Response
+Rejected
+Send EOD Pacs.002 Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Generating EOD Pacs.002 Response
+Call Function
+:
+Generate EOD Pacs.002
+Generating EOD Pacs.002 Response
+On
+Generation EOD Pacs.002 Response Failed
+Rejected
+Generating EOD Pacs.002 Response
+On
+Generation EOD Pacs.002 Response Success
+Waiting For CGS EOD Cutoff
+Call Notification
+:
+Passivate Flow Request
+Waiting For CGS EOD Cutoff
+On
+Optional Update Scheme Response Notification Received
+Waiting For CGS EOD Cutoff
+Call Function
+:
+Update EOD Pacs.002
+Waiting For CGS EOD Cutoff
+On
+EOD Pacs.002 Updated
+Waiting For CGS EOD Cutoff
+Waiting For CGS EOD Cutoff
+On
+CGS EOD Output Delivery Cutoff Time Reached
+Sending EOD Pacs.002
+Call Function
+:
+Send EOD Pacs.002
+Sending EOD Pacs.002
+On
+Send EOD Pacs.002 Passed
+Completed
+Sending EOD Pacs.002
+On
+Send EOD Pacs.002 Failed
+Rejected
+Validate Inbound USM
+Flow Properties
+Flow Name:
+Validate Inbound USM
+Version:
+0
+Description:
+Validate Inbound USM Flow
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Generating Canonical Message
+Generating a canonical message
+PENDING
+No
+No
+No
+Validating Canonical Message
+Validating canonical message
+PENDING
+No
+No
+No
+Sending Message to Client
+Sending message to client
+PENDING
+No
+No
+No
+Rejected
+The flow has completed in a rejected state
+REJECTED
+Yes
+No
+No
+Complete
+The flow has completed in a successful state
+ACCEPTED
+Yes
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Message Content
+Group Header Message Id
+Related Unit Of Work
+Message Processing Id
+Parent Component Id
+Message Generation Successful
+Message generation was successful
+Message Data Structure Wrapper
+Message Generation Failed
+Message generation failed
+none
+Message Validation Successful
+Message validation was successful
+none
+Message Validation Failed
+Message validation failed
+none
+Message Sent to Client
+Message has been sent to client
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Validate Inbound USM (V0)
+none
+Flow Initiated
+Generate Canonical Message Response
+Accepted
+Message Generation Successful
+Generate Canonical Message Response
+Rejected
+Message Generation Failed
+Validate Canonical Message Response
+Accepted
+Message Validation Successful
+Validate Canonical Message Response
+Rejected
+Message Validation Failed
+Send Canonical Message to Client Response
+none
+Message Sent to Client
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Generating Canonical Message
+Call Function
+:
+Generate Canonical  Message
+Generating Canonical Message
+On
+Message Generation Successful
+Validating Canonical Message
+Call Function
+:
+Validate Canonical Message
+Generating Canonical Message
+On
+Message Generation Failed
+Rejected
+Call Notification
+:
+Transaction Failure Notification
+Validating Canonical Message
+On
+Message Validation Successful
+Sending Message to Client
+Call Function
+:
+Send Message To Client Flow
+Validating Canonical Message
+On
+Message Validation Failed
+Rejected
+Call Notification
+:
+Transaction Failure Notification
+Sending Message to Client
+On
+Message Sent to Client
+Complete
+Call Notification
+:
+Transaction Success Notification
+Validate Pacs.004
+Flow Properties
+Flow Name:
+Validate Pacs.004
+Version:
+0
+Description:
+Pacs.004 Payments Validation Flow
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Getting Configurations
+Getting Configurations
+PENDING
+No
+No
+No
+Mapping to Scheme Format
+Mapping to Scheme Format
+PENDING
+No
+No
+No
+Validating Scheme Schema
+Validating Scheme Schema
+PENDING
+No
+No
+No
+Generating Pacs.002
+Generate Pacs.002
+PENDING
+No
+No
+No
+Sending Pacs.002
+Sending Pacs.002 Response
+PENDING
+No
+No
+No
+Sending Pacs.004 for Submission
+Sending Pacs.004 to Submit Flow
+PENDING
+No
+No
+No
+Rejected
+Rejected
+REJECTED
+Yes
+No
+No
+Completed
+Completed
+ACCEPTED
+Yes
+No
+No
+Check Pacs.002 Group Status Rejected
+Generated state
+none
+No
+No
+No
+Pacs.004 Message Validation Pacs.004 Message Validation
+Generated state
+none
+No
+No
+No
+Pacs.004 Transaction Validation Pacs.004 Transaction Validation
+Generated state
+none
+No
+No
+No
+Pacs.004 Message Validation Checking Duplicate
+Checking Functional Duplicate
+PENDING
+No
+No
+No
+Pacs.004 Message Validation Validating Group Header Totals
+Validating Group Header Totals
+PENDING
+No
+No
+No
+Pacs.004 Message Validation Validating Settlement Date
+Validating Settlement Date
+PENDING
+No
+No
+No
+Pacs.004 Message Validation Validating Scheme Rules Group Header
+Validating Scheme Rules Group Header
+PENDING
+No
+No
+No
+Pacs.004 Transaction Validation Generating Modified Pacs.004
+Generating modified Pacs.004 for enrichment
+PENDING
+No
+No
+No
+Pacs.004 Transaction Validation Checking Transaction Duplicate
+Checking Transaction Duplicate
+PENDING
+No
+No
+No
+Pacs.004 Transaction Validation Validating Transaction Rules
+Validating Transaction Rules
+PENDING
+No
+No
+No
+Pacs.004 Transaction Validation Updating After Validation
+Updating After Validation
+PENDING
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Payment Return
+ConfigurationData
+Original Request Id
+Configuration Check Completed
+Configuration Check Completed
+none
+Map To Scheme Format Passed
+Map To Scheme Passed
+SCTPaymentReturn
+Map To Scheme Format Failed
+Map To Scheme Failed
+Reason Type
+Scheme Schema Validation Passed
+Scheme Schema Validation Passed
+none
+Scheme Schema Validation Failed
+Scheme Schema Validation Failed
+Reason Type
+Pacs.002 Response Generation Passed
+Pacs.002 Response Generation Passed
+Payment Status Report
+Pacs.002 Response Generation Failed
+Pacs.002 Response Generation Failed
+none
+Send Pacs.002 Passed
+Send Pacs.002 Passed
+none
+Pacs.004 Sent to Submit Flow Successfully
+Pacs.004 Sent to Submit Flow Successfully
+none
+Sending Pacs.004 to Submit Flow Failed
+Sending Pacs004 to Submit Flow Failed
+none
+Check Pacs.002 Group Status Rejected YES
+none
+Check Pacs.002 Group Status Rejected NO
+none
+Pacs.004 Message Validation Duplicate Check Passed
+Functional Duplicate Check Passed
+none
+Pacs.004 Message Validation Duplicate Check Failed
+Functional Duplicate Check Failed
+Reason Type
+Pacs.004 Message Validation Group Header Totals Validation Passed
+Group Header Totals Validation Passed
+none
+Pacs.004 Message Validation Group Header Totals Validation Failed
+Group Header Totals Validation Failed
+Reason Type
+Pacs.004 Message Validation Settlement Date Validation Passed
+Settlement Date Validation Passed
+none
+Pacs.004 Message Validation Settlement Date Validation Failed
+Settlement Date Validation Failed
+Reason Type
+Pacs.004 Message Validation EBA Scheme Rule Validation Passed
+EBA Scheme Rule Validation Passed
+none
+Pacs.004 Message Validation EBA Scheme Rule Validation Failed
+EBA Scheme Rule Validation Failed
+Reason Type
+Pacs.004 Transaction Validation Generate Modified Pacs.004 Passed
+Generate Modified Pacs.004 Passed
+Modified SCTPaymentReturn
+Interbank Settlement Date
+Collection of TxInfAndSts
+Pacs.004 Transaction Validation Generate Modified Pacs.004 Failed
+Generate Modified Pacs.004 Failed
+none
+Pacs.004 Transaction Validation Transaction Duplicate Check Passed
+Transaction Duplicate Check Passed
+Collection of TxInfAndSts
+Modified SCTPaymentReturn
+Pacs.004 Transaction Validation Transaction Duplicate Check Failed
+Transaction Duplicate Check Failed
+Collection of TxInfAndSts
+Modified SCTPaymentReturn
+Pacs.004 Transaction Validation Transaction Rule Validation Passed
+Transaction Rule Validation Passed
+Collection of TxInfAndSts
+Modified SCTPaymentReturn
+Pacs.004 Transaction Validation Transaction Rule Validation Failed
+Transaction Rule Validation Failed
+Collection of TxInfAndSts
+Modified SCTPaymentReturn
+Pacs.004 Transaction Validation Data Updated
+Data updated successfully
+Modified SCTPaymentReturn
+Pacs.004 Transaction Validation Data Update Failed
+Data update failed
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Validate Pacs.004 (V0)
+none
+Flow Initiated
+Get Configurations Response
+none
+Configuration Check Completed
+Map Pacs.004 To Scheme Response
+Accepted
+Map To Scheme Format Passed
+Map Pacs.004 To Scheme Response
+Rejected
+Map To Scheme Format Failed
+Validate Pacs.004 Scheme Schema Response
+Accepted
+Scheme Schema Validation Passed
+Validate Pacs.004 Scheme Schema Response
+Rejected
+Scheme Schema Validation Failed
+Generate Pacs.002 For Pacs.004 Response
+Accepted
+Pacs.002 Response Generation Passed
+Generate Pacs.002 For Pacs.004 Response
+Rejected
+Pacs.002 Response Generation Failed
+Send Pacs.002 For Pacs.004 Response
+none
+Send Pacs.002 Passed
+Send Pacs.004 For Submission Response
+Accepted
+Pacs.004 Sent to Submit Flow Successfully
+Send Pacs.004 For Submission Response
+Rejected
+Sending Pacs.004 to Submit Flow Failed
+Check Pacs.004 Duplicate Response
+Accepted
+Pacs.004 Message Validation Duplicate Check Passed
+Check Pacs.004 Duplicate Response
+Rejected
+Pacs.004 Message Validation Duplicate Check Failed
+Validate Pacs.004 Group Header Totals Response
+Accepted
+Pacs.004 Message Validation Group Header Totals Validation Passed
+Validate Pacs.004 Group Header Totals Response
+Rejected
+Pacs.004 Message Validation Group Header Totals Validation Failed
+Validate Pacs.004 Settlement Date Response
+Accepted
+Pacs.004 Message Validation Settlement Date Validation Passed
+Validate Pacs.004 Settlement Date Response
+Rejected
+Pacs.004 Message Validation Settlement Date Validation Failed
+Validate Pacs.004 EBA Scheme Rules Response
+Accepted
+Pacs.004 Message Validation EBA Scheme Rule Validation Passed
+Validate Pacs.004 EBA Scheme Rules Response
+Rejected
+Pacs.004 Message Validation EBA Scheme Rule Validation Failed
+Pacs.004 Transaction Duplicate Check Response
+Accepted
+Pacs.004 Transaction Validation Transaction Duplicate Check Passed
+Pacs.004 Transaction Duplicate Check Response
+Rejected
+Pacs.004 Transaction Validation Transaction Duplicate Check Failed
+Pacs.004 Transaction Rules Validation Response
+Accepted
+Pacs.004 Transaction Validation Transaction Rule Validation Passed
+Pacs.004 Transaction Rules Validation Response
+Rejected
+Pacs.004 Transaction Validation Transaction Rule Validation Failed
+Generate Modified Pacs.004 Response
+Accepted
+Pacs.004 Transaction Validation Generate Modified Pacs.004 Passed
+Generate Modified Pacs.004 Response
+Rejected
+Pacs.004 Transaction Validation Generate Modified Pacs.004 Failed
+Pacs.004 Update Data Response
+Accepted
+Pacs.004 Transaction Validation Data Updated
+Pacs.004 Update Data Response
+Rejected
+Pacs.004 Transaction Validation Data Update Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Getting Configurations
+Call Function
+:
+Get Configurations
+Getting Configurations
+On
+Configuration Check Completed
+Mapping to Scheme Format
+Call Function
+:
+Map Pacs.004 To Scheme
+Mapping to Scheme Format
+On
+Map To Scheme Format Passed
+Pacs.004 Message Validation Checking Duplicate
+Call Function
+:
+Check Pacs.004 Duplicate
+Mapping to Scheme Format
+On
+Map To Scheme Format Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002 for Pacs.004
+Validating Scheme Schema
+On
+Scheme Schema Validation Passed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002 for Pacs.004
+Validating Scheme Schema
+On
+Scheme Schema Validation Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002 for Pacs.004
+Generating Pacs.002
+On
+Pacs.002 Response Generation Passed
+Sending Pacs.002
+Call Function
+:
+Send Pacs.002 for Pacs.004
+Generating Pacs.002
+On
+Pacs.002 Response Generation Failed
+Rejected
+Sending Pacs.002
+On
+Send Pacs.002 Passed
+Check Pacs.002 Group Status Rejected
+Call Decision
+:
+Check Pacs.002 Group Status Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 Group Status Rejected YES
+On
+NO
+raise event
+Check Pacs.002 Group Status Rejected NO
+Check Pacs.002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected YES
+Rejected
+Check Pacs.002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected NO
+Sending Pacs.004 for Submission
+Call Function
+:
+Send Pacs.004 For Submission
+Sending Pacs.004 for Submission
+On
+Pacs.004 Sent to Submit Flow Successfully
+Completed
+Sending Pacs.004 for Submission
+On
+Sending Pacs.004 to Submit Flow Failed
+Rejected
+Pacs.004 Message Validation Checking Duplicate
+On
+Pacs.004 Message Validation Duplicate Check Passed
+Pacs.004 Message Validation Validating Group Header Totals
+Call Function
+:
+Validate Pacs.004 Group Header Totals
+Pacs.004 Message Validation Checking Duplicate
+On
+Pacs.004 Message Validation Duplicate Check Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002 for Pacs.004
+Pacs.004 Message Validation Validating Group Header Totals
+On
+Pacs.004 Message Validation Group Header Totals Validation Passed
+Pacs.004 Message Validation Validating Settlement Date
+Call Function
+:
+Validate Pacs.004 Settlement Date
+Pacs.004 Message Validation Validating Group Header Totals
+On
+Pacs.004 Message Validation Group Header Totals Validation Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002 for Pacs.004
+Pacs.004 Message Validation Validating Settlement Date
+On
+Pacs.004 Message Validation Settlement Date Validation Passed
+Pacs.004 Message Validation Validating Scheme Rules Group Header
+Call Function
+:
+Validate Pacs.004 EBA Scheme Rules
+Pacs.004 Message Validation Validating Settlement Date
+On
+Pacs.004 Message Validation Settlement Date Validation Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002 for Pacs.004
+Pacs.004 Message Validation Validating Scheme Rules Group Header
+On
+Pacs.004 Message Validation EBA Scheme Rule Validation Passed
+Pacs.004 Transaction Validation Generating Modified Pacs.004
+Call Function
+:
+Generate Modified Pacs.004
+Pacs.004 Message Validation Validating Scheme Rules Group Header
+On
+Pacs.004 Message Validation EBA Scheme Rule Validation Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002 for Pacs.004
+Pacs.004 Transaction Validation Generating Modified Pacs.004
+On
+Pacs.004 Transaction Validation Generate Modified Pacs.004 Passed
+Pacs.004 Transaction Validation Checking Transaction Duplicate
+Call Function
+:
+Check Pacs.004 Transaction Duplicate
+Pacs.004 Transaction Validation Generating Modified Pacs.004
+On
+Pacs.004 Transaction Validation Generate Modified Pacs.004 Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002 for Pacs.004
+Pacs.004 Transaction Validation Checking Transaction Duplicate
+On
+Pacs.004 Transaction Validation Transaction Duplicate Check Passed
+Pacs.004 Transaction Validation Validating Transaction Rules
+Call Function
+:
+Validate Pacs.004 Transaction Rules
+Pacs.004 Transaction Validation Checking Transaction Duplicate
+On
+Pacs.004 Transaction Validation Transaction Duplicate Check Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002 for Pacs.004
+Pacs.004 Transaction Validation Validating Transaction Rules
+On
+Pacs.004 Transaction Validation Transaction Rule Validation Passed
+Pacs.004 Transaction Validation Updating After Validation
+Call Function
+:
+Pacs.004 Update Data
+Pacs.004 Transaction Validation Validating Transaction Rules
+On
+Pacs.004 Transaction Validation Transaction Rule Validation Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002 for Pacs.004
+Pacs.004 Transaction Validation Updating After Validation
+On
+Pacs.004 Transaction Validation Data Updated
+Validating Scheme Schema
+Call Function
+:
+Validate Pacs.004 Scheme Schema
+Pacs.004 Transaction Validation Updating After Validation
+On
+Pacs.004 Transaction Validation Data Update Failed
+Generating Pacs.002
+Call Function
+:
+Generate Pacs.002 for Pacs.004
+Validate Camt.029
+Flow Properties
+Flow Name:
+Validate Camt.029
+Version:
+0
+Description:
+Validate Camt.029 Flow
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Getting Configurations
+Getting Configuration
+PENDING
+No
+No
+No
+Mapping to Scheme Format
+Mapping to Scheme Format
+PENDING
+No
+No
+No
+Validating Scheme Schema
+Validating Scheme Schema
+PENDING
+No
+No
+No
+Generating Pacs.002 Response
+Generating Pacs.002 Response
+PENDING
+No
+No
+No
+Sending Pacs.002 Response
+Sending Pacs.002 Response
+PENDING
+No
+No
+No
+Sending Camt.029 for Submission
+Sending Camt.029 to Submit flow
+PENDING
+No
+No
+No
+Rejected
+Rejected
+REJECTED
+Yes
+No
+No
+Completed
+Completed
+ACCEPTED
+Yes
+No
+No
+Check Pacs.002 Group Status Rejected
+Generated state
+none
+No
+No
+No
+Camt.029 Message Validation Camt.029 Message Validation
+Generated state
+none
+No
+No
+No
+Camt.029 Transaction Validation Camt.029 Transaction Validation
+Generated state
+none
+No
+No
+No
+Camt.029 Message Validation Checking Duplicate
+Checking Duplicate
+PENDING
+No
+No
+No
+Camt.029 Message Validation Validating Message Rules
+Validating Message Rules
+PENDING
+No
+No
+No
+Camt.029 Transaction Validation Generating Modified Camt.029
+Generating modified Camt.029 for encrichment
+PENDING
+No
+No
+No
+Camt.029 Transaction Validation Checking Transaction Duplicate
+Checking Transaction Duplicate
+PENDING
+No
+No
+No
+Camt.029 Transaction Validation Validating Transaction Rules
+Validating Transaction Rules
+PENDING
+No
+No
+No
+Camt.029 Transaction Validation Post Validation Update
+Updating After Validation
+PENDING
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Resolution Of Investigation
+ConfigurationData
+Original Request Id
+Configuration Check Completed
+Configuration Check Completed
+none
+Map To Scheme Format Passed
+Map To Scheme Format Passed
+SCTResolutionOfInvestigation
+Map To Scheme Format Failed
+Map To Scheme Format Failed
+Reason Type
+Scheme Schema Validation Passed
+Scheme Schema Validation Passed
+none
+Scheme Schema Validation Failed
+Scheme Schema Validation Failed
+Reason Type
+Pacs.002 Response Generation Passed
+Pacs.002 Response Generation Passed
+Payment Status Report
+Pacs.002 Response Generation Failed
+Pacs.002 Response Generation Failed
+none
+Send Pacs.002 Passed
+Sending Pacs.002 Passed
+none
+Camt.029 Sent to Submit Flow Successfully
+Camt.029 Sent to Submit Flow Successfully
+none
+Sending Camt.029 to Submit Flow Failed
+Sending Camt.029 to Submit Flow Failed
+none
+Check Pacs.002 Group Status Rejected YES
+none
+Check Pacs.002 Group Status Rejected NO
+none
+Camt.029 Message Validation Duplicate Check Passed
+Duplicate Check Passed
+none
+Camt.029 Message Validation Duplicate Check Failed
+Duplicate Check Failed
+none
+Camt.029 Message Validation Validating Message Rules Passed
+Validating Message Rules Passed
+none
+Camt.029 Message Validation Validating Message Rules Failed
+Validating Message Rules Failed
+none
+Camt.029 Transaction Validation Generate Modified Camt.029 Passed
+Generate Modified Camt.029 Passed
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+Camt.029 Transaction Validation Generate Modified Camt.029 Failed
+Generate Modified Camt.029 Failed
+none
+Camt.029 Transaction Validation Transaction Duplicate Check Passed
+Transaction Duplicate Check Passed
+Collection of TxInfAndSts
+Modified SCTResolutionOfInvestigation
+Camt.029 Transaction Validation Transaction Duplicate Check Failed
+Transaction Duplicate Check Failed
+Collection of TxInfAndSts
+Modified SCTResolutionOfInvestigation
+Camt.029 Transaction Validation Transaction Rule Validation Passed
+Transaction Rule Validation Passed
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+Camt.029 Transaction Validation Transaction Rule Validation Failed
+Transaction Rule Validation Failed
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+Camt.029 Transaction Validation Data Updated
+Post Validation Data Updated Successfully
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+Camt.029 Transaction Validation Data Update Failed
+Post Validation Data Update Failed
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Validate Camt.029 (V0)
+none
+Flow Initiated
+Get Configurations Response
+none
+Configuration Check Completed
+Map Camt.029 To Scheme Response
+Accepted
+Map To Scheme Format Passed
+Map Camt.029 To Scheme Response
+Rejected
+Map To Scheme Format Failed
+Validate Camt.029 Scheme Schema Response
+Accepted
+Scheme Schema Validation Passed
+Validate Camt.029 Scheme Schema Response
+Rejected
+Scheme Schema Validation Failed
+Generate Pacs.002 For Camt.029 Response
+Accepted
+Pacs.002 Response Generation Passed
+Generate Pacs.002 For Camt.029 Response
+Rejected
+Pacs.002 Response Generation Failed
+Send Pacs.002 For Camt.029 Response
+none
+Send Pacs.002 Passed
+Send Camt.029 For Submission Response
+Accepted
+Camt.029 Sent to Submit Flow Successfully
+Send Camt.029 For Submission Response
+Rejected
+Sending Camt.029 to Submit Flow Failed
+Check Duplicate Response
+Accepted
+Camt.029 Message Validation Duplicate Check Passed
+Check Duplicate Response
+Rejected
+Camt.029 Message Validation Duplicate Check Failed
+Validating Camt.029 Message Rules Response
+Accepted
+Camt.029 Message Validation Validating Message Rules Passed
+Validating Camt.029 Message Rules Response
+Rejected
+Camt.029 Message Validation Validating Message Rules Failed
+Generate Modified Camt.029 Response
+Accepted
+Camt.029 Transaction Validation Generate Modified Camt.029 Passed
+Generate Modified Camt.029 Response
+Rejected
+Camt.029 Transaction Validation Generate Modified Camt.029 Failed
+Camt.029 Transaction Duplicate Check Response
+Accepted
+Camt.029 Transaction Validation Transaction Duplicate Check Passed
+Camt.029 Transaction Duplicate Check Response
+Rejected
+Camt.029 Transaction Validation Transaction Duplicate Check Failed
+Camt.029 Transaction Rules Validation Response
+Accepted
+Camt.029 Transaction Validation Transaction Rule Validation Passed
+Camt.029 Transaction Rules Validation Response
+Rejected
+Camt.029 Transaction Validation Transaction Rule Validation Failed
+Camt.029 Update Data Response
+Accepted
+Camt.029 Transaction Validation Data Updated
+Camt.029 Update Data Response
+Rejected
+Camt.029 Transaction Validation Data Update Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Getting Configurations
+Call Function
+:
+Get Configurations
+Getting Configurations
+On
+Configuration Check Completed
+Mapping to Scheme Format
+Call Function
+:
+Map Camt.029 To Scheme
+Mapping to Scheme Format
+On
+Map To Scheme Format Passed
+Camt.029 Message Validation Checking Duplicate
+Call Function
+:
+Check Duplicate
+Mapping to Scheme Format
+On
+Map To Scheme Format Failed
+Generating Pacs.002 Response
+Call Function
+:
+Generate Pacs.002 For Camt.029
+Validating Scheme Schema
+On any of
+Scheme Schema Validation Passed
+Scheme Schema Validation Failed
+Generating Pacs.002 Response
+Call Function
+:
+Generate Pacs.002 For Camt.029
+Generating Pacs.002 Response
+On
+Pacs.002 Response Generation Passed
+Sending Pacs.002 Response
+Call Function
+:
+Send Pacs.002 For Camt.029
+Generating Pacs.002 Response
+On
+Pacs.002 Response Generation Failed
+Rejected
+Sending Pacs.002 Response
+On
+Send Pacs.002 Passed
+Check Pacs.002 Group Status Rejected
+Call Decision
+:
+Check Pacs.002 Group Status Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 Group Status Rejected YES
+On
+NO
+raise event
+Check Pacs.002 Group Status Rejected NO
+Check Pacs.002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected YES
+Rejected
+Check Pacs.002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected NO
+Sending Camt.029 for Submission
+Call Function
+:
+Send Camt.029 For Submission
+Sending Camt.029 for Submission
+On
+Camt.029 Sent to Submit Flow Successfully
+Completed
+Sending Camt.029 for Submission
+On
+Sending Camt.029 to Submit Flow Failed
+Rejected
+Camt.029 Message Validation Checking Duplicate
+On
+Camt.029 Message Validation Duplicate Check Passed
+Camt.029 Message Validation Validating Message Rules
+Call Function
+:
+Validating Camt.029 Message Rules
+Camt.029 Message Validation Checking Duplicate
+On
+Camt.029 Message Validation Duplicate Check Failed
+Generating Pacs.002 Response
+Call Function
+:
+Generate Pacs.002 For Camt.029
+Camt.029 Message Validation Validating Message Rules
+On
+Camt.029 Message Validation Validating Message Rules Passed
+Camt.029 Transaction Validation Generating Modified Camt.029
+Call Function
+:
+Generate Modified Camt.029
+Camt.029 Message Validation Validating Message Rules
+On
+Camt.029 Message Validation Validating Message Rules Failed
+Generating Pacs.002 Response
+Call Function
+:
+Generate Pacs.002 For Camt.029
+Camt.029 Transaction Validation Generating Modified Camt.029
+On
+Camt.029 Transaction Validation Generate Modified Camt.029 Passed
+Camt.029 Transaction Validation Checking Transaction Duplicate
+Call Function
+:
+Check Camt.029 Transaction Duplicate
+Camt.029 Transaction Validation Generating Modified Camt.029
+On
+Camt.029 Transaction Validation Generate Modified Camt.029 Failed
+Generating Pacs.002 Response
+Call Function
+:
+Generate Pacs.002 For Camt.029
+Camt.029 Transaction Validation Checking Transaction Duplicate
+On
+Camt.029 Transaction Validation Transaction Duplicate Check Passed
+Camt.029 Transaction Validation Validating Transaction Rules
+Call Function
+:
+Validate Camt.029 Transaction Rules
+Camt.029 Transaction Validation Checking Transaction Duplicate
+On
+Camt.029 Transaction Validation Transaction Duplicate Check Failed
+Generating Pacs.002 Response
+Call Function
+:
+Generate Pacs.002 For Camt.029
+Camt.029 Transaction Validation Validating Transaction Rules
+On
+Camt.029 Transaction Validation Transaction Rule Validation Passed
+Camt.029 Transaction Validation Post Validation Update
+Call Function
+:
+Camt.029 Update Data
+Camt.029 Transaction Validation Validating Transaction Rules
+On
+Camt.029 Transaction Validation Transaction Rule Validation Failed
+Generating Pacs.002 Response
+Call Function
+:
+Generate Pacs.002 For Camt.029
+Camt.029 Transaction Validation Post Validation Update
+On
+Camt.029 Transaction Validation Data Updated
+Validating Scheme Schema
+Call Function
+:
+Validate Camt.029 Scheme Schema
+Camt.029 Transaction Validation Post Validation Update
+On
+Camt.029 Transaction Validation Data Update Failed
+Generating Pacs.002 Response
+Call Function
+:
+Generate Pacs.002 For Camt.029
+Submit Pacs004
+Flow Properties
+Flow Name:
+Submit Pacs004
+Version:
+0
+Description:
+Flow responsible for submiting pacs.004 transaction to appropriate bulks
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Generating Bulk Name
+Generating name of the bulk to which transaction will be sent
+PENDING
+No
+No
+No
+Transaction Bulking
+Sending transaction to bulker
+PENDING
+No
+No
+No
+Registering Bulk Correlation
+Storing correlation between bulker and transaction that was sent to it
+PENDING
+No
+No
+No
+Transaction Submit Complete
+Transaction is submitted or failed to submit
+PENDING
+No
+No
+No
+Waiting For Scheme Responses
+Waiting for Scheme Response Notifications
+PENDING
+No
+No
+No
+Generating Validation pacs.002 Response
+Generating the pacs002 response following scheme response
+PENDING
+No
+No
+No
+Sending Pacs002
+Sending pacs002 response
+PENDING
+No
+No
+No
+Sending For Settlement Response
+Send To Settlement Response Flow
+PENDING
+No
+No
+No
+Submission Complete
+The flow has completed
+ACCEPTED
+Yes
+No
+No
+Submission Rejected
+The flow has resulted in a rejection.
+REJECTED
+Yes
+No
+No
+Message Contains Transactions
+Generated state
+none
+No
+No
+No
+Is Group Status Rejected
+Generated state
+none
+No
+No
+No
+Expecting More Scheme Response Notifications for Pacs.004
+Generated state
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Modified SCTPaymentReturn
+Collection of TxInfAndSts
+Submit Transaction Counter
+Original Request Id
+Bulk Correlation Not Registered
+Bulk correlation not registered
+none
+Bulk Correlation Registered
+Bulk correlation registered successfully
+none
+Transaction Not Sent To Bulk
+Transaction not sent to bulk
+none
+Transaction Sent To Bulk
+Transaction successfully sent to bulk
+Bulk Component Id
+Bulk Id
+Root Component Id
+Bulk Name Generation Failed
+Bulk Name generation failed
+none
+Transaction Counter Incremented
+Transaction counter incremented
+Submit Transaction Counter
+All Transactions Processed
+All transactions processed by submit flow
+none
+Bulk Name Generated
+Bulk Name generated successfully
+Bulk Identifier
+Scheme Response Notification Received
+Scheme Response Notification
+Scheme Response Notification
+TxInfAndSts Generation Failed
+TxInfAndSts Generation Failed
+none
+Validation Pacs.002 Generation Passed
+Validation Pacs.002 Generation Passed
+Payment Status Report
+Validation Pacs.002 Generation Failed
+Validation Pacs.002 Generation Failed
+none
+Send Pacs.002 For Pacs.004 Passed
+Send Pacs002 passed
+none
+Send To Settlement Response Flow Succeed
+Send To Settlement Response Flow Succeed
+none
+Send To Settlement Response Flow Failed
+Send To Settlement Response Flow Failed
+none
+TxInfAndSts Updated
+TxInfAndSts are partially updated
+Collection of TxInfAndSts
+Pacs.004 Contains Transactions YES
+none
+Pacs.004 Contains Transactions NO
+none
+Check Pacs.002 For Pacs.004 Group Status is Rejected YES
+none
+Check Pacs.002 For Pacs.004 Group Status is Rejected NO
+none
+Expecting More Scheme Response Notifications For Pacs.004 YES
+none
+Expecting More Scheme Response Notifications For Pacs.004 NO
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Submit Pacs004 (V0)
+none
+Flow Initiated
+Pacs.004 Bulk Name Response
+Accepted
+Bulk Name Generated
+Pacs.004 Bulk Name Response
+Rejected
+Bulk Name Generation Failed
+Pacs.004 Bulker Response
+Accepted
+Transaction Sent To Bulk
+Pacs.004 Bulker Response
+Rejected
+Transaction Not Sent To Bulk
+Pacs.004 Correlation Registration Response
+Accepted
+Bulk Correlation Registered
+Pacs.004 Correlation Registration Response
+Rejected
+Bulk Correlation Not Registered
+Increment Pacs.004 Transaction Counter Response
+none
+Transaction Counter Incremented
+Scheme Response Notification
+none
+Scheme Response Notification Received
+Generate TxInfAndSts For Pacs.004 Response
+Accepted
+TxInfAndSts Updated
+Generate TxInfAndSts For Pacs.004 Response
+Rejected
+TxInfAndSts Generation Failed
+Generate Validation Pacs.002 For Pacs.004 Response
+Accepted
+Validation Pacs.002 Generation Passed
+Generate Validation Pacs.002 For Pacs.004 Response
+Rejected
+Validation Pacs.002 Generation Failed
+Send Pacs.002 For Pacs.004 Response
+none
+Send Pacs.002 For Pacs.004 Passed
+Send Pacs.004 For Settlement Response
+Accepted
+Send To Settlement Response Flow Succeed
+Send Pacs.004 For Settlement Response
+Rejected
+Send To Settlement Response Flow Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Generating Bulk Name
+Call Function
+:
+Generate Pacs.004 Bulk Name
+Generating Bulk Name
+On
+Bulk Name Generated
+Transaction Bulking
+Call Function
+:
+Send Pacs.004 Transaction To Bulker
+Generating Bulk Name
+On
+Bulk Name Generation Failed
+Transaction Submit Complete
+Call Decision
+:
+More Pacs.004  Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Pacs.004 Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Transaction Bulking
+On
+Transaction Sent To Bulk
+Registering Bulk Correlation
+Call Function
+:
+Register Pacs.004 Bulk Correlation
+Transaction Bulking
+On
+Transaction Not Sent To Bulk
+Transaction Submit Complete
+Call Decision
+:
+More Pacs.004  Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Pacs.004 Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Registering Bulk Correlation
+On
+Bulk Correlation Registered
+Transaction Submit Complete
+Call Decision
+:
+More Pacs.004  Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Pacs.004 Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Registering Bulk Correlation
+On
+Bulk Correlation Not Registered
+Transaction Submit Complete
+Call Decision
+:
+More Pacs.004  Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Pacs.004 Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Transaction Submit Complete
+On
+Transaction Counter Incremented
+Generating Bulk Name
+Call Function
+:
+Generate Pacs.004 Bulk Name
+Transaction Submit Complete
+On
+All Transactions Processed
+Message Contains Transactions
+Call Decision
+:
+Pacs.004 Contains Transactions
+and then:
+On
+YES
+raise event
+Pacs.004 Contains Transactions YES
+On
+NO
+raise event
+Pacs.004 Contains Transactions NO
+Waiting For Scheme Responses
+On
+Scheme Response Notification Received
+Waiting For Scheme Responses
+Call Function
+:
+Update TxInfAndSts For Pacs.004
+Waiting For Scheme Responses
+On
+TxInfAndSts Generation Failed
+Submission Rejected
+Generating Validation pacs.002 Response
+On
+Validation Pacs.002 Generation Passed
+Sending Pacs002
+Call Function
+:
+Send Pacs.002 for Pacs.004
+Generating Validation pacs.002 Response
+On
+Validation Pacs.002 Generation Failed
+Submission Rejected
+Sending Pacs002
+On
+Send Pacs.002 For Pacs.004 Passed
+Is Group Status Rejected
+Call Decision
+:
+Check Pacs.002 For Pacs.004 Group Status is Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 For Pacs.004 Group Status is Rejected YES
+On
+NO
+raise event
+Check Pacs.002 For Pacs.004 Group Status is Rejected NO
+Is Group Status Rejected
+On
+Check Pacs.002 For Pacs.004 Group Status is Rejected YES
+Submission Rejected
+Is Group Status Rejected
+On
+Check Pacs.002 For Pacs.004 Group Status is Rejected NO
+Sending For Settlement Response
+Call Function
+:
+Send Pacs.004 For Settlement Response
+Sending For Settlement Response
+On
+Send To Settlement Response Flow Failed
+Submission Rejected
+Sending For Settlement Response
+On
+Send To Settlement Response Flow Succeed
+Submission Complete
+Waiting For Scheme Responses
+On
+TxInfAndSts Updated
+Expecting More Scheme Response Notifications for Pacs.004
+Call Decision
+:
+Expecting More Scheme Response Notifications For Pacs.004
+and then:
+On
+YES
+raise event
+Expecting More Scheme Response Notifications For Pacs.004 YES
+On
+NO
+raise event
+Expecting More Scheme Response Notifications For Pacs.004 NO
+Expecting More Scheme Response Notifications for Pacs.004
+On
+Expecting More Scheme Response Notifications For Pacs.004 YES
+Waiting For Scheme Responses
+Expecting More Scheme Response Notifications for Pacs.004
+On
+Expecting More Scheme Response Notifications For Pacs.004 NO
+Generating Validation pacs.002 Response
+Call Function
+:
+Generate Validation Pacs.002 For Pacs.004
+Message Contains Transactions
+On
+Pacs.004 Contains Transactions YES
+Waiting For Scheme Responses
+Call Notification
+:
+Passivate Flow Request
+Message Contains Transactions
+On
+Pacs.004 Contains Transactions NO
+Submission Rejected
+Submit Camt.029
+Flow Properties
+Flow Name:
+Submit Camt.029
+Version:
+0
+Description:
+Flow responsible for submiting Camt.029 transaction to appropriate bulks
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Generating Bulk Name
+Generating name of the bulk to which transaction will be sent
+PENDING
+No
+No
+No
+Transaction Bulking
+Sending transaction to bulker
+PENDING
+No
+No
+No
+Registering Bulk Correlation
+Storing correlation between bulker and transaction that was sent to it
+PENDING
+No
+No
+No
+Transaction Submit Complete
+Transaction is submitted or failed to submit
+PENDING
+No
+No
+No
+Waiting For Scheme Responses
+Waiting for Scheme Response Notifications
+PENDING
+No
+No
+No
+Generating Validation Pacs.002 Response
+Generating the Pacs.002 response following scheme response
+PENDING
+No
+No
+No
+Sending Pacs.002
+Sending Pacs.002 response
+PENDING
+No
+No
+No
+Submission Complete
+The flow has completed
+ACCEPTED
+Yes
+No
+No
+Submission Rejected
+The flow has resulted in a rejection.
+REJECTED
+Yes
+No
+No
+Message Contains Transactions
+Generated state
+none
+No
+No
+No
+Is Group Status Rejected
+Generated state
+none
+No
+No
+No
+Expecting More Scheme Response Notifications For Camt.029
+Generated state
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+Submit Transaction Counter
+Original Request Id
+Bulk Name Generated
+Bulk Name generated successfully
+Bulk Identifier
+Bulk Name Generation Failed
+Bulk Name generation failed
+none
+Transaction Counter Incremented
+Transaction counter incremented
+Submit Transaction Counter
+Bulk Correlation Registered
+Bulk correlation registered successfully
+none
+ICF Bulk Correlation Not Registered
+ICF Bulk correlation not registered
+none
+IQF Bulk Correlation Not Registered
+IQF Bulk correlation not registered
+none
+Transaction Sent To Bulk
+Transaction successfully sent to bulk
+Bulk Component Id
+Bulk Id
+Root Component Id
+ICF Transaction Not Sent To Bulk
+ICF Transaction not sent to bulk
+none
+IQF Transaction Not Sent To Bulk
+IQF Transaction not sent to bulk
+none
+All Transactions Processed
+All transactions processed by submit flow
+none
+Scheme Response Notification Received
+Scheme Response Notification
+Scheme Response Notification
+TxInfAndSts Generation Failed
+TxInfAndSts Generation Failed
+none
+Validation Pacs.002 Generation Passed
+Validation Pacs.002 Generation Passed
+Payment Status Report
+Validation Pacs.002 Generation Failed
+Validation Pacs.002 Generation Failed
+none
+Send Pacs.002 Passed
+Send Pacs.002 passed
+none
+TxInfAndSts Updated
+TxInfAndSts are partially updated
+Collection of TxInfAndSts
+Camt.029 Contains Transactions YES
+none
+Camt.029 Contains Transactions NO
+none
+Check Pacs.002 For Camt.029 Group Status is Rejected YES
+none
+Check Pacs.002 For Camt.029 Group Status is Rejected NO
+none
+Expecting More Scheme Response Notifications For Camt.029 YES
+none
+Expecting More Scheme Response Notifications For Camt.029 NO
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Submit Camt.029 (V0)
+none
+Flow Initiated
+Camt.029 Bulk Name Response
+Accepted
+Bulk Name Generated
+Camt.029 Bulk Name Response
+Rejected
+Bulk Name Generation Failed
+Camt.029 Bulker Response
+Accepted
+Transaction Sent To Bulk
+Camt.029 Bulker Response
+ICF Rejection
+ICF Transaction Not Sent To Bulk
+Camt.029 Bulker Response
+IQF Rejection
+IQF Transaction Not Sent To Bulk
+Camt.029 Correlation Registration Response
+Accepted
+Bulk Correlation Registered
+Camt.029 Correlation Registration Response
+ICF Rejection
+ICF Bulk Correlation Not Registered
+Camt.029 Correlation Registration Response
+IQF Rejection
+IQF Bulk Correlation Not Registered
+Increment Camt.029 Transaction Counter Response
+none
+Transaction Counter Incremented
+Scheme Response Notification
+none
+Scheme Response Notification Received
+Generate TxInfAndSts For Camt.029 Response
+Accepted
+TxInfAndSts Updated
+Generate TxInfAndSts For Camt.029 Response
+Rejected
+TxInfAndSts Generation Failed
+Generate Validation Pacs.002 For Camt.029 Response
+Accepted
+Validation Pacs.002 Generation Passed
+Generate Validation Pacs.002 For Camt.029 Response
+Rejected
+Validation Pacs.002 Generation Failed
+Send Pacs.002 For Camt.029 Response
+none
+Send Pacs.002 Passed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Generating Bulk Name
+Call Function
+:
+Generate Camt.029 Bulk Name
+Generating Bulk Name
+On
+Bulk Name Generated
+Transaction Bulking
+Call Function
+:
+Send Camt.029 Transaction To Bulker
+Generating Bulk Name
+On
+Bulk Name Generation Failed
+Transaction Submit Complete
+Call Decision
+:
+More Camt.029 Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Camt.029 Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Transaction Bulking
+On
+Transaction Sent To Bulk
+Registering Bulk Correlation
+Call Function
+:
+Register Camt.029 Bulk Correlation
+Transaction Bulking
+On
+ICF Transaction Not Sent To Bulk
+Transaction Submit Complete
+Call Decision
+:
+More Camt.029 Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Camt.029 Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Transaction Bulking
+On
+IQF Transaction Not Sent To Bulk
+Submission Rejected
+Registering Bulk Correlation
+On
+Bulk Correlation Registered
+Transaction Submit Complete
+Call Decision
+:
+More Camt.029 Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Camt.029 Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Registering Bulk Correlation
+On
+ICF Bulk Correlation Not Registered
+Transaction Submit Complete
+Call Decision
+:
+More Camt.029 Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Camt.029 Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Registering Bulk Correlation
+On
+IQF Bulk Correlation Not Registered
+Submission Rejected
+Transaction Submit Complete
+On
+Transaction Counter Incremented
+Generating Bulk Name
+Call Function
+:
+Generate Camt.029 Bulk Name
+Transaction Submit Complete
+On
+All Transactions Processed
+Message Contains Transactions
+Call Decision
+:
+Camt.029 Contains Transactions
+and then:
+On
+YES
+raise event
+Camt.029 Contains Transactions YES
+On
+NO
+raise event
+Camt.029 Contains Transactions NO
+Waiting For Scheme Responses
+On
+Scheme Response Notification Received
+Waiting For Scheme Responses
+Call Function
+:
+Update TxInfAndSts For Camt.029
+Waiting For Scheme Responses
+On
+TxInfAndSts Generation Failed
+Submission Rejected
+Generating Validation Pacs.002 Response
+On
+Validation Pacs.002 Generation Passed
+Sending Pacs.002
+Call Function
+:
+Send Pacs.002 For Camt.029
+Generating Validation Pacs.002 Response
+On
+Validation Pacs.002 Generation Failed
+Submission Rejected
+Sending Pacs.002
+On
+Send Pacs.002 Passed
+Is Group Status Rejected
+Call Decision
+:
+Check Pacs.002 For Camt.029 Group Status is Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 For Camt.029 Group Status is Rejected YES
+On
+NO
+raise event
+Check Pacs.002 For Camt.029 Group Status is Rejected NO
+Is Group Status Rejected
+On
+Check Pacs.002 For Camt.029 Group Status is Rejected YES
+Submission Rejected
+Is Group Status Rejected
+On
+Check Pacs.002 For Camt.029 Group Status is Rejected NO
+Submission Complete
+Expecting More Scheme Response Notifications For Camt.029
+On
+Expecting More Scheme Response Notifications For Camt.029 NO
+Generating Validation Pacs.002 Response
+Call Function
+:
+Generate Validation Pacs.002 For Camt.029
+Expecting More Scheme Response Notifications For Camt.029
+On
+Expecting More Scheme Response Notifications For Camt.029 YES
+Waiting For Scheme Responses
+Waiting For Scheme Responses
+On
+TxInfAndSts Updated
+Expecting More Scheme Response Notifications For Camt.029
+Call Decision
+:
+Expecting More Scheme Response Notifications For Camt.029
+and then:
+On
+YES
+raise event
+Expecting More Scheme Response Notifications For Camt.029 YES
+On
+NO
+raise event
+Expecting More Scheme Response Notifications For Camt.029 NO
+Message Contains Transactions
+On
+Camt.029 Contains Transactions YES
+Waiting For Scheme Responses
+Call Notification
+:
+Passivate Flow Request
+Message Contains Transactions
+On
+Camt.029 Contains Transactions NO
+Submission Rejected
+Settlement Response Pacs.004
+Flow Properties
+Flow Name:
+Settlement Response Pacs.004
+Version:
+0
+Description:
+Settlement Response Flow Pacs.004
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Generating EOD Pacs.002 Response
+EOD pacs.002 Created
+PENDING
+No
+No
+No
+Waiting For CGS EOD Cutoff
+Waiting for trigger which will send EOD Pacs.002 to the client
+PENDING
+No
+No
+No
+Sending EOD Pacs.002
+Sending EOD Pacs.002
+PENDING
+No
+No
+No
+Rejected
+The flow has resulted in a rejection.
+REJECTED
+Yes
+No
+No
+Completed
+The flow has resulted in a completion
+ACCEPTED
+Yes
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Payment Status Report
+Interbank Settlement Date
+Original Request Id
+Generation EOD Pacs.002 Response Success
+Generation EOD Pacs.002 Response Success
+Modified Payment Status Report
+Generation EOD Pacs.002 Response Failed
+Generation EOD Pacs.002 Response Failed
+none
+Optional Update Scheme Response Notification Received
+Optional Update Scheme Response Notification
+Optional Update Scheme Response Notification
+EOD Pacs.002 Updated
+EOD Pacs.002 is updated
+Modified Payment Status Report
+CGS EOD Output Delivery Cutoff Time Reached
+CGS EOD Output Delivery Cutoff Time Reached
+none
+Send EOD Pacs.002 Passed
+Send EOD Pacs.002 Passed
+none
+Send EOD Pacs.002 Failed
+Send Eod Pacs.002 Failed
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Settlement Response Pacs.004 (V0)
+none
+Flow Initiated
+Generate EOD Pacs.002 Response
+Accepted
+Generation EOD Pacs.002 Response Success
+Generate EOD Pacs.002 Response
+Rejected
+Generation EOD Pacs.002 Response Failed
+Optional Update Scheme Response Notification
+none
+Optional Update Scheme Response Notification Received
+Update EOD Pacs.002 Response
+none
+EOD Pacs.002 Updated
+CGS EOD Output Trigger
+none
+CGS EOD Output Delivery Cutoff Time Reached
+Send EOD Pacs.002 Response
+Accepted
+Send EOD Pacs.002 Passed
+Send EOD Pacs.002 Response
+Rejected
+Send EOD Pacs.002 Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Generating EOD Pacs.002 Response
+Call Function
+:
+Generate EOD Pacs.002
+Generating EOD Pacs.002 Response
+On
+Generation EOD Pacs.002 Response Failed
+Rejected
+Generating EOD Pacs.002 Response
+On
+Generation EOD Pacs.002 Response Success
+Waiting For CGS EOD Cutoff
+Call Notification
+:
+Passivate Flow Request
+Waiting For CGS EOD Cutoff
+On
+Optional Update Scheme Response Notification Received
+Waiting For CGS EOD Cutoff
+Call Function
+:
+Update EOD Pacs.002
+Waiting For CGS EOD Cutoff
+On
+EOD Pacs.002 Updated
+Waiting For CGS EOD Cutoff
+Waiting For CGS EOD Cutoff
+On
+CGS EOD Output Delivery Cutoff Time Reached
+Sending EOD Pacs.002
+Call Function
+:
+Send EOD Pacs.002
+Sending EOD Pacs.002
+On
+Send EOD Pacs.002 Passed
+Completed
+Sending EOD Pacs.002
+On
+Send EOD Pacs.002 Failed
+Rejected
+Validate Camt056
+Flow Properties
+Flow Name:
+Validate Camt056
+Version:
+0
+Description:
+Payments Validation Flow
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Getting Configurations
+Getting Configuration
+PENDING
+No
+No
+No
+Mapping to Scheme
+Mapping to Scheme Format
+PENDING
+No
+No
+No
+Validating Scheme Schema
+Validating Scheme Schema
+PENDING
+No
+No
+No
+Generating Positive Pacs.002
+Generate ACTC Or PART Pacs.002
+PENDING
+No
+No
+No
+Generating Negative Pacs.002
+Generating Rejected Pacs.002
+PENDING
+No
+No
+No
+Sending Pacs.002
+Sending Pacs.002 Response
+PENDING
+No
+No
+No
+Sending for Submission
+Sending pacs008 to Submit flow
+PENDING
+No
+No
+No
+Rejected
+Rejected
+REJECTED
+Yes
+No
+No
+Completed
+Completed
+ACCEPTED
+Yes
+No
+No
+Check Pacs002 Group Status Rejected
+Generated state
+none
+No
+No
+No
+Camt.056 Message Validation Camt.056 Message Validation
+Generated state
+none
+No
+No
+No
+Camt.056 Transaction Validation Camt.056 Transaction Validation
+Generated state
+none
+No
+No
+No
+Camt.056 Message Validation Checking Duplicate
+Checking duplicate
+PENDING
+No
+No
+No
+Camt.056 Message Validation Checking Instructing Agent
+Checking Instructing Agent
+PENDING
+No
+No
+No
+Camt.056 Message Validation Checking Number Of Transactions
+Checking Number Of Transactions
+PENDING
+No
+No
+No
+Camt.056 Transaction Validation Generating Modified Camt.056
+Generating modified Camt.056
+PENDING
+No
+No
+No
+Camt.056 Transaction Validation Checking Transaction Duplicate
+Checking transaction duplicate
+PENDING
+No
+No
+No
+Camt.056 Transaction Validation Validating Transaction Rules
+Validating transaction rules
+PENDING
+No
+No
+No
+Camt.056 Transaction Validation Post Validation Update
+Post validation update
+PENDING
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Payment Cancellation Request
+ConfigurationData
+Original Request Id
+Configuration Check Completed
+Configuration Check Completed
+none
+Map To Scheme Format Passed
+Map To Scheme Passed
+SCTFIToFIPaymentCancellationRequest
+Map To Scheme Format Failed
+Map To Scheme Failed
+Reason Type
+Scheme Schema Validation Passed
+Scheme Schema Validation Passed
+none
+Scheme Schema Validation Failed
+Scheme Schema Validation Failed
+Reason Type
+Send Pacs.002 Passed
+Sending Pacs.002 Passed
+none
+Camt.056 Sent to Submit Flow Successfully
+Pacs008 Sent to Submit Flow Successfully
+none
+Sending Camt.056 to Submit Flow Failed
+Sending Pacs008 to Submit Flow Failed
+none
+Pacs.002 Response Generation Passed
+Pacs.002 Response Generation Passed
+Payment Status Report
+Pacs.002 Response Generation Failed
+Pacs.002 Response Generation Failed
+none
+Check Pacs.002 Group Status Rejected YES
+none
+Check Pacs.002 Group Status Rejected NO
+none
+Camt.056 Message Validation Duplicate Check Passed
+Duplicate check passed
+none
+Camt.056 Message Validation Duplicate Check Failed
+Duplicate check failed
+Reason Type
+Camt.056 Message Validation Instructing Agent Check Passed
+Instructing Agent Check Passed
+none
+Camt.056 Message Validation Instructing Agent Check Failed
+Instructing Agent Check Failed
+Reason Type
+Camt.056 Message Validation Number Of Transactions Check Passed
+Number Of Transactions Check Passed
+none
+Camt.056 Message Validation Number Of Transactions Check Failed
+Number Of Transactions Check Failed
+Reason Type
+Camt.056 Transaction Validation Generate Modified Camt.056 Passed
+Generate modified Camt.056 passed
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+Camt.056 Transaction Validation Generate Modified Camt.056 Failed
+Generate modified Camt.056 failed
+none
+Camt.056 Transaction Validation Transaction Duplicate Check Passed
+Transaction duplicate check passed
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+Camt.056 Transaction Validation Transaction Duplicate Check Failed
+Transaction duplicate check failed
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+Camt.056 Transaction Validation Transaction Rule Validation Passed
+Transaction rule validation passed
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+Camt.056 Transaction Validation Transaction Rule Validation Failed
+Transaction rule validation failed
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+Camt.056 Transaction Validation Data Updated
+Camt.056 data updated after transaction validation
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+Camt.056 Transaction Validation Data Update Failed
+Failed to update Camt.056 data after transaction validation
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Validate Camt056 (V0)
+none
+Flow Initiated
+Get Configurations Response
+none
+Configuration Check Completed
+Map Camt.056 To Scheme Response
+Accepted
+Map To Scheme Format Passed
+Map Camt.056 To Scheme Response
+Rejected
+Map To Scheme Format Failed
+Validate Camt.056 Scheme Schema Response
+Accepted
+Scheme Schema Validation Passed
+Validate Camt.056 Scheme Schema Response
+Rejected
+Scheme Schema Validation Failed
+Send Pacs.002 For Camt.056 Response
+none
+Send Pacs.002 Passed
+Send Camt.056 For Submission Response
+Accepted
+Camt.056 Sent to Submit Flow Successfully
+Send Camt.056 For Submission Response
+Rejected
+Sending Camt.056 to Submit Flow Failed
+Generate Pacs.002 For Camt.056 Response
+Accepted
+Pacs.002 Response Generation Passed
+Generate Pacs.002 For Camt.056 Response
+Rejected
+Pacs.002 Response Generation Failed
+Check Camt.056 Duplicate Response
+Accepted
+Camt.056 Message Validation Duplicate Check Passed
+Check Camt.056 Duplicate Response
+Rejected
+Camt.056 Message Validation Duplicate Check Failed
+Check Camt.056 Instructing Agent Response
+Accepted
+Camt.056 Message Validation Instructing Agent Check Passed
+Check Camt.056 Instructing Agent Response
+Rejected
+Camt.056 Message Validation Instructing Agent Check Failed
+Check Camt.056 Number Of Transactions Response
+Accepted
+Camt.056 Message Validation Number Of Transactions Check Passed
+Check Camt.056 Number Of Transactions Response
+Rejected
+Camt.056 Message Validation Number Of Transactions Check Failed
+Generate Modified Camt.056 Response
+Accepted
+Camt.056 Transaction Validation Generate Modified Camt.056 Passed
+Generate Modified Camt.056 Response
+Rejected
+Camt.056 Transaction Validation Generate Modified Camt.056 Failed
+Camt.056 Transaction Duplicate Check Response
+Accepted
+Camt.056 Transaction Validation Transaction Duplicate Check Passed
+Camt.056 Transaction Duplicate Check Response
+Rejected
+Camt.056 Transaction Validation Transaction Duplicate Check Failed
+Camt.056 Transaction Rules Validation Response
+Accepted
+Camt.056 Transaction Validation Transaction Rule Validation Passed
+Camt.056 Transaction Rules Validation Response
+Rejected
+Camt.056 Transaction Validation Transaction Rule Validation Failed
+Camt.056 Update Data Response
+Accepted
+Camt.056 Transaction Validation Data Updated
+Camt.056 Update Data Response
+Rejected
+Camt.056 Transaction Validation Data Update Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Getting Configurations
+Call Function
+:
+Get Configurations
+Getting Configurations
+On
+Configuration Check Completed
+Mapping to Scheme
+Call Function
+:
+Map Camt.056 To Scheme
+Mapping to Scheme
+On
+Map To Scheme Format Passed
+Camt.056 Message Validation Checking Duplicate
+Call Function
+:
+Check Camt.056 Duplicate
+Mapping to Scheme
+On
+Map To Scheme Format Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Camt.056
+Validating Scheme Schema
+On
+Scheme Schema Validation Passed
+Generating Positive Pacs.002
+Call Function
+:
+Generate Pacs.002 For Camt.056
+Validating Scheme Schema
+On
+Scheme Schema Validation Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Camt.056
+Generating Negative Pacs.002
+On
+Pacs.002 Response Generation Passed
+Sending Pacs.002
+Call Function
+:
+Send Pacs.002 For Camt.056
+Generating Positive Pacs.002
+On
+Pacs.002 Response Generation Passed
+Sending Pacs.002
+Call Function
+:
+Send Pacs.002 For Camt.056
+Generating Negative Pacs.002
+On
+Pacs.002 Response Generation Failed
+Rejected
+Generating Positive Pacs.002
+On
+Pacs.002 Response Generation Failed
+Rejected
+Sending Pacs.002
+On
+Send Pacs.002 Passed
+Check Pacs002 Group Status Rejected
+Call Decision
+:
+Check Pacs.002 Group Status Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 Group Status Rejected YES
+On
+NO
+raise event
+Check Pacs.002 Group Status Rejected NO
+Check Pacs002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected YES
+Rejected
+Check Pacs002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected NO
+Sending for Submission
+Call Function
+:
+Send Camt.056 For Submission
+Sending for Submission
+On
+Camt.056 Sent to Submit Flow Successfully
+Completed
+Sending for Submission
+On
+Sending Camt.056 to Submit Flow Failed
+Rejected
+Camt.056 Message Validation Checking Duplicate
+On
+Camt.056 Message Validation Duplicate Check Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Camt.056
+Camt.056 Message Validation Checking Duplicate
+On
+Camt.056 Message Validation Duplicate Check Passed
+Camt.056 Message Validation Checking Instructing Agent
+Call Function
+:
+Check Camt.056 Instructing Agent
+Camt.056 Message Validation Checking Instructing Agent
+On
+Camt.056 Message Validation Instructing Agent Check Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Camt.056
+Camt.056 Message Validation Checking Instructing Agent
+On
+Camt.056 Message Validation Instructing Agent Check Passed
+Camt.056 Message Validation Checking Number Of Transactions
+Call Function
+:
+Check Camt.056 Number Of Transactions
+Camt.056 Message Validation Checking Number Of Transactions
+On
+Camt.056 Message Validation Number Of Transactions Check Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Camt.056
+Camt.056 Message Validation Checking Number Of Transactions
+On
+Camt.056 Message Validation Number Of Transactions Check Passed
+Camt.056 Transaction Validation Generating Modified Camt.056
+Call Function
+:
+Generate Modified Camt.056
+Camt.056 Transaction Validation Generating Modified Camt.056
+On
+Camt.056 Transaction Validation Generate Modified Camt.056 Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Camt.056
+Camt.056 Transaction Validation Generating Modified Camt.056
+On
+Camt.056 Transaction Validation Generate Modified Camt.056 Passed
+Camt.056 Transaction Validation Checking Transaction Duplicate
+Call Function
+:
+Check Camt.056 Transaction Duplicate
+Camt.056 Transaction Validation Checking Transaction Duplicate
+On
+Camt.056 Transaction Validation Transaction Duplicate Check Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Camt.056
+Camt.056 Transaction Validation Checking Transaction Duplicate
+On
+Camt.056 Transaction Validation Transaction Duplicate Check Passed
+Camt.056 Transaction Validation Validating Transaction Rules
+Call Function
+:
+Validate Camt.056 Transaction Rules
+Camt.056 Transaction Validation Validating Transaction Rules
+On
+Camt.056 Transaction Validation Transaction Rule Validation Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Camt.056
+Camt.056 Transaction Validation Validating Transaction Rules
+On
+Camt.056 Transaction Validation Transaction Rule Validation Passed
+Camt.056 Transaction Validation Post Validation Update
+Call Function
+:
+Camt.056 Update Data
+Camt.056 Transaction Validation Post Validation Update
+On
+Camt.056 Transaction Validation Data Update Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Camt.056
+Camt.056 Transaction Validation Post Validation Update
+On
+Camt.056 Transaction Validation Data Updated
+Validating Scheme Schema
+Call Function
+:
+Validate Camt.056 Scheme Schema
+Submit Camt.056
+Flow Properties
+Flow Name:
+Submit Camt.056
+Version:
+0
+Description:
+Flow responsible for submitting Camt.056 transaction to appropriate bulks
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Generating Bulk Name
+Generating name of the bulk to which transaction will be sent
+PENDING
+No
+No
+No
+Transaction Bulking
+Sending transaction to bulker
+PENDING
+No
+No
+No
+Registering Bulk Correlation
+Storing correlation between bulker and transaction that was sent to it
+PENDING
+No
+No
+No
+Transaction Submit Complete
+Transaction is submitted or failed to submit
+PENDING
+No
+No
+No
+Waiting For Scheme Responses
+Waiting for Scheme Response Notifications
+PENDING
+No
+No
+No
+Generating Validation Pacs.002 Response
+Generating the Pacs.002 response following scheme response
+PENDING
+No
+No
+No
+Sending Pacs.002
+Sending Pacs.002 response
+PENDING
+No
+No
+No
+Submission Complete
+The flow has completed
+ACCEPTED
+Yes
+No
+No
+Submission Rejected
+The flow has resulted in a rejection.
+REJECTED
+Yes
+No
+No
+Message Contains Transactions
+Generated state
+none
+No
+No
+No
+Is Group Status Rejected
+Generated state
+none
+No
+No
+No
+Expecting More Scheme Response Notifications For Camt.056
+Generated state
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+Submit Transaction Counter
+Original Request Id
+Bulk Name Generated
+Bulk Name generated successfully
+Bulk Identifier
+Bulk Name Generation Failed
+Bulk Name generation failed
+none
+Transaction Counter Incremented
+Transaction counter incremented
+Submit Transaction Counter
+Bulk Correlation Registered
+Bulk correlation registered successfully
+none
+Bulk Correlation Not Registered
+Bulk correlation not registered
+none
+Transaction Sent To Bulk
+Transaction successfully sent to bulk
+Bulk Component Id
+Bulk Id
+Root Component Id
+Transaction Not Sent To Bulk
+Transaction not sent to bulk
+none
+All Transactions Processed
+All transactions processed by submit flow
+none
+Scheme Response Notification Received
+Scheme Response Notification
+Scheme Response Notification
+TxInfAndSts Generation Failed
+TxInfAndSts Generation Failed
+none
+Validation Pacs.002 Generation Passed
+Validation Pacs.002 Generation Passed
+Payment Status Report
+Validation Pacs.002 Generation Failed
+Validation Pacs.002 Generation Failed
+none
+Send Pacs.002 Passed
+Send Pacs.002 passed
+none
+TxInfAndSts Updated
+TxInfAndSts are partially updated
+Collection of TxInfAndSts
+Camt.056 Contains Transactions YES
+none
+Camt.056 Contains Transactions NO
+none
+Check Pacs.002 For Camt.056 Group Status is Rejected YES
+none
+Check Pacs.002 For Camt.056 Group Status is Rejected NO
+none
+Expecting More Scheme Response Notifications For Camt.056 YES
+none
+Expecting More Scheme Response Notifications For Camt.056 NO
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Submit Camt.056 (V0)
+none
+Flow Initiated
+Camt.056 Bulk Name Response
+Accepted
+Bulk Name Generated
+Camt.056 Bulk Name Response
+Rejected
+Bulk Name Generation Failed
+Camt.056 Bulker Response
+Accepted
+Transaction Sent To Bulk
+Camt.056 Bulker Response
+Rejected
+Transaction Not Sent To Bulk
+Camt.056 Correlation Registration Response
+Accepted
+Bulk Correlation Registered
+Camt.056 Correlation Registration Response
+Rejected
+Bulk Correlation Not Registered
+Increment Camt.056 Transaction Counter Response
+none
+Transaction Counter Incremented
+Scheme Response Notification
+none
+Scheme Response Notification Received
+Generate TxInfAndSts For Camt.056 Response
+Accepted
+TxInfAndSts Updated
+Generate TxInfAndSts For Camt.056 Response
+Rejected
+TxInfAndSts Generation Failed
+Generate Validation Pacs.002 For Camt.056 Response
+Accepted
+Validation Pacs.002 Generation Passed
+Generate Validation Pacs.002 For Camt.056 Response
+Rejected
+Validation Pacs.002 Generation Failed
+Send Pacs.002 For Camt.056 Response
+none
+Send Pacs.002 Passed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Generating Bulk Name
+Call Function
+:
+Generate Camt.056 Bulk Name
+Generating Bulk Name
+On
+Bulk Name Generated
+Transaction Bulking
+Call Function
+:
+Send Camt.056 Transaction To Bulker
+Generating Bulk Name
+On
+Bulk Name Generation Failed
+Transaction Submit Complete
+Call Decision
+:
+More Camt.056 Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Camt.056 Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Transaction Bulking
+On
+Transaction Sent To Bulk
+Registering Bulk Correlation
+Call Function
+:
+Register Camt.056 Bulk Correlation
+Transaction Bulking
+On
+Transaction Not Sent To Bulk
+Transaction Submit Complete
+Call Decision
+:
+More Camt.056 Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Camt.056 Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Registering Bulk Correlation
+On
+Bulk Correlation Registered
+Transaction Submit Complete
+Call Decision
+:
+More Camt.056 Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Camt.056 Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Registering Bulk Correlation
+On
+Bulk Correlation Not Registered
+Transaction Submit Complete
+Call Decision
+:
+More Camt.056 Transactions To Be Bulked
+and then:
+On
+YES
+call function
+Increment Camt.056 Transaction Counter
+On
+NO
+raise event
+All Transactions Processed
+Transaction Submit Complete
+On
+Transaction Counter Incremented
+Generating Bulk Name
+Call Function
+:
+Generate Camt.056 Bulk Name
+Transaction Submit Complete
+On
+All Transactions Processed
+Message Contains Transactions
+Call Decision
+:
+Camt.056 Contains Transactions
+and then:
+On
+YES
+raise event
+Camt.056 Contains Transactions YES
+On
+NO
+raise event
+Camt.056 Contains Transactions NO
+Waiting For Scheme Responses
+On
+Scheme Response Notification Received
+Waiting For Scheme Responses
+Call Function
+:
+Update TxInfAndSts For Camt.056
+Waiting For Scheme Responses
+On
+TxInfAndSts Generation Failed
+Submission Rejected
+Generating Validation Pacs.002 Response
+On
+Validation Pacs.002 Generation Passed
+Sending Pacs.002
+Call Function
+:
+Send Pacs.002 For Camt.056
+Generating Validation Pacs.002 Response
+On
+Validation Pacs.002 Generation Failed
+Submission Rejected
+Sending Pacs.002
+On
+Send Pacs.002 Passed
+Is Group Status Rejected
+Call Decision
+:
+Check Pacs.002 For Camt.056 Group Status is Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 For Camt.056 Group Status is Rejected YES
+On
+NO
+raise event
+Check Pacs.002 For Camt.056 Group Status is Rejected NO
+Is Group Status Rejected
+On
+Check Pacs.002 For Camt.056 Group Status is Rejected YES
+Submission Rejected
+Is Group Status Rejected
+On
+Check Pacs.002 For Camt.056 Group Status is Rejected NO
+Submission Complete
+Expecting More Scheme Response Notifications For Camt.056
+On
+Expecting More Scheme Response Notifications For Camt.056 NO
+Generating Validation Pacs.002 Response
+Call Function
+:
+Generate Validation Pacs.002 For Camt.056
+Expecting More Scheme Response Notifications For Camt.056
+On
+Expecting More Scheme Response Notifications For Camt.056 YES
+Waiting For Scheme Responses
+Waiting For Scheme Responses
+On
+TxInfAndSts Updated
+Expecting More Scheme Response Notifications For Camt.056
+Call Decision
+:
+Expecting More Scheme Response Notifications For Camt.056
+and then:
+On
+YES
+raise event
+Expecting More Scheme Response Notifications For Camt.056 YES
+On
+NO
+raise event
+Expecting More Scheme Response Notifications For Camt.056 NO
+Message Contains Transactions
+On
+Camt.056 Contains Transactions YES
+Waiting For Scheme Responses
+Call Notification
+:
+Passivate Flow Request
+Message Contains Transactions
+On
+Camt.056 Contains Transactions NO
+Submission Rejected
+Validate Pacs028
+Flow Properties
+Flow Name:
+Validate Pacs028
+Version:
+0
+Description:
+Payments Validation Flow
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Getting Configurations
+Getting Configuration
+PENDING
+No
+No
+No
+Mapping to Scheme
+Mapping to Scheme Format
+PENDING
+No
+No
+No
+Validating Scheme Schema
+Validating Scheme Schema
+PENDING
+No
+No
+No
+Generating Positive Pacs.002
+Generate ACTC Or PART Pacs.002
+PENDING
+No
+No
+No
+Generating Negative Pacs.002
+Generating Rejected Pacs.002
+PENDING
+No
+No
+No
+Sending Pacs.002
+Sending Pacs.002 Response
+PENDING
+No
+No
+No
+Sending for Submission
+Sending pacs008 to Submit flow
+PENDING
+No
+No
+No
+Rejected
+Rejected
+REJECTED
+Yes
+No
+No
+Completed
+Completed
+ACCEPTED
+Yes
+No
+No
+Check Pacs002 Group Status Rejected
+Generated state
+none
+No
+No
+No
+Pacs.028 Transaction Validation Pacs.028 Transaction Validation
+Generated state
+none
+No
+No
+No
+Pacs.028 Message Validation Pacs.028 Message Validation
+Generated state
+none
+No
+No
+No
+Pacs.028 Transaction Validation Checking Transaction Duplicate
+Checking transaction duplicate
+PENDING
+No
+No
+No
+Pacs.028 Transaction Validation Validating Transaction Rules
+Validating transaction rules
+PENDING
+No
+No
+No
+Pacs.028 Transaction Validation Post Validation Update
+Post validation update
+PENDING
+No
+No
+No
+Pacs.028 Message Validation Checking Duplicate
+Checking duplicate
+PENDING
+No
+No
+No
+Pacs.028 Message Validation Checking Instructing Agent
+Checking Instructing Agent
+PENDING
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Payment Status Request
+ConfigurationData
+Original Request Id
+Configuration Check Completed
+Configuration Check Completed
+none
+Map To Scheme Format Passed
+Map To Scheme Passed
+SCTFIToFIPaymentStatusRequest
+Map To Scheme Format Failed
+Map To Scheme Failed
+Reason Type
+Scheme Schema Validation Passed
+Scheme Schema Validation Passed
+none
+Scheme Schema Validation Failed
+Scheme Schema Validation Failed
+Reason Type
+Send Pacs.002 Passed
+Sending Pacs.002 Passed
+none
+Pacs.028 Sent to Submit Flow Successfully
+Pacs008 Sent to Submit Flow Successfully
+none
+Sending Pacs.028 to Submit Flow Failed
+Sending Pacs008 to Submit Flow Failed
+none
+Pacs.002 Response Generation Passed
+Pacs.002 Response Generation Passed
+Payment Status Report
+Pacs.002 Response Generation Failed
+Pacs.002 Response Generation Failed
+none
+Check Pacs.002 Group Status Rejected YES
+none
+Check Pacs.002 Group Status Rejected NO
+none
+Pacs.028 Transaction Validation Transaction Duplicate Check Passed
+Transaction duplicate check passed
+Collection of TxInfAndSts
+Pacs.028 Transaction Validation Transaction Duplicate Check Failed
+Transaction duplicate check failed
+Collection of TxInfAndSts
+Pacs.028 Transaction Validation Transaction Rule Validation Passed
+Transaction rule validation passed
+Collection of TxInfAndSts
+Pacs.028 Transaction Validation Transaction Rule Validation Failed
+Transaction rule validation failed
+Collection of TxInfAndSts
+Pacs.028 Transaction Validation Data Updated
+Pacs.028 data updated after transaction validation
+Collection of TxInfAndSts
+Pacs.028 Transaction Validation Data Update Failed
+Failed to update Pacs.028 data after transaction validation
+none
+Pacs.028 Message Validation Duplicate Check Passed
+Duplicate check passed
+none
+Pacs.028 Message Validation Duplicate Check Failed
+Duplicate check failed
+Reason Type
+Pacs.028 Message Validation Instructing Agent Check Passed
+Instructing Agent Check Passed
+none
+Pacs.028 Message Validation Instructing Agent Check Failed
+Instructing Agent Check Failed
+Reason Type
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Validate Pacs028 (V0)
+none
+Flow Initiated
+Get Configurations Response
+none
+Configuration Check Completed
+Map Pacs.028 To Scheme Response
+Accepted
+Map To Scheme Format Passed
+Map Pacs.028 To Scheme Response
+Rejected
+Map To Scheme Format Failed
+Validate Pacs.028 Scheme Schema Response
+Accepted
+Scheme Schema Validation Passed
+Validate Pacs.028 Scheme Schema Response
+Rejected
+Scheme Schema Validation Failed
+Send Pacs.002 For Pacs.028 Response
+none
+Send Pacs.002 Passed
+Send Pacs.028 For Submission Response
+Accepted
+Pacs.028 Sent to Submit Flow Successfully
+Send Pacs.028 For Submission Response
+Rejected
+Sending Pacs.028 to Submit Flow Failed
+Generate Pacs.002 For Pacs.028 Response
+Accepted
+Pacs.002 Response Generation Passed
+Generate Pacs.002 For Pacs.028 Response
+Rejected
+Pacs.002 Response Generation Failed
+Pacs.028 Transaction Duplicate Check Response
+Accepted
+Pacs.028 Transaction Validation Transaction Duplicate Check Passed
+Pacs.028 Transaction Duplicate Check Response
+Rejected
+Pacs.028 Transaction Validation Transaction Duplicate Check Failed
+Pacs.028 Transaction Rules Validation Response
+Accepted
+Pacs.028 Transaction Validation Transaction Rule Validation Passed
+Pacs.028 Transaction Rules Validation Response
+Rejected
+Pacs.028 Transaction Validation Transaction Rule Validation Failed
+Pacs.028 Update Data Response
+Accepted
+Pacs.028 Transaction Validation Data Updated
+Pacs.028 Update Data Response
+Rejected
+Pacs.028 Transaction Validation Data Update Failed
+Check Pacs.028 Duplicate Response
+Accepted
+Pacs.028 Message Validation Duplicate Check Passed
+Check Pacs.028 Duplicate Response
+Rejected
+Pacs.028 Message Validation Duplicate Check Failed
+Check Pacs.028 Instructing Agent Response
+Accepted
+Pacs.028 Message Validation Instructing Agent Check Passed
+Check Pacs.028 Instructing Agent Response
+Rejected
+Pacs.028 Message Validation Instructing Agent Check Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Getting Configurations
+Call Function
+:
+Get Configurations
+Getting Configurations
+On
+Configuration Check Completed
+Mapping to Scheme
+Call Function
+:
+Map Pacs.028 To Scheme
+Mapping to Scheme
+On
+Map To Scheme Format Passed
+Validating Scheme Schema
+Call Function
+:
+Validate Pacs.028 Scheme Schema
+Mapping to Scheme
+On
+Map To Scheme Format Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Pacs.028
+Validating Scheme Schema
+On
+Scheme Schema Validation Passed
+Pacs.028 Message Validation Checking Duplicate
+Call Function
+:
+Check Pacs.028 Duplicate
+Validating Scheme Schema
+On
+Scheme Schema Validation Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Pacs.028
+Generating Negative Pacs.002
+On
+Pacs.002 Response Generation Passed
+Sending Pacs.002
+Call Function
+:
+Send Pacs.002 For Pacs.028
+Generating Positive Pacs.002
+On
+Pacs.002 Response Generation Passed
+Sending Pacs.002
+Call Function
+:
+Send Pacs.002 For Pacs.028
+Generating Negative Pacs.002
+On
+Pacs.002 Response Generation Failed
+Rejected
+Generating Positive Pacs.002
+On
+Pacs.002 Response Generation Failed
+Rejected
+Sending Pacs.002
+On
+Send Pacs.002 Passed
+Check Pacs002 Group Status Rejected
+Call Decision
+:
+Check Pacs.002 Group Status Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 Group Status Rejected YES
+On
+NO
+raise event
+Check Pacs.002 Group Status Rejected NO
+Check Pacs002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected YES
+Rejected
+Check Pacs002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected NO
+Sending for Submission
+Call Function
+:
+Send Pacs.028 For Submission
+Sending for Submission
+On
+Pacs.028 Sent to Submit Flow Successfully
+Completed
+Sending for Submission
+On
+Sending Pacs.028 to Submit Flow Failed
+Rejected
+Pacs.028 Transaction Validation Checking Transaction Duplicate
+On
+Pacs.028 Transaction Validation Transaction Duplicate Check Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Pacs.028
+Pacs.028 Transaction Validation Checking Transaction Duplicate
+On
+Pacs.028 Transaction Validation Transaction Duplicate Check Passed
+Pacs.028 Transaction Validation Validating Transaction Rules
+Call Function
+:
+Validate Pacs.028 Transaction Rules
+Pacs.028 Transaction Validation Validating Transaction Rules
+On
+Pacs.028 Transaction Validation Transaction Rule Validation Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Pacs.028
+Pacs.028 Transaction Validation Validating Transaction Rules
+On
+Pacs.028 Transaction Validation Transaction Rule Validation Passed
+Pacs.028 Transaction Validation Post Validation Update
+Call Function
+:
+Pacs.028 Update Data
+Pacs.028 Transaction Validation Post Validation Update
+On
+Pacs.028 Transaction Validation Data Update Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Pacs.028
+Pacs.028 Transaction Validation Post Validation Update
+On
+Pacs.028 Transaction Validation Data Updated
+Generating Positive Pacs.002
+Call Function
+:
+Generate Pacs.002 For Pacs.028
+Pacs.028 Message Validation Checking Duplicate
+On
+Pacs.028 Message Validation Duplicate Check Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Pacs.028
+Pacs.028 Message Validation Checking Duplicate
+On
+Pacs.028 Message Validation Duplicate Check Passed
+Pacs.028 Message Validation Checking Instructing Agent
+Call Function
+:
+Check Pacs.028 Instructing Agent
+Pacs.028 Message Validation Checking Instructing Agent
+On
+Pacs.028 Message Validation Instructing Agent Check Failed
+Generating Negative Pacs.002
+Call Function
+:
+Generate Pacs.002 For Pacs.028
+Pacs.028 Message Validation Checking Instructing Agent
+On
+Pacs.028 Message Validation Instructing Agent Check Passed
+Pacs.028 Transaction Validation Checking Transaction Duplicate
+Call Function
+:
+Check Pacs.028 Transaction Duplicate
+Submit Pacs.028
+Flow Properties
+Flow Name:
+Submit Pacs.028
+Version:
+0
+Description:
+Flow responsible for submitting Pacs.028 message to appropriate bulk
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Message Bulking
+Sending message to bulker
+PENDING
+No
+No
+No
+Registering Bulk Correlation
+Storing correlation between bulker and transaction that was sent to it
+PENDING
+No
+No
+No
+Waiting For Scheme Response
+Waiting for Scheme Response Notification
+PENDING
+No
+No
+No
+Generating Validation Pacs.002 Response
+Generating the Pacs.002 response following scheme response
+PENDING
+No
+No
+No
+Sending Pacs.002
+Sending Pacs.002 response
+PENDING
+No
+No
+No
+Submission Complete
+The flow has completed
+ACCEPTED
+Yes
+No
+No
+Submission Rejected
+The flow has resulted in a rejection.
+REJECTED
+Yes
+No
+No
+Is Group Status Rejected
+Generated state
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+SCTFIToFIPaymentStatusRequest
+Original Request Id
+Collection of TxInfAndSts
+Bulk Correlation Registered
+Bulk correlation registered successfully
+none
+Bulk Correlation Not Registered
+Bulk correlation not registered
+none
+Message Sent To Bulk
+Message successfully sent to bulk
+Bulk Component Id
+Bulk Id
+Root Component Id
+Bulk Identifier
+Message Not Sent To Bulk
+Message not sent to bulk
+none
+Scheme Response Notification Received
+Scheme Response Notification
+Scheme Response Notification
+TxInfAndSts Generation Failed
+TxInfAndSts Generation Failed
+none
+Validation Pacs.002 Generation Passed
+Validation Pacs.002 Generation Passed
+Payment Status Report
+Validation Pacs.002 Generation Failed
+Validation Pacs.002 Generation Failed
+none
+Send Pacs.002 Passed
+Send Pacs.002 passed
+none
+TxInfAndSts Updated
+TxInfAndSts are partially updated
+Collection of TxInfAndSts
+Check Pacs.002 Group Status Rejected YES
+none
+Check Pacs.002 Group Status Rejected NO
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Submit Pacs.028 (V0)
+none
+Flow Initiated
+Pacs.028 Bulker Response
+Accepted
+Message Sent To Bulk
+Pacs.028 Bulker Response
+Rejected
+Message Not Sent To Bulk
+Pacs.028 Correlation Registration Response
+Accepted
+Bulk Correlation Registered
+Pacs.028 Correlation Registration Response
+Rejected
+Bulk Correlation Not Registered
+Scheme Response Notification
+none
+Scheme Response Notification Received
+Generate TxInfAndSts For Pacs.028 Response
+Accepted
+TxInfAndSts Updated
+Generate TxInfAndSts For Pacs.028 Response
+Rejected
+TxInfAndSts Generation Failed
+Generate Validation Pacs.002 For Pacs.028 Response
+Accepted
+Validation Pacs.002 Generation Passed
+Generate Validation Pacs.002 For Pacs.028 Response
+Rejected
+Validation Pacs.002 Generation Failed
+Send Pacs.002 For Pacs.028 Response
+none
+Send Pacs.002 Passed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Message Bulking
+Call Function
+:
+Send Pacs.028 To Bulker
+Message Bulking
+On
+Message Sent To Bulk
+Registering Bulk Correlation
+Call Function
+:
+Register Pacs.028 Bulk Correlation
+Message Bulking
+On
+Message Not Sent To Bulk
+Submission Rejected
+Registering Bulk Correlation
+On
+Bulk Correlation Registered
+Waiting For Scheme Response
+Call Notification
+:
+Passivate Flow Request
+Registering Bulk Correlation
+On
+Bulk Correlation Not Registered
+Submission Rejected
+Waiting For Scheme Response
+On
+Scheme Response Notification Received
+Waiting For Scheme Response
+Call Function
+:
+Update TxInfAndSts For Pacs.028
+Waiting For Scheme Response
+On
+TxInfAndSts Generation Failed
+Submission Rejected
+Generating Validation Pacs.002 Response
+On
+Validation Pacs.002 Generation Passed
+Sending Pacs.002
+Call Function
+:
+Send Pacs.002 For Pacs.028
+Generating Validation Pacs.002 Response
+On
+Validation Pacs.002 Generation Failed
+Submission Rejected
+Sending Pacs.002
+On
+Send Pacs.002 Passed
+Is Group Status Rejected
+Call Decision
+:
+Check Pacs.002 Group Status Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 Group Status Rejected YES
+On
+NO
+raise event
+Check Pacs.002 Group Status Rejected NO
+Is Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected YES
+Submission Rejected
+Is Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected NO
+Submission Complete
+Waiting For Scheme Response
+On
+TxInfAndSts Updated
+Generating Validation Pacs.002 Response
+Call Function
+:
+Generate Validation Pacs.002 For Pacs.028
+Generate Message Camt.0x7
+Flow Properties
+Flow Name:
+Generate Message Camt.0x7
+Version:
+0
+Description:
+Generate message flow for camt.027 and camt.087
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Getting Configurations
+Getting Configurations
+PENDING
+No
+No
+No
+Duplicate Check
+Duplicate Check
+PENDING
+No
+No
+No
+Validating Pacs.008
+Validate Pacs.008
+PENDING
+No
+No
+No
+Generating Camt.0x7
+Generate Camt.027 Or Camt.087
+PENDING
+No
+No
+No
+Validating Camt.0x7 Scheme Schema
+Validating Camt.027 Or Camt.087 Scheme Schema
+PENDING
+No
+No
+No
+Generating Pacs.002 Based On Camt.0x7
+Generating Pacs.002 For Camt.0x7
+PENDING
+No
+No
+No
+Generating Pacs.002 Based On Pacs.008
+Generating RJCT Pacs.002 Based On Pacs.008
+PENDING
+No
+No
+No
+Sending Pacs.002 To The Client
+Sending Pacs.002 To The Client
+PENDING
+No
+No
+No
+Sending For Submission
+Sending Camt.027 or Camt.087 to Submit flow
+PENDING
+No
+No
+No
+Rejected
+Rejected
+REJECTED
+Yes
+No
+No
+Completed
+Completed
+ACCEPTED
+Yes
+No
+No
+Selecting Processing Path
+Selecting Processing Path
+PENDING
+No
+No
+No
+Check Pacs.002 Group Status Rejected
+Generated state
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Customer Credit Transfer
+ConfigurationData
+Message Type
+Inquiry Message Source
+Case Id
+Interbank Settlement Date
+Instructing Information
+Original Request Id
+SCTRequestToModifyPayment
+SCTClaimNonReceipt
+Configuration Check Completed
+Configuration Check Completed
+none
+Duplicate Check Passed
+Duplicate Check Passed
+none
+Duplicate Check Failed
+Duplicate Check Failed
+Reason Type
+Validate Pacs.008 Passed
+Validate Pacs.008 Passed
+none
+Validate Pacs.008 Failed
+Validate Pacs.008 Failed
+none
+Generate Camt.0x7 Passed
+Generate Camt.027 or Camt.087 passed
+SCTClaimNonReceipt
+SCTRequestToModifyPayment
+Generate Camt.0x7 Failed
+Generate Camt.027 or Camt.087 Failed
+none
+Validate Camt.0x7 Scheme Schema Passed
+Validate Camt.027 or Camt.087 Scheme Schema Passed
+none
+Validate Camt.0x7 Scheme Schema Failed
+Validate Camt.027 or Camt.087 Scheme Schema Failed
+none
+Generate Pacs.002 Based On Camt.0x7 Passed
+Generate Pacs.002 based on camt.027 or camt.087 or pacs.008
+Payment Status Report
+Generate Pacs.002 Based On Camt.0x7 Failed
+Pacs.002 Response Generation Failed
+none
+Generate Negative Pacs.002 Based On Pacs.008 Passed
+Generate Negative Pacs.002 Based On Pacs.008 Passed
+Payment Status Report
+Generate Negative Pacs.002 Based On Pacs.008 Failed
+Generate Negative Pacs.002 Based On Pacs.008 Failed
+none
+Send Pacs.002 To The Client Passed
+Send Pacs.002 To The Client Passed
+none
+Sending Camt.0x7 to Submit Flow Successfully
+Camt.0x7 Sent to Submit Flow Successfully
+none
+Sending Camt.0x7 to Submit Flow Failed
+Camt.0x7 Sent to Submit Flow Failed
+none
+Selected Pacs.008 Processing
+Selected Pacs.008 processing
+none
+Selected Camt.0x7 Processing
+Selected Camt.0x7 processing
+none
+Check Pacs.002 Group Status Rejected YES
+none
+Check Pacs.002 Group Status Rejected NO
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Generate Message Camt.0x7 (V0)
+none
+Flow Initiated
+Get Configurations Response
+none
+Configuration Check Completed
+Duplicate Check For Pacs.008 Response
+Accepted
+Duplicate Check Passed
+Duplicate Check For Pacs.008 Response
+Rejected
+Duplicate Check Failed
+Validate Pacs.008 For Camt.0x7 Response
+Accepted
+Validate Pacs.008 Passed
+Validate Pacs.008 For Camt.0x7 Response
+Rejected
+Validate Pacs.008 Failed
+Generate Camt.0x7 From Pacs.008 Response
+Accepted
+Generate Camt.0x7 Passed
+Generate Camt.0x7 From Pacs.008 Response
+Rejected
+Generate Camt.0x7 Failed
+Validate Camt.0x7 Scheme Schema Response
+Accepted
+Validate Camt.0x7 Scheme Schema Passed
+Validate Camt.0x7 Scheme Schema Response
+Rejected
+Validate Camt.0x7 Scheme Schema Failed
+Generate Pacs.002 Based On Camt.0x7 Response
+Accepted
+Generate Pacs.002 Based On Camt.0x7 Passed
+Generate Pacs.002 Based On Camt.0x7 Response
+Rejected
+Generate Pacs.002 Based On Camt.0x7 Failed
+Generate Negative Pacs.002 Based On Pacs.008 Response
+Accepted
+Generate Negative Pacs.002 Based On Pacs.008 Passed
+Generate Negative Pacs.002 Based On Pacs.008 Response
+Rejected
+Generate Negative Pacs.002 Based On Pacs.008 Failed
+Send Pacs.002 For Camt.0x7 Response
+none
+Send Pacs.002 To The Client Passed
+Send Camt.0x7 For Submission Response
+Accepted
+Sending Camt.0x7 to Submit Flow Successfully
+Send Camt.0x7 For Submission Response
+Rejected
+Sending Camt.0x7 to Submit Flow Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Getting Configurations
+Call Function
+:
+Get Configurations
+Getting Configurations
+On
+Configuration Check Completed
+Selecting Processing Path
+Call Decision
+:
+Select Processing Path
+and then:
+On
+CANONICAL INQUIRY
+raise event
+Selected Pacs.008 Processing
+On
+EXTERNAL INQUIRY
+raise event
+Selected Camt.0x7 Processing
+Selecting Processing Path
+On
+Selected Pacs.008 Processing
+Duplicate Check
+Call Function
+:
+Duplicate Check For Pacs.008
+Selecting Processing Path
+On
+Selected Camt.0x7 Processing
+Validating Camt.0x7 Scheme Schema
+Call Function
+:
+Validate Camt.0x7 Scheme Schema
+Duplicate Check
+On
+Duplicate Check Passed
+Validating Pacs.008
+Call Function
+:
+Validate Pacs.008 For Camt.0x7
+Duplicate Check
+On
+Duplicate Check Failed
+Generating Pacs.002 Based On Camt.0x7
+Call Function
+:
+Generate Pacs.002 Based On Camt.0x7
+Validating Pacs.008
+On
+Validate Pacs.008 Passed
+Generating Camt.0x7
+Call Function
+:
+Generate Camt.0x7 From Pacs.008
+Generating Camt.0x7
+On
+Generate Camt.0x7 Failed
+Generating Pacs.002 Based On Camt.0x7
+Call Function
+:
+Generate Pacs.002 Based On Camt.0x7
+Generating Camt.0x7
+On
+Generate Camt.0x7 Passed
+Validating Camt.0x7 Scheme Schema
+Call Function
+:
+Validate Camt.0x7 Scheme Schema
+Validating Camt.0x7 Scheme Schema
+On
+Validate Camt.0x7 Scheme Schema Passed
+Generating Pacs.002 Based On Camt.0x7
+Call Function
+:
+Generate Pacs.002 Based On Camt.0x7
+Validating Camt.0x7 Scheme Schema
+On
+Validate Camt.0x7 Scheme Schema Failed
+Generating Pacs.002 Based On Camt.0x7
+Call Function
+:
+Generate Pacs.002 Based On Camt.0x7
+Generating Pacs.002 Based On Camt.0x7
+On
+Generate Pacs.002 Based On Camt.0x7 Passed
+Sending Pacs.002 To The Client
+Call Function
+:
+Send Pacs.002 For Camt.0x7
+Generating Pacs.002 Based On Camt.0x7
+On
+Generate Pacs.002 Based On Camt.0x7 Failed
+Rejected
+Validating Pacs.008
+On
+Validate Pacs.008 Failed
+Generating Pacs.002 Based On Pacs.008
+Call Function
+:
+Generate Negative Pacs.002 Based On Pacs.008
+Generating Pacs.002 Based On Pacs.008
+On
+Generate Negative Pacs.002 Based On Pacs.008 Passed
+Sending Pacs.002 To The Client
+Call Function
+:
+Send Pacs.002 For Camt.0x7
+Generating Pacs.002 Based On Pacs.008
+On
+Generate Negative Pacs.002 Based On Pacs.008 Failed
+Rejected
+Sending Pacs.002 To The Client
+On
+Send Pacs.002 To The Client Passed
+Check Pacs.002 Group Status Rejected
+Call Decision
+:
+Check Pacs.002 Group Status Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 Group Status Rejected YES
+On
+NO
+raise event
+Check Pacs.002 Group Status Rejected NO
+Check Pacs.002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected YES
+Rejected
+Check Pacs.002 Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected NO
+Sending For Submission
+Call Function
+:
+Send Camt.0x7 For Submission
+Sending For Submission
+On
+Sending Camt.0x7 to Submit Flow Successfully
+Completed
+Sending For Submission
+On
+Sending Camt.0x7 to Submit Flow Failed
+Rejected
+Submit Camt.0x7
+Flow Properties
+Flow Name:
+Submit Camt.0x7
+Version:
+0
+Description:
+Flow responsible for submitting Camt.0x7 message to appropriate bulk
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Message Bulking
+Sending message to bulker
+PENDING
+No
+No
+No
+Registering Bulk Correlation
+Storing correlation between bulker and transaction that was sent to it
+PENDING
+No
+No
+No
+Waiting For Scheme Response
+Waiting for Scheme Response Notification
+PENDING
+No
+No
+No
+Generating Validation Pacs.002 Response
+Generating the Pacs.002 response following scheme response
+PENDING
+No
+No
+No
+Sending Pacs.002
+Sending Pacs.002 response
+PENDING
+No
+No
+No
+Submission Complete
+The flow has completed
+ACCEPTED
+Yes
+No
+No
+Submission Rejected
+The flow has resulted in a rejection.
+REJECTED
+Yes
+No
+No
+Is Group Status Rejected
+Generated state
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+SCTClaimNonReceipt
+SCTRequestToModifyPayment
+Original Request Id
+Collection of TxInfAndSts
+Message Type
+Inquiry Message Source
+Bulk Correlation Registered
+Bulk correlation registered successfully
+none
+Bulk Correlation Not Registered
+Bulk correlation not registered
+none
+Message Sent To Bulk
+Message successfully sent to bulk
+Bulk Component Id
+Bulk Id
+Root Component Id
+Bulk Identifier
+Message Not Sent To Bulk
+Message not sent to bulk
+none
+Scheme Response Notification Received
+Scheme Response Notification
+Scheme Response Notification
+TxInfAndSts Generation Failed
+TxInfAndSts Generation Failed
+none
+Validation Pacs.002 Generation Passed
+Validation Pacs.002 Generation Passed
+Payment Status Report
+Validation Pacs.002 Generation Failed
+Validation Pacs.002 Generation Failed
+none
+Send Pacs.002 Passed
+Send Pacs.002 passed
+none
+TxInfAndSts Updated
+TxInfAndSts are partially updated
+Collection of TxInfAndSts
+Check Pacs.002 Group Status Rejected YES
+none
+Check Pacs.002 Group Status Rejected NO
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Submit Camt.0x7 (V0)
+none
+Flow Initiated
+Camt.0x7 Bulker Response
+Accepted
+Message Sent To Bulk
+Camt.0x7 Bulker Response
+Rejected
+Message Not Sent To Bulk
+Camt.0x7 Correlation Registration Response
+Accepted
+Bulk Correlation Registered
+Camt.0x7 Correlation Registration Response
+Rejected
+Bulk Correlation Not Registered
+Scheme Response Notification
+none
+Scheme Response Notification Received
+Generate TxInfAndSts For Camt.0x7 Response
+Accepted
+TxInfAndSts Updated
+Generate TxInfAndSts For Camt.0x7 Response
+Rejected
+TxInfAndSts Generation Failed
+Generate Validation Pacs.002 For Camt.0x7 Response
+Accepted
+Validation Pacs.002 Generation Passed
+Generate Validation Pacs.002 For Camt.0x7 Response
+Rejected
+Validation Pacs.002 Generation Failed
+Send Pacs.002 For Camt.0x7 Response
+none
+Send Pacs.002 Passed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Message Bulking
+Call Function
+:
+Send Camt.0x7 To Bulker
+Message Bulking
+On
+Message Sent To Bulk
+Registering Bulk Correlation
+Call Function
+:
+Register Camt.0x7 Bulk Correlation
+Message Bulking
+On
+Message Not Sent To Bulk
+Submission Rejected
+Registering Bulk Correlation
+On
+Bulk Correlation Registered
+Waiting For Scheme Response
+Call Notification
+:
+Passivate Flow Request
+Registering Bulk Correlation
+On
+Bulk Correlation Not Registered
+Submission Rejected
+Waiting For Scheme Response
+On
+Scheme Response Notification Received
+Waiting For Scheme Response
+Call Function
+:
+Update TxInfAndSts For Camt.0x7
+Waiting For Scheme Response
+On
+TxInfAndSts Generation Failed
+Submission Rejected
+Generating Validation Pacs.002 Response
+On
+Validation Pacs.002 Generation Passed
+Sending Pacs.002
+Call Function
+:
+Send Pacs.002 For Camt.0x7
+Generating Validation Pacs.002 Response
+On
+Validation Pacs.002 Generation Failed
+Submission Rejected
+Sending Pacs.002
+On
+Send Pacs.002 Passed
+Is Group Status Rejected
+Call Decision
+:
+Check Pacs.002 Group Status Rejected
+and then:
+On
+YES
+raise event
+Check Pacs.002 Group Status Rejected YES
+On
+NO
+raise event
+Check Pacs.002 Group Status Rejected NO
+Is Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected YES
+Submission Rejected
+Is Group Status Rejected
+On
+Check Pacs.002 Group Status Rejected NO
+Submission Complete
+Waiting For Scheme Response
+On
+TxInfAndSts Updated
+Generating Validation Pacs.002 Response
+Call Function
+:
+Generate Validation Pacs.002 For Camt.0x7
+Bulk File Processing
+Flow Properties
+Flow Name:
+Bulk File Processing
+Version:
+0
+Description:
+Initiates Messages
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Complete
+The flow has completed
+ACCEPTED
+Yes
+No
+No
+Waiting for Message Results
+Waiting for message processing to complete
+PENDING
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Bulk Id
+Payment Journey Type
+Component Id
+Processing Direction
+Component Marker
+Bulk Name
+Total Messages
+Failure Message Counter
+Success Message Counter
+Message Initiation Success
+Message processing flow successfully initiated
+none
+Message Initiation Failure
+Message processing flow initiation failed
+none
+All Messages Processed
+Message processing completed for file
+none
+Ready To Process Messages
+Persisted when flow is ready to process messages
+none
+Aggregate Functions
+On Event
+Call Mapping Function
+Message Initiation Failure
+Update Failure Message Counter
+Message Initiation Success
+Update Success Message Counter
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Bulk File Processing (V0)
+none
+Flow Initiated
+Message Processing Failure
+none
+Message Initiation Failure
+Message Processing Success
+none
+Message Initiation Success
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Waiting for Message Results
+Call Notification
+:
+Initiate Messages
+Waiting for Message Results
+On any of
+Message Initiation Success
+Message Initiation Failure
+Waiting for Message Results
+Call Decision
+:
+More Messages to Process
+and then:
+On
+NO
+raise event
+All Messages Processed
+On
+YES
+raise event
+Ready To Process Messages
+Waiting for Message Results
+On
+Ready To Process Messages
+Waiting for Message Results
+Waiting for Message Results
+On
+All Messages Processed
+Complete
+Call Notification
+:
+Bulk File Processing Complete
+Message Processing
+Flow Properties
+Flow Name:
+Message Processing
+Version:
+0
+Description:
+Initiates Transactions
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Complete
+The flow has completed
+ACCEPTED
+Yes
+No
+No
+Processing Transactions
+Initiating Transaction Flows
+PENDING
+No
+No
+No
+Rejected
+Processing for message has failed
+REJECTED
+Yes
+No
+No
+Validating Instructing Agent
+Validate Instructing Agent for Inbound Transactions
+PENDING
+No
+No
+No
+Checking Group Header
+Check Scheme Response Group Header
+PENDING
+No
+No
+No
+Processing Direction
+Generated state
+none
+No
+No
+No
+Validate Scheme Response Headers
+Generated state
+none
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Bulk Id
+Component Id
+Payment Journey Type
+Related Unit Of Work
+Message Content
+Processing Direction
+Instructing Agent BIC
+Component Marker
+Bulk Name
+Group Header Message Id
+Bulk File Processing Id
+Total Transactions
+SCT Payment Status Report
+Failure Transaction Counter
+Success Transaction Counter
+Message Processing Id
+Message Namespace
+Transaction Success
+Transaction successfully processed
+none
+Extension Point Success
+Positive response received from the extension point
+none
+Extension Point Failure
+Negative response received from the extension point
+none
+Valid Instructing Agent
+Instructing agent is valid
+none
+Invalid Instructing Agent
+Instructing agent is invalid
+none
+All Transactions Processed
+All transactions have been processed
+none
+Ready to Process Transactions
+Persisted when flow is ready to process more transactions
+none
+Transaction Failure
+Transaction failed processing
+none
+Group Header Accepted
+Positive response received from the group header check
+none
+Group Header Rejected
+Negative response received from the group header check
+none
+Processing Direction INBOUND
+none
+Processing Direction OUTBOUND
+none
+Validate Scheme Response Notification Headers YES
+none
+Validate Scheme Response Notification Headers NO
+none
+Aggregate Functions
+On Event
+Call Mapping Function
+Transaction Success
+Update Success Transaction Counter
+Transaction Failure
+Update Failure Transaction Counter
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Message Processing (V0)
+none
+Flow Initiated
+Transaction Processing Success
+none
+Transaction Success
+Extension Point Response
+Accepted
+Extension Point Success
+Extension Point Response
+Rejected
+Extension Point Failure
+Validate Instructing Agent Response
+Accepted
+Valid Instructing Agent
+Validate Instructing Agent Response
+Rejected
+Invalid Instructing Agent
+Transaction Processing Failure
+none
+Transaction Failure
+Check Group Header Response
+Accepted
+Group Header Accepted
+Check Group Header Response
+Rejected
+Group Header Rejected
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Processing Direction
+Call Decision
+:
+Processing Direction
+and then:
+On
+INBOUND
+raise event
+Processing Direction INBOUND
+On
+OUTBOUND
+raise event
+Processing Direction OUTBOUND
+Processing Transactions
+On
+Extension Point Failure
+Rejected
+Call Notification
+:
+Message Processing Failed Notification
+Processing Transactions
+On
+Extension Point Success
+Processing Transactions
+Call Notification
+:
+Initiate Transactions
+Processing Transactions
+On any of
+Transaction Success
+Transaction Failure
+Processing Transactions
+Call Decision
+:
+More Transactions to Process
+and then:
+On
+YES
+raise event
+Ready to Process Transactions
+On
+NO
+raise event
+All Transactions Processed
+Validating Instructing Agent
+On
+Valid Instructing Agent
+Processing Transactions
+Call Decision
+:
+Extension Point Enabled
+and then:
+On
+NO
+call notification
+Initiate Transactions
+On
+YES
+call request
+Call Extension Point
+Validating Instructing Agent
+On
+Invalid Instructing Agent
+Rejected
+Call Notification
+:
+Message Processing Failed Notification
+Processing Direction
+On
+Processing Direction INBOUND
+Validating Instructing Agent
+Call Function
+:
+Validate Instructing Agent
+Processing Direction
+On
+Processing Direction OUTBOUND
+Validate Scheme Response Headers
+Call Decision
+:
+Validate Scheme Response Notification Headers
+and then:
+On
+YES
+raise event
+Validate Scheme Response Notification Headers YES
+On
+NO
+raise event
+Validate Scheme Response Notification Headers NO
+Processing Transactions
+On
+All Transactions Processed
+Complete
+Call Notification
+:
+Message Processing Success Notification
+Processing Transactions
+On
+Ready to Process Transactions
+Processing Transactions
+Validate Scheme Response Headers
+On
+Validate Scheme Response Notification Headers YES
+Checking Group Header
+Call Function
+:
+Check Group Header
+Validate Scheme Response Headers
+On
+Validate Scheme Response Notification Headers NO
+Processing Transactions
+Call Decision
+:
+Extension Point Enabled
+and then:
+On
+NO
+call notification
+Initiate Transactions
+On
+YES
+call request
+Call Extension Point
+Checking Group Header
+On
+Group Header Rejected
+Rejected
+Call Notification
+:
+Message Processing Failed Notification
+Checking Group Header
+On
+Group Header Accepted
+Processing Transactions
+Call Decision
+:
+Extension Point Enabled
+and then:
+On
+NO
+call notification
+Initiate Transactions
+On
+YES
+call request
+Call Extension Point
+PCF File Transactions Processing
+Flow Properties
+Flow Name:
+PCF File Transactions Processing
+Version:
+0
+Description:
+The flow for PCF Pacs..002 transactions processing
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Completed
+The flow has completed
+ACCEPTED
+Yes
+No
+No
+Rejected
+The flow has been rejected
+REJECTED
+Yes
+No
+No
+Generating PCF Pacs.002
+Generate PCF Pacs.002
+PENDING
+No
+No
+No
+Checking Settlement Response Flow Status
+Checking Settlement Response Flow Status
+PENDING
+No
+No
+No
+Sending PCF Scheme Response Notification
+Sending PCF Scheme Response Notification
+PENDING
+No
+No
+No
+Sending PCF Pacs.002 For Camt.056
+Sending PCF Pacs.002 For Camt.056
+PENDING
+No
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Modified Payment Status Report
+Collection of TxInfAndSts
+Original Camt.056 Request Id
+Original Camt.056 Message Id
+Optional Update Scheme Response Notification
+Expected Settlement Response Flow Status
+Expected Settlement Response Flow Status
+none
+Unexpected Settlement Response Flow Status
+Unexpected Settlement Response Flow Status
+none
+Missing Settlement Response Flow Status
+Missing Settlement Response Flow Status
+none
+Generate PCF Pacs.002 Success
+Generate PCF Pacs.002 Success
+Payment Status Report
+Original Request Id
+Generate PCF Pacs.002 Failure
+Generate PCF Pacs.002 Failure
+none
+Send PCF Scheme Response Success
+Send PCF Scheme Response Success
+Settlement Response Flow Status
+Send PCF Scheme Response Failure
+Send PCF Scheme Response Failure
+Settlement Response Flow Status
+Send Pacs.002 For Camt.056 Success
+Send Pacs.002 For Camt.056 Success
+none
+Send Pacs.002 For Camt.056 Failure
+Send Pacs.002 For Camt.056 Failure
+none
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate PCF File Transactions Processing (V0)
+none
+Flow Initiated
+Generate PCF Pacs.002 for Camt.056 Response
+Accepted
+Generate PCF Pacs.002 Success
+Generate PCF Pacs.002 for Camt.056 Response
+Rejected
+Generate PCF Pacs.002 Failure
+Send PCF Scheme Response Notification Response
+Accepted
+Send PCF Scheme Response Success
+Send PCF Scheme Response Notification Response
+Rejected
+Send PCF Scheme Response Failure
+Send Pacs.002 For Camt.056 Response
+Accepted
+Send Pacs.002 For Camt.056 Success
+Send Pacs.002 For Camt.056 Response
+Rejected
+Send Pacs.002 For Camt.056 Failure
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Sending PCF Scheme Response Notification
+Call Function
+:
+Send PCF Scheme Response Notification
+Sending PCF Scheme Response Notification
+On
+Send PCF Scheme Response Success
+Completed
+Sending PCF Scheme Response Notification
+On
+Send PCF Scheme Response Failure
+Checking Settlement Response Flow Status
+Call Decision
+:
+The Settlement Response Flow Status Check
+and then:
+On
+EXPECTED_FLOW_STATUS
+raise event
+Expected Settlement Response Flow Status
+On
+UNEXPECTED_FLOW_STATUS
+raise event
+Unexpected Settlement Response Flow Status
+On
+MISSING_FLOW_STATUS
+raise event
+Missing Settlement Response Flow Status
+Checking Settlement Response Flow Status
+On any of
+Expected Settlement Response Flow Status
+Missing Settlement Response Flow Status
+Generating PCF Pacs.002
+Call Function
+:
+Generate PCF Pacs.002 For Camt.056
+Checking Settlement Response Flow Status
+On
+Unexpected Settlement Response Flow Status
+Rejected
+Generating PCF Pacs.002
+On
+Generate PCF Pacs.002 Success
+Sending PCF Pacs.002 For Camt.056
+Call Function
+:
+Send Pacs.002 For Camt.056
+Generating PCF Pacs.002
+On
+Generate PCF Pacs.002 Failure
+Rejected
+Sending PCF Pacs.002 For Camt.056
+On
+Send Pacs.002 For Camt.056 Success
+Completed
+Sending PCF Pacs.002 For Camt.056
+On
+Send Pacs.002 For Camt.056 Failure
+Rejected
+Supporting Libraries
+Business Data Libraries
+Sepa CT Data Library
+Business Data Elements
+Name
+Description
+Data Type
+Data Category
+SCTFIToFICustomerCreditTransfer
+Sepa CT Pacs.008
+sepa.ct.iso.std.iso._20022.tech.xsd.pacs_008_001_008.SCTFIToFICustomerCreditTransferV08
+PROCESSING_DATA_STRUCTURE
+Modified SCTFIToFICustomerCreditTransfer
+Modified Sepa CT Pacs.008
+sepa.ct.iso.std.iso._20022.tech.xsd.pacs_008_001_008.SCTFIToFICustomerCreditTransferV08
+PROCESSING_DATA_STRUCTURE
+SCTCreditTransferTransaction
+SEPA CT Transaction
+sepa.ct.iso.std.iso._20022.tech.xsd.pacs_008_001_008.SCTCreditTransferTransaction39
+PROCESSING_DATA_STRUCTURE
+SCTFIToFIPaymentCancellationRequest
+SEPA CT Camt.056
+sepa.ct.iso.std.iso._20022.tech.xsd.camt_056_001_008.SCTFIToFIPaymentCancellationRequestV08
+PROCESSING_DATA_STRUCTURE
+Modified SCTFIToPaymentCancellationRequest
+Modified SEPA CT Camt.056
+sepa.ct.iso.std.iso._20022.tech.xsd.camt_056_001_008.SCTFIToFIPaymentCancellationRequestV08
+PROCESSING_DATA_STRUCTURE
+SCTPaymentReturn
+SEPA CT Pacs.004
+sepa.ct.iso.std.iso._20022.tech.xsd.pacs_004_001_009.SCTPaymentReturnV09
+PROCESSING_DATA_STRUCTURE
+Modified SCTPaymentReturn
+Modified Sepa CT Pacs.004
+sepa.ct.iso.std.iso._20022.tech.xsd.pacs_004_001_009.SCTPaymentReturnV09
+PROCESSING_DATA_STRUCTURE
+SCTResolutionOfInvestigation
+SEPA CT Camt.029
+sepa.ct.iso.std.iso._20022.tech.xsd.camt_029_001_009.SCTResolutionOfInvestigationV09
+PROCESSING_DATA_STRUCTURE
+Modified SCTResolutionOfInvestigation
+Modified Sepa CT Camt.029
+sepa.ct.iso.std.iso._20022.tech.xsd.camt_029_001_009.SCTResolutionOfInvestigationV09
+PROCESSING_DATA_STRUCTURE
+Modified SCTFIToFIPaymentStatusRequest
+Modified Sepa CT Pacs.028
+sepa.ct.iso.std.iso._20022.tech.xsd.pacs_028_001_003.SCTFIToFIPaymentStatusRequestV03
+PROCESSING_DATA_STRUCTURE
+SCTFIToFIPaymentStatusRequest
+SEPA CT Pacs.028
+sepa.ct.iso.std.iso._20022.tech.xsd.pacs_028_001_003.SCTFIToFIPaymentStatusRequestV03
+PROCESSING_DATA_STRUCTURE
+ConfigurationData
+Configuration Data
+com.iconsolutions.ipf.payments.csm.sepact.domain.ConfigurationData
+PROCESSING_DATA_STRUCTURE
+Optional Update Scheme Response Notification
+A notification generated after processing of optional RSF or PCF files.
+com.iconsolutions.ipf.payments.csm.sepa.common.SchemeResponseNotification
+PROCESSING_DATA_STRUCTURE
+Modified Payment Status Report
+Modified Payment Status Report
+com.iconsolutions.iso20022.message.definitions.payments_clearing_and_settlement.pacs002.FIToFIPaymentStatusReportV10
+PROCESSING_DATA_STRUCTURE
+SEPA CT Reason Code List
+List of Sepa Reason Codes generated after transaction validation
+java.util.ArrayList
+PROCESSING_DATA_STRUCTURE
+SCTClaimNonReceipt
+SEPA CT Camt.027
+sepa.ct.iso.std.iso._20022.tech.xsd.camt_027_001_007.SCTClaimNonReceiptV07
+PROCESSING_DATA_STRUCTURE
+SCTRequestToModifyPayment
+SEPA CT Camt.087
+sepa.ct.iso.std.iso._20022.tech.xsd.camt_087_001_006.SCTRequestToModifyPaymentV06
+PROCESSING_DATA_STRUCTURE
+Message Type
+Message Type Camt.027 or Camt.087
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Inquiry Message Source
+The upstream source of the outbound Inquiry messages which could be an IPF Canonical Client or an External XML Client
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Case Id
+The Identification of the investigation case
+java.lang.String
+ADDITIONAL_IDENTIFIER
+Instructing Information
+The text must be clear for the Scheme Participant required to act on the SCT inquiry.
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Group Header Message Id
+Id of emitted group header MDS
+java.lang.String
+ADDITIONAL_IDENTIFIER
+Message Content
+Message Level Component Raw Content
+com.iconsolutions.ipf.payments.csm.sepact.domain.ComponentContent
+PROCESSING_DATA_STRUCTURE
+Processing Direction
+Is Processing Inbound Or Outbound
+com.iconsolutions.ipf.payments.csm.sepact.domain.ProcessingDirection
+PROCESSING_DATA_STRUCTURE
+Instructing Agent BIC
+Instructing Agent BIC - Receiving direct participant BIC
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Message Processing Id
+Association Id of message processing flow used to allow transaction flow to send acknowledgement to message processing flow
+java.lang.String
+ADDITIONAL_IDENTIFIER
+Component Marker
+Marker for component
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Bulk Name
+Name of Bulk - used for response bulks e.g. CVF/QVF
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Component Id
+Id of the component associated to the processing flow
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Bulk File Processing Id
+Association Id of the flow processing the bulk file
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Failure Message Counter
+Processing counter for messages which failed processing in a bulk
+java.lang.Integer
+PROCESSING_DATA_STRUCTURE
+Failure Transaction Counter
+Processing counter for transactions in message which have failed
+java.lang.Integer
+PROCESSING_DATA_STRUCTURE
+Total Messages
+Total number of messages in a bulk
+java.lang.Integer
+PROCESSING_DATA_STRUCTURE
+Total Transactions
+Total number of transactions in a message
+java.lang.Integer
+PROCESSING_DATA_STRUCTURE
+Customer Credit Transfer
+A canonical pacs.008 but not tagged as an MDS as it is not exchanged with the scheme
+com.iconsolutions.iso20022.message.definitions.payments_clearing_and_settlement.pacs008.FIToFICustomerCreditTransferV08
+PROCESSING_DATA_STRUCTURE
+Success Message Counter
+Processing counter for message which have been successfully processed in a bulk
+java.lang.Integer
+PROCESSING_DATA_STRUCTURE
+Success Transaction Counter
+Processing counter for transactions in message which initiated successfully
+java.lang.Integer
+PROCESSING_DATA_STRUCTURE
+Payment Return
+A canonical pacs.004 but not tagged as an MDS as it is not exchanged with the scheme
+com.iconsolutions.iso20022.message.definitions.payments_clearing_and_settlement.pacs004.PaymentReturnV09
+PROCESSING_DATA_STRUCTURE
+Payment Status Request
+A canonical pacs.028 but not tagged as an MDS as it is not exchanged with the scheme
+com.iconsolutions.iso20022.message.definitions.payments_clearing_and_settlement.pacs028.FIToFIPaymentStatusRequestV03
+PROCESSING_DATA_STRUCTURE
+Resolution Of Investigation
+A canonical camt.029 but not tagged as an MDS as it is not exchanged with the scheme
+com.iconsolutions.iso20022.message.definitions.cash_management.camt029.ResolutionOfInvestigationV09
+PROCESSING_DATA_STRUCTURE
+Payment Cancellation Request
+A canonical camt.056 but not tagged as an MDS as it is not exchanged with the scheme
+com.iconsolutions.iso20022.message.definitions.cash_management.camt056.FIToFIPaymentCancellationRequestV08
+PROCESSING_DATA_STRUCTURE
+SCT Payment Status Report
+Payment status report
+java.util.Optional
+PROCESSING_DATA_STRUCTURE
+Message Namespace
+Namespace of the message component
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Parent Component Id
+For those components which are not root components, this id points to the parent
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+PCF File Transactions Data Library
+Business Data Elements
+Name
+Description
+Data Type
+Data Category
+Pacs.008 Transaction Unit of Work
+The Unit of Work of the Pacs.008 message transaction correlated to this PCF transaction
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Original Camt.056 Request Id
+The original Request ID of the Camt.056 message related to this transaction
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Original Camt.056 Message Id
+The original ID of the Camt.056 message related to this transaction
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Settlement Response Flow Status
+The status of the related Settlement Response Flow
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+External Domains
+Debulked Component Handler
+Domain that handles the processing of debulked components into individual pacs002 notifications
+Requests
+No requests defined.
+Notifications
+No notifications defined.
+Instructions
+Name
+Description
+Business Data
+Scheme Response Notification
+Notification that processing of pacs002 components in CVF/QVF has completed
+Scheme Response Notification
+Optional Update Scheme Response Notification
+Notification that processing of pacs002 components in RSF/PCF has completed
+Optional Update Scheme Response Notification
+Flow Passivation Handler
+Handle flow passivation actions.
+Requests
+No requests defined.
+Notifications
+Name
+Description
+Business Data
+Passivate Flow Request
+Request for flow to be passivated whilst scheme response awaited
+none
+Instructions
+No instructions defined.
+Scheduler Command Handler
+Domain that handles receiving scheduler commands into the flow.
+Requests
+No requests defined.
+Notifications
+No notifications defined.
+Instructions
+Name
+Description
+Business Data
+CGS EOD Output Trigger
+Notification that the CGS EOD output delivery cut-off date and time has been reached
+none
+Component Processing
+Functions related to processing components retrieved from component store
+Requests
+Name
+Description
+Business Data
+Response
+Call Extension Point
+Call out to an interface which will allow clients to implement a service to potentially pass or fail the processing at a message level
+Component Id
+Component Marker
+Message Content
+Name:
+Extension Point Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Notifications
+Name
+Description
+Business Data
+Message Processing Failed Notification
+Notification from Message Processing to Bulk Processing indicating failure
+Bulk File Processing Id
+Success Transaction Counter
+Failure Transaction Counter
+Bulk File Processing Complete
+Notification from Bulk Processing Flow to Debulker flow that all files have messages have been processed for a bulk
+Bulk Id
+Success Message Counter
+Failure Message Counter
+Message Processing Success Notification
+Notification from Message Processing to Bulk Processing indicating success
+Bulk File Processing Id
+Success Transaction Counter
+Failure Transaction Counter
+Initiate Messages
+Message Processing Flow is initiated for each message component in the component store
+Component Id
+Bulk Id
+Processing Direction
+Component Marker
+Bulk Name
+Initiate Transactions
+Transaction Processing Flow is initiated for each inbound transaction component in the component store
+Component Id
+Bulk Id
+Message Content
+Processing Direction
+Component Marker
+Bulk Name
+Group Header Message Id
+Bulk File Processing Id
+Message Namespace
+Transaction Success Notification
+Notification from transaction processing to message processing indicating success
+Message Processing Id
+Transaction Failure Notification
+Notification from transaction processing to message processing indicating failure
+Message Processing Id
+Instructions
+Name
+Description
+Business Data
+Message Processing Success
+Sent from Message Processing to Bulk Processing indicating successful processing of a message
+none
+Message Processing Failure
+Sent from Message Processing to Bulk Processing indicating failed message processing
+none
+Transaction Processing Success
+Pacs002Sent from Transaction Processing to Message Processing
+none
+Transaction Processing Failure
+Sent from Transaction Processing to Message Processing Flow
+none
+Mapping Functions
+Submit
+Mapping Functions
+Name
+Description
+Input Data
+Output Data
+Map SEPA data wrapper
+Temporarily map SEPA data wrapper until PAY-11338 absorbs SEPA common
+Modified SCTFIToFICustomerCreditTransfer
+Modified SEPA Message Wrapper
+Bulk File Processing
+Mapping Functions
+Name
+Description
+Input Data
+Output Data
+Update Failure Message Counter
+Update the processing counter for failed messages
+Failure Message Counter
+Failure Message Counter
+Update Success Message Counter
+Update the processing counter for successful messages
+Success Message Counter
+Success Message Counter
+Message Processing
+Mapping Functions
+Name
+Description
+Input Data
+Output Data
+Update Failure Transaction Counter
+Updates the failed transaction processing counter
+Failure Transaction Counter
+Failure Transaction Counter
+Update Success Transaction Counter
+Updated the succeeded transaction counter
+Success Transaction Counter
+Success Transaction Counter
+Common Event Libraries
+No event libraries have been defined
+Decision Libraries
+Submit Decisions
+Decisions used by Submit flow
+Decisions
+Name
+Description
+Business Data
+Outcomes
+Group Status is Rejected
+Check whether is group status rejected
+Payment Status Report
+YES
+NO
+Expecting More Scheme Response Notifications
+Check whether there are more expected Scheme Response Notifications
+Modified SCTFIToFICustomerCreditTransfer
+Collection of TxInfAndSts
+YES
+NO
+Submit Pacs004 Decisions
+Decisions used by Submit flow
+Decisions
+Name
+Description
+Business Data
+Outcomes
+More Pacs.004  Transactions To Be Bulked
+Check whether there are more transactions in Pacs.004 to be sent to the bulker
+Modified SCTPaymentReturn
+Submit Transaction Counter
+YES
+NO
+Check Pacs.002 For Pacs.004 Group Status is Rejected
+Check whether is group status rejected
+Payment Status Report
+YES
+NO
+Expecting More Scheme Response Notifications For Pacs.004
+Check whether there are more expected Scheme Response Notifications
+Modified SCTPaymentReturn
+Collection of TxInfAndSts
+YES
+NO
+Pacs.004 Contains Transactions
+Check to see if there are more than 0 transactions in the
+Modified SCTPaymentReturn
+YES
+NO
+Submit Camt.029 Decisions
+Decisions used by Submit flow
+Decisions
+Name
+Description
+Business Data
+Outcomes
+More Camt.029 Transactions To Be Bulked
+Check whether there are more transactions in Camt.029 to be sent to the bulker
+Modified SCTResolutionOfInvestigation
+Submit Transaction Counter
+YES
+NO
+Check Pacs.002 For Camt.029 Group Status is Rejected
+Check whether is group status rejected
+Payment Status Report
+YES
+NO
+Expecting More Scheme Response Notifications For Camt.029
+Check whether there are more expected Scheme Response Notifications
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+YES
+NO
+Camt.029 Contains Transactions
+Check to see if there are more than 0 transactions in the
+Modified SCTResolutionOfInvestigation
+YES
+NO
+Common Decisions
+Common Decisions between flows
+Decisions
+Name
+Description
+Business Data
+Outcomes
+Extension Point Enabled
+Is message level extension point enabled
+none
+YES
+NO
+Processing Direction
+Is Processing Direction Inbound or Outbound
+Processing Direction
+INBOUND
+OUTBOUND
+More Messages to Process
+Are there more messages to process
+Failure Message Counter
+Success Message Counter
+Total Messages
+YES
+NO
+More Transactions to Process
+Are there more transactions to process
+Failure Transaction Counter
+Success Transaction Counter
+Total Transactions
+YES
+NO
+Validate Scheme Response Notification Headers
+Validate Scheme Response Notification Headers
+Component Marker
+YES
+NO
+Submit Camt.056 Decisions
+Decisions used by Submit Camt.056 flow
+Decisions
+Name
+Description
+Business Data
+Outcomes
+More Camt.056 Transactions To Be Bulked
+Check whether there are more transactions in Camt.056 to be sent to the bulker
+Modified SCTFIToPaymentCancellationRequest
+Submit Transaction Counter
+YES
+NO
+Check Pacs.002 For Camt.056 Group Status is Rejected
+Check whether is group status rejected
+Payment Status Report
+YES
+NO
+Expecting More Scheme Response Notifications For Camt.056
+Check whether there are more expected Scheme Response Notifications
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+YES
+NO
+Camt.056 Contains Transactions
+Check to see if there are more than 0 transactions in the
+Modified SCTFIToPaymentCancellationRequest
+YES
+NO
+PCF File Transaction Decision Library
+PCF File Transaction Decisions
+Decisions
+Name
+Description
+Business Data
+Outcomes
+The Settlement Response Flow Status Check
+Checks the status of the Settlement Response flow corresponding to the input transaction
+Settlement Response Flow Status
+EXPECTED_FLOW_STATUS
+UNEXPECTED_FLOW_STATUS
+MISSING_FLOW_STATUS
+Camt.0x7 Decisions
+Decisions
+Name
+Description
+Business Data
+Outcomes
+Select Processing Path
+Select processing paths from processing Customer Credit Transfer entity or processing Inquiry entities
+Inquiry Message Source
+CANONICAL INQUIRY
+EXTERNAL INQUIRY
+Domain Function Libraries
+Validate Message
+Perform validations on the pacs.008 message received from the source and provide a positive or negative response along with failure reason code
+Domain Functions
+Name
+Description
+Business Data
+Response
+Check Functional Duplicate
+Check whether a credit transfer is a functional duplicate
+Customer Credit Transfer
+Name:
+Check Functional Duplicate Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Group Header Totals
+Validate Group Header Total
+Customer Credit Transfer
+Name:
+Validate Group Header Totals Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Settlement Date
+Validate Settlement Date
+Customer Credit Transfer
+Name:
+Validate Settlement Date Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate EBA Scheme Rules
+Validate Group Header against EBA Scheme rules
+Customer Credit Transfer
+Name:
+Validate EBA Scheme Rules Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Configuration Provider
+Configurtion Provider
+Domain Functions
+Name
+Description
+Business Data
+Response
+Get Configurations
+Get Configurations
+none
+Name:
+Get Configurations Response
+Description:
+description
+Business Data:
+ConfigurationData
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Mapping Library
+Mapping Library
+Domain Functions
+Name
+Description
+Business Data
+Response
+Map Pacs008 To Scheme
+Map FIToFICustomerCreditTransferV02 canonical to SCTFIToFICustomerCreditTransfer scheme
+Customer Credit Transfer
+Name:
+Map Pacs008 To Scheme Response
+Description:
+description
+Business Data:
+SCTFIToFICustomerCreditTransfer
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Payments
+Validate Payments
+Domain Functions
+Name
+Description
+Business Data
+Response
+Validate Scheme Schema
+Validate Scheme Schema
+Modified SCTFIToFICustomerCreditTransfer
+Collection of TxInfAndSts
+Name:
+Validate Scheme Schema Response
+Description:
+description
+Business Data:
+Modified SCTFIToFICustomerCreditTransfer
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Send Pacs.002
+Send Pacs.002 Client
+Payment Status Report
+Original Request Id
+Name:
+Send Pacs.002 Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send For Submission
+Sends validated pacs008 to Submit flow
+Modified SCTFIToFICustomerCreditTransfer
+Original Request Id
+Name:
+Send For Submission Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Generate Pacs.002
+Generate Pacs.002
+Customer Credit Transfer
+Modified SCTFIToFICustomerCreditTransfer
+Collection of TxInfAndSts
+Interbank Settlement Date
+Failure Reason Code
+Reason Type
+Payment Status Report
+Name:
+Generate Pacs.002 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Validate Transaction
+Validate Transaction
+Domain Functions
+Name
+Description
+Business Data
+Response
+Generate Modified pacs.008
+Generate modified pacs.008
+ConfigurationData
+SCTFIToFICustomerCreditTransfer
+Name:
+Generate Modified pacs.008 Response
+Description:
+description
+Business Data:
+Modified SCTFIToFICustomerCreditTransfer
+Interbank Settlement Date
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Check Transaction Duplicate
+Transaction Duplicate Check
+Interbank Settlement Date
+SCTFIToFICustomerCreditTransfer
+Modified SCTFIToFICustomerCreditTransfer
+Collection of TxInfAndSts
+Name:
+Transaction Duplicate Check Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+Modified SCTFIToFICustomerCreditTransfer
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Transaction Rules
+Transaction Rules Validation
+Interbank Settlement Date
+SCTFIToFICustomerCreditTransfer
+Collection of TxInfAndSts
+Modified SCTFIToFICustomerCreditTransfer
+Name:
+Transaction Rules Validation Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+Modified SCTFIToFICustomerCreditTransfer
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Update Data
+Update data after performing transaction validation
+Modified SCTFIToFICustomerCreditTransfer
+Collection of TxInfAndSts
+Interbank Settlement Date
+Name:
+Update Data Response
+Description:
+description
+Business Data:
+Modified SCTFIToFICustomerCreditTransfer
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Submit Domain Functions
+Domain functions called by the Submit flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Generate Bulk Name
+Generate a bulk name to which transaction will be sent
+Modified SCTFIToFICustomerCreditTransfer
+Submit Transaction Counter
+Name:
+Bulk Name Response
+Description:
+description
+Business Data:
+Bulk Identifier
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Transaction To Bulker
+Send Transaction to Bulker
+Modified SCTFIToFICustomerCreditTransfer
+Submit Transaction Counter
+Bulk Identifier
+Name:
+Bulker Response
+Description:
+description
+Business Data:
+Bulk Component Id
+Root Component Id
+Bulk Id
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Register Bulk Correlation
+Register Bulk name with transaction and flow
+Modified SCTFIToFICustomerCreditTransfer
+Submit Transaction Counter
+Bulk Identifier
+Bulk Id
+Root Component Id
+Bulk Component Id
+Name:
+Correlation Registration Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Increment Transaction Counter
+Increaments cunter so that next transaction can be processed
+Submit Transaction Counter
+Name:
+Increment Counter Response
+Description:
+description
+Business Data:
+Submit Transaction Counter
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Update TxInfAndSts
+Generate a TxInfAndSts for a pacs.008 cdtTrfTxInf following SchemeResponseNotification
+Modified SCTFIToFICustomerCreditTransfer
+Scheme Response Notification
+Collection of TxInfAndSts
+Name:
+Generate TxInfAndSts Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Generate Validation Pacs.002
+Generate pacs.002 following scheme response
+Modified SCTFIToFICustomerCreditTransfer
+Collection of TxInfAndSts
+Scheme Response Notification
+Name:
+Generate Validation Pacs.002 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send For Settlement Response
+Send Schema accepted pacs.002 to Settlement Response Flow
+Payment Status Report
+Modified SCTFIToFICustomerCreditTransfer
+Original Request Id
+Name:
+Send For Settlement Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Settlement Response Domain Functions
+Domain Functions called by Settlement Response Flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Generate EOD Pacs.002
+Generate EOD Pacs.002
+Payment Status Report
+Name:
+Generate EOD Pacs.002 Response
+Description:
+description
+Business Data:
+Modified Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Update EOD Pacs.002
+Update EOD Pacs.002 with data from RSF Scheme Response Notification
+Optional Update Scheme Response Notification
+Modified Payment Status Report
+Name:
+Update EOD Pacs.002 Response
+Description:
+description
+Business Data:
+Modified Payment Status Report
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Send EOD Pacs.002
+Send EOD Pacs.002
+Modified Payment Status Report
+Original Request Id
+Name:
+Send EOD Pacs.002 Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Inbound USM Domain Functions
+Domain functions called by Pacs008 Inbound USM flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Generate Canonical  Message
+Generate canonical message
+Message Content
+Group Header Message Id
+Name:
+Generate Canonical Message Response
+Description:
+description
+Business Data:
+Message Data Structure Wrapper
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Validate Canonical Message
+Validate canonical message
+Message Data Structure Wrapper
+Name:
+Validate Canonical Message Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Message To Client Flow
+Send Pacs.008 to client
+Message Data Structure Wrapper
+Name:
+Send Canonical Message to Client Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Pacs.004 Message Validation Functions
+Perform validations on the pacs.004 message received from the source and provide a positive or negative response along with failure reason code
+Domain Functions
+Name
+Description
+Business Data
+Response
+Check Pacs.004 Duplicate
+Check whether a payment return is a functional duplicate
+Payment Return
+Name:
+Check Pacs.004 Duplicate Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Pacs.004 Group Header Totals
+Validate Pacs.004 Group Header Total
+Payment Return
+Name:
+Validate Pacs.004 Group Header Totals Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Pacs.004 Settlement Date
+Validate Pacs.004 Settlement Date
+Payment Return
+Name:
+Validate Pacs.004 Settlement Date Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Pacs.004 EBA Scheme Rules
+Validate Pacs.004 Group Header against EBA Scheme rules
+Payment Return
+Name:
+Validate Pacs.004 EBA Scheme Rules Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Camt.029 Message Validation Functions
+Perform validations on the camt.029 message received from the source and provide a positive or negative response along with failure reason code
+Domain Functions
+Name
+Description
+Business Data
+Response
+Check Duplicate
+Check if duplicate message
+Resolution Of Investigation
+Name:
+Check Duplicate Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validating Camt.029 Message Rules
+Validating message rules
+Resolution Of Investigation
+Name:
+Validating Camt.029 Message Rules Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Camt.029 Functions
+Domain functions used in Validate Camt.029 flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Map Camt.029 To Scheme
+Map Camt.029 To Scheme
+Resolution Of Investigation
+Name:
+Map Camt.029 To Scheme Response
+Description:
+description
+Business Data:
+SCTResolutionOfInvestigation
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Camt.029 Scheme Schema
+Validate Camt.029 Scheme Schema
+Modified SCTResolutionOfInvestigation
+Name:
+Validate Camt.029 Scheme Schema Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Generate Pacs.002 For Camt.029
+Generate Pacs.002 For Camt.029
+Resolution Of Investigation
+Modified SCTResolutionOfInvestigation
+Failure Reason Code
+Reason Type
+Collection of TxInfAndSts
+Name:
+Generate Pacs.002 For Camt.029 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Pacs.002 For Camt.029
+Send Pacs.002 For Camt.029 To Client
+Payment Status Report
+Original Request Id
+Name:
+Send Pacs.002 For Camt.029 Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Camt.029 For Submission
+Send validated Pacs.002 to Submit Camt.029 flow
+Modified SCTResolutionOfInvestigation
+Original Request Id
+Name:
+Send Camt.029 For Submission Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Submit Pacs004 Functions
+Domain functions called by the Submit Pacs004 flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Generate Pacs.004 Bulk Name
+Generate a bulk name to which transaction will be sent
+Modified SCTPaymentReturn
+Submit Transaction Counter
+Name:
+Pacs.004 Bulk Name Response
+Description:
+description
+Business Data:
+Bulk Identifier
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Pacs.004 Transaction To Bulker
+Send Transaction to Bulker
+Modified SCTPaymentReturn
+Submit Transaction Counter
+Bulk Identifier
+Name:
+Pacs.004 Bulker Response
+Description:
+description
+Business Data:
+Bulk Component Id
+Root Component Id
+Bulk Id
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Register Pacs.004 Bulk Correlation
+Register Bulk name with transaction and flow
+Modified SCTPaymentReturn
+Submit Transaction Counter
+Bulk Identifier
+Bulk Id
+Root Component Id
+Bulk Component Id
+Name:
+Pacs.004 Correlation Registration Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Increment Pacs.004 Transaction Counter
+Increments counter so that next transaction can be processed
+Submit Transaction Counter
+Name:
+Increment Pacs.004 Transaction Counter Response
+Description:
+description
+Business Data:
+Submit Transaction Counter
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Update TxInfAndSts For Pacs.004
+Generate a TxInfAndSts for a pacs.004 TxInf following SchemeResponseNotification
+Modified SCTPaymentReturn
+Scheme Response Notification
+Collection of TxInfAndSts
+Name:
+Generate TxInfAndSts For Pacs.004 Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Generate Validation Pacs.002 For Pacs.004
+Generate pacs.002 following scheme response
+Modified SCTPaymentReturn
+Collection of TxInfAndSts
+Scheme Response Notification
+Name:
+Generate Validation Pacs.002 For Pacs.004 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Pacs.004 For Settlement Response
+Send Schema accepted pacs.002 to Settlement Response Flow
+Payment Status Report
+Modified SCTPaymentReturn
+Original Request Id
+Name:
+Send Pacs.004 For Settlement Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Validate Pacs.004 Functions
+Domain Functions for Validate Pacs.004 Flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Map Pacs.004 To Scheme
+Map PaymentReturnV09 canonical to SCTPaymentReturn scheme
+Payment Return
+Name:
+Map Pacs.004 To Scheme Response
+Description:
+description
+Business Data:
+SCTPaymentReturn
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Pacs.004 Scheme Schema
+Validate Pacs.004 Scheme Schema
+Modified SCTPaymentReturn
+Name:
+Validate Pacs.004 Scheme Schema Response
+Description:
+description
+Business Data:
+Modified SCTPaymentReturn
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Generate Pacs.002 for Pacs.004
+Generate Pacs.002 for Pacs.004 Validate Flow
+Payment Return
+Modified SCTPaymentReturn
+Failure Reason Code
+Reason Type
+Collection of TxInfAndSts
+Name:
+Generate Pacs.002 For Pacs.004 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Pacs.002 for Pacs.004
+Send Pacs.002 Client
+Payment Status Report
+Original Request Id
+Name:
+Send Pacs.002 For Pacs.004 Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Pacs.004 For Submission
+Sends validated Pacs.004 to Submit Flow
+Modified SCTPaymentReturn
+Original Request Id
+Name:
+Send Pacs.004 For Submission Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Pacs.004 Validate Transaction
+Domain functions called by the Pacs.004 Validate Transaction sub-flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Generate Modified Pacs.004
+Generate modified Pacs.004
+ConfigurationData
+SCTPaymentReturn
+Name:
+Generate Modified Pacs.004 Response
+Description:
+description
+Business Data:
+Modified SCTPaymentReturn
+Interbank Settlement Date
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Check Pacs.004 Transaction Duplicate
+Transaction Duplicate Check
+Interbank Settlement Date
+SCTPaymentReturn
+Modified SCTPaymentReturn
+Collection of TxInfAndSts
+Name:
+Pacs.004 Transaction Duplicate Check Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+Modified SCTPaymentReturn
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Pacs.004 Transaction Rules
+Transaction Rules Validation
+SCTPaymentReturn
+Modified SCTPaymentReturn
+Collection of TxInfAndSts
+Name:
+Pacs.004 Transaction Rules Validation Response
+Description:
+description
+Business Data:
+Modified SCTPaymentReturn
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Pacs.004 Update Data
+Update data after performing transaction validation
+Modified SCTPaymentReturn
+Collection of TxInfAndSts
+Interbank Settlement Date
+Name:
+Pacs.004 Update Data Response
+Description:
+description
+Business Data:
+Modified SCTPaymentReturn
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Submit Camt.029 Functions
+Domain functions called by the Submit Camt.029 flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Generate Camt.029 Bulk Name
+Generate a bulk name to which transaction will be sent
+Modified SCTResolutionOfInvestigation
+Submit Transaction Counter
+Name:
+Camt.029 Bulk Name Response
+Description:
+description
+Business Data:
+Bulk Identifier
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Camt.029 Transaction To Bulker
+Send Transaction to Bulker
+Modified SCTResolutionOfInvestigation
+Submit Transaction Counter
+Bulk Identifier
+Name:
+Camt.029 Bulker Response
+Description:
+description
+Business Data:
+Bulk Component Id
+Root Component Id
+Bulk Id
+ResponseCodes:
+Camt.029 Response
+ReasonCodes:
+none
+Completing:
+Yes
+Register Camt.029 Bulk Correlation
+Register Bulk name with transaction and flow
+Modified SCTResolutionOfInvestigation
+Submit Transaction Counter
+Bulk Identifier
+Bulk Id
+Root Component Id
+Bulk Component Id
+Name:
+Camt.029 Correlation Registration Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+Camt.029 Response
+ReasonCodes:
+none
+Completing:
+Yes
+Increment Camt.029 Transaction Counter
+Increments counter so that next transaction can be processed
+Submit Transaction Counter
+Name:
+Increment Camt.029 Transaction Counter Response
+Description:
+description
+Business Data:
+Submit Transaction Counter
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Update TxInfAndSts For Camt.029
+Generate a TxInfAndSts for a Camt.029 TxInf following SchemeResponseNotification
+Modified SCTResolutionOfInvestigation
+Scheme Response Notification
+Collection of TxInfAndSts
+Name:
+Generate TxInfAndSts For Camt.029 Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Generate Validation Pacs.002 For Camt.029
+Generate Pacs.002 following scheme response
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+Scheme Response Notification
+Name:
+Generate Validation Pacs.002 For Camt.029 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Camt.029 Validate Transaction
+Domain functions called by the Camt.029 Validate Transaction sub-flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Generate Modified Camt.029
+Generate modified Camt.029
+ConfigurationData
+SCTResolutionOfInvestigation
+Name:
+Generate Modified Camt.029 Response
+Description:
+description
+Business Data:
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Check Camt.029 Transaction Duplicate
+Transaction Duplicate Check for Camt.029
+SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+Modified SCTResolutionOfInvestigation
+Name:
+Camt.029 Transaction Duplicate Check Response
+Description:
+description
+Business Data:
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Camt.029 Transaction Rules
+Transaction Rules Validation
+SCTResolutionOfInvestigation
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+Name:
+Camt.029 Transaction Rules Validation Response
+Description:
+description
+Business Data:
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Camt.029 Update Data
+Update data after performing transaction validation for Camt.029
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+Name:
+Camt.029 Update Data Response
+Description:
+description
+Business Data:
+Modified SCTResolutionOfInvestigation
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Validate Camt.056 Functions
+Domain functions used in Validate Camt.056 flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Map Camt.056 To Scheme
+Map Camt.056 To Scheme
+Payment Cancellation Request
+Name:
+Map Camt.056 To Scheme Response
+Description:
+description
+Business Data:
+SCTFIToFIPaymentCancellationRequest
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Camt.056 Scheme Schema
+Validate Camt.056 Scheme Schema
+Modified SCTFIToPaymentCancellationRequest
+Name:
+Validate Camt.056 Scheme Schema Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Generate Pacs.002 For Camt.056
+Generate Pacs.002 For Camt.056
+Payment Cancellation Request
+Modified SCTFIToPaymentCancellationRequest
+Failure Reason Code
+Reason Type
+Collection of TxInfAndSts
+Name:
+Generate Pacs.002 For Camt.056 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Pacs.002 For Camt.056
+Send Pacs.002 For Camt.056 To Client
+Payment Status Report
+Original Request Id
+Name:
+Send Pacs.002 For Camt.056 Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Camt.056 For Submission
+Send validated Camt.056 to Submit Camt.056 flow
+Modified SCTFIToPaymentCancellationRequest
+Original Request Id
+Name:
+Send Camt.056 For Submission Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Camt.056 Message Validation Functions
+Perform validations on the Camt.056 message received from the source and provide a positive or negative response along with failure reason code
+Domain Functions
+Name
+Description
+Business Data
+Response
+Check Camt.056 Duplicate
+Check if duplicate message
+Payment Cancellation Request
+Name:
+Check Camt.056 Duplicate Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Check Camt.056 Instructing Agent
+Check Instructing Agent
+Payment Cancellation Request
+Name:
+Check Camt.056 Instructing Agent Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Check Camt.056 Number Of Transactions
+Check Number Of Transactions
+Payment Cancellation Request
+Name:
+Check Camt.056 Number Of Transactions Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Camt.056 Validate Transaction Functions
+Domain functions called by the Camt.056 Validate Transaction sub-flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Generate Modified Camt.056
+Generate modified Camt.056
+ConfigurationData
+SCTFIToFIPaymentCancellationRequest
+Name:
+Generate Modified Camt.056 Response
+Description:
+description
+Business Data:
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Check Camt.056 Transaction Duplicate
+Transaction Duplicate Check for Camt.056
+SCTFIToFIPaymentCancellationRequest
+Collection of TxInfAndSts
+Modified SCTFIToPaymentCancellationRequest
+Name:
+Camt.056 Transaction Duplicate Check Response
+Description:
+description
+Business Data:
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Camt.056 Transaction Rules
+Transaction Rules Validation
+SCTFIToFIPaymentCancellationRequest
+Collection of TxInfAndSts
+Modified SCTFIToPaymentCancellationRequest
+Name:
+Camt.056 Transaction Rules Validation Response
+Description:
+description
+Business Data:
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Camt.056 Update Data
+Update data after performing transaction validation for Camt.056
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+Name:
+Camt.056 Update Data Response
+Description:
+description
+Business Data:
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Submit Camt.056 Functions
+Domain functions called by the Submit Camt.056 flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Generate Camt.056 Bulk Name
+Generate a bulk name to which transaction will be sent
+Modified SCTFIToPaymentCancellationRequest
+Submit Transaction Counter
+Name:
+Camt.056 Bulk Name Response
+Description:
+description
+Business Data:
+Bulk Identifier
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Camt.056 Transaction To Bulker
+Send Transaction to Bulker
+Modified SCTFIToPaymentCancellationRequest
+Submit Transaction Counter
+Bulk Identifier
+Name:
+Camt.056 Bulker Response
+Description:
+description
+Business Data:
+Bulk Component Id
+Root Component Id
+Bulk Id
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Register Camt.056 Bulk Correlation
+Register Bulk name with transaction and flow
+Modified SCTFIToPaymentCancellationRequest
+Submit Transaction Counter
+Bulk Identifier
+Bulk Id
+Root Component Id
+Bulk Component Id
+Name:
+Camt.056 Correlation Registration Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Increment Camt.056 Transaction Counter
+Increments counter so that next transaction can be processed
+Submit Transaction Counter
+Name:
+Increment Camt.056 Transaction Counter Response
+Description:
+description
+Business Data:
+Submit Transaction Counter
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Update TxInfAndSts For Camt.056
+Generate a TxInfAndSts for a Camt.056 TxInf following SchemeResponseNotification
+Modified SCTFIToPaymentCancellationRequest
+Scheme Response Notification
+Collection of TxInfAndSts
+Name:
+Generate TxInfAndSts For Camt.056 Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Generate Validation Pacs.002 For Camt.056
+Generate Pacs.002 following scheme response
+Modified SCTFIToPaymentCancellationRequest
+Collection of TxInfAndSts
+Scheme Response Notification
+Name:
+Generate Validation Pacs.002 For Camt.056 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Validate Pacs.028 Functions
+Domain functions used in Validate Camt.029 flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Map Pacs.028 To Scheme
+Map Pacs.028 To Scheme
+Payment Status Request
+Name:
+Map Pacs.028 To Scheme Response
+Description:
+description
+Business Data:
+SCTFIToFIPaymentStatusRequest
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Pacs.028 Scheme Schema
+Validate Pacs.028 Scheme Schema
+SCTFIToFIPaymentStatusRequest
+Name:
+Validate Pacs.028 Scheme Schema Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Generate Pacs.002 For Pacs.028
+Generate Pacs.002 For Pacs.028
+Payment Status Request
+Failure Reason Code
+Reason Type
+Collection of TxInfAndSts
+Name:
+Generate Pacs.002 For Pacs.028 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Pacs.002 For Pacs.028
+Send Pacs.002 For Pacs.028 To Client
+Payment Status Report
+Original Request Id
+Name:
+Send Pacs.002 For Pacs.028 Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Pacs.028 For Submission
+Send validated Pacs.028 to Submit Pacs.028 flow
+SCTFIToFIPaymentStatusRequest
+Original Request Id
+Name:
+Send Pacs.028 For Submission Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Pacs.028 Message Validation Functions
+Perform validations on the pacs.028 message received from the source and provide a positive or negative response along with failure reason code
+Domain Functions
+Name
+Description
+Business Data
+Response
+Check Pacs.028 Duplicate
+Check if duplicate message
+Payment Status Request
+Name:
+Check Pacs.028 Duplicate Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Check Pacs.028 Instructing Agent
+Check Instructing Agent
+Payment Status Request
+Name:
+Check Pacs.028 Instructing Agent Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Pacs.028 Validate Transaction Functions
+Domain functions called by the Pacs.028 Validate Transaction sub-flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Check Pacs.028 Transaction Duplicate
+Transaction Duplicate Check for Pacs.028
+SCTFIToFIPaymentStatusRequest
+Collection of TxInfAndSts
+Name:
+Pacs.028 Transaction Duplicate Check Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Pacs.028 Transaction Rules
+Transaction Rules Validation
+SCTFIToFIPaymentStatusRequest
+Collection of TxInfAndSts
+Name:
+Pacs.028 Transaction Rules Validation Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Pacs.028 Update Data
+Update data after performing transaction validation for Pacs.028
+SCTFIToFIPaymentStatusRequest
+Collection of TxInfAndSts
+Name:
+Pacs.028 Update Data Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Submit Pacs.028 Functions
+Domain functions called by the Submit Pacs.028 flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Send Pacs.028 To Bulker
+Send Message to Bulker
+SCTFIToFIPaymentStatusRequest
+Name:
+Pacs.028 Bulker Response
+Description:
+description
+Business Data:
+Bulk Component Id
+Root Component Id
+Bulk Id
+Bulk Identifier
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Register Pacs.028 Bulk Correlation
+Register Bulk name with transaction and flow
+SCTFIToFIPaymentStatusRequest
+Bulk Identifier
+Bulk Id
+Root Component Id
+Bulk Component Id
+Name:
+Pacs.028 Correlation Registration Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Update TxInfAndSts For Pacs.028
+Generate a TxInfAndSts for a Pacs.028 TxInf following SchemeResponseNotification
+SCTFIToFIPaymentStatusRequest
+Scheme Response Notification
+Collection of TxInfAndSts
+Name:
+Generate TxInfAndSts For Pacs.028 Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Generate Validation Pacs.002 For Pacs.028
+Generate Pacs.002 following scheme response
+SCTFIToFIPaymentStatusRequest
+Collection of TxInfAndSts
+Scheme Response Notification
+Name:
+Generate Validation Pacs.002 For Pacs.028 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Generate Message Camt.0x7 Functions
+Domain functions used in Generate Message Camt.0x7 flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Duplicate Check For Pacs.008
+Duplicate Check For Pacs.008
+Message Type
+Customer Credit Transfer
+Case Id
+Name:
+Duplicate Check For Pacs.008 Response
+Description:
+description
+Business Data:
+Customer Credit Transfer
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Pacs.008 For Camt.0x7
+Validate Pacs.008
+Customer Credit Transfer
+Name:
+Validate Pacs.008 For Camt.0x7 Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Generate Camt.0x7 From Pacs.008
+Generate Camt.0x7 From Pacs.008
+Message Type
+Customer Credit Transfer
+Case Id
+Instructing Information
+Interbank Settlement Date
+Name:
+Generate Camt.0x7 From Pacs.008 Response
+Description:
+description
+Business Data:
+SCTRequestToModifyPayment
+SCTClaimNonReceipt
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Validate Camt.0x7 Scheme Schema
+Validate Camt.0x7 Scheme Schema
+Message Type
+SCTClaimNonReceipt
+SCTRequestToModifyPayment
+Name:
+Validate Camt.0x7 Scheme Schema Response
+Description:
+description
+Business Data:
+Reason Type
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Generate Pacs.002 Based On Camt.0x7
+Generate Pacs.002 Based On Camt.0x7
+Message Type
+SCTClaimNonReceipt
+SCTRequestToModifyPayment
+Failure Reason Code
+Reason Type
+Case Id
+Name:
+Generate Pacs.002 Based On Camt.0x7 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+SEPA CT Reason Codes
+Completing:
+Yes
+Generate Negative Pacs.002 Based On Pacs.008
+Generate Negative Pacs.002 Based On Pacs.008
+Message Type
+Customer Credit Transfer
+Reason Type
+Failure Reason Code
+Name:
+Generate Negative Pacs.002 Based On Pacs.008 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Pacs.002 For Camt.0x7
+Send Pacs.002 For Camt.0x7 To Client
+Payment Status Report
+Original Request Id
+Inquiry Message Source
+Name:
+Send Pacs.002 For Camt.0x7 Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send Camt.0x7 For Submission
+Send Camt.0x7 For Submission
+SCTClaimNonReceipt
+SCTRequestToModifyPayment
+Original Request Id
+Message Type
+Inquiry Message Source
+Name:
+Send Camt.0x7 For Submission Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Submit Camt.0x7 Functions
+Domain functions called by the Submit Camt.0x7 flow
+Domain Functions
+Name
+Description
+Business Data
+Response
+Send Camt.0x7 To Bulker
+Send Camt.027/Camt.087 Message to Bulker
+SCTClaimNonReceipt
+SCTRequestToModifyPayment
+Message Type
+Name:
+Camt.0x7 Bulker Response
+Description:
+description
+Business Data:
+Bulk Component Id
+Root Component Id
+Bulk Id
+Bulk Identifier
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Register Camt.0x7 Bulk Correlation
+Register Bulk name with transaction and flow
+SCTClaimNonReceipt
+SCTRequestToModifyPayment
+Bulk Identifier
+Bulk Id
+Root Component Id
+Bulk Component Id
+Message Type
+Name:
+Camt.0x7 Correlation Registration Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Update TxInfAndSts For Camt.0x7
+Generate a TxInfAndSts for a Camt.027/Camt.087 TxInf following SchemeResponseNotification
+SCTClaimNonReceipt
+SCTRequestToModifyPayment
+Scheme Response Notification
+Collection of TxInfAndSts
+Message Type
+Name:
+Generate TxInfAndSts For Camt.0x7 Response
+Description:
+description
+Business Data:
+Collection of TxInfAndSts
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Generate Validation Pacs.002 For Camt.0x7
+Generate Pacs.002 following scheme response
+SCTClaimNonReceipt
+SCTRequestToModifyPayment
+Collection of TxInfAndSts
+Scheme Response Notification
+Message Type
+Name:
+Generate Validation Pacs.002 For Camt.0x7 Response
+Description:
+description
+Business Data:
+Payment Status Report
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Message Processing Domain Functions
+Domain Functions associated to message level processing (e.g. pacs.008 etc)
+Domain Functions
+Name
+Description
+Business Data
+Response
+Validate Instructing Agent
+Calls the processing entity configuration service to determine validity
+Instructing Agent BIC
+Name:
+Validate Instructing Agent Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Check Group Header
+Perform checks on pacs.002 group header
+SCT Payment Status Report
+Name:
+Check Group Header Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+PCF File Transaction Functions
+PCF File Transaction Functions
+Domain Functions
+Name
+Description
+Business Data
+Response
+Generate PCF Pacs.002 For Camt.056
+Generate PCF Pacs.002 For Camt.056
+Modified Payment Status Report
+Collection of TxInfAndSts
+Original Camt.056 Message Id
+Original Camt.056 Request Id
+Name:
+Generate PCF Pacs.002 for Camt.056 Response
+Description:
+description
+Business Data:
+Payment Status Report
+Original Request Id
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Send PCF Scheme Response Notification
+Send PCF Scheme Response Notification
+Optional Update Scheme Response Notification
+Name:
+Send PCF Scheme Response Notification Response
+Description:
+description
+Business Data:
+Settlement Response Flow Status
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Response Code Libraries
+Camt.029 Response
+Response Codes For Camt.029
+Response Codes
+Name
+Description
+Is Failure?
+Accepted
+A success response
+No
+ICF Rejection
+A rejection response for ICF messages
+Yes
+IQF Rejection
+A rejection response for IQF messages
+Yes
+Reason Code Libraries
+SEPA CT Reason Codes
+Reason Codes
+Name
+Description
+Text
+AM05
+Duplication
+none
+AM18
+No valid transaction found or number of transactions is invalid
+none
+B00
+Bulk/batch entirely valid
+none
+B01
+Bulk/batch partially valid
+none
+B02
+Maximum Size of a Batch Exceeded
+none
+B03
+Invalid Number of Transactions
+none
+B05
+Interbank Settlement Amount does not match the sum of individual transactions
+none
+B09
+All transactions rejected
+none
+B10
+Instructing Agent mismatch or not valid
+none
+B12
+Invalid Use of Assgnr/Assgne
+none
+B13
+Total Interbank Settlement Amount is Zero
+none
+B14
+Payment is a duplicate of another payment
+none
+B15
+Invalid Interbank Settlement Date
+none
+B16
+Invalid Settlement Info details
+none
+DT03
+Invalid non bank processing date (eg, weekend or local public holiday)
+none
+FF01
+Invalid File Format
+none
+FF08
+Invalid End to End Id
+none
+XT13
+Unsupported XML field
+none
+XT33
+Invalid data format
+none
+XT73
+Invalid country code
+none
+XT81
+Field not permitted in CT Service
+none
+XT91
+Not Allowed in SEPACOM
+none
+IN02
+IncorrectPaymentServiceLevel
+none
+RR02
+MissingDebtorNameOrAddress
+none
+RR03
+MissingCreditorNameOrAddress
+none
+BE07
+MissingDebtorAddress
+none
+BE04
+MissingCreditorAddress
+none
+DU03
+Transaction is not unique
+none
+Placeholder Libraries
+No placeholders libraries have been defined.
+Global State Libraries
+No global state libraries have been defined.
+SEPA CT STEP2 Flows
+Multi Level Bulking

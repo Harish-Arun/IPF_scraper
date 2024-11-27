@@ -1,0 +1,17 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/features/common-filtering.html ===
+Common Filtering
+Common filtering aims at identifying which rules should be considered to be applied for input parameters of debtor / creditor and currency. Common filtering uses the Processing Entity, CSM Agent Ids and date range on the rules to exclude any rules that should not be applied thereby enabling an effective filtering using other aspects on the rules.
+Filtering Considerations
+Processing Entity: Input processing entity must match with the Processing Entity on the rules for the rule to be considered for matching.
+CSM Agent Id: CSM Agent Id filtering enables the rules to be applied when a payment is being made through a specific CSM Agent Id which is subject to filtering. Different scenarios possible:
+If CSM Agent Id is not specified on the request, all active rules for the Processing Entity are included for matching.
+When provided on input request:
+All active rules for the processing entity but don’t specify a CSM Agent Id are included for further matching. These are global rules from CSM Agent Ids point of view and should be applied for any CSM Agent Id.
+Any rules that specify a list of CSM Agent Ids but does not have the CSM Agent Id that is specified on input request, are not considered for further matching. These rules are meant to be applied only when the payment is made through those CSM Agents.
+Any rules that has a list of CSM Agent Ids and also includes the CSM Agent id specified on input request, are included for further matching.
+Active Rules
+The rules must be active at the point of processing of the request.
+The fields startDate and endDate on the rules determine whether the rule is active. Any rule that has a future startDate or a past endDate are not active and are not applied.
+Any rules that do not specify startDate and / or endDate are considered active and included for further matching.
+Bank Filtering Behaviour
+Filtering By BIC

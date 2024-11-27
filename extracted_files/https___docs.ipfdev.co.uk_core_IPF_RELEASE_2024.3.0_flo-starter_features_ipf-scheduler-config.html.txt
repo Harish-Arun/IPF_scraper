@@ -1,0 +1,215 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/features/ipf-scheduler-config.html ===
+Flow Scheduling
+The
+ipf-flo-scheduler
+module provides the ability to interact with IPF flows and activate the scheduling capabilities.  There are three types of scheduling features currently available within a flow:
+Action Timeouts
+: provides the ability for the flow to continue processing if a response from an action is not provided in a defined timeframe.
+Retries
+: this provides a mechanism for the flow to be able to invoke retries of actions when responses are not returned in defined timeframe.
+Processing Timeouts
+: this provides a mechanism to define that a section of flow (between any two states) has to be completed within a defined timeframe.
+There are then two different types of scheduler to provide the implementations of these depending on requirements:
+Akka scheduler
+Persistent scheduler
+To use a scheduler, it is simply necessary to import the relevant scheduler as defined below and then inject the scheduler port when instantiating the domain as such:
+@Bean
+public QuickStartModelDomain initialiseDomain(ActorSystem actorSystem, SchedulerPort schedulerAdapter) {
+    // All adapters should be added to the domain model
+    return new QuickStartModelDomain.Builder(actorSystem)
+                .withSchedulerAdapter(schedulerAdapter)
+                .build();
+}
+The relevant scheduler implementation will then provide the required implementation.
+Akka Scheduler
+All documentation on akka scheduling can be found
+here
+.
+The scheduler in Akka is designed for high-throughput of thousands up to millions of triggers.  The prime use-case being triggering Actor receive timeouts, Future timeouts, circuit breakers and other time dependent events which happen all-the-time and in many instances at the same time.
+The Akka scheduler is not designed for long-term scheduling and for that you should use
+Quartz scheduler
+.
+Nor is it to be used for highly precise firing of the events.
+The maximum amount of time into the future you can schedule an event to trigger is around
+8 months
+, which in practice is too much to be useful since this would assume the system never went down during that period.
+If you need long-term scheduling we highly recommend looking into alternative schedulers, as this is not the use-case the Akka scheduler is implemented for.
+To use the akka scheduler implementation, all you need to do is provide the dependency:
+<dependency>
+  <groupId>com.iconsolutions.ipf.core.platform</groupId>
+  <artifactId>ipf-flo-scheduler-akka</artifactId>
+</dependency>
+Persistent Scheduler
+The persistent scheduler implementation uses Icon’s
+ipf-persistent-scheduler
+as it’s underlying scheduler implementation.
+All documentation on Quartz scheduling can be found
+here
+.
+Quartz is a richly featured, open source job scheduling library that can be integrated within virtually any Java application.
+If your application has tasks that need to occur at given moments in time, or if your system has recurring maintenance jobs then Quartz may be your ideal solution.
+In addition to Quartz scheduling, IPF also supports persisting scheduled jobs.
+In case of system crash, when it restarts, the system is able to rehydrate still active jobs.
+To use the quartz scheduler, simply add its dependency:
+<dependency>
+  <groupId>com.iconsolutions.ipf.core.platform</groupId>
+  <artifactId>ipf-flo-scheduler-persistent</artifactId>
+</dependency>
+In addition, for quartz scheduling it is necessary to provide a datastore for persistance.  The following configuration show’s how to do this:
+ipf-scheduler {
+  mongodb = {
+    uri = "mongodb://localhost/ipf"
+    database-name = "scheduled"
+  }
+}
+Akka Scheduler Vs Quartz Scheduler
+Scheduler Type
+Pros
+Cons
+Akka
+Short-term events that should last seconds to minutes
+- Perhaps the name "Scheduler" was unfortunate, "Deferer" is probably more indicative of what it does.
+- The Akka Scheduler is designed to setup events that happen based on durations from the current moment: You can say "fire this job in 15 minutes, every 30 minutes thereafter" but not "fire a job every day at 3pm".
+- Akka’s default scheduler is executed around a HashedWheelTimer â a potential precision loss for jobs, as it does not provide strong guarantees on the timeliness of execution.
+- Scheduled jobs get lost when the system restarts
+Quartz
+- Jobs are scheduled to run when a given Trigger occurs. Triggers can be created with nearly any combination of the following directives.
+At a certain time of day (to the second), on certain days of the week, and so on.
+- Jobs are given names by their creator and can also be organized into named groups. Triggers may also be given names and placed into groups, in order to easily organize them within the scheduler.
+Jobs can be added to the scheduler once, but registered with multiple Triggers.
+More complex for short "schedule once" jobs
+Configuration
+Action Timeouts
+HOCON configuration can be provided (usually in Akka application.conf) to configure the time-out duration of each action.
+When the duration has expired, the flow will receive an Action Timeout event for that configured Action.
+The format of the config items are currently in flux and subject to change
+The current format for the configuration is
+FlowName.StateName.ActionName.Type=[Duration|Integer]
+FlowName : flow identifier or Any for wildcard
+StateName : State identifier or Any for wildcard
+ActionName : Action identifier or Any for wildcard
+Type : one of timeout-duration, initial-retry-interval, or max-retries.
+Where
+Duration
+is any format supported by
+HOCON
+Specific example
+OBCreditTransfer.ValidatingSchemeRules.ValidateAgainstSchemeRules.timeout-duration=2s
+This equates to:
+The
+Validate Against Scheme Rules
+action in the
+ValidatingSchemeRules
+state in the
+OB Credit Transfer
+flow will time-out if not responded to in 2 seconds
+Each part in the config also supports the
+Any
+keyword which will match on anything for that given part. It is
+applicable to flows, states and actions.
+Any
+example
+Any.Any.ValidateAgainstSchemeRules.timeout-duration=10s
+(1)
+Any.CheckingFraud.CheckFraud.timeout-duration=20s
+(2)
+1
+The
+Validate Against Scheme Rules
+action in the any state in any flow will time-out if not responded to in 10 seconds
+2
+The
+Check Fraud
+action in the
+Checking Fraud
+state in any flow will time-out if not responded to in 20 seconds
+Backoff Types and Jitter
+The configuration allows for determining different backoff types:
+EXPONENTIAL
+: 2^n scaling (where
+n
+is the initial delay). This is the default type.
+LINEAR
+: 2n scaling (where
+n
+is the initial delay)
+USER_DEFINED
+: Custom intervals that are defined in configuration
+Jitter is enabled by default, but the configuration also allows for disabling jitter in the case that retries are so large that jitter would add a
+significant amount of delta. Imagine a retry happening in a day’s time, the jitter for that would be +/- 5 hours each way.
+This might not be desirable.
+So - for example - to configure 5 attempts of the
+CheckFraud
+action with no jitter, initially retrying after 10 seconds but then every 30 minutes, the configuration would be:
+Any.CheckingFraud.CheckFraud.max-retries = 4
+Any.CheckingFraud.CheckFraud.backoff-type = "USER_DEFINED"
+Any.CheckingFraud.CheckFraud.custom-backoffs = [10s,30m]
+(1)
+Any.CheckingFraud.CheckFraud.jitter-enabled = false
+1
+Using the HOCON
+duration format
+Another example here shows a linear retry (with jitter present so omitted because on by default)
+Any.CheckingFraud.CheckFraud.initial-retry-interval = 1000
+Any.CheckingFraud.CheckFraud.max-retries = 4
+Any.CheckingFraud.CheckFraud.backoff-type = "LINEAR"
+This example will retry at 1/2/3/4 seconds.
+Precedence
+The most specific configuration takes precedence i.e. if it matches on all 3 parts (flow, state and action).
+For actions, when there are multiple configurations items that might apply, the more specific state will override the
+more specific flow configuration.
+Example action:
+Flow: Flow1
+State: State1
+Action: Action1
+This would be the order of precedence of all the possible configurations that might apply to this action
+1. Flow1.State1.Action1.timeout-duration
+2. Any.State1.Action1.timeout-duration
+3. Flow1.Any.Action1.timeout-duration
+4. Any.Any.Action1.timeout-duration
+5. Flow1.State1.Any.timeout-duration
+6. Any.State1.Any.timeout-duration
+7. Flow1.Any.Any.timeout-duration
+8. Any.Any.Any.timeout-duration
+Processing Time
+Durations
+HOCON configuration can also be provided (usually in Akka application.conf) to configure how much time is allowed to be spent in passing between a pair of states, irrespective of the journey taken to reach the destination.
+When the duration has expired, the flow will receive an ProcessingTimeElapsedEvent for the destination state.
+The current format for the configuration is
+ipf.flow.<flow-name>.processing-time.<source-state>.<destination-state>.timeout-duration=Duration|Integer]
+flow-name : flow identifier
+source-state : State identifier
+destination-state : The state the flow should reach in the allotted time
+Where
+Duration
+is any format supported by
+HOCON
+Specific example
+ipf.flow.OBCreditTransfer.processing-time.ValidatingAgainstSchemeRules.Complete.timeout-duration=2s
+This equates to:
+The flow will produce a processing time elapsed event if the time taken from the
+ValidatingAgainstSchemeRules
+state to the
+Complete
+state exceeds 2 seconds
+Offsets
+Offsets provide an enhanced mechanism of defining the timeout duration.  The basic processing time looks simply at the time between two states.  However, it may be necessary for the timeout to consider for example a specific customer defined start time.  In this case we are able to use offsets as a way of enriching the duration.
+For example, suppose that the client provides an accepted timestamp and that the flow must complete within 5 seconds of that time - rather than 5 seconds after the flow initiating.  In this case, IPF can be provided with the accepted timestamp as an offset and then define a 5 second duration, but the actual timeout will be fired by allowing for the offset.
+There are two types of offset:
+System Offsets
+: each time IPF reaches a new state, a new offset is created.
+Custom Offsets
+: these are user defined and can be provided to IPF.
+Each offset has two attributes - a unique
+offset-id
+and the offset time itself.
+To use an offset in the scheduling configuration, it is simply necessary to define in the configuration the offset-id to use. This is done by:
+ipf.flow.OBCreditTransfer.processing-time.ValidatingAgainstSchemeRules.Complete.offset-id=anOffsetId
+To provide a custom offset to any flow, we simply need to provide it on the input via the
+withFlowOffset
+method.
+It is also possible to provide the offsets from one flow to another.  This is useful in parent-child relationships where there is a requirement for an offset to span multiple flows.  To do this, on all actions the offset map of the current flow is provided as a parameter and this can simply be passed to the new flow via it’s
+withOffsetMap
+method.
+Application Health Indicators
+Automated Retries

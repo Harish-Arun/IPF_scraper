@@ -1,0 +1,54 @@
+=== URL: https://docs.ipfdev.co.uk/functions/IPF_RELEASE_2024.3.0/ipf-duplicate-check-floclient/defining-a-custom-duplicate-check-key-mapping.html ===
+Defining a Custom Duplicate Check Key Mapping
+1. Add a mapping function
+Within your MPS project, add a Mapping Library to your model. Right-click on your model and choose
+new
+
+v2Flo
+
+Mapping Library
+.
+Add your function to this library and complete its details. The input data represents the message type you wish to duplicate check. The output data must be
+DuplicateCheckKey
+.
+2. Use the mapping function within your flow
+Within your MPS flow, left-click on the checkDuplicate action call you want to use the custom mapping with.
+Press
+Ctrl
++
+Alt
++
+I
+to open the Inspector. Change the
+Mapping
+in the inspector to your mapping function.
+3. Implement your mapping adapter
+You need to provide a java implementation of your mapping function and provide it into your domain declaration as an adapter.
+For example:
+public class CustomDuplicateCheckMappingAdapter implements CustomDuplicateCheckMappingMappingPort {
+
+    @Override
+    public CustomDuplicateMapFromPain001MappingOutput performCustomDuplicateMapFromPain001(CustomDuplicateMapFromPain001MappingParameters inputParameters) {
+        return new CustomDuplicateMapFromPain001MappingOutput(new DuplicateCheckKey(getDuplicateCheckFields(inputParameters.getPaymentInitiation())));
+    }
+
+    private List<String> getDuplicateCheckFields(CustomerCreditTransferInitiationV09 pain001) {
+        List<String> data = new ArrayList<>();
+        // your code here to populate data with the fields you want
+        return data;
+    }
+}
+@Bean
+    public DuplicatecheckexampleDomain duplicatecheckexampleDomain(ActorSystem actorSystem,
+                                                                   CustomDuplicateCheckMappingMappingPort customDuplicateCheckMappingAdapter,
+                                                                   Dispatcher floDispatcher) {
+        return new DuplicatecheckexampleDomain.Builder(actorSystem)
+                .withCustomDuplicateCheckMappingMappingAdapter(customDuplicateCheckMappingAdapter)
+                .withDispatcher(floDispatcher)
+                .build();
+    }
+You can find more details on using mapping functions at
+DSL 6 - Mapping Functions
+.
+Getting Started
+Providing Custom TransactionCacheEntryTypes

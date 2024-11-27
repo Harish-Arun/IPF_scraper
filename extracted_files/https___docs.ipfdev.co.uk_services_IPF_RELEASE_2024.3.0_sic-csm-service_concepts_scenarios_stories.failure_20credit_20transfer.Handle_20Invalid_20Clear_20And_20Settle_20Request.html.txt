@@ -1,0 +1,22 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/concepts/scenarios/stories.failure%20credit%20transfer.Handle%20Invalid%20Clear%20And%20Settle%20Request.html ===
+Handle Invalid Clear And Settle Request.story
+Scenario: Handling an invalid clear and settle request
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseMeta(java.lang.String)
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseLegacy(java.lang.String)
+When
+the ï½Payment Serviceï½  sends a Clear
+And
+Settle Request with values:
+| payload.content.grpHdr.msgId | NOT_SET |
+Then
+ï½the IPFï½  receives a corresponding System Event using predicate:
+| level                                 | ERROR                        |
+| processingContext.associationId.value | #Clear*And*SettleRequest.ipfId |
+| name                                  | SchemeRuleValidationFailed   |
+| payload.reasonCode                    | FF01                         |
+| type                                  | FUNCTIONAL                   |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()

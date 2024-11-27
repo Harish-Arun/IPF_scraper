@@ -1,0 +1,114 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.credit%20transfer%20happy%20path.Handle%20Receive%20Payment%20Request.html ===
+Handle Receive Payment Request.story
+Scenario: Handling of payment request
+Steps
+When the CSM sends a '<FileName>' 'Customer Credit Transfer'
+Then the Payment Service receives a 'Receive Payment Request'
+When Payment Service sends a 'Receive Payment Response'
+Then CSM receives a 'Payment Status Report'
+When the CSM sends a 'Psr Conf Response' 'Payment Status Report'
+Then the Payment Service receives a 'Receive Payment Settled Request'
+Examples:
+FileName
+With Dt And Plc Of Birth Structured Address
+With Any Bic Ctgy Purp Cd Rmtinf Ustrd
+With Org Id Othr
+With Prvt Id Othr
+With Schme Nm Prtry And Ctgy Purp Prtry
+With Prvt Id Schme Nm Prtry
+With Prvt Id Rmt Inf Strd
+Example: {FileName=With Dt And Plc Of Birth Structured Address}
+When
+the i12CSMi12  sends a i12With Dt
+And
+Plc Of Birth Structured Addressi12  Customer Credit Transfer
+Then
+the i12Payment Servicei12  receives a Receive Payment Request
+When
+i12Payment Servicei12  sends a Receive Payment Response
+Then
+i12CSMi12  receives a Payment Status Report
+When
+the i12CSMi12  sends a Psr Conf Response Payment Status Report
+Then
+the i12Payment Servicei12  receives a Receive Payment Settled Request
+Example: {FileName=With Any Bic Ctgy Purp Cd Rmtinf Ustrd}
+When
+the i12CSMi12  sends a i12With Any Bic Ctgy Purp Cd Rmtinf Ustrdi12  Customer Credit Transfer
+Then
+the i12Payment Servicei12  receives a Receive Payment Request
+When
+i12Payment Servicei12  sends a Receive Payment Response
+Then
+i12CSMi12  receives a Payment Status Report
+When
+the i12CSMi12  sends a Psr Conf Response Payment Status Report
+Then
+the i12Payment Servicei12  receives a Receive Payment Settled Request
+Example: {FileName=With Org Id Othr}
+When
+the i12CSMi12  sends a i12With Org Id Othri12  Customer Credit Transfer
+Then
+the i12Payment Servicei12  receives a Receive Payment Request
+When
+i12Payment Servicei12  sends a Receive Payment Response
+Then
+i12CSMi12  receives a Payment Status Report
+When
+the i12CSMi12  sends a Psr Conf Response Payment Status Report
+Then
+the i12Payment Servicei12  receives a Receive Payment Settled Request
+Example: {FileName=With Prvt Id Othr}
+When
+the i12CSMi12  sends a i12With Prvt Id Othri12  Customer Credit Transfer
+Then
+the i12Payment Servicei12  receives a Receive Payment Request
+When
+i12Payment Servicei12  sends a Receive Payment Response
+Then
+i12CSMi12  receives a Payment Status Report
+When
+the i12CSMi12  sends a Psr Conf Response Payment Status Report
+Then
+the i12Payment Servicei12  receives a Receive Payment Settled Request
+Example: {FileName=With Schme Nm Prtry And Ctgy Purp Prtry}
+When
+the i12CSMi12  sends a i12With Schme Nm Prtry
+And
+Ctgy Purp Prtryi12  Customer Credit Transfer
+Then
+the i12Payment Servicei12  receives a Receive Payment Request
+When
+i12Payment Servicei12  sends a Receive Payment Response
+Then
+i12CSMi12  receives a Payment Status Report
+When
+the i12CSMi12  sends a Psr Conf Response Payment Status Report
+Then
+the i12Payment Servicei12  receives a Receive Payment Settled Request
+Example: {FileName=With Prvt Id Schme Nm Prtry}
+When
+the i12CSMi12  sends a i12With Prvt Id Schme Nm Prtryi12  Customer Credit Transfer
+Then
+the i12Payment Servicei12  receives a Receive Payment Request
+When
+i12Payment Servicei12  sends a Receive Payment Response
+Then
+i12CSMi12  receives a Payment Status Report
+When
+the i12CSMi12  sends a Psr Conf Response Payment Status Report
+Then
+the i12Payment Servicei12  receives a Receive Payment Settled Request
+Example: {FileName=With Prvt Id Rmt Inf Strd}
+When
+the i12CSMi12  sends a i12With Prvt Id Rmt Inf Strdi12  Customer Credit Transfer
+Then
+the i12Payment Servicei12  receives a Receive Payment Request
+When
+i12Payment Servicei12  sends a Receive Payment Response
+Then
+i12CSMi12  receives a Payment Status Report
+When
+the i12CSMi12  sends a Psr Conf Response Payment Status Report
+Then
+the i12Payment Servicei12  receives a Receive Payment Settled Request

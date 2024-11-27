@@ -1,0 +1,17 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.orphan.Handle%20Orphan%20Clear%20And%20Settle%20Response.html ===
+Handle Orphan Clear And Settle Response.story
+Scenario: Handling orphan clear and settle responses
+When
+the ï½Payment Serviceï½  sends a Clear
+And
+Settle Request
+Then
+the ï½CSMï½  receives a Customer Credit Transfer
+When
+ï½CSMï½  sends a Orphan Payment Status Report
+Then
+ï½Payment Serviceï½  receives a System Event using predicate:
+| level                                 | WARN                                                              |
+| processingContext.associationId.value | #PaymentStatusReport.fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.orgnlMsgId |
+| name                                  | OrphanPaymentStatusReportReceived                                 |
+| type                                  | FUNCTIONAL                                                        |

@@ -1,0 +1,4 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/payments-home.html ===
+Payments
+Journal & Snapshot Data Model
+Mapping Framework

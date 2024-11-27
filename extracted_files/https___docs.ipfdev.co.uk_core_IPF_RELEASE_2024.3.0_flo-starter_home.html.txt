@@ -1,0 +1,40 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/home.html ===
+IPF Flo Starter
+IPF Flo Starter bootstraps an IPF flow implementation by providing an Akka ActorSystem and the
+Spring Boot autoconfiguration
+to wire all the necessary core dependencies that are required for running a command (write) and query (read) side.
+Those core dependencies are often used features documented in the
+Features
+section and you will find common implementation activities in the
+Getting Started
+.
+Concepts
+Flo Starter Projects
+Understanding Passivation, Remembering Entities, and Schedulers
+Domain Operations
+Features
+Application Configuration
+Transaction Caching
+Application Health Indicators
+Flow Scheduling
+Automated Retries
+Monitoring and Observability
+Getting Started
+Create a new IPF Application Project
+Defining The Read Side
+Persistence
+Mongo Offset Data Model
+Transaction Cache Data Model
+How to guides…​
+How to handle schema evolution in IPF events
+How to troubleshoot error messages
+How to secure IPF HTTP Endpoints
+How to use the persistent scheduler with a flow
+How to implement a duplicate check function
+How to get aggregate data for use in an external domain request
+How to handle retries across non-completing requests
+How to implement a payment scheduler
+Dynamic Log Level Configuration
+Tracing and Other Telemetry With OpenTelemetry
+Application Builder
+Concepts

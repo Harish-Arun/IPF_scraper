@@ -1,0 +1,86 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/guides/metrics.html ===
+Metrics
+How can I receive events and metrics relating to my connector?
+Connectors, by default, come with
+Lightbend Telemetry
+for reporting metrics.
+This enables the metrics to be exposed via various backends such as Prometheus, Datadog, New Relic, and so on.
+The metrics example will show how to set up metrics with Prometheus, one of the most prevalent monitoring systems.
+Lightbend Telemetry was formerly known as Cinnamon. You will see references to both in these samples.
+This guide is also available in the separate
+connector-samples
+Git repository
+here
+.
+Cinnamon Agent
+Before we can run the example, first run the following maven goal.
+mvn clean compile
+This is important because it will copy the cinnamon agent JAR into the target directory.
+This achieved by adding the following plugin configuration in the
+pom.xml
+file.
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-dependency-plugin</artifactId>
+    <version>3.1.2</version>
+    <executions>
+        <execution>
+            <id>copy</id>
+            <phase>compile</phase>
+            <goals>
+                <goal>copy</goal>
+            </goals>
+            <configuration>
+                <artifactItems>
+                    <artifactItem>
+                        <groupId>com.lightbend.cinnamon</groupId>
+                        <artifactId>cinnamon-agent</artifactId>
+                        <version>${cinnamon.version}</version>
+                        <overWrite>true</overWrite>
+                        <destFileName>cinnamon-agent.jar</destFileName>
+                    </artifactItem>
+                </artifactItems>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>
+After running the maven compile goal, there should be a
+dependency/cinnamon-agent.jar
+file inside the
+target
+directory.
+We can now add the following VM argument when running the test.
+-javaagent:target/dependency/cinnamon-agent.jar
+If using IntelliJ IDEA, it might be necessary to disable the IntelliJ Java agent, as it can cause issues with the Cinnamon agent.
+The agent can be disabled by going selecting
+Help > Edit Custom Properties..
+and then adding
+idea.no.launcher=true
+to the properties file.
+The Lightbend Telemetry (Cinnamon) Agent can be acquired as part of a Lightbend subscription.
+More info on setting that up can be found
+here
+.
+This test sends a message via a
+SendConnector
+using a no-op
+ConnectorTransport
+for an hour.
+Verify Metrics
+If the VM argument above is set correctly the metrics should be published to a locally running prometheus server which is exposes on port
+9001
+.
+Navigate to
+localhost::9001
+.
+There should be a page full of text, displaying various metrics.
+Search for "application_ipf_requests_sent"
+The search should show the following result.
+This metric shows the total count of messages sent via connectors.
+application_ipf_requests_sent{application="com.intellij.rt.junit.JUnitStarter",host="some-hostname",connector="MetricsSendConnector",type="send",} 125.0
+This statistic (and others) can be scraped by Prometheus and fed into a graphing library, such as Grafana to produce interesting visualisations of the data.
+Prebuilt Grafana graphs by Lightbend can be found
+here
+.
+How to chain request-reply Connectors
+How to filter messages

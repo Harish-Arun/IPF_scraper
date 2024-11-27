@@ -1,0 +1,31 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/installation/options.html ===
+Deployment Options
+Deployment Topography
+The suggested deployment configuration, if both ODS Inquiry and ODS Ingestion are required, is 3+ ods-ingestion instances, and 1+ ods-inquiry instances.
+ODS Ingestion is stateful, and forms an Akka Cluster, which requires a minimum of three nodes.
+ODS Inquiry is stateless, and should be scaled as required. One instance is typically enough.
+IPF Archiver requires ODS Ingestion to be running, and performing archive candidate selection.
+IPF Metrics Processor requires ODS Ingestion to be running because in some scenarios it will need to query the ODS database.
+If ODS Ingestion is
+running to support IPF Archiver or IPF Metrics Processor only
+, ODS Inquiry wont be needed, and the number of ODS Ingestion nodes can be decreased to one.
+Both will use the same MongoDB database. Ingestion writes and updates data, and Inquiry queries this data.
+Indexing
+Indexes come with both a write performance cost, and storage cost, with the upside being faster and cheaper queries.
+Indexes that support ingestion are mandatory, and
+all
+ODS Ingestion indexes
+should be applied, but many inquiry indexes are not necessary in all cases.
+Depending on requirements for ODS Inquiry, some or all
+ODS Inquiry indexes
+should be applied. It is recommended that
+all
+inquiry indexes for the
+summary
+collection be applied, as these are required to support GUI searches.
+Indexes required for inquiry on other collections may not be required, and depend entirely on your specific requirements.
+ODS will create all indexes on startup, but this can be disabled. See the
+indexing section
+for more information.
+Deployment
+Sizing Guidelines

@@ -1,0 +1,104 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/getting-started/debulker-client-library.html ===
+Use the Debulker Client Library
+This guide explains how to use the Debulker Client Library to receive file notifications in an IPF application.
+Purpose
+If using debulking in combination with IPF, you will want to be notified of the arrival (and completed debulking) of a
+bulk file. This Client Library combines the following components into a single dependency:
+Choice of transport (Kafka)
+Choice of component store type (MongoDB)
+Choice of file management backend (Local, S3)
+Steps
+Heres how to get started with calling the Debulker Client Library
+Step 1: Add dependency
+The dependency you use depends on the transport bindings you want to use. Currently only Kafka is supported for
+Debulker.
+This dependency is available as part of the
+ipf-release-core-bom
+. If you are using the IPF BOM you do
+not need to specify any versions; you will receive the Debulker Client Library version that has been validated with that BOM
+release.
+Database type
+Transport type
+Dependency
+MongoDB
+Kafka
+<dependency>
+    <groupId>com.iconsolutions.ipf.debulk</groupId>
+    <artifactId>ipf-debulker-client-starter-mongo-kafka</artifactId>
+</dependency>
+Step 2: Create a Debulker Client Library implementation
+In order for the Spring Boot AutoConfigure for
+ipf-debulker-client-starter-mongo-kafka
+to do all the relevant wiring, the Spring Context
+must have an implementation of
+com.iconsolutions.ipf.debulk.client.DebulkInitiationClientAdapter
+before anything is enabled.
+This implementation needs to be a Spring bean as well. Therefore, the simplest implementation to activate the Debulker Client Library would be:
+import com.iconsolutions.ipf.debulk.client.DebulkInitiationClientAdapter;
+import org.springframework.stereotype.Component;
+
+@Component
+(1)
+public class MyDebulkInitiationClientAdapter implements DebulkInitiationClientAdapter {
+(2)
+}
+1
+Defining it as a Spring bean
+2
+Implementing the interface
+Note that you do not have to implement the interfaces method to get the application up-and-running. The default
+implementation will throw an exception if you somehow end up receiving a message and have not implemented that
+interface. If we look at the default implementation of
+handle
+:
+default CompletionStage<Void> handle(ReceivingContext receivingContext, InitiateComponentProcessingCommand initiateComponentProcessingCommand) {
+    throw new IconRuntimeException("Please implement the DebulkInitiationClientAdapter's handle method");
+}
+The implementation depends on what you want to do with the message, but this would typically involve calling an IPF flow
+using the
+XxxDomain
+static methods, such as:
+@Override
+public CompletionStage<Void> handle(ReceivingContext receivingContext,
+                                    InitiateComponentProcessingCommand payload) {
+    var bulkId = BulkId.builder()
+            .value(payload.getBulkId())
+            .build();
+
+    return toFlux(componentStore.findAllByBulkIdAndMarker(bulkId, "Document"))
+(1)
+.flatMap(bulk -> {
+                var bulkCmd = new InitiateBulkFlowInput.Builder(bulk.getBulkId().getValue())
+                        .withBulkId(payload.getBulkId())
+                        .withComponentId(bulkId.getValue())
+                        .withPaymentJourneyType("BULK")
+                        .withProcessingContext(ProcessingContext.builder()
+                                .unitOfWorkId(bulk.getId().getValue())
+                                .clientRequestId(bulk.getBulkId().getValue())
+                                .processingEntity("BANK_ENTITY_1")
+                                .build())
+                        .withGroupHeader(xmlMapper.fromXML(bulk.getContent(), Document.class).getCstmrCdtTrfInitn().getGrpHdr())
+(2)
+.build();
+                return Mono.fromCompletionStage(BulkDomain.initiation().handle(bulkCmd));
+(3)
+})
+            .collectList()
+            .toFuture()
+            .thenAccept(dones -> log.info("Started bulk: {}, {}", payload, dones));
+}
+1
+A
+component store
+should be wired in as a dependency to your implementation to retrieve the relevant component from the store
+2
+Using an injected
+XMLMapper
+to make a pain.001
+Document
+object to pass into the flow
+3
+Creating a new instance of
+BulkFlow
+Debulker in Your Application
+Configuring Debulker

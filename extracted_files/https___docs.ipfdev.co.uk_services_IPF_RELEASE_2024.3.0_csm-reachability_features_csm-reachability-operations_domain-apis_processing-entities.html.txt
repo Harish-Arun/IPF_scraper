@@ -1,0 +1,27 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/csm-reachability-operations/domain-apis/processing-entities.html ===
+5. /processing-entities
+Purpose
+CSM Reachability service uses multiple data structures that are supported by "Dynamic Processing Settings". The data structures use DPS setting management APIs which allow the records to be created / updated / deleted dynamically.  The client implementation payment flows can use the setting management APIs, however this exposes the flows to the risk of the data structure definitions changing as the attributes returned can change as a result.
+The Get Processing Entity is the domain API for Processing Entity related settings.
+Note - It is not recommended for the client implementation flows to use the DPS Setting management APIs. 'Domain APIs' like Get Settlement Agent, Get Processing Entity, Party Entities should be used instead.
+Usage
+Get Processing Entity can be used by the client implementation payment flows to retrieve below aspects of the dynamic configurations related to the Processing Entity.
+Processing Entity
+Generic Processing Settings of specified SettingCategories
+The endpoint can be used in below situations by the flows:
+Get Processing Entity only
+To get attributes on the Processing Entity and perform conditional processing within the flows
+Know Ledger Currency of the processing entity and take decisions on the FX conversions on the payments.
+To perform identifier enrichment on the payments for the processing entity based on selected CSM Agent (if the entered entity identifier is not supported by the CSM Agent on the payments).
+To perform address enrichment on the payment for the processing entity
+Additionally, Get Generic Processing Settings of specified SettingCategories
+To get a list of processing Entity level accounts to perform account postings for the Processing Entity (Suspense accounts, Ledger Accounts). Agent level settlement accounts are not maintained at Processing Entity level and these can be retrieved through Get Settlement Agent.
+To get a list of Supported Transfer Currencies for the Processing Entity and perform initial checks on the payments.
+To get a list of IntraEntityParties associated with the ProcessingEntity
+1. Request
+This operation takes in the below request parameters
+processingEntity - required path parameter - The Processing Entity to be retrieved.
+includeGenericProcessingSettings - optional query parameter - Specifies whether Generic Processing Settings should be returned in the response.
+settingCategories - optional query parameter - A list of Generic Processing categories that should be returned in the response.
+Party Entities
+Settlement Agents

@@ -1,0 +1,10 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/getting-started.html ===
+Getting started
+Here are a number of pages to get you started with core activities and configurations to use the debulker in your application or create a stand alone debulker.
+Debulker in Your Application
+Use the Debulker Client Library
+Configuring Debulker
+Sending File Notifications
+Process Debulked Components
+Housekeeping - scheduler
+Debulker in Your Application

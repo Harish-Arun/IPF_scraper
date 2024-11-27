@@ -1,0 +1,12 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/overview.html ===
+Ops Gui Framework
+Overview
+The ops-gui-framework is a repository for features based around the building and maintaining of an IPF operational dashboard, split into 2 sections,
+schematics
+and
+modules
+.
+Schematics is the home of the IPF Angular schematic for quickly creating a new Operational Dashboard.
+Modules is the home to our common Angular library which includes basic functionality such as authentication as well as components that can be used across the application.
+Version Information
+Ops Dashboard Installation

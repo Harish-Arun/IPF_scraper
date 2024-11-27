@@ -1,0 +1,30 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/features/message-throttling.html ===
+Message Throttling
+The rate of processing messages may sometimes need to be throttled to avoid overloading downstream systems and even out spiky traffic.
+Both sending and receiving connectors can be configured to throttle the rate of messages they can process.
+This is in addition to
+backpressure
+(demand signalling) we get by virtue of using Akka Streams in the implementation of the connector library.
+That is to say if some part of the processing pipeline is running slowly then the backpressure would kick in and would effectively rate limit the system.
+The difference with throttling is we can tune the maximum rate of messages over a window of time.
+This is especially useful if we have a slower downstream system which we dont want to overload.
+Tuning Considerations
+The two parameters that can be tuned for throttling are the window duration and the message count.
+The throttling mechanism will allow messages through at whatever rate they come in up until the maximum number of messages have been reached within the window duration.
+This is important because we could have two configurations that provide the same overall throughput, for example:
+Window Duration
+Message Count
+Throughput (TPS)
+10 seconds
+1000
+100
+1 second
+100
+100
+In the first example it is possible that 1000 message are processed within the first second, this would mean for the remaining nine seconds, nothing would be processed.
+Whereas in the second example, under the same load we would see a smoother rate of processing as the window is smaller.
+Throttle Configuration
+To configure throttling on both sending and receiving connectors, a duration and count must be supplied when building the connector.
+If the throttle parameters are not set, then the connector will process messages as they come, unconstrained, albeit with backpressure from the downstream consumers.
+Backpressure
+Message Encryption

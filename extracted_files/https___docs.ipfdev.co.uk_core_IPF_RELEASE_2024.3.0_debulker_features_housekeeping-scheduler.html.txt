@@ -1,0 +1,24 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/housekeeping-scheduler.html ===
+Housekeeping - scheduler
+Housekeeping scheduler is a component whose purpose is to delete input files older than a configurable number of days based on the last modification time. The files are polled from a configurable location path.
+Scenario:
+When a file older than some days is found in the input directory, the file is deleted from the path.
+Configuration Properties:
+Config
+Type
+Default value
+Comment
+ipf.debulker.housekeeping.scheduler.cron
+String
+'0 0 12 * * ?'
+A command for a job that is to be executed at a specified time.
+ipf.debulker.housekeeping.scheduler.file-path
+String
+'src/main/resources'
+Specific path where files are located.
+ipf.debulker.housekeeping.scheduler.days-old
+Integer
+100
+The number of days from the last modification time.
+Housekeeping component remover
+Getting started

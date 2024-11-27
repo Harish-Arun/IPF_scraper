@@ -1,0 +1,24 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/csm-reachability-operations/domain-apis/settlement-agents.html ===
+6. /settlement-agents
+Purpose
+CSM Reachability service uses multiple data structures that are supported by "Dynamic Processing Settings". The data structures use DPS setting management APIs which allow the records to be created / updated / deleted dynamically. The client implementation payment flows can use the setting management APIs, however this exposes the flows to the risk of the data structure definitions changing as the attributes returned can change as a result.
+It is therefore proposed as part of the re-design that a 'Domain API' is available for data structures that are most likely to be queried by the flows during execution. The candidates for the 'domain APIs' are Agent related settings and processing entity related settings.
+The Get Settlement Agent is the domain API for agent related settings.
+Usage
+Get Settlement Agent can be used by the client implementation payment flows to retrieve below aspects of the dynamic configurations related to an agent. (An agent is a party with which the processing entity holds a settlement relationship).
+Agent Settings
+Agent Settlement Settings
+Agent Clearing Settings
+Note - Agent Servicing Settings are not on the data model as of PI 2024.1 and will be introduced in future iterations.
+The endpoint can be used in below situations by the flows:
+Get Agent settings only
+To get the role of the agent in the settlement relationship and carry out related validations (Serviced Agent, Intermediary Agent)
+To validate that the processing entity has an established agent with the identifiers on the payment. Important Note - It is also possible for the payment flows to get the address details of the agent for address enrichment purposes and to know other identifiers the agent is known by. However, it is not recommended that the agent settings data structure is used for these purposes. Reachability service supports a separate data structure called "Party Entity Directory" which can be used for these purposes for the agents as well as other parties with which it does not hold settlement relationship in a consistent way.
+Get Agent Settings + Settlement Settings
+To details of the settlement accounts, that the processing entity holds with the agent for given transfer currency
+To get limits in the transfer currency (agent level limits and any custom bilateral limits set for the participants reachable through the agent)
+Get Agent Settings + Agent Clearing Settings
+To get the clearing settings with the agent (Cover/Serial method, agent opening hours, extension periods, check agent business and calendar holidays)
+The endpoint is expected to be flexible to allow requesting of the settings optionally where just one category of settings can be requested or a combination / all the agent related settings can be retrieved.
+Processing Entities
+Getting Started

@@ -1,0 +1,77 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/tutorials/running_sanctions_sim.html ===
+UTILS3 - Sanctions Simulator
+This document covers how to use the sanctions simulator. There are two recommended approaches for the tutorial, both docker and non-docker. Let’s look at these:
+Using the Application Through Docker
+Below provides a simple docker file entry for the developer application:
+sanctions-sim:
+    image: registry.ipf.iconsolutions.com/sample-systems-sanctions-simulator-kafka:2.1.47
+    container_name: sanctions-sim
+    ports:
+      - 5010:5005
+      - 8088:55555
+    environment:
+      - SANCTIONS_MODE=normal
+      - SANCTIONS_TRANSPORT=kafka
+      - SANCTIONS_SIM_ENCRYPTION_ENABLED=FALSE
+    volumes:
+      - ./config/sanctions-sim:/sanctions-simulator-kafka/conf
+      - ./logs:/ipf/logs
+    user: "${UID:-1000}:${GID:-1000}"
+    depends_on:
+      - kafka
+In addition, the application will need configuration which is placed in the
+application.conf
+file within a config directory relative to the above docker entry. The configuration file contains:
+common-kafka-client-settings {
+  bootstrap.servers = "kafka:9092"
+}
+
+akka.kafka {
+  producer {
+    kafka-clients = ${common-kafka-client-settings}
+  }
+  consumer {
+    kafka-clients = ${common-kafka-client-settings}
+  }
+}
+When executed the sanctions sim will listen for data on the
+SANCTIONS_REQUEST
+topic and post back to the
+SANCTIONS_RESPONSE
+. The logs will be exported to
+logs/ipf-developer.app
+relative to the docker file.
+Using the Application Without Docker
+Prerequisites
+To run this simulator requires:
+A Java 17 runtime
+A Kafka environment that either has:
+Auto topic creation enabled
+Topics created for
+SANCTIONS_REQUEST
+and
+SANCTIONS_RESPONSE
+Configuration Options
+Property
+Description
+Default Value
+common-kafka-client-settings.bootstrap.servers
+Defines the server bootstrap settings for kafka.
+localhost:9092
+server.port
+Defines the port the application will run on
+8082
+simulator.http.port
+Defines the port upon which to listen for http requests.
+55555
+Download
+The sanctions simulator is available here:
+nexus.ipf.iconsolutions.com/repository/ipf-releases/com/iconsolutions/ipf/sample/samplesystems/sanctions-simulator-kafka/2.1.47/sanctions-simulator-kafka-2.1.47-runnable.jar
+Running
+Once downloaded, place it into this directory and run:
+java -cp "sanctions-simulator-kafka-2.1.47-runnable.jar:config" -D"loader.main"="com.iconsolutions.samplesystems.sanctions.simulator.SanctionsSimulatorKafkaApplication" "org.springframework.boot.loader.launch.PropertiesLauncher"
+The application will then start and be available from:
+localhost:55555/index.html
+Note that on Windows, the colon in the run command should be replaced by a semicolon.
+Create your own project
+Payment Initiation Simulator

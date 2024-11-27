@@ -1,0 +1,78 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo/concepts/states-events.html ===
+States & Events
+States and events are foundational principles for understanding and working with IPF. States represent a point in the processing of your system, where as events are persisted facts about something which has occurred in your system.
+(you can read more about states and events from a 'state machine' perspective here -
+State Machine
+)
+Global States
+First we consider the "
+Global State Set
+".   The global state set is a set of states that represent the overall state of a payment.  It is particularly used where a payment may span multiple flows (for example if the payment processing is split into "initiation" and "execution" parts) but can also apply an overall grouping type state to the individual flow parts to simplify the apparent state transitions from a payment level.
+Each flow level state can be mapped to a global state such that multiple flow level states can all be considered to leave the payment in the same overall global state.
+A default global state set is provided which provides the following standard states: Pending, Accepted, Rejected, Manual Action Required and Cancelled.
+States
+The next concept to consider within our flow is a "
+State
+".  This is simply a resting point on the flow that the payment can pass through in its journey. For example we may have a very simple flow that goes from "State A" to "State B".
+A state itself has a number of properties:
+"
+Name
+"
+"
+Description
+"
+"
+Global state
+"
+"
+Is Terminal
+" flag - the terminal flag is used to indicate that this ends the flow to which the state belongs.
+Each flow can contain many different states.
+In addition to the state properties above its possible to specify (on a more technical level)
+Whether a flow should be
+passivated
+when the action associated with that state has been processed.
+If the state is
+not recoverable
+- in our context it means can the actions associated with this state be replayed? This is particularly useful where an external domain cannot tolerate repeat requests.
+Events
+When a flow moves from one state to another, this is known as a "
+State Transition
+".  Within IPF, for a state transition to occur then the system needs to receive an "
+Event
+" on the processing journey of the payment.   In this case, it is actually a specific type of event known as a "
+Domain Event
+".
+A domain event is a persisted factual occurrence - the arrival of an event means that something explicit has occurred which may cause some form of change to the processing of our payment.
+An event has a number of properties:
+"
+Name
+"
+"
+Description
+"
+List of "
+Business data
+" elements.
+When an event is formed, then the system will check its own behaviour to determine what actions should be performed.
+The behaviours and processing triggered by events is discussed
+here
+. There are three occasions when an event can cause a change to the processing, these are known as the "
+Event Criteria
+" conditions and are defined as:
+On
+- this movement will happen upon the arrival of a single event (e.g. we may transition when receiving "Event 1")
+On any of
+- this movement will happen upon the arrival of one of multiple events  (e.g. we may transition when receiving either of "Event 1" or "Event 2")
+On all of
+- this movement will only occur upon the arrival of multiple events (e.g. we may transition only after receiving both "Event 1" and "Event 2")
+Here we have described the "Domain Event" which is the type of event that is explicitly declared within any MPS solution.  However, IPF as a whole uses a number of different types of event:
+"System Event"
+- these occur when something happens to the system and can be tailored to be specific to individual needs.
+"Action Timeout Events"
+- these events occur during processing when configured timeout settings are broken.
+"Decision Events"
+- these event are used as a response to receiving results from decisions.
+All these event types are discussed in the concepts or tutorials.
+Flows
+Domain Operations

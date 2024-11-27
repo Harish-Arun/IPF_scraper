@@ -1,0 +1,123 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/processing-data/agent-settings.html ===
+Agent Settings
+An Agent is an entity which the Processing Entity holds a settlement relationship in one or more Transfer Currencies.
+When clearing and settling a payment between the Processing Entity and the Agent, at least one settlement account must be used that allows the two entities to settle the obligation. If an entity does not need a settlement account used and can use the Processing Entity’s ledger accounts to debit / credit the customers directly, this entity is not an Agent, this is an Intra Entity Party, a  party that is part of Processing Entity itself.
+The Agent can be an entity which is part of wider banking group that the Processing Entity belongs to. In this case, the Agent is an Intra Group Agent.
+The type of the Agent is based on the type of settlement relationship it holds with the Processing Entity. These can be:
+DirectAccountAgent - The Agent holds a direct account settlement relationship with the Processing Entity. This is usually another Bank / Financial Institution which is not a Clearing House.
+ClearingAgent - The Agent is a Clearing House and facilitates the clearing and settlement of payments between different financial institutions.
+Based on the nature of settlement relationship, the Agent can perform different roles, these are independent of the Agent types. The agent roles can be:
+Intermediary - A DirectAccount type of Agent (a Financial Institution, not a clearing house) which facilitates clearing and settlement of the payments between Processing Entity and other Financial institutions with which it does not hold direct settlement relationships.
+Serviced Agent - A DirectAccount type of Agent (a Financial Institution, not a clearing house) which uses the Processing Entity to clear and settle payments with other Financial Institutions. A Serviced Agent is using the Processing Entity as an intermediary.
+In summary, the settlement relationship between the Processing Entity and the Agent are defined using three key attributes on the Agent Settings.
+Agent Type
+Agent Role
+Intra Group Flag
+When an agent can facilitate clearing and settlement of payments between Processing Entity and other Financial Institutions, those institutions must be added as participants for the Agent using the Industry data structure called CSM Participants. The Participation details must be specified on the Agent Settings for a participation check to be enabled for Reachability purposes for the counter-party.
+Agent Settings is the dynamic configuration of type Processing Data that holds the details of the Agent (name, industry identifiers that the Agent is known by, address details and the participation details.)
+Dynamic Configuration Properties
+Name
+Description
+ProcessingEntity
+The Processing entity namespace from IPF implementation / deployment point of view. This identifies the IPF deployment entity rather than individual processing entity.
+AgentUniqueId
+A unique identifier assigned by the Processing Entity to the Agent
+AgentName
+Name of the agent
+AgentIdentifiers
+Industry identifiers for the agent. At least one identifier type should be specified
++ Identifier
+The Identifier value for the Agent
++ IdentifierType
+Identifier Type, next default values are supported:
+BIC
+LEI
+NCC
++ IdentifierSubType
+Conditionally mandatory when identifier type is: BIC or NCC
+Enum list is specific to the identifier type.
+BIC : accountIssuingBIC, schemeMembershipBIC
+NCC: Subtype enums are aligned to ISO20022 specified codes.
+AgentType
+Type of the Agent (Refer agent type definitions above)
+AgentRoles
++ ServicedAgent
+The flag indicates whether the agent can be a serviced agent. The value true indicates that the Processing Entity is servicing the agent and the agent can use settlement relationship with the Processing entity to clear and settle the payments with other agents.
++ IntermediaryAgent
+The flag indicates whether the agent is an intermediary agent for the processing entity. The value true would mean the agent is servicing the processing entity and that the processing entity can use the settlement relationship with the agent to clear and settle the payments with other agents .
+IntraGroup
+The flag identifies whether the agent is part of the banking the same banking group as that of the processing entity. A value False will mean the agent is an external entity.
+ParticipationDetails
++ ParticipantCSMAgentId
+The CSM Agent Id on the CSM Participant Records.
++ ParticipantIdentifierType
+TThe identifier type value to be used for reachability checks for the agent. The enum list is extensible for client implementations.
+Default possible values are:
+BIC
+LEI
+NCC
++ ParticipantIdentifierSubType
+Conditionally mandatory when identifier type is: BIC or NCC.
+Enum list is specific to the identifier type.
+BIC : accountIssuingBIC, schemeMembershipBIC
+NCC: Subtype enums are aligned to ISO20022 specified codes.
++ PartyEntityLookUpSource
+The source of the data on party entity directory that should be performed for looking up party entity identifiers.
+The enum list is extensible for client implementations.
+Default possible valueas:
+Bank_Directory_Plus
+SIX_Bank_Master
+AgentAddress
++AddressType
+ISO20022 defined address types.
+Supported values: ADDR, PBOX, HOME, BIZZ, MLTO, DLVY
++ Department
+Department name
++ SubDepartment
+SubDepartment name.
++ StreetName
+Street name
++ BuildingNumber
+Building number
++ BuildingName
+Building Name
++ Floor
+Floor
++ PostBox
+Post box
++ Room
+Room
++ PostCode
+Post code
++ TownName
+This can be a Town Name or name of the City.
++ TownLocationName
+Town location name
++ DistrictName
+District Name
++ CountrySubDivision
+country sub division
++ Country
+ISO 3166 Alpha 2 Country Code
++ AddressLines
+List of address lines
+AgentEmail
+Email of the Agent
+AgentPhoneNumber
+Phone number of the agent. Support special characters.
+Regex: +[0-9]{1,3}-[0-9()+\-]{1,30}
+Searchable Fields
+Searchable fields for Agent Settings are:
+agentUniqueId
+agentIdentifier (agentIdentifiers.identifier)
+agentIdentifierType (agentIdentifiers.identifierType)
+agentIdentifierSubType (agentIdentifiers.identifierSubType)
+agentCountry (agentAddress.country)
+For these fields
+indexes
+in the database should be created.
+Please refer
+Dynamic Configuration Management Guidelines
+for steps to be followed for configuring the dynamic configurations.
+Generic Processing Settings
+Agent Settlement Settings

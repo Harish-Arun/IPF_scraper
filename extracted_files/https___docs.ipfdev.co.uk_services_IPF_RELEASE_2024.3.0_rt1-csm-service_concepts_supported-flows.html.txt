@@ -1,0 +1,38 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/concepts/supported-flows.html ===
+RT1 Supported Flows
+Further details of the standard supported flows are available
+CSM Supported Flows
+Supported
+Customised
+Credit Transfer Flows
+Debtor Payment Flow
+Y
+Y
+Creditor Payment Flow
+Y
+Y
+Recall, Return ROI Flows
+Debtor Recall Flow
+Y
+Y
+Debtor Return Flow
+Y
+Y
+Debtor ROI Flow
+Y
+Y
+Creditor Recall Flow
+Y
+Y
+Creditor Return Flow
+Y
+Y
+Creditor ROI Flow
+Y
+Y
+Debtor CT Flow
+Creditor CT Flow
+Debtor RRR Flows
+Creditor RRR Flows
+Concepts
+RT1 Scenarios

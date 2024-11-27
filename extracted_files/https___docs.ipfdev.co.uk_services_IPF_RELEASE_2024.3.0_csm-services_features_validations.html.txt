@@ -1,0 +1,53 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/features/validations.html ===
+Validations
+The CSM Service has this concept of
+CSM Validator
+or
+CSM DD Validator
+which is specified per CSM. It allows to perform a series of validations which fall into three categories:
+Inbound: For received messages
+Outbound: For sent messages
+Bidirectional: For validations that are applicable in both directions
+The following standard validations are available from the CSM Service Starter and can be reused when creating a CSM integration.
+If the condition in Check Performed is not met, Validation returns a
+Validation Failure
+or a custom generic type in the case of Direct Debit, which requires more flexibility.
+For details on how to access these validations from outside the CSM Service please refer to
+Transport Reference
+.
+When instantiating the
+CSM Validator
+, the following validations are available:
+Validation
+Check Performed
+Reason Code
+Acceptance Date Validator
+When the
+timeoutEnabled
+property is set, checks the Acceptance Date Time in the document (retrieved by a function specified per CSM) is after the current time plus the
+timeout
+duration specified
+Configurable.
+Default: AB06
+Bic Validator
+Checks if the BIC (retrieved from the request via a function specified per CSM) is not contained in the list of allowed bics. This checked list is configured via HOCON config and is either a list of allowed of creditor agent BICs or debtor agent BICs
+RC01
+CSM Field Mutex Validator
+Checks if any of the following mutually exclusive fields have both been populated:
+GrpHdrIBAN / GrpHdrOthrId
+GrpHdrCd / GrpHdrPrtry
+CdTrfInfCd / CdTrxInfPrtry
+CdtTrfTxInfRemittanceInfoStandard / CdtTrfTxInfRemittanceInfoNotStandard
+Fields are retrieved from the request via a function specified per CSM
+FF01
+XSD Schema Validator
+Checks if the message is valid against a list of provided schemas specified per CSM
+FF01
+Scheme Limit Amount Check
+If the property
+activated
+is true, checks if the amount (retrieved via a function specified per CSM) exceeds the configured
+amount-limit
+Configurable
+Transport Reference
+On-us via CSM determination

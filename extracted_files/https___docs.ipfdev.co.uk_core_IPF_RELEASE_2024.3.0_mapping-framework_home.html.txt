@@ -1,0 +1,15 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/mapping-framework/home.html ===
+IPF Mapping Framework
+An important part of the responsibilities of IPF is the adaptation of bank systems to third-party systems and vice versa.
+This is traditionally achieved by writing code that receives and validates the input, maps it to a message that suits the target system,
+enriches it with contextual information and sends it across.
+The message mapping and enrichment has traditionally been code intensive, however, IPF Mapping Framework turns it into
+a configuration-driven, low-code task.
+Concepts
+Features
+Getting Started
+Defining the Mapping Relationships
+Code Generation and use
+Orika Transformation Implementation - Direct Usage
+Payments
+Concepts

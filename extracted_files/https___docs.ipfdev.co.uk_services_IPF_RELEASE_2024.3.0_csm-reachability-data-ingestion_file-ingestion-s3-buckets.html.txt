@@ -1,0 +1,165 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability-data-ingestion/file-ingestion-s3-buckets.html ===
+Ingestion from S3 Bucket
+Overview
+File Ingestion from S3 bucket is one more way for ingesting file from different source(AWS S3).
+From the perspective of the file contents processing this will be the same as for local file based ingestion but the source of the file is different.
+The file processing is triggered via a Kafka notification and the following two integration points of key for processing:
+File available - When file is available for processing then the bank system uploading the file MUST send a Kafka notification to reachability. This is processed by the file ingester connector, notifying that a file is available for processing in an S3 bucket.
+File processed - When file is finished being processed a File Processed Notification message is sent to File Processed topic (if
+sendAcknowledgement requested
+), notifying bank system that the file has finished processing (with a clear indication of the status)
+The following different types of files are supported: XML, TXT, JSON.
+Notification format and mapping errors to OutcomeDescription
+Currently, there are 2 types of notifications:
+File Available Notification message - Notifying the reachability file ingester that a file is available for processing
+File Processed Notification message - Notifying the bank system that a files processing has been finished (with a clear indication of the status)
+Format of notifications is next:
+Notification format for
+File Available Notification
+message
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "requestId": {
+      "type": "string",
+      "description": "A unique identifier of the notification request"
+    },
+    "fileProvider": {
+      "type": "string",
+      "description": "Indicates which File Operations Adapter to use, e.g. S3, EFC"
+    },
+    "filePath": {
+      "type": "string",
+      "description": "The absolute path of the file, for S3 should be S3 URL, see https://docs.aws.amazon.com/AmazonS3/latest/API/API_GetObject.html#API_GetObject_RequestSyntax"
+    },
+    "fileName": {
+      "type": "string",
+      "description": "The name of the file, must always begin with the file type, e.g. BANKDIRECTORYPLUS_V3_FULL_foo_bar.xml"
+    },
+    "uploadedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "A timestamp indicating when the file has been uploaded"
+    },
+    "sendAcknowledgment": {
+      "type": "boolean",
+      "description": "Whether or not an acknowledgment of file processing needs to be sent back"
+    }
+  },
+  "required": [
+    "requestId",
+    "fileProvider",
+    "filePath",
+    "fileName",
+    "uploadedAt",
+    "sendAcknowledgment"
+  ]
+}
+Notification format for
+File Processed Notification
+message
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "requestId": {
+      "type": "string",
+      "description": "A unique identifier of the notification request being acknowledged"
+    },
+    "fileProvider": {
+      "type": "string",
+      "description": "Copied from input"
+    },
+    "filePath": {
+      "type": "string",
+      "description": "Copied from input"
+    },
+    "fileName": {
+      "type": "string",
+      "description": "Copied from input"
+    },
+    "processingFinishedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "A timestamp indicating when the file has finished processing"
+    },
+    "outcomeCode": {
+      "type": "string",
+      "description": "A code describing the outcome, list TBD"
+    },
+    "outcomeDescription": {
+      "type": "string",
+      "description": "A textual description of the code"
+    }
+  },
+  "required": [
+    "requestId",
+    "fileProvider",
+    "filePath",
+    "fileName",
+    "processingFinishedAt",
+    "outcomeCode",
+    "outcomeDescription"
+  ]
+}
+When
+outcomeCode
+is
+SUCCESS
+outcome description is
+Success
+and when
+outcomeCode
+is
+FAILED
+then
+outcomeDescription
+is exception message explaining the error that occurred.
+Acknowledgement
+When File Available Notification message is received, within the message there is a boolean
+sendAcknowledgement
+. The File Processed Notification message will or will not be sent based on that value after file processing is done.
+S3 client credential configurations and AWS roles required
+Credentials
+When interacting with AWS, AWS security credentials must be specified to verify identity and permissions to access the requested resources. AWS uses these security credentials to authenticate and authorize requests.
+For example, to download a protected file from an Amazon Simple Storage Service (Amazon S3) bucket, credentials must allow that access. If the credentials do not authorize the download, AWS denies the request.
+There are different types of users in AWS, and all AWS users have security credentials. These users include the account owner (root user), users in AWS IAM Identity Center, federated users, and IAM users.
+Users have either long-term or temporary security credentials. Root users, IAM users, and access keys have long-term security credentials that do not expire. To protect long-term credentials, processes should be in place to manage access keys, change passwords, and enable MFA.
+AWS access keys are provided to make programmatic calls to AWS or to use the AWS Command Line Interface or AWS Tools for PowerShell. Using short-term access keys is recommended when possible.
+When a long-term access key is created, an access key ID (for example, AKIAIOSFODNN7EXAMPLE) and a secret access key (for example, wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY) are created as a set. The secret access key is available for download only at the time of creation. If the secret access key is not downloaded or is lost, a new one must be created.
+In many scenarios, long-term access keys that never expire are not needed (such as those created for an IAM user). Instead, IAM roles and temporary security credentials can be created. Temporary security credentials include an access key ID and a secret access key, as well as a security token that indicates when the credentials expire. After expiration, the credentials are no longer valid.
+In this context,
+accessKeyId
+and
+secretAccessKey
+are supported and
+configurable
+.
+AwsBasicCredentials
+is used to create credentials with these two parameters.
+Roles
+The only AWS role required is s3:GetObject because only file retrieval from an S3 bucket is necessary (more info
+docs.aws.amazon.com/AmazonS3/latest/userguide/security_iam_service-with-iam.html
+).
+Using versioned files
+If the same file exists with different versions, the file with the latest version is picked up by default. To pick up a specific version, the query parameter
+versionId
+must be included in the request.
+Example of the input message with specific version of the file:
+Key
+Value
+requestId
+bicdir2018-req001
+fileProvider
+s3
+filePath
+s3://test-bucket.s3.amazonaws.com/BICDIR2018_V1_FULL.txt?
+versionId
+=HKPnHafHX2ufQ-_faJX-dw
+fileName
+BICDIR2018_V1_FULL.txt
+sendAcknowledgment
+true
+Ingestion from Local File
+CSM Participant

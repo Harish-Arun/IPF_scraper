@@ -1,0 +1,11 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/logical-data-model.html ===
+CSM Reachability Logical Data Model
+In this section we will explore the logical data model used by CSM Reachability Service. The data structures on the data model are all dynamic configurations and supported by DPS setting management APIs.
+Updates in Dynamic Configuration (after an optional approval process) are applied on a (near) real-time basis during the processing of payments in IPF.
+1. Logical Data Model
+2. Dynamic Configurations
+Dynamic configurations used by CSM Reachability Service can be grouped into two categories at high level.
+Processing Data
+Industry Data
+Party Identifiers Explained
+Entity Relation Diagram

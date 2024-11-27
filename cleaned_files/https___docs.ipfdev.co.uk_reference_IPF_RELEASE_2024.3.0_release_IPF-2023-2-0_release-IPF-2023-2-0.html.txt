@@ -1,0 +1,72 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2023-2-0/release-IPF-2023-2-0.html ===
+Release Notes for IPF-2023.2.0
+This page details everything required to get going on IPF Release 2023.2.0 made available on 7 July 2023.
+Details
+Binaries
+The core binaries are available from
+IPF-Releases
+.
+The Lightbend Telemetry (formerly known as "Cinnamon") binaries are available from
+IPF Lightbend
+.
+Archetype
+The latest version of the Archetype is 1.7.0
+Developer App
+The latest version of the Developer App is 1.0.50
+Features and Changes
+Heres whats new and changed in 2023.2.0
+New IPF Data Model
+As part of this release we have introduce a new Java representation of the ISO20022 Message model.
+This new model has has various enhancements and will serve the basis for many more capabilities in future release.
+The new data model is structurally equivalent for the existing message representations, so one representation can be converted to the other transparently through Json (A utility classes is provided for this)
+For full details on how to migrate from the legacy model to the new model please see the Migration Guide provide as part of the developer documentation - this includes an OpenRewrite recipe that can be applied to your project to automate most of the type changes.
+One addition additional change is that the accessor methods of properties with the new model now no-longer lazily initiations any empty collections. These method will now return null if the underlying collection IS null.
+You will need to migrate to the new data model before updating to the new BOM. We will be deprecating and removing the old types in subsequent releases.
+Details can be found in the IPF Developer Docs -
+Migrating from legacy data model
+Human Task Manager
+This is a new IPF Product feature designed to manage Payment transactions which fail validations or process of straight through processing (STP) and need to be placed in a manual operations queue for review or action.
+The key features of the HTM application are:
+The ability to register tasks to a manual operational team, supplying details which allow them to manage, filter and sort tasks.
+The ability to allocate a task to a specific operator for investigation and actioning.
+The ability to mark a task as having being executed and to enter information relevant to the action taken, which will be logged and available for audit reporting.
+The (optional) ability to require one or more approvals on an executed task.
+Audit history of the steps taken in the workflow for any given task is logged and can be queried.
+Details can be found in the IPF Developer Docs -
+Human Task Manager
+Reachability service extensions
+Enhance existing IBAN validation service to include validation of bank code against EXCLUSIONLIST published by SWIFT
+An enhancement to existing service GET/iban/deconstruct to include validation against SWIFT published EXCLUSIONLIST as recommended by SWIFT published documentation.
+Support import of STEP2 SCT directory published by EBA
+A new feature to support the load of these STEP2 SEPA Credit Transfer directories: SCT Direct Participant Routing Table, SCT Reachable BIC Routing Table.
+This feature loads those EBA published files into the IPF Participant configuration database which is used in determining CSM Reachability (In this case to determine if a Creditor IBAN is reachable via STEP2 SCT).
+Enhancement of IPF Settings configuration database and functionality to include fields required for STEP2 SCT
+New fields were added to these existing IPF dynamically configurable settings database to cater for STEP2 SCT functionality: Participant, CSM Agent Selection.
+Existing IPF CSM Reachability functionality was extended to cater for STEP2 SCT functionality.
+Support validation of BIC against SWIFT published bicdir2018 file
+A new feature to validate a BIC against SWIFT published bicdir2018 file.
+This feature can be used by clients who require this for their creditor BIC validation on outbound payments.
+Enhance existing IBANPLUS file loader to deal with DELTA files published by SWIFT
+SWIFTRef publish IBANPLUS to their subscribers in either FULL or DELTA file formats. IPF IBANPLUS loader file is enhanced to deal with either published format.
+GUI Improvements
+Updated GUI to Angular 15
+Config was added so that the ordering of date and amount types when searching in ODS search could be changed.
+Various tech debt fixes including only calling the config endpoint once (formerly it was called many times, when moving about the GUI), the back button in the ODS search module now goes back to the last search performed rather than the previous page.
+MVP Human Task Manger for the GUI
+Ability to search for tasks with further improvements in development.
+ODS
+Purging
+ODS deletes old unit of work data when that unit of work hasnt changed within some configured retention period (defaults to 2 years). Deletions are done in small batches (defaults to 40), frequently throughout the day (defaults to every 1 second).
+A set of known final states can be configured (optional) resulting in units of work being deleted when they are in one of those final states. If a unit of work is outside the retention period, but not in one of the final states, it is not deleted.
+The impact of frequent deletion has on ingestion performance is still being assessed, and the outcome of this may result in changes to the default configuration for batch deletion size, and frequency.
+New Data Model
+ODS supports the new message model, and existing ISO20022 data in ODS is converted to the new message model as required.
+The ODS Inquiry API OpenAPI specification uses the new message model types, with a massive reduction in the number of types defined, and the overall size of the spec.
+ODS can store and version PDS objects, with any structure. The objects might be known IPF types, or unknown client defined types, with whatever structure they require.
+Some standard IPF PDS types have been defined, but they do not currently live in the correct place, and their final structure may change.
+Bulker
+Bulking functionality enhanced to allow bulk of bulks creation, where by a parent bulk can itself be made up of (or include) other child bulks
+Auto generated bulks introduced, providing commands to simply call to add a component to a bulk and the bulker can be configure to create that bulk if it doesnt already exist.
+Enhancements to recurring bulk configuration
+Migration Steps for IPF-2023.3.0.1
+Migration Steps for IPF-2023.2.0

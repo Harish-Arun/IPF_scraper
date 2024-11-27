@@ -1,0 +1,20 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/features.html ===
+Features
+Within the SEPA CT STEP2 CSM the following features are used:
+Request Processing
+Validations
+Validation API
+Business Day Calculator
+Correlation Store
+Bulk File Creation
+File Debulking
+Scheduling
+End of Day Processing
+Extension Points
+Core Configuration
+Notifications
+Message Generator
+Inquiry Messages
+Error Handling
+Multi Level Bulking
+Request Processing

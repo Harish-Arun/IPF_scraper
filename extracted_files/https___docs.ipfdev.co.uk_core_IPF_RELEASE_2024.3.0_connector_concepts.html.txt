@@ -1,0 +1,7 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/concepts.html ===
+Concepts
+Receiving Connector
+Sending Connector
+Connector Transports
+System Connectivity
+Receiving Connector

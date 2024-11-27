@@ -1,0 +1,177 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/test-fw/getting-started.html ===
+Getting Started
+Installation
+The core framework is available as a typical maven dependency
+<dependency>
+   <groupId>com.iconsolutions.test</groupId>
+   <artifactId>test-fw-core-all</artifactId>
+   <version>${latest-version}</version>
+</dependency>
+test-fw-core-all
+is an aggregator module for all subcomponents, but it is entirely
+possible, and sometimes desirable, to specify individual core components.
+Gherkin Steps
+The first thing to understand when using the test-framework is that we write BDD stories using the
+Gherkin
+syntax to describe the behaviour of our system and test that it acts as expected. The Gherkin language and is enhanced further by processing all input through the
+Expression Engine
+, which in turn gives access to the current scenario context, all previous messages within the scenario, any custom registered functions, and bean methods!
+Most operations of sending, receiving and verifying messages are satisfied by the library of steps in 'CommonTransportSteps', they follow an extremely general pattern of:
+Sending a Message
+When we send 'Message A' to 'Target System'
+or
+When we send 'Message A' to 'Target System' with values:
+|Field1 |Value1 |
+and then:
+Receiving a response
+Then a 'Message B' is received
+or
+Then a 'Message B' is received with values:
+|Field2 |Value2 |
+Patterns
+Basic Patterns
+99% of all the actions within a test can be broken down in to 5 main categories, and most of these are orchestrated via the core test-fw application, with implementation being delegated to implementors via dependency injection and life-cycle hooks.
+Create
+- We need to tell the test-fw how to create a Message of the desired type. This is done by providing a Generator implementation to the
+MessageDefinition
+Send
+- We need to tell the test-fw how to Send a Message of the desired type. This is done by creating and linking a supporting
+Transport
+Receive
+- Its likely we need to be able to consume messages of this type, typically examples of are by registering JMS Consumers or polling a mock HTTP server, and then adding the de-serialized messages into the
+Message Bucket
+.
+Correlate
+- Messages get added to the Bucket behind the scenes, continually and asynchronously, we often then need to be able to find our message by "fishing" for it. This is done by supplying a
+Predicate
+to one of the
+MessageBucket
+accessor methods. As 99% of the time, the predicate is the same for a given message type, we have created the CorrelationStrategy construct which can be provided to the
+MessageDefinition
+. This allows the framework to extract a predicate as needed, for negative / edge cases manually constructing a Predicate is preferable.
+Verify
+- Once we have found a correlated message, we likely want to verify its contents to check that the values are correct. This is done by creating a VerificationService implementation. A bean of this type will automatically be autowired into the
+CommonTransportSteps
+and invoked for ANY message that is received and correlated. It is also possible to register an implementation with the
+MessageDefinition
+, which will be invoked automatically but only for the current
+Message Type
+.
+Sending a Message
+Determine/find a suitable
+Document Type
+that can represent your message content.
+Create a corresponding
+Message Type
+so you may refer to it in BDD.
+Associate the new
+Message Type
+with a suitable
+Transport
+protocol, using the MessageTransport association class.
+Configure and register an associated
+Message Definition
+(for more information on example message definitions see the test-fw-ipf documentation)
+Once complete, you should be able to reference your new message type in a BDD step. For example, the below step should be sufficient for sending the message to the target system:
+When the 'test system' sends a 'test message'
+What happens behind the scenes:
+'test message' is interpreted and the appropriate
+Message Type
+instance is retrieved.
+The
+Message Definition
+is retrieved via lookup by the
+Message Type
+.
+The
+Message Definition
+provides a generator to generate a new
+Message
+instance.
+A suitable
+Transport
+is identified from the
+Message Type
+and both
+Message
+and
+Message Definition
+are passed to the
+Transport
+.
+The
+Transporter
+serialises the
+Message
+to a String using the toStringMapper configured on the
+MessageDefinition
+, and sends it over the wire.
+The Message Definition
+The implementation of how to construct, send, receive, correlate and verify each message is entirely defined in the
+Message Definition
+, this is a good example of Inversion of Control of the Test Framework Application. Any new steps that need to be created can be implemented in any Spring Component that extends BaseSteps, all beans of this type on the classpath are loaded at runtime.
+We leverage instances of
+@AsParameterConverter
+in order to intercept the method arguments provided by any given step before they get through to the implementing Java method. We have a general converter for String types which allows use to apply transformations / parsing on any String via the
+Expression Engine
+. There is a converter for ParamMap which invokes similar logic for each value and also provides scenario scoped caching of the evaluated values.
+BDD Element Library
+Below are some examples of expressions which may commonly be used within a string parameter for a step, or as a value in an examples table
+<aValue>
+Diamond
+placeholders - standard JBehave syntax for using examples tables and reusing a value across steps. See the
+Examples Tables
+documentation.
+#context['TX_ID']
+-
+Context access
+, map based access to the scenario context
+#messageType.aProperty.innerProperty[0]
+-
+Message access
+- document property based access to previously handled message (when the direction is not specified and instances of that message type have been both sent and received, it defaults to the received)
+#received_messageType_headers['JMS_CORRELATION_ID']
+-
+Message header access
+- property based access to a previously received messages' JMS Correlation ID
+#sent_messageType_meta['QUEUE_NAME']
+-
+Message meta access
+, map based access to a previously sent message' queue name.
+@myBean.randomString(35)
+-
+Bean method invocation
+, can evaluate a method on an available Spring Bean, useful for value generation
+{IS_SET}
+and
+{NOT_SET}
+- Presence keywords, are handled and can be used to check presence or absence respectively.
+Story Metadata Tags
+There are also several common meta-data tags that can be added to at the story or scenario level that supplement tests.
+@bankContext
+<val>
+- We state whether the testable scenario is from the point of view of an Originating Bank (
+OB
+) or Beneficiary (
+BB
+). This is then used to help with various context-dependant behaviours such as ID enhancement and queue verification.
+@executionHistory
+<val>
+- We can provide a path to a file based resource that contains the execution history in BDD format for the expected flow in question (this avoids having 300+ lines of BDD in each tested scenario permutation). The expected value is expected to pertain to a file of the same name with a
+.eh
+extension that exists anywhere on the classpath at runtime.
+@negative
+<true>
+- Marks this test as a "negative" test, which bypasses the implicit assertion step within the common verification service, and can similarly be leveraged for bypassing any custom behaviour that is not appropriate for negative tests or edge cases.
+@disableXsdValidation
+<true>
+- In the same vein as the
+negative
+this is used to determine whether the test should fail if any configured Object-String schema based validation is violated. This is nearly always omitted but can be useful for testing the sending of a structurally invalid message.
+@inprogress
+(*) - Demonstrates that the test is in development and is equally included in the standard test runner that executes as part of a build. Many projects also have an inprogress specific test runner that will execute ONLY these tests.
+@unparallelisable
+(*) - All tests will run concurrently by default. In the slim chance that this is not possible due to testing a shared resource, we can flag the test to be run in a separate set, sequentially.
+*These tags govern the TestRunners only, not the scenario context, thus only their presence is needed without any explicit value.
+Features
+How to guides

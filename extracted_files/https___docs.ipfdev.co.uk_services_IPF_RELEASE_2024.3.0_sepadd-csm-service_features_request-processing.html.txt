@@ -1,0 +1,39 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/features/request-processing.html ===
+Request Processing
+The SEPA DD STEP2 CSM Service exposes the
+Direct Debit API
+to support SEPA DD Request Processing. Requests made through these interfaces instruct the CSM Service to carry out required validations at both bulk and transaction level, map the messages to appropriate versions of ISO20022 messages, perform schema check and submit the individual transactions for bulking, so they can be added to the files to be sent to the scheme.
+Creditor Direct Debit Collection (pacs.003)
+The following responses are provided:
+A Technical acknowledgement of submission of bulk message from the client implementation flows (+ve Ack)
+IPF Validation Response (a pacs.002 response in IPF Canonical format).
+Below values are used for bulk level validation (OrgnlGrpInfAndSts.GrpSts)
+ACTC - Entire bulk has passed IPF Validation
+RJCT - Entire bulk has failed IPF validation (Appropriate ISO/Proprietary code mapped within OrgnlGrpInfAndSts.StsRsnInf.Rsn). There will not be any further responses sent for this bulk
+PART - Some transactions within the bulk failed IPF Validation (Status of all transactions conveyed in the response)
+Below values are used for Transaction level validation results (TxInfAndSts.TxSts)
+ACTC - Transaction passed IPF Validation
+RJCT - Transaction failed IPF Validation (Appropriate ISO/Proprietary Code within TxInfAndSts.StsRsnInf.Rsn)
+Scheme Validation Response (a pacs.002 response in IPF Canonical format)
+Scheme Validation results are generated on the back of STEP2 SDD CSM Service receiving the DVF file from the scheme. The CSM Service maps and generates pacs.002 responses in IPF Canonical format.
+Any transactions that had failed IPF validations, will not be available on the scheme validation response
+Below values are used for bulk level validation (OrgnlGrpInfAndSts.GrpSts)
+ACSP - Entire bulk has passed Scheme Validation and the settlement is in progress
+RJCT - Entire bulk has failed Scheme validation (Appropriate ISO/Proprietary code mapped within OrgnlGrpInfAndSts.StsRsnInf.Rsn). The transaction within the bulk will not be settled. There will not be any further responses sent for this bulk
+PART - Some transactions within the bulk failed Scheme Validation (Status of all transactions conveyed in the response)
+Below values are used for Transaction level validation results (TxInfAndSts.TxSts)
+ACSP - Transaction passed Scheme Validation
+RJCT - Transaction failed Scheme Validation (Appropriate ISO/Proprietary Code within TxInfAndSts.StsRsnInf.Rsn). Transactions that failed scheme validations, will not be settled
+Settlement Response (a pacs.002 response in IPF Canonical format)
+Settlement Responses are provided on the Interbank Settlement Date quoted within the bulk submitted from client implementation flows (GrpHdr.IntrBkSttlmDt). The settlement responses will be generated after processing of the RSF files received from the scheme.
+The transactions that had failed scheme validations, will not be included on the Settlement Response
+Below values are used for bulk level validation (OrgnlGrpInfAndSts.GrpSts)
+ACSC - Entire bulk has been settled
+RJCT - Entire bulk has failed settlement. (Appropriate ISO/Proprietary code mapped within OrgnlGrpInfAndSts.StsRsnInf.Rsn).
+PART - Some transactions within the bulk failed settlement (Status of all transactions conveyed in the response)
+Below values are used for Transaction level validation results (TxInfAndSts.TxSts)
+ACSC - Transaction settled
+RJCT - Transaction failed settlement (Appropriate ISO/Proprietary Code within TxInfAndSts.StsRsnInf.Rsn)
+Further message types to be added as part of future Epics/Releases
+Features
+Validations

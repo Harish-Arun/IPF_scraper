@@ -1,0 +1,341 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/party-entity-directory/party-entity-bank-directory-plus.html ===
+Bank Directory Plus to Party Entity Directory mapping
+File Types Supported
+File Name
+File Types Supported
+File Formats Supported
+File Naming Conventions
+Bank Directory Plus
+FULL
+XML
+BANKDIRECTORYPLUS
+_V3_FULL_YYYYMMDD
+AWS S3 Ingestion identifies this file when the file name starts with "BANKDIRECTORYPLUS".
+The client implementations should not modify the files names provided by industry sources and ingest the files as received. Only full file supported.
+Mapping Definitions
+Below table provides the mapping as performed from Bank Directory Plus file into Party Entity Directory.
+Bank Directory Plus Property (Source)
+PartyEntity Directory Property (Destination)
+Comment
+record_key
+entityUniqueId
+-
+entityDataSource
+Constant value: Bank_Directory_Plus
+institution_name
+entityName
+-
+entityAddress.addressType
+Constant value: ADDR
+street_address_1
+entityAddress.streetName
+streetName is populated by concatenating address details from street_address_1, street_address_2, street_address_3 & street_address_4, separated using 'space'.
+street_address_2
+entityAddress.streetName
+streetName is populated by concatenating address details from street_address_1, street_address_2, street_address_3 & street_address_4, separated using 'space'.
+street_address_3
+entityAddress.streetName
+streetName is populated by concatenating address details from street_address_1, street_address_2, street_address_3 & street_address_4, separated using 'space'.
+street_address_4
+entityAddress.streetName
+streetName is populated by concatenating address details from street_address_1, street_address_2, street_address_3 & street_address_4, separated using 'space'.
+pob_number
+entityAddress.postBox
+zip_code
+entityAddress.postCode
+city
+entityAddress.townName
+cps
+entityAddress.countrySubDivision
+iso_country_code
+entityAddress.country
+bic
+entityIdentifier[ ].identifier
+/
+entityIdentifier[ ].identifierType
+Constant value: BIC
+-
+entityIdentifier[ ].identifierSubType
+Constant value: ACCOUNT_ISSUING_BIC
+national_id
+entityIdentifier[ ].identifier
+Mapped when national_id is specified on the record
+-
+entityIdentifier[ ].identifierType
+Constant value: NCC, mapped when national_id is specified on the record
+field_b
+entityIdentifier[ ].identifierSubType
+Mapped as field_b. When field_b value has corresponding ISO20022 code available, then one more identifier type of NCC is mapped with national_id value and subtype as corresponding ISO20022 code available.
+iso_lei_code
+entityIdentifier[ ].identifier
+Map when iso_lei_code is specified on the record
+-
+entityIdentifier[ ].identifierType
+Constant value: LEI, map when iso_lei_code is specified on the record
+chips_uid
+entityIdentifier[ ].identifier
+Map when chips_uid is specified on the record
+-
+entityIdentifier[ ].identifierType
+Constant value: NCC, map when chips_uid is specified on the record
+-
+entityIdentifier[ ].IdentifierSubType
+Constant value: USPID, map when chips_uid is specified on the record
+Below mapping of ISO20022 aligned sub-type values for NCCs is supported on IPF CSM Reachability.
+ISO20022 Code Mapping
+field_b
+ISO20022 code
+ABA
+USABA
+ABA/FN
+USABA
+BC
+CHBCC
+BC/FN
+CHBCC
+BLZ
+DEBLZ
+BLZ/FN
+DEBLZ
+BLZAT
+ATBLZ
+BM
+MZBMO
+BOK
+KRBOK
+BOK/FN
+KRBOK
+BSB
+AUBSB
+CH-SIC6
+CHSIC
+CH-SIC6/FN
+CHSIC
+CNAPS
+CNAPS
+CNAPS/FN
+CNAPS
+CPA
+CACPA
+HEBIC
+GRBIC
+IFSC
+INFSC
+RCBIC
+RUCBC
+SBA
+SESBA
+SBA/FN
+SESBA
+SC
+GBDSC
+SC/FN
+GBDSC
+ZENGIN
+JPZGN
+Example Mapping
+Source Record from Industry file
+<?xml version="1.0" encoding="UTF-8"?>
+<dataexport product="bankdirectoryplus_v3" filetype="full" filedate="20231124">
+    <bankdirectoryplus_v3>
+        <modification_flag>A</modification_flag>
+        <record_key>BD000000DAMC</record_key>
+        <office_type>FB</office_type>
+        <parent_office_key>BD000000DAMD</parent_office_key>
+        <head_office_key>BD000000DAMD</head_office_key>
+        <legal_type>B</legal_type>
+        <legal_parent_key>BD000000DAMD</legal_parent_key>
+        <group_type>Member</group_type>
+        <group_parent_key>BD000000DAMD</group_parent_key>
+        <institution_status>BANK</institution_status>
+        <bic8>BDCCBQBN</bic8>
+        <branch_bic>XXX</branch_bic>
+        <bic>BDCCBQBNXXX</bic>
+        <national_id>000700708</national_id>
+        <connected_bic>BDCCBQBNXXX</connected_bic>
+        <institution_name>BANCO DI CARIBE N.V. BONAIRE</institution_name>
+        <street_address_1>KAYA GRANDI 22</street_address_1>
+        <city>KRALENDIJK</city>
+        <cps>BONAIRE</cps>
+        <country_name>BONAIRE, SINT EUSTATIUS AND SABA</country_name>
+        <iso_country_code>BQ</iso_country_code>
+        <timezone>B</timezone>
+        <subtype_indicator>SUPE</subtype_indicator>
+        <network_connectivity>CCN</network_connectivity>
+        <service_codes>FIN</service_codes>
+        <ssi_group_key>BD000000DAMC</ssi_group_key>
+        <field_b>CWANP</field_b>
+    </bankdirectoryplus_v3>
+    <bankdirectoryplus_v3>
+        <modification_flag>A</modification_flag>
+        <record_key>BD000000DBB1</record_key>
+        <office_type>HO</office_type>
+        <parent_office_key>BD000000DBB1</parent_office_key>
+        <head_office_key>BD000000DBB1</head_office_key>
+        <legal_type>L</legal_type>
+        <legal_parent_key>BD000000DBB1</legal_parent_key>
+        <group_type>Member</group_type>
+        <group_parent_key>BD0000012O42</group_parent_key>
+        <institution_status>BANK</institution_status>
+        <iso_lei_code>254900D9C6WH4TFOTC80</iso_lei_code>
+        <bic8>MCBKBQBN</bic8>
+        <branch_bic>XXX</branch_bic>
+        <bic>MCBKBQBNXXX</bic>
+        <chips_uid>039344</chips_uid>
+        <national_id>000704351</national_id>
+        <connected_bic>MCBKBQBNXXX</connected_bic>
+        <institution_name>MADURO AND CURIEL'S BANK (BONAIRE) NV</institution_name>
+        <street_address_1>BULEVAR GOBERNADOR NICOLAAS DEBR 70</street_address_1>
+        <city>KRALENDIJK</city>
+        <cps>BONAIRE</cps>
+        <country_name>BONAIRE, SINT EUSTATIUS AND SABA</country_name>
+        <iso_country_code>BQ</iso_country_code>
+        <timezone>B</timezone>
+        <subtype_indicator>SUPE</subtype_indicator>
+        <network_connectivity>CCN</network_connectivity>
+        <service_codes>FIN</service_codes>
+        <ssi_group_key>BD000000DBB1</ssi_group_key>
+        <field_b>CWANP</field_b>
+    </bankdirectoryplus_v3>
+    <bankdirectoryplus_v3>
+        <modification_flag>A</modification_flag>
+        <record_key>BD000000DBES</record_key>
+        <office_type>FB</office_type>
+        <parent_office_key>BD000000DBET</parent_office_key>
+        <head_office_key>BD000000DBET</head_office_key>
+        <legal_type>B</legal_type>
+        <legal_parent_key>BD000000DBET</legal_parent_key>
+        <group_type>Member</group_type>
+        <group_parent_key>BD000000DBET</group_parent_key>
+        <institution_status>BANK</institution_status>
+        <bic8>ORBABQBN</bic8>
+        <branch_bic>XXX</branch_bic>
+        <bic>ORBABQBNXXX</bic>
+        <national_id>000705059</national_id>
+        <connected_bic>ORBABQBNXXX</connected_bic>
+        <institution_name>ORCO BANK N.V. BONAIRE</institution_name>
+        <street_address_1>KAYA GRANDI 48</street_address_1>
+        <city>KRALENDIJK</city>
+        <cps>BONAIRE</cps>
+        <country_name>BONAIRE, SINT EUSTATIUS AND SABA</country_name>
+        <iso_country_code>BQ</iso_country_code>
+        <timezone>B</timezone>
+        <subtype_indicator>SUPE</subtype_indicator>
+        <network_connectivity>CCN</network_connectivity>
+        <service_codes>FIN</service_codes>
+        <ssi_group_key>BD000000DBES</ssi_group_key>
+        <field_b>CWANP</field_b>
+    </bankdirectoryplus_v3>
+    <bankdirectoryplus_v3>
+        <modification_flag>A</modification_flag>
+        <record_key>BD000000I8PJ</record_key>
+        <office_type>FB</office_type>
+        <parent_office_key>BD000000DBH8</parent_office_key>
+        <head_office_key>BD000000DBH8</head_office_key>
+        <legal_type>B</legal_type>
+        <legal_parent_key>BD000000DBH8</legal_parent_key>
+        <group_type>Member</group_type>
+        <group_parent_key>BD00000037HJ</group_parent_key>
+        <institution_status>BANK</institution_status>
+        <bic8>RBTTBQBN</bic8>
+        <branch_bic>XXX</branch_bic>
+        <bic>RBTTBQBNXXX</bic>
+        <chips_uid>434722</chips_uid>
+        <national_id>000704500</national_id>
+        <connected_bic>RBTTBQBNXXX</connected_bic>
+        <institution_name>RBC ROYAL BANK N.V.(FORMERLY RBTT BANK N.V.)</institution_name>
+        <street_address_1>KAYA KORONA 15</street_address_1>
+        <city>BONAIRE</city>
+        <cps>BONAIRE</cps>
+        <country_name>BONAIRE, SINT EUSTATIUS AND SABA</country_name>
+        <iso_country_code>BQ</iso_country_code>
+        <timezone>B</timezone>
+        <subtype_indicator>SUPE</subtype_indicator>
+        <network_connectivity>CCN</network_connectivity>
+        <service_codes>FINSCO</service_codes>
+        <ssi_group_key>BD000000I8PJ</ssi_group_key>
+        <field_b>CWANP</field_b>
+    </bankdirectoryplus_v3>
+    <bankdirectoryplus_v3>
+        <modification_flag>A</modification_flag>
+        <record_key>BD000000I8Q5</record_key>
+        <office_type>SF</office_type>
+        <parent_office_key>BD000000I8PJ</parent_office_key>
+        <head_office_key>BD000000DBH8</head_office_key>
+        <legal_type>B</legal_type>
+        <legal_parent_key>BD000000I8PJ</legal_parent_key>
+        <group_type>Member</group_type>
+        <group_parent_key>BD00000037HJ</group_parent_key>
+        <institution_status>BANK</institution_status>
+        <bic8>RBTTBQSA</bic8>
+        <branch_bic>XXX</branch_bic>
+        <bic>RBTTBQSAXXX</bic>
+        <chips_uid>438386</chips_uid>
+        <connected_bic>RBTTBQSAXXX</connected_bic>
+        <institution_name>RBC ROYAL BANK N.V. (FORMERLY RBTT BANK N.V.)</institution_name>
+        <street_address_1>WINDWARD SIDE</street_address_1>
+        <city>SABA</city>
+        <cps>SABA</cps>
+        <country_name>BONAIRE, SINT EUSTATIUS AND SABA</country_name>
+        <iso_country_code>BQ</iso_country_code>
+        <timezone>S</timezone>
+        <subtype_indicator>SUPE</subtype_indicator>
+        <network_connectivity>CCN</network_connectivity>
+        <service_codes>FINSCO</service_codes>
+        <ssi_group_key>BD000000I8Q5</ssi_group_key>
+    </bankdirectoryplus_v3>
+</dataexport>
+Destination Record - Party Entity Directory
+{
+  "logicalUniqueKey": "partyentity-Bank_Directory_Plus-GB-BD000000DBB1",
+  "processingEntity": null,
+  "activeFromDate": "2022-03-15T12:24:55.963Z",
+  "source": "import",
+  "status": "INACTIVE_APPROVAL_PENDING",
+  "version": 1,
+  "createdBy": "import",
+  "payload": {
+    "className": "com.iconsolutions.ipf.dynamicsettings.domain.PartyEntity",
+    "entityUniqueId": "BD000000DBB2",
+    "entityDataSource": "Bank_Directory_Plus",
+    "entityType": "Bank",
+    "entityName": "The bank",
+    "entityAddress": {
+      "addressType": "ADDR",
+      "department": "mainn",
+      "subDepartment": null,
+      "streetName": "Oxford roadd",
+      "buildingNumber": null,
+      "buildingName": "10h",
+      "floor": "3",
+      "postBox": "pb002",
+      "room": "26",
+      "postCode": "56777",
+      "townName": "Londonn",
+      "townLocationName": null,
+      "districtName": null,
+      "countrySubDivision": null,
+      "country": "RSD",
+      "addressLines": [
+        "line1",
+        "line3"
+      ]
+    },
+    "entityEmail": "test@example.com",
+    "entityPhoneNumber": "00123456789",
+    "entityIdentifiers": [
+      {
+        "identifier": "DECCBQBNXXX",
+        "identifierType": "BIC",
+        "identifierSubType": "ACCOUNT_ISSUING_BIC"
+      },
+      {
+        "identifier": "000704351",
+        "identifierType": "NCC",
+        "identifierSubType": "ATBLZ"
+      }
+    ]
+  }
+}
+Bank Master to Party Entity Directory mapping
+IBAN Plus Directory

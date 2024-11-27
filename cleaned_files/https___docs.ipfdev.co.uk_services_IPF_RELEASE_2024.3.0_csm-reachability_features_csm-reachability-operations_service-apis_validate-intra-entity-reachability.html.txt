@@ -1,0 +1,34 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/csm-reachability-operations/service-apis/validate-intra-entity-reachability.html ===
+1. /validate-intra-entity-reachability
+Purpose
+Validate if the payment can be settled "Inta Entity" (within the processing entity itself) without using an external CSM Agent.
+Validates that the counterparty on the payment is on the Intra Entity Parties list and optionally the currency is on supported transfer currency list with Intra Entity flag as "True".
+When response is "Reachable", the Processing Entity will be able to settle the payment "Intra Entity", without having to use an external CSM Agent.
+Please refer API specs for the API for more details the schema, input and output attributes supported as well as sample responses.
+Usage
+Request and Response
+Please refer
+CSM Reachability Service API
+for the API specifications and example request and responses.
+Dynamic Configurations
+The API needs below dynamic configurations to be set up:
+Processing Data:
+Processing Entity (Mandatory)
+Generic Processing Entity
+Intra Entity Parties (Mandatory)
+Supported Transfer Currency (Optional - Needed if reachability check is needed using transfer currencies)
+Industry Data:
+IBAN Plus Directory (Optional - Needed if IBAN use is required on Payment flows)
+Party Entity Directory (Optional - Needed if reachablity checks are required using identifiers other than those used on Intra Entity Parties list)
+Reason Codes
+The API can return following reason codes for functional failures in reachability validations. Please refer
+Reachability Reason Codes
+for details on reason codes and descriptions.
+IPFRCH001
+IPFRCH002
+IPFRCH005
+IPFRCH010
+IPFRCH011
+IPFRCH012
+Reachability Reason Codes
+Validate CSM Reachability

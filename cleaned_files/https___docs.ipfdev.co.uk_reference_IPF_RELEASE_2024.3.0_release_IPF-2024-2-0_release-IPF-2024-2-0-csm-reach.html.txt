@@ -1,0 +1,273 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-2-0/release-IPF-2024-2-0-csm-reach.html ===
+CSM Reachability - Changes & Fixes
+This page covers the CSM Reachability V2 improvements, changes and fixes provided in release IPF-2024.2.0.
+CSM Reachability and Industry Data Ingestion
+New
+csm-reachability-file-ingestion
+with the
+csm-reachability-file-ingestion-api
+module and the support for ingesting files from aws s3 bucket (
+csm-reachability-file-ingestion-s3
+).
+Topic name to send file available notification is
+FILE_AVAILABLE_NOTIFICATION
+Topic name to receive file processed notification is
+FILE_PROCESSED_NOTIFICATION
+The purpose of this is that we are now able to read and process files located on an aws s3 bucket instance.
+csm-reachability-file-ingestion-notification-service
+module with
+csm-reachability-file-ingestion-notification-service-core
+containing message types and kafka support (
+csm-reachability-file-ingestion-notification-service-kafka
+).
+It is possible now to receive a kafka message saying the file is available for processing on the s3 bucket,
+trigger the file processing mechanism, and send the message to kafka if needed, saying the file has been processed (successfully or not).
+Send Connector for sending
+FileProcessedNotification
+message to a specified Kafka topic
+Receive Connector for receiving
+FileAvailableNotification
+message
+FileAvailableNotificationHandler
+for handling FileAvailableNotification, triggering file processing  and optionally acknowledging whether processing is successful or failed.
+FileEntryProcessedEvent
+is raised for each file entry processed.
+Changed
+In
+ProcessingFailedEvent
+name
+field is renamed to
+processName
+, because now we have field called
+fileName
+, and this
+processName
+is more descriptive than just
+name
+.
+Bank Directory Plus load to Party Entity correctly maps
+identifierSubType
+when proper correlation between
+iso_country_code
+and
+field_b
+exists in input file. Mapping is configurable with property
+ipf.csm-reachability.data-ingestion.bank-directory.mappings
+Absorbed
+connector
+and
+flo-lang
+changes which will together with configuration changes improve memory and time consumption during file ingestion.
+When csm-reachability data ingestion fails, the message level is now error (was previously info) and the message includes the filename.
+Configuration
+ipf.csm-reachability.file-ingestion-notification-service.directory-ids
+directory id config properties for ingested files from s3 bucket on path
+ipf.csm-reachability.data-ingestion.bank-directory.mappings
+mapping from field_b to identifierSubType for Bank Directory Plus load to Party Entity
+ipf.csm-reachability.file-ingestion.s3.enabled
+property to enable S3 file ingestion. Default value is false.
+ipf.file-manager.s3.resiliency-settings.max-attempts
+Determines the maximum number of retries to be made. Note that this includes the first failed attempt. Default value is 2.
+ipf.file-manager.s3.resiliency-settings.retryable-status-codes
+Retry if HTTP error code is in the list. Default value is [500, 503]
+ipf.file-manager.s3.resiliency-settings.attempt-timeout
+Default value is 2s.
+ipf.file-manager.s3.resiliency-settings.call-timeout
+Default value is 3s.
+ipf.file-manager.s3.endpoint-url
+S3 endpoint url
+ipf.file-manager.s3.region
+S3 region
+ipf.file-manager.s3.credentials.access-key-id
+S3 Credentials
+ipf.file-manager.s3.credentials.secret-access-key
+S3 Credentials
+ipf.file-manager.s3.path-style-requests
+Path style request
+CSM Reachability API
+New
+V2 API introduced with prefix
+/api/v2
+Previous version of API is no longer supported
+Swagger UI is available at url
+host:port/swagger-ui/index.html
+Swagger UI updated with valid descriptions and examples
+New endpoint
+/v2/validate-intra-entity-reachability
+added which is used to verify if counter-party is reachable via processing entity (OnUs) so there is no need to send transfer via external agent or CSM.
+Added new attribute entityCountry in IbanServiceResponseDto for /V2/iban-deconstruct response. It is mapped from the attribute isoCountryCode on IBAN Plus Dynamic configuration.
+Api connector configuration is added, and it follows the ipf naming standard. Each connector inherits from default connector configuration and can override it for its own purpose. Default configuration is under
+ipf.csm-reachability-api.default-connector
+, and for each existing connector, configuration is under
+ipf.csm-reachability-api.connector.<connector-name>
+New enum value PARTICIPANT_COUNTRY for appliedLimitCategory in ValidateScmReachability and SelectCsmAgent responses.
+participantCountryLimits in AgentSettlementSettings response
+new field named
+agentCountry
+as a part of AccountServicingAgent in Agent Settlement Settings
+Changed
+Api connector transport configuration is now changed to match the ipf naming standard, but is still backward compatible with the old naming.
+Configuration property prefix
+csm-reachability-api
+is changed to
+ipf.csm-reachability-api
+For
+/party-entities
+GET endpoint
+entityDataSource
+parameter is now mandatory, required on GetPartyEntitiesCriteria.
+When identifier is BIC, identifierSubType will be ignored during the Party Entity LookUp
+IbanServiceResponseDto is changed to support multiple entityIdentifiers. Removed ibanBic, sortCode and headOfficeIid from the response, and added ibanCountry and list of entityIdentifiers (BIC or NCC).
+Iban deconstruct can handle countries that dont issue national ids
+Configuration
+ipf.csm-reachability-api.default-connector
+default connector configuration
+ipf.csm-reachability-api.connector.<connector-name>
+configuration of a specific connector
+CSM Reachability
+New
+CsAgentSelectionSettings - added selectionId as a searchable field
+IbanPlus - added new attribute isoCountryCode. Logical unique key now is updated and its consisted of isoCountryCode + ibanIsoCountryCode + nationalId fields.
+Dps connector configuration is added, and it follows the ipf naming standard. Each connector inherits from default connector configuration and can override it for its own purpose. Default configuration is under
+ipf.csm-reachability.settings-api.default-connector
+, and for each existing connector, configuration is under
+ipf.csm-reachability.settings-api.connector.<connector-name>
+.
+When the Party Entities API is called with a specific data source, multiple records can now be retrieved. In this scenario, we will return a new reason code with the description:
+Multiple party entity records match on Party Entity Directory for specified identifier value. Reachability request can be re-run including the identifier type used for membership by the Agent for accurate results
+.
+participantCountryLimits - new type of limit se on AgentSettlementSettings related to participant country
+DPS - new field named
+agentCountry
+as a part of AccountServicingAgent in Agent Settlement Settings. New field is mandatory when agent identifier type is NCC or LEI
+when /select-csm-agent endpoint is called and in the request we have returnEnhancedCSMData as true, agentCountry is mapped into the response. Also, when /settlement-agent endpoint is called and isIncludeSettlementSettings as a true in the request, agentCountry is mapped into the response.
+New
+AgentCountryPattern
+which doesnt allow that new field
+agentCountry
+is not set when we have at least 1 agent identifier type which is NCC or LEI
+Changed
+All properties, related to setting save history, are changed to match IPF standard, but are still backward compatible with the old naming. Old naming is deprecated and scheduled for removal in future releases.
+Dps connector transport configuration is now changed to match the ipf naming standard, but is still backward compatible with the old naming. Deprecated configuration will be scheduled for removal in future releases.
+When matching entity identifiers on party entity lookup,
+identifierSubType
+is used together with
+identifierType
+if supplied
+IbanServiceResponseDto is changed to support multiple entityIdentifiers. Removed ibanBic, sortCode and headOfficeIid from the response, and added ibanCountry and list of entityIdentifiers (BIC or NCC).
+EntityCountry is mapped as ISO Country code from Iban Plus record.
+IbanCountry is mapped as IBAN ISO Country code from Iban Plus record.
+BIC value is now mapped as one of the identifiers if we have ibanBic on the ibanPlus record, and the subtype is mapped as SCHEME_MEMBERSHIP_BIC.
+NCC value can be mapped as IBAN National ID or as IBAN National ID (without the 4 character SWIFT Bank Code), and the subtype is mapped if the ibanCountry has corresponding ISO Country Code mapping.
+Party entity service is now using an IBAN deconstructed identifier with BIC type if the entityDataSource on the criteria is Bank_Directory_Plus, otherwise it is using NCC identifier for look-up.
+Validate intra entity reachability service is using an IBAN deconstructed identifier with BIC type if it is specified on IntraEntityParties record, otherwise it is using NCC identifier as CounterPartyIdentifier.
+Validate csm entity reachability service is using an IBAN deconstructed identifier with BIC type if it is specified on ParticipationDetails on AgentSettings record, otherwise it is using NCC identifier as CounterPartyIdentifier.
+Validate CSM Reachability and Select CSM Agent - participant country match removed from participant lookup
+Configuration
+ipf.csm-reachability.settings-api.default-connector
+default connector configuration
+ipf.csm-reachability.settings-api.connector.<connector-name>
+configuration of a specific connector
+ipf.csm-reachability.settings-api
+changed from
+settings-api
+ipf.csm-reachability.settings-api.connection
+changed from
+settings-api.connection
+ipf.csm-reachability.should-save-history.agent-clearing-settings-settings
+changed from
+should-save-history.agent-clearing-settings-settings
+ipf.csm-reachability.should-save-history.agent-settings-settings
+changed from
+should-save-history.agent-settings-settings
+ipf.csm-reachability.should-save-history.agent-settlement-settings-settings
+changed from
+should-save-history.agent-settlement-settings-settings
+ipf.csm-reachability.should-save-history.bicdir2018-settings
+changed from
+should-save-history.bicdir2018-settings
+ipf.csm-reachability.should-save-history.cs-agent-selection-settings-settings
+changed from
+should-save-history.cs-agent-selection-settings-settings
+ipf.csm-reachability.should-save-history.exclusion-list-settings
+changed from
+should-save-history.exclusion-list-settings
+ipf.csm-reachability.should-save-history.generic-processing-settings-settings
+changed from
+should-save-history.generic-processing-settings-settings
+ipf.csm-reachability.should-save-history.iban-plus-settings
+changed from
+should-save-history.iban-plus-settings
+ipf.csm-reachability.should-save-history.iban-structure-settings
+changed from
+should-save-history.iban-structure-settings
+ipf.csm-reachability.should-save-history.participant-settings
+changed from
+should-save-history.participant-settings
+ipf.csm-reachability.should-save-history.party-entity-settings
+changed from
+should-save-history.party-entity-settings
+ipf.csm-reachability.should-save-history.processing-entity-settings
+changed from
+should-save-history.processing-entity-settings
+Data Ingestion
+New
+IbanPlus file ingestion - isoCountryCode filed is loaded from IBANPlus file with the same name. Mapping is done for both txt and xml files, and also for full and delta files.
+Changed
+Data ingestion  configuration is now changed to match the ipf naming standard, but is still backward compatible with the old naming. Deprecated configuration will be scheduled for removal in future releases.
+Configuration
+ipf.csm-reachability.connector.settings-api-rr
+inherits default
+ipf.csm-reachability.default-connector
+configuration
+ipf.csm-reachability.default-file-ingestion
+with default settings for file-ingestion which every file ingestion connector inherits
+ipf.csm-reachability.setting-api
+changed from
+settings-api
+ipf.csm-reachability.ingestion
+changed from
+ingestion
+ipf.csm-reachability.participant.tips
+changed from
+tips
+(file-ingestion-connector is removed from new path)
+ipf.csm-reachability.participant.rt1
+changed from
+rt1
+(file-ingestion-connector is removed from new path)
+ipf.csm-reachability.participant.step2
+changed from
+step2
+(file-ingestion-connector is removed from new path)
+ipf.csm-reachability.participant.sic
+changed from
+sic
+ipf.csm-reachability.party-entity.six-bankmaster
+changed from
+party-entity.six.bankmaster
+(file-ingestion-connector is removed from new path).
+ipf.csm-reachability.party-entity.swift-bankplus
+changed from
+party-entity.swift.bankplus
+(file-ingestion-connector is removed from new path)
+ipf.csm-reachability.iban-plus
+changed from
+swift.ibanplus
+(file-ingestion-connector is removed from new path)
+ipf.csm-reachability.exclusion-list
+changed from
+exclusionlist
+(file-ingestion-connector is removed from new path)
+ipf.csm-reachability.bic-dir-2018
+changed from
+bic-dir-2018
+(file-ingestion-connector is removed from new path)
+ipf.csm-reachability.iban-structure.enabled
+changed from
+ibanstructure.process-ibanstructure.enabled
+ipf.csm-reachability.iban-structure.file-ingestion
+changed from
+iban-structure-file-connector
+Bulker & Debulker - Changes & Fixes
+ODS & GUI - Changes & Fixes

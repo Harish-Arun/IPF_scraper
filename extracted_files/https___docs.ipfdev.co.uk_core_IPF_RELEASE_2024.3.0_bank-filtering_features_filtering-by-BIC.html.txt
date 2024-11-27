@@ -1,0 +1,11 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/features/filtering-by-BIC.html ===
+Filtering By BIC
+Input BIC is matched against BIC filter or country code defined in a filtering rule, by checking:
+If input BIC matches with the BICs on the rules (exact match) exactly
+If input BIC (8 or 11 characters) starts with BIC values on the rules (can be 4, 6, 8 or 11 characters) - (pattern match)
+If country extracted from input BIC (character 5 & 6) matches with country code defined in a filtering rule (Country wide filters)
+While matching rules,
+If the rule direction is DEBTOR or ANY, then input debtor BIC has to match against BIC value on the rule (Exact or pattern match) or the country code on the debtor BIC matches with country code on the rule.
+If the rule direction is CREDITOR or ANY, then input creditor BIC has to match against BIC value on the rule (Exact or pattern match) or the country code on the creditor BIC matches with country code on the rule.
+Common Filtering
+Filtering by NCC

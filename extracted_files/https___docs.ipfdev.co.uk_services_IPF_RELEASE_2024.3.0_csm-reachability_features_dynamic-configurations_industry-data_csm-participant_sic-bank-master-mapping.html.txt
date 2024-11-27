@@ -1,0 +1,117 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/csm-participant/sic-bank-master-mapping.html ===
+SIX Bank Master 3.0 Mapping
+SIX Bank Master 3.0 provides two types of records:
+Bank Master - This record provides details of the participant with an active participant which has not been taken over by another participant.
+Bank Master Concatenated - This record provides details of the participant that has been taken over by another participant but is still being used actively using the identifiers issued to it before the merger.
+Depending on how the configurations are set, the records are added for one, more than one or all three of CSM Agents supported by SIX (Scheme operating SIC specific Swiss Domestic payments.). The membership for each of the CSM Agents is based on the flags provided by SIX on Bank Master 3.0.
+SIC
+SicInst
+EuroSic
+Bellow table provides information about File type supported and File format.
+File Types Supported
+File Name
+File Types Supported
+File Formats Supported
+File Naming Conventions
+Bank Master 3.0
+FULL
+JSON
+bankmaster.json
+AWS S3 Ingestion identifies this file when the file name starts with "bankmaster".
+The client implementations should not modify the files names provided by industry sources and ingest the files as received.
+Mapping Definitions
+Bank Master Records
+Below table provides the mapping as performed from SIC Bank Master 3.0 into CSM Participants for Bank Master type records.
+SIC Bank Master Property (Source)
+CSM Participant Property (Destination)
+Comment
+rtgsCustomerPaymentsChf
+csmAgentId
+if true csmAgentId =
+SIC
+ipCustomerPaymentsChf
+csmAgentId
+if true csmAgentId =
+SicInst
+euroSicParticipation
+csmAgentId
+if true csmAgentId =
+euroSIC
+iid
+csmParticipantIdentifier
+sicIid
+industryFields.SicSpecificFields.sicIid
+headQuarters
+industryFields.SicSpecificFields.headOffice
+iidType
+industryFields.SicSpecificFields.iidType
+Enumerated - HEADQUARTERS, MAIN_BRANCH, QR_IID
+bic
+industryFields.SicSpecificFields.sicBic
+streetName
+domicileAddress
+domicileAddrress is a concatenation of streetName and buildingNumber, separated by a 'space'
+buildingNumber
+domicileAddress
+domicileAddrress is a concatenation of streetName and buildingNumber, separated by a 'space'
+postCode
+postalCode
+townName
+participantCity
+country
+participantCountry
+participantType
+participantType
+Constant value: DIRECT
+Bank Master Concatenated Record
+Below table provides the mapping as performed from SIC Bank Master 3.0 into CSM Participants for Bank Master Concatenated type records.
+SIC Bank Master Property (Source)
+CSM Participant Property (Destination)
+Comment
+iid
+csmParticipantIdentifier
+newIid
+industryFields.SicSpecificFields.newIid
+Example Mapping
+The example records documented here are representational and do not confirm the participation of the entities with the CSM Agent, client implementations should use the files provided by industry data source for getting correct membership data.
+Source Record from Industry file
+Bank Master
+{
+"entryType" : "BankMaster",
+"iid" : 100,
+"validOn" : "2023-07-05",
+"sicIid" : "001008",
+"headQuarters" : 100,
+"iidType" : "HEADQUARTERS",
+"bankOrInstitutionName" : "Schweizerische Nationalbank",
+"streetName" : "BÃ¶rsenstrasse",
+"buildingNumber" : "15",
+"postCode" : "8022",
+"townName" : "ZÃ¼rich",
+"country" : "CH",
+"bic" : "SNBZCHZZXXX",
+"sicParticipation" : true,
+"rtgsCustomerPaymentsChf" : true,
+"ipCustomerPaymentsChf" : false,
+"euroSicParticipation" : false
+}
+Destination Record - CSM Participant
+{
+  "_id": "DynamicSettings|participant-SIC-AABBCCD1",
+  "payload": {
+    "csmAgentId": "SIC",
+    "csmParticipantIdentifier": "100",
+    "participantName": "Schweizerische Nationalbank",
+    "routingBIC": "SNBZCHZZXXX",
+    "activeFromDate": {
+      "$date": "2021-11-09T00:00:00.000Z"
+    },
+    "participantType": "DIRECT"
+  },
+  "version": 1,
+  "status": "ACTIVE",
+  "processingEntity": "UNKNOWN",
+  "_class": "com.iconsolutions.ipf.dynamicsettings.repository.ParticipantSettings"
+}
+TIPS SEPA Inst Directory Mapping
+STET Agreement Exports File Mapping

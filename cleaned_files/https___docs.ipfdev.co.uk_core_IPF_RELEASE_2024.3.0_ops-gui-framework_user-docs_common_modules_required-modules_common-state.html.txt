@@ -1,0 +1,18 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/common/modules/required-modules/common-state.html ===
+Common State Module
+The CommonState module contains effects and actions to be used across all modules and within the parent application.
+Actions
+Action
+Description
+CommonActions.appLoaded
+This action is dispatched when the application has loaded. This action currently has no reducer or effect functionality attached to it within the CommonState module. But is used by other modules to know when to fire certain functionality (e.g, when to load translations).
+CommonActions.apiError
+This action is dispatched when an API error has occurred. When this action is fired an effect within the CommonModule will fire the snackbar to notify the use of the error.
+CommonActions.appHomeInitiated
+This action is dispatched when the appHomeComponent has been initiated.
+CommonActions.appStartedLoading
+This action is dispatched when you want the application to use a DOM blocking loading spinner. Pass the id of the process you want to block the DOM.
+CommonActions.appStartedLoading({id: 'exampleId'})
+CommonActions.appFinishedLoading
+This action is dispatched when you want the application to stop using the DOM blocking loading spinner. Pass the id of the process you previously used to remove the spinner.
+CommonActions.appFinishedLoading({id: 'exampleId'})

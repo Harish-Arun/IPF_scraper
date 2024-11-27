@@ -1,0 +1,17 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/scaffolder/how-to-dependencies.html ===
+How do you use your own parent dependency?
+Projects created by this scaffolder will use the IPF Bill Of Materials (BOM) as a parent, if you wish to use a custom
+parent POM, then make the following changes after project creation to ensure that the correct ipf dependencies are included:
+<dependencyManagement>
+     <dependencies>
+        <dependency>
+            <groupId>com.iconsolutions.ipf</groupId>
+            <artifactId>ipf-release-bom</artifactId>
+            <version>__IPF_VERSION__</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+How do you build a project without docker dependencies?
+How do you create a reusable flow module?

@@ -1,0 +1,101 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/common/common.html ===
+Common Library
+Helper components, modules and services to be used when building icon modules and testing the application.
+CommonModule
+The CommonModule is a module that contains all the common components, pipes and services that are required for the application to run.
+Components
+NavbarComponent
+A component to display the header which includes the application icon, module navigation and processing entity selector.
+The component displays the application icon but does not contain it.
+It simply references a path within the parent application.
+Adding the image to
+/src/assets/images/icon.png
+will update the image.
+The navigation is currently taken from the store.
+See the navigation service for more details.
+The processing entities are presented using the
+ProcessingEntitySelector
+component, see the
+Access Management Module
+for more details.
+SidenavComponent
+A component which displays a secondary side navigation for the application.
+It displays a header with an icon and title, and a list of items that can be clicked to navigate to different pages in a module.
+It is expanded by default, but it can be collapsed by clicking the arrow icon at the bottom of the side nav.
+It also collapses automatically when the window is less than 900px wide.
+Name
+Description
+@Input() links: Array<SideNavigationLink>
+An array of side navigation links which are retrieved from the store and passed in as an input.
+@Input() label: string
+The label is used for the side navigation header.
+PanelSearchResultsComponent
+A component which displays search results and fires an event when a search result is selected.
+You can also navigate between search items with the keyboard up and down keys.
+The PanelSearchResultsComponent contains a
+<router-outlet>
+, so any child of the route that the component is used in will display in the correct area.
+Name
+Description
+@Input() selectedIndex: number
+Index of the item you want selected when the component initialises.
+@Input() searchResultList: Array<PanelSearchResult>
+An array of search results.
+@Output() searchResultClick: EventEmitter<PanelSearchResultClickEvent>
+An event to subscribe to, so you know what search result item the user has selected.
+Example:
+To add the search panel to your component simply add it in the html
+list.component.html
+<ipf-panel-search-results
+                *ngIf="searchResultList.length > 0"
+                [selectedIndex]="2"
+                [searchResultList]="searchResultList"
+                (searchResultClick)="searchResultClick($event)"
+            ></ipf-panel-search-results>
+To make sure that the search result shows correcly then you need to add a route to
+app-routing.module.ts
+const routes: Routes = [{
+        path: 'list',
+        component: ListComponent,
+        children: [
+            {
+                path: ':id',
+                component: ViewComponent,
+            }
+        ]
+    }]
+LoginComponent
+A component to allow the user to login.
+HomeComponent
+The component that shows the tabs for each section of the application.
+Generated from the navigation service.
+Actions
+Actions to be used at app level that IPF will have interest in.
+For example, the application has loaded.
+Modules
+There are 2 types of modules within the Common Library.
+Required Modules: A module that is required to run the full application e.g, Access Management, Language.
+This will be imported in the CommonModule.
+Non-required Modules: A module that is NOT required to run the full application but may be required for a specific component, pipe or service e.g, DynamicForm
+Required modules do not need importing within the main application as they are imported in the CommonModule which is automatically imported when generating a project with the schema.
+Non-required modules will need to be imported when needed in the relevant modules.
+Required Modules
+Access Management Module
+Common State Module
+Language Module
+Non-required Modules
+Cards Module
+Common Components Module
+Dynamic Form Module
+Dialog Module
+Text Diff Module
+Services
+There are 6 different services within the Common Library.
+Active User Service
+App Audit Service
+Config Service
+Navigation Service
+Snackbar Service
+Unique ID Service
+Cluster Health
+Human Task Manager

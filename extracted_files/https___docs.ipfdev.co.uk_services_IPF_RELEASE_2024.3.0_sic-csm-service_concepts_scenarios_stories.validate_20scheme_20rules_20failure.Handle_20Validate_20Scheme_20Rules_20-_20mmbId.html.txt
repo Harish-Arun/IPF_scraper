@@ -1,0 +1,58 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/concepts/scenarios/stories.validate%20scheme%20rules%20failure.Handle%20Validate%20Scheme%20Rules%20-%20mmbId.html ===
+Handle Validate Scheme Rules - mmbId.story
+Scenario: Handling validation of scheme rules invalid bic
+Steps
+When the Payment Service sends a 'Validate Scheme Rules Request' with values:
+| getPayload().getContent().cdtTrfTxInf[0].<agent>.finInstnId.clrSysMmbId.mmbId  | <mmbid>                                |
+| customBusinessData                                                             | supportingContext('flowType','<type>') |
+Then the Payment Service receives a 'Validate Scheme Rules Response' with values:
+| status                                | FAILURE                           |
+| getPayload().getContent().reasonCode  | RC01                              |
+| getPayload().getContent().description | MmbId value not allowed           |
+| requestId                             | #ValidateSchemeRulesRequest.ipfId |
+Examples:
+mmbid
+agent
+type
+12345
+instgAgt
+CREDITOR
+12345
+instdAgt
+DEBTOR
+Example: {agent=instgAgt, type=CREDITOR, mmbid=12345}
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseMeta(java.lang.String)
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseLegacy(java.lang.String)
+When
+the ï½Payment Serviceï½  sends a Validate Scheme Rules Request with values:
+| getPayload().getContent().cdtTrfTxInf[0].ï½instgAgtï½ .finInstnId.clrSysMmbId.mmbId  | ï½12345ï½                                 |
+| customBusinessData                                                             | supportingContext(flowType,ï½CREDITORï½ ) |
+Then
+ï½the Payment Serviceï½  receives a Validate Scheme Rules Response with values:
+| status                                | FAILURE                           |
+| getPayload().getContent().reasonCode  | RC01                              |
+| getPayload().getContent().description | MmbId value not allowed           |
+| requestId                             | #ValidateSchemeRulesRequest.ipfId |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+Example: {agent=instdAgt, type=DEBTOR, mmbid=12345}
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseMeta(java.lang.String)
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseLegacy(java.lang.String)
+When
+the ï½Payment Serviceï½  sends a Validate Scheme Rules Request with values:
+| getPayload().getContent().cdtTrfTxInf[0].ï½instdAgtï½ .finInstnId.clrSysMmbId.mmbId  | ï½12345ï½                                 |
+| customBusinessData                                                             | supportingContext(flowType,ï½DEBTORï½ ) |
+Then
+ï½the Payment Serviceï½  receives a Validate Scheme Rules Response with values:
+| status                                | FAILURE                           |
+| getPayload().getContent().reasonCode  | RC01                              |
+| getPayload().getContent().description | MmbId value not allowed           |
+| requestId                             | #ValidateSchemeRulesRequest.ipfId |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()

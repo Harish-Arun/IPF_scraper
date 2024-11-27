@@ -1,0 +1,30 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/features/bulk-archiver.html ===
+Bulk Archiver
+The bulker has functionality for archiving produced bulk files. This will place a copy of the produced bulk file in an archive location.
+Current supported locations are:
+local
+s3
+Config
+Type
+Default
+Comment
+ipf.bulker.archiver.file-system
+String
+local
+Property that defines the location that the bulk files will be copied to.
+ipf.bulker.configurations[0].archive-path
+String
+N/A
+Property that defines the directory or s3 bucket that the bulk files will be copied to.
+When enabling archiving to s3 the following config must also be provided:
+ipf.file-manager.s3 {
+    enabled = true
+    region = "us-east-1"
+    upload-parallelism = 1
+    credentials {
+        access-key-id = "accessKey"
+        secret-access-key = "secretAccessKey"
+    }
+}
+Bulk Notifications
+Supported Messages

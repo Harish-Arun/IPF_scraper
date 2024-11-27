@@ -1,0 +1,53 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/features/bulk-notifications.html ===
+Bulk Notifications
+The Bulker sends the following notifications:
+BulkArchivedNotification
+BulkClosedNotification
+BulkCompletedNotification
+BulkConfiguredNotification
+BulkFinalisedNotification
+BulkRejectedNotification
+BulkTerminatedNotification
+ChildBulkRegisteredNotification
+These notifications are sent when the bulk is in the relevant state.
+There are three options for handling Bulk Notifications
+Embedded Bulk Notification Handling
+Send Bulk Notifications to an external system using Connectors
+Send Bulk Notifications using in built support for sending notifications to Kafka
+Embedded Bulk Notification Handling
+Add the following dependency:
+<dependency>
+    <groupId>com.iconsolutions.ipf.bulk</groupId>
+    <artifactId>ipf-bulker-notifications-api</artifactId>
+</dependency>
+And then provide an implementation of
+BulkNotificationPort
+, adding it as a bean to the Application Context.
+Sending Bulk Notifications via Connectors
+To send notifications to an external system, add the following dependency, which includes a Connector for sending Bulker Notifications.
+<dependency>
+    <groupId>com.iconsolutions.ipf.bulk</groupId>
+    <artifactId>ipf-bulker-notifications-connector-core</artifactId>
+</dependency>
+Then define a specific
+ConnectorTransport<BulkNotification<?>>
+bean in the application context (supported ConnectorTransports include Kafka, HTTP and JMS). Please see
+Writing HTTP Connector
+for an example of configuring a HTTPConnectorTransport and wiring the ConnectorTransport into the Connector.
+Sending Bulk Notifications to Kafka
+To send notifications to a kafka topic, instead of including the above dependency, include the dependency below. Using the dependency below, means support for sending the notifications for Kafka is preconfigured.
+<dependency>
+    <groupId>com.iconsolutions.ipf.bulk</groupId>
+    <artifactId>ipf-bulker-notifications-connector-kafka</artifactId>
+</dependency>
+Applicable configuration
+Config
+Type
+Comment
+Default
+ipf.bulker.notification.kafka.producer.topic
+String
+Kafka topic to publish notifications to
+BULK_NOTIFICATION
+Bulk Producer
+Bulk Archiver

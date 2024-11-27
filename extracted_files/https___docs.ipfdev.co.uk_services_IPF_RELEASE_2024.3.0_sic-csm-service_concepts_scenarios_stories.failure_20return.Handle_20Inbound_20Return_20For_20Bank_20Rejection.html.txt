@@ -1,0 +1,53 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/concepts/scenarios/stories.failure%20return.Handle%20Inbound%20Return%20For%20Bank%20Rejection.html ===
+Handle Inbound Return For Bank Rejection.story
+Scenario: Handle inbound (Debtor) return rejection
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseMeta(java.lang.String)
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseLegacy(java.lang.String)
+When
+ï½the Payment Serviceï½  sends a Clear
+And
+Settle Request
+Then
+ï½the CSMï½  receives a Customer Credit Transfer
+When
+the ï½CSMï½  sends a Payment Status Report with values:
+| FIToFIPmtStsRpt.txInf*And*Sts[0].txSts                                 | ACSC   |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].instdAgt.finInstnId.clrSysMmbId.mmbId | 654321 |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].clrSysRef                             | EXC002 |
+Then
+ï½the Payment Serviceï½  receives a Clear
+And
+Settle Response
+When
+the ï½CSMï½  sends a Payment Return with values:
+| pmtRtr.txInf[0].rtrRsnInf[0].rsn.cd | FOCR |
+Then
+the ï½the Recall Serviceï½  receives a Receive Positive Answer using predicate:
+| payload.content.grpHdr.msgId                 | #PaymentReturnV09.pmtRtr.grpHdr.msgId       |
+| payload.content.txInf[0].rtrId               | #PaymentReturnV09.pmtRtr.txInf[0].rtrId     |
+| payload.content.txInf[0].orgnlTxId           | #PaymentReturnV09.pmtRtr.txInf[0].orgnlTxId |
+| payload.content.txInf[0].rtrRsnInf[0].rsn.cd | FOCR                                        |
+When
+the ï½Recall Serviceï½  sends a Receive Positive Answer Response with values:
+| payload.content.txInf*And*Sts[0].orgnlGrpInf.orgnlMsgNmId               | pacs.004.001.09.ch.02                       |
+| payload.content.txInf*And*Sts[0].orgnlGrpInf.orgnlMsgId                 | #PaymentReturnV09.pmtRtr.grpHdr.msgId       |
+| payload.content.txInf*And*Sts[0].orgnlTxId                              | #PaymentReturnV09.pmtRtr.txInf[0].orgnlTxId |
+| payload.content.txInf*And*Sts[0].instdAgt.finInstnId.clrSysMmbId.mmbId  | 318668                                      |
+| payload.content.txInf*And*Sts[0].stsRsnInf[0].orgtr.id.orgId.othr[0].id | 318668                                      |
+| payload.content.txInf*And*Sts[0].txSts                                  | RJCT                                        |
+| payload.content.txInf*And*Sts[0].stsRsnInf[0].rsn.cd                    | 108                                         |
+| payload.content.txInf*And*Sts[0].chrgsInf                               | NOT_SET                                   |
+| payload.content.txInf*And*Sts[0].clrSysRef                              | NOK002                                      |
+Then
+ï½the CSMï½  receives a Payment Status Report with values:
+| FIToFIPmtStsRpt.txInf*And*Sts[0].txSts                                 | RJCT                                        |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].OrgnlGrpInf.OrgnlMsgNmId              | pacs.004.001.09.ch.02                       |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].orgnlTxId                             | #PaymentReturnV09.pmtRtr.txInf[0].orgnlTxId |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].instgAgt.finInstnId.clrSysMmbId.mmbId | 318668                                      |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].stsRsnInf[0].rsn.cd                   | 108                                         |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].clrSysRef                             | NOK002                                      |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()

@@ -1,0 +1,4 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/operations-home.html ===
+Operations
+Bank Filtering Service API
+Human Task Manager

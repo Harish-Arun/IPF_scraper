@@ -1,0 +1,65 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/processing-data/features/ingress.html ===
+Ingress Processing Data
+Summary
+ipf-processing-data-ingress modules are to be used in applications which need to consume ipf processing data, e.g. ODS.
+Transport
+The ipf-processing-data
+egress
+sends IPF Processing Data envelopes over kafka, or http, and there are matching
+ingress
+components to consume this data.
+Kafka
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-ingress-kafka</artifactId>
+</dependency>
+Config key
+Default Value
+Description
+ipf.processing-data.ingress.transport
+kafka
+Enable or disable the kafka ingress. Anything other than
+kafka
+will disable it.
+ipf.processing-data.ingress.kafka.consumer.topic
+IPF_PROCESSING_DATA
+The
+topic
+from which to consume IPF Processing Data envelopes.
+ipf.processing-data.ingress.kafka.consumer.topics
+The
+topics
+from which to consume IPF Processing Data envelopes, e.g.
+[ TOPIC_A, TOPIC_B ]
+The kafka ingress uses a kafka receive connector, further configuration under the key
+ipf.processing-data.ingress.kafka.consumer.*
+can be found in the
+Connector Configuration
+or
+Kafka Quickstart
+.
+Metrics
+The following metrics will be reported by the kafka ingress:
+ipf_processing_data_ingest_latency
+, which records the duration between the time a process object (domain event, system event, message log…​) has been created and the time it has been successfully processed by ODS; the durations will be sensitive to time skew between the servers, so they should be treated as estimates only
+ipf_processing_data_ingress_batch_receive_size
+, which records the size of each DataEnvelope batch received by your
+BatchedIpfProcessingDataHandler
+spring bean. See the
+guide to consuming processing data
+for more information about batch handling.
+HTTP
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-ingress-http</artifactId>
+</dependency>
+Responds to http
+POST
+requests containing an  IPF Processing Data envelope with http status
+ACCEPTED (202)
+.
+The endpoint is a spring webflux controller and therefore will need to live within a spring webflux application. Configuration specific to spring-framework and spring-web can be found at
+spring.io
+.
+Egress Processing Data
+How to Consume IPF processing data

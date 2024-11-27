@@ -1,0 +1,1705 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/persistence/persistence.html ===
+Persistence
+Supported Databases
+Currently, ipf-ods supports only
+MongoDB
+, but it can also work with
+Azure Cosmos DB
+since it implements MongoDB wire protocol.
+MongoDB
+ipf.mongodb.url = "mongodb://mongo:27017/ipf"
+CosmosDB
+ipf.mongodb.url = "<<cosmos-db-url>>"
+
+//You may need this
+spring.data.mongodb.database = "ipf"
+
+//Or even the full url
+spring.data.mongodb.uri = "<<cosmos-db-url>>"
+Example Cosmos DB url
+mongodb://ipfcosmosdbdemo:vooQt7iRpI0WyUVC5IIKbq7RT058xJCKdtnjdbOhFnQK2QDLiaWeCrN2TDIEzeBLwLFTEHT47iSSKUowEtrmWw==@ipfcosmosdbdemo.mongo.cosmos.azure.com:10255/ipf?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@ipfcosmosdbdemo@
+Running local e2e tests against Azure Cosmos DB
+When running e2e tests, set
+spring.data.mongodb.uri
+in local-e2e-test application.properties.
+Collections
+Name
+Description
+payments
+Contains ISO 20022 payment objects.
+pds
+Contains IPF defined, and client-specific, PDS types
+processes
+Data related to the processing of a payment. These documents have an objectType to indicate the type of processing data, such as
+MESSAGE_LOG
+,
+SYSTEM_EVENT
+,
+PROCESS_FLOW_EVENT
+etc.
+customObjects
+Client-specific data related to a payment.
+summaries
+High-level type representing a payment, built from the raw data in the other collections.
+unitOfWorks
+Meta-data for a given unitOfWorkId, built from ingested process flow events.
+purgeReports
+A daily entry documenting the details of a purge execution. Created during
+ODS-Purging
+expiryReports
+A daily entry documenting number of unitOfWorks that should expire in n days.
+archiverCandidateSelectionState
+Tracks the archive candidate selection state. Created during
+Candidate Selection
+Indexing
+By default, ingestion and inquiry applications will attempt to create all the required indexes on startup. To disable this behaviour and create the indexes manually, provide the following configuration:
+ods.persistence.indexing.enabled = false
+Even though the wire protocols are the same, the underlying database engine implementations differ for MongoDB and CosmosDB databases, which impacts the indexing options. ODS applications will therefore be creating a different set of indexes depending on which database they are talking to, with MongoDB index creation mode being the default. To change the mode to CosmosDB, provide the following configuration:
+ods.persistence.indexing.mode = cosmosdb
+Indexes declared by the ODS Ingestion App
+Indexes declared in MongoDB mode
+Indexes for purgeReports collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "executionDate"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+A single report exists per day, and is retrieved by the executionDate
+Indexes for processes collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "idempotencyKey"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+Used in upserts in order to de-duplicate process objects as they’re ingested.
+Indexes for payments collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "paymentObjectId"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "processObjectReference"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+Used in upserts in order to de-duplicate payment objects as they’re ingested.
+Indexes for customObjects collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "idempotencyKey"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+Used in upserts in order to de-duplicate custom objects as they’re ingested.
+Indexes for pds collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        }
+    ]
+}
+PDS objects are retrieved by unitOfWorkId directly
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "name"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "sequenceNumber"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+Each PDS object version is stored as a single document, where sequenceNumber identifies its version.
+Indexes for summaries collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+Summaries are uniquely identified by unitOfWorkIds.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "lastUpdated"
+        }
+    ]
+}
+Updated each time a summary changes, and used to determine candidates for purging
+Indexes for unitOfWorks collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+UnitOfWorks are uniquely identified by unitOfWorkIds. Used in upserts in order to de-duplicate UnitOfWork objects as they’re ingested
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "startedAt"
+        }
+    ]
+}
+UnitOfWorks startedAt is used to determine candidates for purging.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "finishedAt"
+        }
+    ]
+}
+UnitOfWorks are eligible and retrieved for archiving by the finishedAt field. UnitOfWorks finishedAt is used to determine candidates for purging.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "archivedAt"
+        }
+    ]
+}
+UnitOfWorks archivedAt is used to determine candidates for purging.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "journeyType"
+        }
+    ]
+}
+Archiving can be configured to only delete unit of works with a defined journey type
+Indexes declared in CosmosDB mode
+Indexes for purgeReports collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "executionDate"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+A single report exists per day, and is retrieved by the executionDate
+Indexes for processes collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "idempotencyKey"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+Used in upserts in order to de-duplicate process objects as they’re ingested.
+Indexes for payments collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "paymentObjectId"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "processObjectReference"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+Used in upserts in order to de-duplicate payment objects as they’re ingested.
+Indexes for customObjects collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "idempotencyKey"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+Used in upserts in order to de-duplicate custom objects as they’re ingested.
+Indexes for pds collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        }
+    ]
+}
+PDS objects are retrieved by unitOfWorkId directly
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "name"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "sequenceNumber"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+Each PDS object version is stored as a single document, where sequenceNumber identifies its version.
+Indexes for summaries collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+Summaries are uniquely identified by unitOfWorkIds.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "lastUpdated"
+        }
+    ]
+}
+Updated each time a summary changes, and used to determine candidates for purging
+Indexes for unitOfWorks collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        }
+    ],
+    "options" : {
+        "unique" : true
+    }
+}
+UnitOfWorks are uniquely identified by unitOfWorkIds. Used in upserts in order to de-duplicate UnitOfWork objects as they’re ingested
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "startedAt"
+        }
+    ]
+}
+UnitOfWorks startedAt is used to determine candidates for purging.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "finishedAt"
+        }
+    ]
+}
+UnitOfWorks are eligible and retrieved for archiving by the finishedAt field. UnitOfWorks finishedAt is used to determine candidates for purging.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "archivedAt"
+        }
+    ]
+}
+UnitOfWorks archivedAt is used to determine candidates for purging.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "journeyType"
+        }
+    ]
+}
+Archiving can be configured to only delete unit of works with a defined journey type
+Indexes declared by the ODS Inquiry App
+Indexes declared in MongoDB mode
+Indexes for customObjects collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        }
+    ]
+}
+Highly selective, we would expect only a few documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "idempotencyKey"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "clientRequestId"
+        }
+    ]
+}
+Highly selective, we would expect only a few documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "associationId"
+        }
+    ]
+}
+Highly selective, we would expect only a few documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "createdAt"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Will be used in ranged queries, where the upper or lower bound could be missing.
+ If both bounds are present the selectivity could be very high for small enough ranges.
+ If the range is large, or a bound is missing then the selectivity could be very low.
+Indexes for processes collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "idempotencyKey"
+        }
+    ]
+}
+Unique per unitOfWorkId and possibly also unique globally so offers high selectivity.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        }
+    ]
+}
+High selectivity - depending on the implementation, should identify double to triple digit objects.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "primaryAssociation"
+        }
+    ]
+}
+High selectivity, similar to unitOfWorkId - will usually hold either a unitOfWorkId or a flow ID.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "clientRequestId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, in most cases we would expect only a few objects for a given value.
+ There will, however, be many process objects with the value 'UNKNOWN' which can give low selectivity
+ if this is used as a search value.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "DESC",
+            "key" : "createdAt"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Will be used in ranged queries, where the upper or lower bound could be missing.
+ If both bounds are present the selectivity could be very high for small enough ranges.
+ If the range is large, or a bound is missing then the selectivity could be very low.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "objectType"
+        },
+        {
+            "direction" : "ASC",
+            "key" : "entityId"
+        }
+    ]
+}
+Highly selective, there will exist a small number (depending on implementation, tens to low hundreds)
+ of process flow events for an entityId.
+ Only applicable to process flow event process objects
+Indexes for summaries collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "clientRequestId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+ May eventually be removed since the clientRequestId is also present in the alternativeIds.value index
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "relatedUnitOfWorkId"
+        }
+    ]
+}
+Links a summary, to the parent/related summary. Many summaries could link to the same "parent"
+ summary, e.g. many batches link to a single bulk, or many payments link to a single batch which means
+ a summary can have [0..1] parents, and [0..n] children.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "alternativeIds.value"
+        }
+    ]
+}
+Values should be highly selective, if there’s any duplication, results should be small enough to be sorted in-memory
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "startedAt.value"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Will be used in ranged queries, where the upper or lower bound could be missing.
+ If both bounds are present the selectivity could be very high for small enough ranges.
+ If the range is large, or a bound is missing then the selectivity could be very low.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "lastUpdated"
+        }
+    ]
+}
+Will be used for ODS purging, querying for values less than a given lastUpdated.
+ Likely to be many summaries with a similar timestamp, low selectivity
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.uetr"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect a single summary for a given value
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.instructionId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect a single summary for a given value
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.transactionId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect a single summary for a given value
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.messageId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect a single summary for a given value
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.cancellationId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect a single summary for a given value
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.originalMessageId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect a single summary for a given value
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.originalEndToEndId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect a single summary for a given value
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.debtorAccount"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Will usually have a high selectivity (small number of payments for a single account for example)
+ but in some cases (bulk) accounts may have a very large number of outgoing payments and therefore selectivity will be lower
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.debtorAgentBIC"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Would likely have low selectivity, for example many outgoing payments will have the same bic value
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.debtorName"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Probably highly selective, but in some cases it may have low selectivity (bulk?)
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.creditorAccount"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Will usually have a high selectivity (small number of payments for a single account for example)
+ but in some cases (bulk) accounts may have a very large number of outgoing payments and therefore selectivity will be lower
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.creditorAgentBIC"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Would likely have low selectivity, for example many incoming payments will have the same bic value
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.creditorName"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Probably highly selective, but in some cases it may have low selectivity (bulk?)
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.instructingParty"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+For outbound recalls, this represents the client bank, for inbound recalls, this represents the other bank
+ Selectivity is probably on the low-end
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.instructedParty"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+For outbound recalls, this represents the other bank, for inbound recalls, this represents the client bank
+ Selectivity is probably on the low-end
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.instructingAgent"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Selectivity is probably on the low-end
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.instructedAgent"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Selectivity is probably on the low-end
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.initiatingPartyName"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Selectivity is probably on the low-end
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.creditAccount"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Will usually have a high selectivity (small number of payments for a single account for example)
+ but in some cases (bulk) accounts may have a very large number of outgoing payments and therefore selectivity will be lower
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.debitAccount"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Will usually have a high selectivity (small number of payments for a single account for example)
+ but in some cases (bulk) accounts may have a very large number of outgoing payments and therefore selectivity will be lower
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.acceptanceDateTime"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Will be used in ranged queries, where the upper or lower bound could be missing.
+ If both bounds are present the selectivity could be very high for small enough ranges.
+ If the range is large, or a bound is missing then the selectivity could be very low.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.interbankSettlementDate"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Will be used in ranged queries, where the upper or lower bound could be missing.
+ If both bounds are present the selectivity could be very high for small enough ranges.
+ If the range is large, or a bound is missing then the selectivity could be very low.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.originalInterbankSettlementDate"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Will be used in ranged queries, where the upper or lower bound could be missing.
+ If both bounds are present the selectivity could be very high for small enough ranges.
+ If the range is large, or a bound is missing then the selectivity could be very low.
+Indexes for payments collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "paymentObjectId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "parentPaymentObjectId"
+        }
+    ]
+}
+For instant payments, likely to be highly selective, we would expect only a few documents for a given value.
+ For bulk payments there could be tens of thousands of documents for some values..
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "primaryAssociations"
+        }
+    ]
+}
+For instant payments, likely to be highly selective, we would expect only a few documents for a given value.
+ For bulk payments there could be tens of thousands of documents for some values..
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        }
+    ]
+}
+Highly selective, we would expect only a few documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "clientRequestId"
+        }
+    ]
+}
+Highly selective, we would expect only a few documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "createdAt"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+Will be used in ranged queries, where the upper or lower bound could be missing.
+ If both bounds are present the selectivity could be very high for small enough ranges.
+ If the range is large, or a bound is missing then the selectivity could be very low.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.messageId"
+        }
+    ]
+}
+For instant payments, likely unique and therefore highly selective,
+ we would expect only a single document for any given value.
+ For bulk payments there could be tens of thousands of documents for a single instruction.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.originalMessageId"
+        }
+    ]
+}
+Highly selective, we would expect only a few documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.instructionId"
+        }
+    ]
+}
+For instant payments, likely unique and therefore highly selective,
+ we would expect only a single document for any given value.
+ For bulk payments there could be tens of thousands of documents for a single instruction.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.transactionId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.endToEndId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.uetr"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.assignmentId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.cancellationId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.returnId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.statusRequestId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.cancellationStatusId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.paymentInstructionId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.initiatingPartyName"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+For instant payments, probably highly selective, we would expect only a few documents for any given value.
+ For bulk payments there could be tens of thousands of documents for a single instruction.
+ Field value will be lower case, and searches will be a starts with regex.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.initiatingPartyId"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+For instant payments, probably highly selective, we would expect only a few documents for any given value.
+ For bulk payments there could be tens of thousands of documents for a single instruction.
+ Field value will be lower case, and searches will be a starts with regex.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.instructingAgent"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+For instant payments, probably highly selective, we would expect only a few documents for any given value.
+ For bulk payments there could be tens of thousands of documents for a single instruction.
+ Field value will be lower case, and searches will be a starts with regex.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.instructedAgent"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+For instant payments, probably highly selective, we would expect only a few documents for any given value.
+ For bulk payments there could be tens of thousands of documents for a single instruction.
+ Field value will be lower case, and searches will be a starts with regex.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.debtorName"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+For instant payments, probably highly selective, we would expect only a few documents for any given value.
+ For bulk payments there could be tens of thousands of documents for a single instruction.
+ Field value will be lower case, and searches will be a starts with regex.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.debtorAccount"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+For instant payments, probably highly selective, we would expect only a few documents for any given value.
+ For bulk payments there could be tens of thousands of documents for a single instruction.
+ Field value will be lower case, and searches will be a starts with regex.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.debtorAgentBIC"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+For instant payments, probably highly selective, we would expect only a few documents for any given value.
+ For bulk payments there could be tens of thousands of documents for a single instruction.
+ Field value will be lower case, and searches will be a starts with regex.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.creditorName"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+For instant payments, probably highly selective, we would expect only a few documents for any given value.
+ For bulk payments there could be tens of thousands of documents for a single instruction.
+ Field value will be lower case, and searches will be a starts with regex.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.creditorAccount"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+For instant payments, probably highly selective, we would expect only a few documents for any given value.
+ For bulk payments there could be tens of thousands of documents for a single instruction.
+ Field value will be lower case, and searches will be a starts with regex.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.creditorAgentBIC"
+        },
+        {
+            "direction" : "DESC",
+            "key" : "_id"
+        }
+    ]
+}
+For instant payments, probably highly selective, we would expect only a few documents for any given value.
+ For bulk payments there could be tens of thousands of documents for a single instruction.
+ Field value will be lower case, and searches will be a starts with regex.
+Indexes declared in CosmosDB mode
+Indexes for customObjects collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        }
+    ]
+}
+Highly selective, we would expect only a few documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "idempotencyKey"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "clientRequestId"
+        }
+    ]
+}
+Highly selective, we would expect only a few documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "processingEntity"
+        }
+    ]
+}
+Very low selectivity, there will be a large number of documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "associationId"
+        }
+    ]
+}
+Highly selective, we would expect only a few documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "createdAt"
+        }
+    ]
+}
+Will be used in ranged queries, where the upper or lower bound could be missing.
+ If both bounds are present the selectivity could be very high for small enough ranges.
+ If the range is large, or a bound is missing then the selectivity could be very low.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "source"
+        }
+    ]
+}
+Very low selectivity, there will be a large number of documents for any given value.
+Indexes for processes collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "idempotencyKey"
+        }
+    ]
+}
+Unique per unitOfWorkId and possibly also unique globally so offers high selectivity.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        }
+    ]
+}
+High selectivity - depending on the implementation, should identify double to triple digit objects.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "primaryAssociation"
+        }
+    ]
+}
+High selectivity, similar to unitOfWorkId - will usually hold either a unitOfWorkId or a flow ID.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "clientRequestId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, in most cases we would expect only a few objects for a given value.
+ There will, however, be many process objects with the value 'UNKNOWN' which can give low selectivity
+ if this is used as a search value.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "processingEntity"
+        }
+    ]
+}
+Very low selectivity, there will be a large number of documents for any given value.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "createdAt"
+        }
+    ]
+}
+Will be used in ranged queries, where the upper or lower bound could be missing.
+ If both bounds are present the selectivity could be very high for small enough ranges.
+ If the range is large, or a bound is missing then the selectivity could be very low.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "source"
+        }
+    ]
+}
+Has low selectivity, we can expect a large number of documents with the same value.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "objectType"
+        }
+    ]
+}
+Has low selectivity, we can expect a large number of documents with the same value.
+ Applicable to all process object types
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "direction"
+        }
+    ]
+}
+Has low selectivity, we can expect a large number of documents with the same value.
+ Only applicable to message log process objects
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "type"
+        }
+    ]
+}
+Has low selectivity, we can expect a large number of documents with the same value.
+ Only applicable to system event process objects
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "name"
+        }
+    ]
+}
+Has low selectivity, we can expect a large number of documents with the same value.
+ Only applicable to system event process objects
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "level"
+        }
+    ]
+}
+Has low selectivity, we can expect a large number of documents with the same value.
+ Only applicable to system event process objects
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "entityId"
+        }
+    ]
+}
+Highly selective, there will exist a small number (depending on implementation, tens to low hundreds)
+ of process flow events for an entityId.
+ Only applicable to process flow event process objects
+Indexes for pds collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "DESC",
+            "key" : "sequenceNumber"
+        }
+    ]
+}
+Latest PDS object search does a descending sort on sequenceNumber
+Indexes for summaries collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "clientRequestId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect a single summary for a clientRequestId.
+ May eventually be removed since the clientRequestId is also present in the alternativeIds.value index
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "relatedUnitOfWorkId"
+        }
+    ]
+}
+Links a summary, to the parent/related summary. Many summaries could link to the same "parent"
+ summary, e.g. many batches link to a single bulk, or many payments link to a single batch which means
+ a summary can have [0..1] parents, and [0..n] children.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "alternativeIds.value"
+        }
+    ]
+}
+Values should be highly selective, if there’s any duplication, results should be small enough to be sorted in-memory
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "startedAt.value"
+        }
+    ]
+}
+Will be used in ranged queries, where the upper or lower bound could be missing.
+ If both bounds are present the selectivity could be very high for small enough ranges.
+ If the range is large, or a bound is missing then the selectivity could be very low.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "globalStatus.value"
+        }
+    ]
+}
+Has low selectivity, we can expect a large number of summaries with the same value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "paymentType.value"
+        }
+    ]
+}
+Has low selectivity, we can expect a large number of summaries with the same value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "journeyType"
+        }
+    ]
+}
+Has low selectivity, we can expect a large number of summaries with the same value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "totalAmount.value"
+        }
+    ]
+}
+totalAmount will be used in ranged queries, where the upper or lower bound could be missing.
+ If both bounds are present the selectivity could be very high for small enough ranges.
+ If the range is large, or a bound is missing then the selectivity could be very low.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "totalAmountCurrency.value"
+        }
+    ]
+}
+totalAmountCurrency has low selectivity, we can expect a large number of summaries with the same currency
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "lastUpdated"
+        }
+    ]
+}
+Will be used for ODS purging, querying for values less than a given lastUpdated.
+ Likely to be many summaries with a similar timestamp, low selectivity
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.$**"
+        }
+    ]
+}
+CosmosDB’s unique way of indexing all the fields within document;
+ will be a mix of high (uetr, ID fields, accounts numbers, creditor/debtor names etc)
+ and low selectivity fields (reason codes, amounts, currency, BICs)
+Indexes for payments collection
+Index definition
+Comments
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "paymentObjectId"
+        }
+    ]
+}
+Likely unique and therefore highly selective, we would expect only a single document for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "parentPaymentObjectId"
+        }
+    ]
+}
+For instant payments, likely to be highly selective, we would expect only a few documents for a given value.
+ For bulk payments there could be tens of thousands of documents for some values..
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "primaryAssociations"
+        }
+    ]
+}
+For instant payments, likely to be highly selective, we would expect only a few documents for a given value.
+ For bulk payments there could be tens of thousands of documents for some values..
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "unitOfWorkId"
+        }
+    ]
+}
+Highly selective, we would expect only a few documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "clientRequestId"
+        }
+    ]
+}
+Highly selective, we would expect only a few documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "processingEntity"
+        }
+    ]
+}
+Very low selectivity, there will be a large number of documents for any given value.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "objectType"
+        }
+    ]
+}
+Usually very low selectivity, there will be a large number of documents for most lookups.
+ High selectivity for rare ISO types like R-messages.
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "createdAt"
+        }
+    ]
+}
+Will be used in ranged queries, where the upper or lower bound could be missing.
+ If both bounds are present the selectivity could be very high for small enough ranges.
+ If the range is large, or a bound is missing then the selectivity could be very low.
+{
+    "keys-spec" : [
+        {
+            "direction" : "DESC",
+            "key" : "sequenceNumber"
+        }
+    ]
+}
+Latest payment object search does a descending sort on sequenceNumber
+{
+    "keys-spec" : [
+        {
+            "direction" : "ASC",
+            "key" : "searchFields.$**"
+        }
+    ]
+}
+CosmosDB’s unique way of indexing all the fields within document;
+ will be a mix of high (uetr, ID fields, accounts numbers, creditor/debtor names etc)
+ and low selectivity fields (reason codes, amounts, currency, BICs).
+ Some ID fields may offer medium to low selectivity for bulk payments where a single instruction
+ may create tens of thousands of payment objects.
+Akka Jackson Serialization
+Within the ods-ingestion-core module,
+SummaryHandler
+utilises akka-jackson-serialization to handle serialization and deserialization of messages passed between actors running on different hosts.
+Classes that implement
+SummaryCommand extends CborSerializable
+interface are marked as classes that should be serialized/deserialized through akka-jackson-serialization.
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+public interface SummaryCommand extends CborSerializable {
+}
+In the below configuration, the ipf shared
+CborSerializable
+interface is bound to the default
+jackson-json
+serializer, therefore anything implementing this Interface are also bound to this serializer.
+akka {
+  actor {
+    provider = cluster
+    serialization-bindings {
+      "com.iconsolutions.ipf.core.shared.domain.CborSerializable" = jackson-json
+    }
+  }
+  serialization.jackson {
+    jackson-json {
+      deserialization-features {
+        ADJUST_DATES_TO_CONTEXT_TIME_ZONE = off
+      }
+    }
+  }
+}
+Customizations
+The configuration setting:
+deserialization-features.ADJUST_DATES_TO_CONTEXT_TIME_ZONE
+is overridden so that provided dateTimes with an offset (e.g. OffsetDateTime, ZonedDateTime…​) are not adjusted to UTC when messages are deserialized between instances of the SummaryHandler actor. More information can be found in the
+Jackson docs
+.
+The
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
+annotation applied to
+SummaryCommand
+is used to exclude values that are empty or null from being serialized and deserialized. More information can be found in the
+Jackson docs
+.
+Kubernetes Deployment Guidelines
+ODS Physical Data Model

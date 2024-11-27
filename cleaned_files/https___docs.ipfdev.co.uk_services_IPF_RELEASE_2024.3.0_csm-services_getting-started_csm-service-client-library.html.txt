@@ -1,0 +1,132 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/getting-started/csm-service-client-library.html ===
+Use the CSM Service Client Library
+This guide will explain how to call the CSM Service from an IPF flow (or any other piece of software) by using the
+prebuilt CSM Service Client Library.
+Purpose
+All IPF CSM Services implement the various IPF payment APIs as documented in
+APIs
+,
+such as:
+Clear and Settle
+Receive Payment
+Send Recall to CSM
+And so on.
+The CSM Service Client library bundles the following components together for ease of development for IPF flow developers:
+API definitions
+Kafka and JMS bindings for talking between the IPF flow and the CSM Service
+Default interfaces for sending messages to the CSM service
+Default interfaces for receiving messages from the CSM service
+Steps
+Heres how to get started with calling the client API.
+Step 1: Add dependency.
+The dependency you use Depending on which transport bindings you want to use.
+These dependencies are all available as part of the
+ipf-bom
+. If you are using this, you dont need to specify any versions as you will receive the CSM Client Starter library version that has been validated for the
+ipf-bom
+in use.
+Transport type
+Dependency
+Kafka
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm</groupId>
+    <artifactId>csm-client-starter-kafka</artifactId>
+</dependency>
+JMS
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm</groupId>
+    <artifactId>csm-client-starter-jms</artifactId>
+</dependency>
+Both
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm</groupId>
+    <artifactId>csm-client-starter-all</artifactId>
+</dependency>
+Step 2: Receiving: Create a CSM Client Library implementation
+In order for the Spring Boot AutoConfigure for
+csm-client-starter-*
+to do all the relevant wiring, the Spring Context
+must have implementations of the following two interfaces before anything is enabled:
+com.iconsolutions.instantpayments.api.csm.ct.CSMCTClientAdapter
+: Client bindings for credit transfer-style operations
+com.iconsolutions.instantpayments.api.csm.rrr.CSMRClientAdapter
+: Client bindings for recall/return/resolution-style operations
+com.iconsolutions.instantpayments.api.csm.dd.CSMDDClientAdapter
+: Client bindings for direct debit-style operations
+This implementation(s) would need to be a Spring bean as well. Therefore, the simplest implementation to activate the CSM Client libraries would be:
+import com.iconsolutions.instantpayments.api.csm.ct.CSMCTClientAdapter;
+import com.iconsolutions.instantpayments.api.csm.rrr.CSMRClientAdapter;
+import org.springframework.stereotype.Component;
+
+@Component
+(1)
+public class MyCsmCTClientAdapter implements CSMCTClientAdapter, CSMRClientAdapter {
+(2)
+}
+1
+Defining it as a Spring bean
+2
+Implementing both the CT and R interfaces
+Note that you do not have to implement any interfaces to get the application up and running. The default implementations
+will throw an exception if you somehow end up receiving a message and have not implemented that interface. For example,
+if we look at the default implementation of
+ReceivePaymentRequest
+:
+default CompletionStage<Void> handleReceivePayment(ReceivingContext receivingContext, ReceivePaymentRequest receivePaymentRequest) {
+    throw new IconRuntimeException("Please implement the CSMClientAdapter's handleReceivePayment");
+}
+The implementation depends on what you want to do with the message, but this would typically involve calling an IPF flow
+using the
+XxxDomain
+static methods, such as:
+@Override
+public CompletionStage<Void> handleReceivePayment(ReceivingContext receivingContext, ReceivePaymentRequest receivePaymentRequest) {
+    var txId = request.getPayload().getContent().getCdtTrfTxInf().get(0).getPmtId().getTxId();
+
+    log.debug("Received payment request {} with context {}", request.getRequestId(), request.getProcessingContext());
+    return CredittransferDomain.initiation().handle(
+                    new InitiateCreditorCTInput.Builder()
+                            .withCustomerCreditTransfer(request.getPayload().getContent())
+                            .withProcessingContext(receivingContext.getProcessingContext())
+                            .build())
+            .thenApply(result -> null);
+}
+Step 3: Sending: Wire in an instance of
+CSMCTAdapter
+and
+CSMRadapter
+to send messages
+The CSM Service implements the connectors over JMS/Kafka using
+CSMCTAdapter
+(for sending Credit Transfer-type messages)
+and optionally
+CSMRAdapter
+(for sending R-message-type connectors) and
+CSMDDAdapter
+(for sending Direct Debit-type messages).
+To send a message to the CSM, for example a ClearAndSettle message (pacs.008):
+import com.iconsolutions.instantpayments.api.csm.ct.CSMCTAdapter;
+
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
+public class MyCSMAdapter {
+
+    private final CSMCTAdapter csmAdapter;
+
+    @Override
+    public CompletionStage<Void> execute(ClearAndSettleAction action) {
+        return csmAdapter.clearAndSettle(ClearAndSettleRequest.builder()
+                        .requestId(action.getId())
+                        .processingContext(action.getProcessingContext())
+                        .version(VERSION)
+                        .createdAt(Instant.now())
+                        .payload(new Payload<>(action.getCustomerCreditTransfer(), null))
+                        .customBusinessData(csmUtils.customDataFor(ActionNames.ClearAndSettle))
+                        .ipfId(action.getId())
+                        .build())
+                .thenAccept(deliveryReport -> log.debug("ClearAndSettleAction completed with {}", deliveryReport));
+    }
+}
+Getting Started
+Building a CSM Service implementation

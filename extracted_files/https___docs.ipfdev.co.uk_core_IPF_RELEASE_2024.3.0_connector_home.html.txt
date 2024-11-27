@@ -1,0 +1,67 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/home.html ===
+Connector Framework
+IPF’s Connector Framework provides an abstraction around communication transports which aims to make integration simpler.
+This page introduces the core concepts used in the Connector framework, used to provide system connectivity.
+What is a Connector?
+A connector is simply a set of common interfaces that provide a means to communicate with external systems, synchronously or asynchronously.
+Implementation details specific to the configured transport mechanism are hidden behind the interface.
+This helps to improve understandability and lets teams standardise integration instead of creating separate implementations each time a new system needs to be added.
+The main benefit of using connectors is that they reduce the amount of boilerplate code required for integrating with systems which use common data interchange formats (such as XML or JSON) and transports (such as HTTP, JMS or Kafka).
+Connector Features
+Connectors implement a number of features out of the box which are commonly required when integrating with external systems.
+Backpressure
+Message Throttling
+Message Encryption
+Message Validation
+Message Association
+Message Logging
+Checkpoints
+Error Handling
+Resilience
+Metrics
+Types of Connector
+Connectors can be used for either sending or receiving messages.
+Detailed documentation specific to each type can be found in the following pages.
+Sending Connector
+Receiving Connector
+Connector Stages
+Each connector is a composition of stages that a message flows through.
+The stages provide different capabilities, many of which are optional and can be tailored to specific requirements dependent on the situation.
+Receive
+The purpose of a receiving connector is to take a message from the configured transport and map it into a known format which can then be handled.
+Received messages must be associated (correlated or identified) so that they can be linked to past/future messages.
+The stages that can be configured for receiving are.
+Payload Decryption (optional)
+Conversion to Target Type
+Message Association
+Message Validation (optional)
+Message Logging (optional)
+Message Handling
+See the Receive Stages section in the
+Receiving Connector
+documentation for more further details around each of the stages.
+Send
+The purpose of a sending connector is to take a message and send it over the configured transport.
+Since networks are unreliable, the message sending can be configured to send over multiple transports (with load balancing or fallback strategies) and can employ circuit breaking and retries to overcome transient networking issues.
+The stages which can be configured for sending are.
+Message Validation (optional)
+Message Correlation (optional)
+Message Logging (optional)
+Payload Encryption (optional)
+Resilient Send
+See the Send Stages section in the
+Sending Connector
+documentation for more further details around each of the stages.
+Akka
+The Connector implementation uses
+Akka Streams
+.
+When a connector is built, the individual stages known in Akka Streams nomenclature as operators, are joined into a single stream.
+The provided transport implementations use Alpakka, the Akka Streams subproject dedicated to integration.
+It is similar to Apache Camel in its goals; though is implemented with the actor model, that allows for highly scalable, concurrent processing.
+The Alpakka project has implemented integrations with a large number of common technologies.
+For more information on what Alpakka supports, visit the following
+documentation
+.
+Migrate an existing IPF application for purging
+Concepts

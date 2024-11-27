@@ -1,0 +1,56 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/notification-service/getting-started/notification-build.html ===
+How To Build Client-Specific Notification Service
+In order to use the Notification Service the following maven dependency needs to be added:
+<dependency>
+    <groupId>com.iconsolutions.ipf.product.notification</groupId>
+    <artifactId>payment-status-notification-service</artifactId>
+    <version>${project.version}</version>
+</dependency>
+We then need to:
+choose which ipf caching implementation to use:
+caffeine or infinispan
+set the configuration for
+payment data
+,
+custom data
+and
+notification settings
+, as these Async Cache Adapters will be instantiated
+choose which payment data retriever service to use:
+ods or query service
+.
+if we support retrieval of custom data, set the configuration for retriever service:
+ods
+.
+choose which settings retrieval method to use:
+connector, file or mongo
+. The Mongo implementation is the default one.
+override the
+message log enricher
+in case your solution needs a different function to be applied by all SendConnector(s)
+override the
+send transportMessage converter
+for any custom mapping in the transport layer which is now extensible.
+override the
+Post Event Processor
+for any post event processing actions.
+is internal and maps PAIN.001 to PAIN.002. Your solution needs to override the bean to wrap our PAIN.002 into your solution format and create TransportMessage out of it.
+override the
+Additional MDS Object Handler
+allows the overriding application an entry point to the MDS objects as they come into the system.
+if required; provide a bespoke version of ProducerRecordKeyValueProvider as a spring bean, otherwise default will be unit of work ID as the key, and the object provided as a string.
+The Reference Payment Status Notification Application
+Payment Status Notification is a Spring Boot based application. As it is a spring boot application,
+all the usual spring application properties are supported
+.
+Hocon is the primary way to configure payment-status-notification-app, although application.properties files are also supported.
+Metrics
+Prometheus compatible application metrics are exposed under
+/actuator/prometheus
+Feature and implementation specific metrics may also be exposed under this endpoint, and are documented in the relevant sections.
+Actuator
+Payment Status Notification comes with the following default actuator endpoint configuration.
+management.endpoints.web.exposure.include = [health, info, prometheus]
+If you wish to disable health and/or info endpoints, you will need to do so explicitly, by changing the array of includes in an application.conf.
+management.endpoints.web.exposure.include = [prometheus]
+Getting Started

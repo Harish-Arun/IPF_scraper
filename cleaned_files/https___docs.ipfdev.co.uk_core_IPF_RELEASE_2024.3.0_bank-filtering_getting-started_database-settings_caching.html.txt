@@ -1,0 +1,32 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/getting-started/database-settings/caching.html ===
+Cache
+On the application start, all bank exclusion/blocking lists from the dynamic configuration are loaded to the cache.
+It makes bank exclusion calls faster and reduces number of requests to the dynamic configuration.
+Only
+ACTIVE
+dynamic configurations are being pulled into cache.
+Cache is synchronized with dynamic configuration periodically, by getting all data and putting refreshed values to the cache.
+Cache parameters
+Cache configuration is done under property
+ipf.bank-filtering.cache.concurrenthashmap
+Following parameters are used:
+Config
+Type
+Comment
+Default
+reload
+Duration
+The period between successive executions
+PT1H
+Cache Health
+On application start, the application will perform an initial load from the dynamic settings database, and then application will enter an UP (ready) state.
+Bank filtering extends Spring Boot actuator health with additional data of cache status and implementation details.
+In the example below, actuator health shows that bankFilteringCache is UP (meaning initial data load is done) and implementation is done by using Concurrent Hash Map.
+"bankFilteringCache": {
+  "status": "UP",
+  "details": {
+    "implementation": "Concurrent Hash Map cache"
+  }
+}
+Indexes
+Rule

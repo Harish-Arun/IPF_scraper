@@ -1,0 +1,36 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo/guides/recovery-passivation.html ===
+Configuring States for Recovery or Passivation
+From a Flo-lang definition of an IPF Flow its possible to define the states and control their behaviour from a technical perspective.
+Beyond simply defining a state as terminal it is also possible to define:
+Whether a flow should be
+passivated
+when the action associated with that state has been processed.
+If the state is
+not recoverable
+These options are configurable per State definition, within the "State Definitions" table for the flow.
+To access these options you click in the State name
+And then either:
+Right-Click in the State name, then select "Inspect Node" from the list
+Press
+Ctrl
++
+Alt
++
+I
+and this brings up the options for the State.
+Passivating State
+Setting the State to be "Is Passivating" - will cause the Flow to passivate when it moves to this State and the Action from the Event Behaviour table is executed. Passivating essentially removes the flow entity from memory, to be rehydrated and activated at a later point.
+You can read more about considerations for passivation here -
+Understanding Passivation, Remembering Entities, and Schedulers
+You might be interested in doing this if you know that the flow will now be idle for a period of time. Examples might include:
+Sending a payment for warehousing - the payment will be retrieved and processing continue on a later date. In this case we passivate the flow instance.
+Sending a payment for Sanctions checking - there is a good chance Sanctions won’t return instantly so we don’t need the flow active.
+Regardless of the scenario, any input back to the flow will cause the flow to be rehydrated and activated to continue processing from this state.
+Recoverable State
+Setting the State to be "Not Recoverable" - this will ensure that any actions associated with the State via the Event Behaviour table are only executed once. IPF’s default behaviour is to retry the Action associated with the State when a flow is recovered (during application restart). Setting this option overrides that default behaviour.
+This means asking the questions
+'can the actions associated with this state be replayed?'
+. Where they cannot be replayed the State should be set "Not Recoverable".
+This is particularly useful where an external domain cannot tolerate repeat requests.
+Add meta data to an action
+How to enable Journal and Snapshot purging

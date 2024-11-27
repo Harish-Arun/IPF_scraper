@@ -1,0 +1,138 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/getting-started/sending-receiving-jms.html ===
+JMS Quickstart
+Quite often you might want to configure a pair of connectors: one to send and one to receive messages to/from a
+destination. This guide explains how to do this using JMS.
+For more complete examples of using connectors to consume and produce messages in general, see
+Asynchronous Request-Reply
+.
+Step 1: Add
+connector-jms
+dependency
+The dependency to add to your
+pom.xml
+is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.connector</groupId>
+    <artifactId>connector-jms</artifactId>
+</dependency>
+If importing the Icon BOM, or using the Icon BOM as a parent, theres no need to supply a separate version.
+Step 2: Config
+Connector configuration - in general - is heavily config-driven.The configuration allows us to specify:
+Queue/Topic names
+JMS consumer/producer settings
+Restart settings (on failure)
+Heres an example of a configuration block for a pair of sending and receiving connectors which we will wire into our
+ConnectorTransport
+s, for a fictional banks booking system which features a request and response topic:
+mybank.booking {
+  producer {
+(1)
+queue = "mybank.booking.request"
+(2)
+}
+  consumer {
+(3)
+queue = "mybank.booking.response
+(4)
+}
+}
+If producing to an IBM MQ queue, the default behaviour is to produce a message with an
+MQRFH2
+header. This can cause issues if the application which consumes the message is a non-JMS application. In such cases specifying
+queue:///$<queueName>?targetClient=1
+will produce the message without the
+MQRFH2
+header. So in the above example, the queue property would be
+"queue:///mybank.booking.request?targetClient=1"
+to produce messages without an
+MQRFH2
+header.
+For more information see:
+www.ibm.com/docs/en/ibm-mq/9.3?topic=conversion-jms-message-types
+1
+This is known as the
+config root path
+and will be referenced in the code. It indicates where in the applications
+configuration to look for this Send Connector Transports settings
+2
+The queue to send to
+3
+The
+config root path
+to the JMS consumer
+4
+The queue to receive from
+Step 2.1: Common Config
+By default - the JMS configuration you specify here will fall back to the
+alpakka.jakarta-jms.consumer
+and
+alpakka.jakarta-jms.producer
+settings.
+What this means is that you can
+simply specify
+alpakka.jakarta-jms.consumer
+or
+alpakka.jakarta-jms.producer
+settings to globally
+configure all JMS settings for all JMS consumers and producers
+. For example:
+alpakka.jakarta-jms.consumer.acknowledge-mode = client
+alpakka.jakarta-jms.producer.session-count = 10
+If - for example - one specific JMS producer or consumer has different settings, it can be configured as such:
+alpakka.jakarta-jms.producer.session-count = 10
+mybank.booking.producer.session-count = 1
+The above configuration means that all JMS producers - apart from the booking producer - will have 10 JMS Session
+instances, and the booking producer will only have one.
+The list of JMS configuration options that can be overridden can be found
+here
+(consumer) and
+here
+(producer).
+Step 3: Create Send Connector Transport
+Heres an example of how a
+SendConnectorTransport
+can be created for JMS:
+var sendingTransport = JmsConnectorTransport.builder()
+        .withName("accounts-booking-send-transport")
+(1)
+.withActorSystem(actorSystem)
+        .withConfigRootPath("mybank.booking.producer")
+(2)
+.withConnectionFactory(connectionFactory)
+(3)
+.build();
+1
+Give the ConnectorTransport a meaningful name
+2
+Using the
+mybank.booking.producer
+configuration key defined in
+Step 2
+3
+Provide a JMS
+ConnectionFactory
+here
+Step 4: Create Receive Connector Transport
+Heres how to create a ConnectorTransport for receiving messages over JMS:
+var receivingTransport = JmsConnectorTransport.builder()
+        .withName("accounts-booking-send-transport")
+(1)
+.withActorSystem(actorSystem)
+        .withConfigRootPath("mybank.booking.consumer")
+(2)
+.withConnectionFactory(connectionFactory)
+(3)
+.build();
+1
+Give the ConnectorTransport a meaningful name
+2
+Using the
+mybank.booking.consumer
+configuration key defined in
+Step 2
+3
+Provide a JMS
+ConnectionFactory
+here
+Kafka Quickstart
+HTTP Quickstart

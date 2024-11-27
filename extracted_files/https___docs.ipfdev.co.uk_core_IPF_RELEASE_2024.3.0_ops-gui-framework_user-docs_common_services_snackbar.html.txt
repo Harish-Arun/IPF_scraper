@@ -1,0 +1,44 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/common/services/snackbar.html ===
+Snackbar
+The snackbar service shows a popup message in the top right corner of the screen, however the position can be changed by
+changing the horizontal and vertical positions in the service. The duration of how long the popup shows up for can also be
+changed by changing the 'duration' variable, it is 3 seconds by default.
+There are four different messages to choose from: Success, Error, Warning and Info, each message is shown with a different icon which matches the message type.
+The service has four functions, each for a different message type.
+It is built using
+MatSnackBar
+from
+@angular/material/snack-bar
+library.
+Each snackbar message method takes in a data object which includes a title and description. This is the text which will be displayed in the snackbar popup.
+Example usage:
+showSuccessSnackbar
+onCellClick(value: string | undefined | null): void {
+        if (value) {
+            navigator.clipboard.writeText(value).then(() =>
+                this.snackbarService.showSuccessSnackbar({
+                    title: this.translocoService.translate('common.tableComponent.copyToClipboardTitle'),
+                    description: this.translocoService.translate('common.tableComponent.copyToClipboardDescription', {
+                        value
+                    })
+                })
+            );
+        }
+    }
+showErrorSnackbar
+handleApiError$ = createEffect(
+        () =>
+            this.actions$.pipe(
+                ofType(
+                    ProcessingEntitySettingsActions.apiError,
+                    ProcessingEntitySettingsActions.processingEntitySearchFailed
+                ),
+                tap((action) =>
+                    this.snackBarService.showErrorSnackbar({
+                        title: action.error.name,
+                        description: action.error.message
+                    })
+                )
+            ),
+        { dispatch: false }
+    );

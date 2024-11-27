@@ -1,0 +1,87 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/clear-and-settle-api/schema.html ===
+Clear and Settle API
+Summary
+Description
+This API is used to exchange settlement information and confirmation between a payment engine and a CSM Service.
+Integration Pattern
+Asynchronous
+Reply Method
+Separate request/response queues/topics
+Integration Method
+JMS, Kafka
+Message Format
+JSON
+Message Model
+ISO20022
+Security
+TLS 1.2
+Resiliency Strategies
+Circuit Breaker, Backpressure, Automatic Retries
+Models
+ClearAndSettleRequest
+Version:
+pacs.008.001.08
+Details:
+View the json schema
+ClearAndSettleResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+CreditorRequestToPayRequest
+Version:
+pain.013.001.07
+Details:
+View the json schema
+CreditorRequestToPayResponse
+Version:
+pain.014.001.07
+Details:
+View the json schema
+DebtorRequestToPayRequest
+Version:
+pain.013.001.07
+Details:
+View the json schema
+DebtorRequestToPayResponse
+Version:
+pain.014.001.07
+Details:
+View the json schema
+ReceiveAdditionalPaymentInformation
+Version:
+camt.028.001.09
+Details:
+View the json schema
+ReceiveInformationRequest
+Version:
+camt.026.001.07
+Details:
+View the json schema
+ReceiveInformationRequestResponse
+Version:
+camt.029.001.09
+Details:
+View the json schema
+SendAdditionalInformationRequestResponseToCSM
+Version:
+camt.028.001.09
+Details:
+View the json schema
+SendInformationRequestResponseToCSM
+Version:
+camt.029.001.09
+Details:
+View the json schema
+SendInformationRequestToCSM
+Version:
+camt.026.001.07
+Details:
+View the json schema
+TechnicalResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+Credit Transfer API
+Direct Debit API

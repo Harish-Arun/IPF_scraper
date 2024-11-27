@@ -1,0 +1,61 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-persistent-scheduler/concepts/ttl.html ===
+TTL Indexes
+This page explains how to configure ttl indexed
+Properties file
+Some properties for TTL index are configurable, and it can be set using the following properties file:
+package com.iconsolutions.ipf.core.platform.scheduler.persistent.mongo;
+
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.time.Duration;
+
+@Data
+@ConfigurationProperties(prefix = "ipf.persistent.scheduler.ttl")
+public class MongoIndexProperties {
+
+    /**
+     * The name of the field that will be used for TTL index
+     */
+    private String timestampFieldName;
+
+    /**
+     * The duration a record is considered to be expired
+     */
+    private Duration expiry;
+
+    /**
+     * a toggle to either create or not the indexes
+     */
+    private Boolean createIndexesFlag;
+}
+timestampFieldName
+: field used for ttl index
+expire
+: Duration for the record to be considered expired
+createIndexesFlag
+: default is true. A toggle to create the index
+The example below sets it to expire the deleteTime field for records older than 1 hour:
+ipf {
+  persistent {
+    scheduler {
+      ttl {
+        timestamp-field-name = "deleteTime"
+        expiry = 1h
+        create-indexes-flag = true
+      }
+    }
+  }
+}
+Index creation
+Index creation can be disabled globally with:
+ipf.mongodb.create-indexes=false
+To disable indexing globally but to retain it for the scheduler, apply the following, retaining the order:
+ipf.mongodb.create-indexes=false
+ipf.persistent.scheduler.ttl.create-indexes-flag = true
+The
+commit quorum
+can similarly be controlled with:
+ipf.persistent.scheduler.ttl.commit-quorum=1
+Or overridden globally with:
+ipf.mongodb.commit-quorum=1

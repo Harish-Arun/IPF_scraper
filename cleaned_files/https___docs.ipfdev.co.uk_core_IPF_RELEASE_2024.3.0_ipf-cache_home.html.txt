@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-cache/home.html ===
+IPF Cache
+The
+ipf-cache
+module provides a simple caching interface that IPF products can use for caching.
+The current offering is a Caffeine backed cache baked into Spring or InfiniSpan.
+Concepts
+Features
+Caffeine
+InfiniSpan
+Getting Started
+Processing
+Concepts

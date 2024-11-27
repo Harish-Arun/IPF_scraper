@@ -1,0 +1,125 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/architecture/payment-data-modelling.html ===
+IPF Payment data modelling
+The IPF approach to payment data modelling
+Fundamentally, IPF provides the ability to operate (persist and propagate downstream) on
+any
+Java types, but we also provide a standard and growing set of Java implementations of ISO 20022 messages.
+A payment is represented by defining one or more
+processing flows
+.
+These processing flows may reference one or more
+data elements
+that are captured at various points during processing; this could be payment data, processing data or client-specific data.
+These data elements have a name, a category and a Java type representation, and are defined in a fixed re-usable
+library
+of data elements.
+These libraries may be defined by the client, but Icon provides an existing library specifically for
+ISO 20022
+payment messages to model the payment data.
+Value-add features of IPF
+Many of the value-add features of IPF depend on the usage of IPFas ISO 20022 library for modelling payment data. As such, we encourage conversion to these as part of mapping within the application:
+Decomposition
+Many of the ISO messages can be used as envelopes for single or multiple
+transactions
+(e.g. a single instruction with many credit transfers for a
+pacs.008
+). IPF understands how to decompose the IPF representations of these envelopes into constituent parts. We can therefore model flows for single payments (a
+pacs.008
+envelope with a single credit transfer) or individual credit transfer legs (a process flow operating on an individual
+pacs.008.creditTransfer
+), whilst maintaining references to track a
+creditTransfer
+to its original instruction. This provides the basis for bulk/batch processing.
+Mapping
+We provide various mapping capabilities between messages within this model
+Interservice APIs
+We provide a set of API definitions for modelling payment processing between services, which are a good reference to follow when looking to build-out multiple orchestrated services. These API definitions reference payloads in the structure of these ISO messages (for example,
+PaymentInitiationRequest
+expects a
+Pain.001
+).
+Standard inquiry APIs
+We provide a set of standard APIs from the ODS service for searching for payments based on common payment fields within the aforementioned message components (e.g. find by
+txId
+,
+recallId
+,
+msgId
+,
+debtorName
+). These APIs operate providing that payment data has been captured using the IPF ISO 20022 library at some point during the processing flow.
+IPF ISO message catalogue
+IPF supports all ISO20022 (2019) messages as generic options, however, any message not currently on the IPF-specific catalogue will not have directly searchable APIs for consultation. We therefore add new messages to the catalogue, based on customer requirements, and constantly review the need for new searchable fields in the ODS inquiry API (this is an automated process and so the turnaround is quick).
+camt.027
+camt.029
+camt.052
+camt.054
+camt.055
+camt.056
+camt.087
+pacs.002
+pacs.003
+pacs.004
+pacs.007
+pacs.008
+pacs.028
+pain.001
+pain.002
+pain.007
+pain.008
+pain.013
+pain.014
+These are standard ISO 20022 message objects. The detailed documentation can be found in the ISO 20022 message definitions provided by the
+ISO 20022 Registration Authority
+.
+IPF Payments DSL
+A
+DSL
+(Domain Specific Language) is a programming language with a higher level of abstraction optimized for a specific class of problems. A DSL uses the concepts and rules from the field or domain. DSL examples include, but are not limited to, SQL, HTML, CSS, etc. In the case of IPF, Icon has developed a DSL for which the domain is payments, hence the
+IPF Payments DSL
+.
+The use of a payments DSL simplifies and accelerates process definitions, empowering the business whilst de-risking code delivery through alignment with documentation and testing.
+Icon has developed a
+high-level payments oriented language
+to configure payment process flows. This payments domain specific language (DSL) is created with the MPS IDE of JetBrains (
+www.jetbrains.com/mps/
+).
+Iconas Payments DSL enables
+payments experts and developers
+to jointly configure process flows, ideal for a modern collaborative Agile Scrum delivery approach.
+The
+Process Flow Build Tool
+automatically uses process flow configurations as input to automatically generate:
+Source code to run the process in IPF
+BDD test scenarios that are used by the Icon Test Framework for the automated testing of the process flows
+Flow diagram as a visual representation of the process flow
+Clear documentation of the process flow for a non-technical audience
+IPF domain events
+A domain event is, critical fact that happened to the state of the aggregate in the domain that you want other parts of the same domain (in-process) to be aware of. The notified parts usually react somehow to the events. Domain events help you to express, explicitly, the domain rules, based in the ubiquitous language provided by the domain experts. (as defined in
+.NET Microservices: Architecture for Containerized .NET Applications - Domain events: design and implementation
+).
+Model information about activity in the domain as a series of discrete events. Represent each event as a domain object. These are distinct from system events that reflect activity within the software itself, although often a system event is associated with a domain event, either as part of a response to the domain event or as a way of carrying information about the domain event into the system. A domain event is a full-fledged part of the domain model, a representation of something that happened in the domain. Ignore irrelevant domain activity while making explicit the events that the domain experts want to track or be notified of, or which are associated with state change in the other model objects. In a distributed system, the state of an entity can be inferred from the domain events currently known to a particular node, allowing a coherent model in the absence of full information about the system as a whole.
+Domain events are ordinarily
+immutable
+, as they are a record of something in the past. In addition to a description of the event, a domain event typically contains a
+timestamp
+for the time the event occurred, and
+the identity of entities involved in the event
+(from
+DDD reference
+by Eric Evans).
+The
+Journal
+event is stratified into five different categories that are user defined via the DSL:
+Headers
+a event specific data
+Custom business data
+a is defined as data supplied by the customer at the payment initiation that is outside the ISO 20022 data set
+Payment data
+a the IPF canonical message in line with the ISO 20022 data set, according to the specific payment message
+Payment processing data
+a data related to the payment processing journey
+Non-defined data
+a any other customer-specific data that does not fit in any of the previous categories
+Anatomy of a typical IPF orchestration application
+Tutorials

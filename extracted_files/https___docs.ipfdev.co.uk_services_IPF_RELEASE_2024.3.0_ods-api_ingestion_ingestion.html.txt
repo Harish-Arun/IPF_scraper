@@ -1,0 +1,118 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods-api/ingestion/ingestion.html ===
+ODS Ingestion API
+Overview
+The ODS Ingestion API provides a mechanism for other systems to put data into ODS.
+Typically, ODS data is ingested from IPF Processing Data via Kafka, but ODS also supports some limited HTTP APIs for certain use-cases. For the complete OpenAPI specification, see
+ODS Ingestion Specification
+.
+API Use Cases
+Associate a Custom Identifier With a Unit Of Work
+A client may wish to find IPF unit of works by their own custom identifier, which has been determined after the payment has been processed.
+The client can use the attachment endpoint to POST the additional identifier.
+curl --request POST \
+  --url http://localhost:8080/attachments \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "unitOfWorkId": "some-unit-of-work-id",
+  "attachmentType": "ALTERNATIVE_IDENTIFIER",
+  "name": "CaseId",
+  "value": "abc123-456efg-hij789"
+}'
+Attach Notes to a Unit Of Work
+curl --request POST \
+  --url http://localhost:8080/attachments \
+  --header 'Content-Type: application/json' \
+  --data '{
+  "unitOfWorkId": "some-unit-of-work-id",
+  "attachmentId": "a-id-for-the-note",
+  "author": "Dave",
+  "division": "Accounts",
+  "reasonCode": "RC01",
+  "attachmentType": "TEXT",
+  "name": "Notes",
+  "value": "Some operator notes about the payment"
+}'
+Module Structure
+The
+ods-ingestion
+module is composed of several submodules.
+ods-ingestion-api
+Contains the OpenAPI specification, and generated Java model types.
+ods-ingestion-spring
+Generates spring controller scaffolding from the specification, and includes spring controller implementations, and spring configuration.
+The minimum required for a spring webflux application, hosting the ODS Ingestion API.
+The controller implementations delegate to interfaces in
+ods-ingestion-port
+, and the application must provide an implementation of these interfaces.
+ods-ingestion-port
+Contains interfaces that must be implemented by the application to support the controllers in
+ods-ingestion-spring
+, e.g. the
+AttachmentHandler
+that will persist the attachment against a unit of work.
+Code Generation
+The specification in
+ods-ingestion-api
+is processed by
+openapi-generator
+, using the
+openapi
+generator back-end, configured to produce a single json specification from the input yaml specification.
+If this yaml specification were to be split into smaller files, the result is still a single json specification.
+Java code generation is done in two parts, first the models, and then the spring controller scaffolding.
+Models
+The specification in
+ods-ingestion-api
+is processed by
+openapi-generator
+, using the
+spring
+generator back-end, configured to generate models only, under the package
+com.iconsolutions.ipf.ods.ingestion.model
+.
+The result of building this module, is a jar containing a single json OpenAPI specification, and all the generated Ingestion model types.
+This jar can be used downstream, providing access to the generated types, and/or to generate additional code from the single fat json specification.
+This jar is used in the next step, generating the Spring controller scaffolding.
+Spring Controllers
+The
+ods-ingestion-spring
+module depends on
+ods-ingestion-api
+, and uses the json specification contained within its output jar.
+The specification is processed by
+openapi-generator
+, using the
+spring
+generator back-end, configured to generate interfaces only, under the package
+com.iconsolutions.ipf.ods.ingestion.api
+.
+The result of building this module, is a jar containing the generated Spring controller scaffolding, including the controller implementations, and the Spring config required to enable these controllers in a Spring Boot application.
+See the
+Spring Server
+section for more information.
+Spring Server
+The
+ods-ingestion-spring
+module is intended as a starter, that can be included in any Spring Boot application looking to serve the ODS Ingestion API.
+It generates the Spring controller interfaces, and implements those controllers.
+The controllers delegate to search interfaces, defined in
+ods-ingestion-port
+.
+When the application serving the ODS Ingestion API starts up, it will log the ODS Ingestion API version.
+2023-04-12 13:34:06.348  INFO 1 --- [           main] c.i.i.o.i.api.OdsIngestionApiConfig      : ODS Ingestion API Version 2.2.34
+Ports
+The application serving the ODS Ingestion API using the generated controller scaffolding, and provided controller implementations, must provide beans for each of the types defined in
+ods-ingestion-port
+.
+These interfaces that are persistence agnostic, and currently implemented in the ODS Ingestion Application.
+Stub implementations can stand-in for these interfaces if required, to build a "lite" ODS Ingestion application.
+This is how the controller functionality is tested.
+Spring Boot Actuator
+The ODS Ingestion API version is added to the Spring Boot Actuator Info endpoint.
+{
+    "ODS Ingestion API": {
+        "version": "2.2.34"
+    }
+}
+Supported APIs
+Specifications

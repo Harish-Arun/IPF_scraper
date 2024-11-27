@@ -1,0 +1,48 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/features/bulk-producer.html ===
+Bulk Producer
+The Bulk Producer is responsible for subscribing to the stream of bulk components provided by the
+Joiner
+and writing each one to the
+Bulk Output Stream Provider
+resulting in the production of a bulk file.
+The bulk file will be output to a location as specified in the bulk configurations, where each configuration entry could have its own output location. The configuration property is:
+ipf.bulker.configuration[0].file-path
+Example:
+ipf.bulker {
+  configurations = [
+    {
+      name = "pain.001.001.09"
+      file-name-prefix = "bulk-"
+      file-path = "/tmp/bulks"
+      component-hierarchy {
+        component-parser-name = "xml"
+        marker = "Document"
+        children = [
+          {
+            marker = "CstmrCdtTrfInitn.PmtInf"
+            children = [
+              {
+                before-elements = ["SplmtryData"]
+                marker = "CdtTrfTxInf"
+              }
+            ]
+          }
+        ]
+      }
+      auto-close-triggers = ["customAutoCloseTrigger"]
+      maximum-component-size = 50
+      scheduled-auto-close = {
+        auto-close-by-age = 30s
+        schedule-at = "*/10 * * ? * *"
+      }
+      finalise-on-auto-close = true
+    }
+]
+}
+Retries
+If there is a system crash whilst a bulk file is being produced then on restart the file production process will be retried.
+If at any point during the bulk file production process an exception is encountered a system event will be raised allowing
+for a manual intervention process to take place. In this scenario the problem bulk file detailed in the event should be removed
+manually before attempting to finalising the bulk again.
+S3 Bulk Outputstream Provider
+Bulk Notifications

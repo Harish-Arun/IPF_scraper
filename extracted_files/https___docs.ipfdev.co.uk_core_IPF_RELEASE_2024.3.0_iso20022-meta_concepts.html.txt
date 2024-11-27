@@ -1,0 +1,15 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-meta/concepts.html ===
+Concepts
+Please find below links to resources for the various concepts.
+ISO20022
+For an overview of the
+ISO20022 Model
+please see the accompanying page
+ISO20022 Concepts
+.
+MPS
+For an overview of the Meta Programming System (MPS) development tool please see the supporting documentation,
+MPS
+.
+ISO20022 Meta-Model Generator
+Getting Started

@@ -1,0 +1,26 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2023-2-0-2/release-IPF-2023-2-0-2.html ===
+Release Notes for IPF-2023.2.0.2
+This page details everything required to get going on IPF Fix Release 2023.2.0.2 made available on 6th Sept 2023.
+Details
+Binaries
+The core binaries are available from
+IPF-Releases
+.
+The lightbend cinnamon binaries are available from
+IPF Lightbend
+.
+Archetype
+The latest version of the archetype is 1.7.0
+Developer App
+The latest version of the developer app is 1.0.50.2 (note - the developer app version has changed in this fix release)
+Features and Changes
+Connector
+Fix: Change to KafkaAckReceiveConnectorTransport broker outage recovery mechanism - due to an Alpakka bug preventing proper recovery, replaced per-partition Kafka source with regular one.
+Deprecated: KafkaAckReceiveConnectorTransport partitions setting (
+max-partitions
+config option) since it is no longer used by the latest implementation of the transport.
+Akka Discovery MongoDB
+Fix: Make TTL (time to live) Index for discovery entries configurable
+Fix: Stop incorrect logback.xml from being brought in. This was causing the wrong logging settings to be picked up.
+Migration Steps for IPF-2023.2.0.1
+Migration Steps for IPF-2023.2.0.2

@@ -1,0 +1,57 @@
+=== URL: https://docs.ipfdev.co.uk/functions/IPF_RELEASE_2024.3.0/ipf-duplicate-check-floclient/concepts.html ===
+Duplicate Check Floclient
+The Duplicate Check Floclient is an IPF component that allows you to check whether a message is a functional duplicate. It provides a domain function you can easily include in your IPF process flow.
+A message is considered a functional duplicate when specified data elements within a message match with those in a message received previously and within a defined period of time.
+Concepts
+Duplicate Check Keys
+Data elements from the message which are to be checked are mapped into a Duplicate Check Key. The key holds these elements as a list of strings and these keys are saved to the supporting
+transaction cache service
+.
+A message will be considered a duplicate if more than one entry containing the same keys is present in the transaction cache at the time of checking.
+public class DuplicateCheckKey implements Serializable {
+
+    private List<String> data;
+}
+Persistence
+The transaction cache is provided by a PersistentTransactionCacheService.
+This service is backed by MongoDB, so the necessary data to populate the cache and perform duplicate checks survives a service restart.
+TransactionCacheEntryType
+By default, all keys saved to the transaction cache collection have the same
+TransactionCacheEntryType
+of
+CheckDuplicate
+, taken from the actions name. The transaction cache entry type is used at the time of saving and finding within the cache. Even if the same duplicate check key exists as an entry in the transaction cache it will only be considered a  duplicate if the transactionCacheEntryType is the same.
+You are able to provide your own custom transaction cache entry types. This could be useful for when:
+you have two separate flows carrying out duplicate checks and want to restrict duplicate responses just to keys that flow has seen.
+you want different duration periods for different function calls. You can setup custom purging schedules based on the type.
+Eager saving
+Duplicate Check Keys are eargerly saved to the cache and then verified for any duplicates. If more than one entry is found then at least one previously existed, and the message will be considered a duplicate.
+This "eager" save is a preferable alternative to the process of:
+read from cache with derived key
+if there is a result, then flag a duplicate, else save to the cache.
+It reduces the window for concurrent duplicates slipping through, at the cost of an extra record being stored.
+Duplicate Duration
+The length of time a Duplicate Check Key entry exists within the cache effectively determines the period of time a message will be considered a duplicate. Duplicate Check Key entries are routinely purged from the supporting transaction cache service.
+By default, purging will take place at midnight every day, and will remove all entries older than midnight. Effectively acting to clear the previous days transactions. You can provide configuration if this schedule does not meet your needs.
+Supported Message Types
+By providing your own mapping functions, the floclient has the ability to support any message type or data elements for duplicate checking.
+The following default mapping functions are provided.
+Default Mapping Function Name
+ISO 20022 Message Type
+Fields mapped to Duplicate Check Key
+DuplicateMapFromPain001
+pain001
+.pmtInf[0].dbtrAcct.id.othr.id
+.pmtInf[0].cdtTrfTxInf[0].pmtId.endToEndId
+.pmtInf[0].cdtTrfTxInf[0].amt.instdAmt.value
+.pmtInf[0].cdtTrfTxInf[0].amt.instdAmt.ccy
+DuplicateMapFromPacs008
+pacs008
+.cdtTrfTxInf[0].pmtId.endToEndId
+.cdtTrfTxInf[0].dbtrAcct.id.othr.id
+.cdtTrfTxInf[0].intrBkSttlmAmt.value
+.cdtTrfTxInf[0].intrBkSttlmAmt.ccy
+The Duplicate Check Keys provided by the default mapping functions have no knowledge of the message type. Different messages can share the same field values.
+To avoid misidentification of a duplicate between message types, use different transaction cache entry types. Alternatively, if implementing your own mappers, consider including a value within the key that ensures it is unique between message types.
+How to Add Business Functions
+Getting Started

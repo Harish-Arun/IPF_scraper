@@ -1,0 +1,48 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/akka-discovery-mongodb/home.html ===
+Akka Discovery MongoDB
+This module enables IPF users to use MongoDB as a cluster bootstrap mechanism for discovering other nodes in an Akka cluster. Other mechanisms include Kubernetes, DNS, Consul, etc.
+When to Use
+In an IPF context, you should always aim to use the Kubernetes API discovery method.
+However, you should use this discovery method
+only when all of the following are true
+:
+IPF nodes are running in a multi DC setup on Kubernetes
+The DCs are in the
+same
+metropolitan region
+The two Kubernetes clusters cannot access one another
+The two Kubernetes clusters
+can
+access one another over a WAN
+The two Kubernetes clusters can access the same MongoDB instance
+If IPF is running in a multi-DC environment but the two Kubernetes clusters can talk to one another internally, then you should continue to use the recommended Kubernetes API discovery mechanism as documented
+here
+.
+When Not to Use
+The table below shows the various deployment patterns and when to use which discovery mechanism:
+Setup
+What plugin to use
+What to do
+One k8s cluster
+Kubernetes API
+Use pre-existing k8s metadata and labels to let nodes discover one another
+Multiple k8s clusters in multiple DCs, but they can talk to one another
+Kubernetes API
+Treat it as one stretched Akka cluster thats agnostic to the underlying infrastructure
+Multiple k8s clusters that
+cannot
+talk to one another and
+do not
+share infrastructure
+Kubernetes API
+Treat it as two separate active-active IPF environments
+WARNING
+: this setup might introduce unforeseen issues unrelated to discovery. Discuss this setup with IPF Support.
+Getting Started
+Set up Cluster Bootstrap with MongoDB discovery
+How to guides...
+Multiple Applications, One Database
+Multiple DC Active - Passive (Warm Stand-By), One Database
+The Updater: Handling Dangling Nodes
+Set up Akka Lease MongoDB
+Getting Started

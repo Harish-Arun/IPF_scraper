@@ -1,0 +1,125 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/processing-data/generic-processing-settings.html ===
+Generic Processing Settings
+Generic Processing Settings is an extensible dynamic configuration that provides ability to configure additional generic configurations at Processing entity level. IPF Core supports below setting categories on Generic Processing Settings
+Intra Entity Parties:
+The configurations allow registering entities that are part of the processing entities. The entities specified on the Intra Entity Parties do not need a settlement account used when exchanging payments with the Processing Entity. The entities are part of the same banking group but are different from an Agent with the flag Intra Group set to true.
+An Intra Group agent is part of wider banking group as that of the processing entity but still uses a settlement account when settling payments with processing entity and has a separate ledger. Intra Entity parties share ledger with the Processing Entity. Usually branches of Processing entities can be configured as Intra Entity parties.
+Supported Transfer Currencies
+Supported transfer currencies is a dynamic configuration that allows maintenance of a list of supported transfer currencies by the Processing Entity.
+For each currency, a further support in terms of intra entity transfer, intra group transfer or extra group transfer can be maintained.
+Processing Entity Accounts
+The setting category allows maintenance of the accounts maintained at Processing Entity Level.
+These are usually ledger accounts used by the Processing Entities and are different from the settlement accounts used for settling with the Agents. The settlement accounts are maintained at Agent Settlement Setting level for corresponding Agent.
+Generic processing settings can also be extended by client implementations to define their own custom setting categories as per requirements.
+Generic Processing Settings
+Dynamic Configuration Properties
+Name
+Description
+ProcessingEntity
+The Processing entity namespace from IPF implementation / deployment point of view. This identifies the IPF deployment entity rather than individual processing entity.
+SettingCategory
+Each setting object needs to have an unique setting category id.
+Possible values provided by core implementation:
+PROCESSING_ENTITY_ACCOUNTS
+SUPPORTED_TRANSFER_CURRENCIES
+INTRA_ENTITY_PARTIES
+CategoryProcessingSettings
+The data structure of the settings. Each setting category has its own data structure.
+Searchable Fields
+Searchable field for Generic Processing Settings is:
+settingCategory
+For this field
+index
+in the database should be created.
+For all the Setting categories below common searchable fields are supported:
+partyIdentifierType
+partyIdentifierSubType
+identifierValueList
+Setting Category -  Intra Entity Parties
+Dynamic Configuration Properties
+Name
+Description
+IdentifierValueList
+A list of the identifiers that match with the PartyIdentifierType definition specified above.
+PartyIdentifierType
+The type of the identifiers that will be used to identify the parties that are intra entity. The enum list is extensible for client implementations.
+Default possible values are:
+BIC
+LEI
+NCC
+PartyIdentifierSubType
+Conditionally mandatory when identifier type is: BIC or NCC.
+Enum list is specific to the identifier type.
+BIC : accountIssuingBIC, schemeMembershipBIC
+NCC: Subtype enums are aligned to ISO20022 specified codes.
+PartyIdentifierCountry
+The ISO3166-2 country code indicating which country specified identifier belongs to.
+Conditionally mandatory when IdentifierType = NCC or LEI.
+PartyEntityLookUpSource
+Industry source of the data to Party Entity Directory to enable looking up of the identifiers to enable an accurate look up of Intra Entity Parties.
+The enum list is extensible for client implementations.
+Default possible values are:
+Bank_Directory_Plus
+SIX_Bank_Master
+Setting Category - Supported Transfer Currencies
+Dynamic Configuration Properties
+Name
+Description
+TransferCurrencies
+A list of transfer currencies supported by the Processing Entity.
++ Currency
+ISO 4217 transfer currency code.
++ IntraEntityTransfer
+Boolean (True/False). True - The currency can be used for transfers within the Processing Entity.
++ IntraGroupTransfer
+Boolean (True/False). True - The currency can be used for transfers to other agents which are marked with Group Entity = True.
++ ExtraGroupTransfer
+Boolean (True/False). True - This currency can be used for transfers with agents which are not marked as Group Entity (e.g. Group Entity = False)
+Searchable Fields
+Searchable fields for Supported Transfer Currencies is:
+currency
+For this field
+index
+in the database should be created.
+Setting Category - Processing Entity Accounts
+Dynamic Configuration Properties
+Name
+Description
+ProcessingEntityAccounts
+A list of accounts at the processing entity level. These accounts are not settlement accounts to settle with an agent but internal within the processing entity.
++ AccountId
+Account number of the Suspense account. The account Id is an Id that should be used in the booking without having to be processed any further.
++ AccountCurrency
+ISO 4217 Currency Code
++ AccountType
+The AccountType values for accounts should be defined per implementation as this depends on the Operational model of the clients using IPF.
+The enum list for the types is client implementation specific and defined as static configuration.
++ AccountSubType
+The AccountSubType values for accounts should be defined per implementation as this depends on the Operational model of the clients using IPF.
+The enum list for the sub-types is client implementation specific and defined as static configuration>
++ BranchIdentifier
+An optional identifier that can be specified for the suspense account
+++ Identifier
+The Identifier value
+++ IdentifierType
+Identifier Type, next default values are supported:
+BIC
+LEI
+NCC
+++ IdentifierSubType
+Conditionally mandatory when identifier type is: BIC or NCC
+Enum list is specific to the identifier type.
+BIC : accountIssuingBIC, schemeMembershipBIC
+NCC: Subtype enums are aligned to ISO20022 specified codes.
+Searchable Fields
+Searchable fields for Processing Entity Accounts are:
+accountCurrency
+accountType
+For these fields
+indexes
+in the database should be created.
+Please refer
+Dynamic Configuration Management Guidelines
+for steps to be followed for configuring the dynamic configurations.
+Processing Entity
+Agent Settings

@@ -1,0 +1,22 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2023-1-0-1/release-IPF-2023-1-0-1.html ===
+Release Notes for IPF-2023.1.0.1
+This page details everything required to get going on IPF Fix Release 2023.1.0.1 made available on 22nd June 2023.
+Details
+Binaries
+The core binaries are available from
+IPF-Releases
+.
+The lightbend cinnamon binaries are available from
+IPF Lightbend
+.
+Archetype
+The latest version of the archetype is 1.7.0
+Developer App
+The latest version of the developer app is 1.0.29
+Features and Changes
+Payments Model
+Bug fix: Serialization/Deserialization fails with enum types of the payments model due to underscores in their names
+Flo-lang
+Bug fix: MPS doesn’t generate any implementation for an aggregate function that is added to a sub-flow
+Migration Steps for IPF-2023.1.0
+Migration Steps for IPF-2023.1.0.1

@@ -1,0 +1,351 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/ods-architecture.html ===
+Concepts
+Payments/transactions are processed by IPF Processing Nodes. The IPF Processing Nodes keep the data of payments/transactions that are being processed in memory. The data that is received/generated as part of the different events is persistently stored as IPF Processing Events in the IPF Event Store (following the Event Sourcing/CQRS pattern). In case a IPF Processing Node dies (e.g. due to infrastructure related issues), another IPF Processing Node in the cluster will resume processing of the inflight transactions. By reading the persisted processing events, this fail-over IPF Processing Node is able to regenerate the state and relevant data that is required to continue the process at the point the original IPF Processing Node was when it died.
+IPF Event Handler During processing, transaction processing events are consumed and processed to maintain an eventually consistent (normally within a few seconds) Operational Data Store via the Event Handler component. The IPF ODS comes with APIs via which the IPF UI as well as other (non IPF) applications are able to access (search and view) the data stored in the ODS.
+Besides the data on payment/transaction level, the IPF ODS also stores payment data on an aggregated level in order to feed (business) process monitoring dashboards (as part of IPF Operational GUI or external applications).
+For data retention compliance, it is possible to replicate data from the IPF Operational Data Store to an Archive. This archive can take advantage of the most efficient storage pricing (MongoDB Atlas for example offers 3 tiers based on frequency of access or latency trade-offs).
+The Event Handler component can also publish a stream of the same or processed data to a downstream bank system via a broker such as Kafka where the data can then be used for analytics, reporting, monitoring and other purposes.
+Complexity of an ISO 20022 Based Payment Data Model
+An ISO 20022 based payment data model is a data model that is able to support the data structures of the messages used for the processing of payments, such as pain.001, pain.002, pain.007, pain.008, pacs.008, pacs.002, pacs.004, pacs.003, pacs.007, pacs.028, camt.027, camt.055, camt.056, but also R2P messages like pain.013 and pain.014.  In addition, many (most) ISO 20022 messages contain a hierarchy of data objects, sometimes even multiple ones. Example of such a multi-hierarchy message is pain.001. The highest level is an Instruction Group (
+GrpHdr
+) that can contain one or more Credit Transfer Instructions (
+PmtInf
+) and each Credit Transfer Instruction can contain one or more Credit Transfer Transactions (
+CrdtTrfTxInf
+).
+Multiple Credit Transfer Transactions from different Credit Transfer instructions (from different originating customers) can be batched together in one pacs.008 message that is sent to an CSM (often an ACH). The CSM on its turn can return a pacs.002 with status updates for the credit transfers that it has received via the pacs.008 messages. This status updates can be on pacs.008 group level as well as on individual transaction level. It is also possible that for a credit transfer that has been processed and settled a cancellation request is raised. In order to monitor a payment (credit transfer as well as direct debit) across its end-to-end lifecycle, it is important that the data that is exchanged through the different ISO 20022 based messages (or the equivalent non-ISO 20022 messages) can be associated/linked with each other. It must also be possible to extend the solution with additional messages, such as for request-to-pay (pain.013 and pain.014), and link them with the payment instruction (pain.001) that has been generated during the processing of request-to-pay requests.
+The diagram below shows a subset of the messages that are relevant in the processing of payments, the hierarchy of data elements within these messages and the associations they have with each other.
+As this example is just a subset of the payments related ISO 20022 messages. It does not cover R-transactions (camt.056,
+pacs.004
+, etc.) or other payment types like direct debits. Even in this limited scope, a data model in which each level in a message is stored as a separate data entity (table/collection) has already become complex model that is hard to maintain and extend. Therefor it is essential to use a data model that is generic and offers the possibility to add new messages/data objects and links them with other messages/data objects with as limited impact (changes/extensions) to the underlying data model.
+Logical Data Model for ODS
+Key starting points for defining the data model:
+Data model must be as simple as possible in set up and use
+Data model must be extensible in terms of messages and message object types with as limited change/impact on the existing data model (such as new tables/collections)
+It must be able to hold and access the following data:
+messages (in ISO 20022 (XML/JSON) format) received from the payment originating party/system (e.g. customer channel or CSM gateway) and used as input for processing
+data generated during processing, such as enriched IBAN or BIC, selected CSM agent or calculated execution date
+messages (in ISO 20022 (XML/JSON) format) generated during processing and submitted to external parties/systems
+processing actions executed during the processing of a message or a part of a message
+input and output messages in non-ISO 20022 format (when applicable)
+processing status of a message or part of a message (instruction, transaction, R-transaction, etc.) with an in-process status as well as lifecycle status
+associations/relations between messages or part of messages for an end-to-end view of the lifecycle of a payment/transaction
+It must be possible to search for data in the ODS on basis of a predefined set of search attributes
+It must be possible as part of an implementation to add additional (implementation specific) search attributes and use them in the (standard) APIs that come with the IPF product
+It must be possible to configure for each processing event how it is stored in the ODS (as a new message data object or as a event that is linked to an existing object, etc.). This configuration is required as processing steps (events) can be added to process flows and it needs to be possible to define how the data of this event is stored to the ODS.
+Below follows a description of the different data entities and relationships between them in this logical data model.
+Message Object data entity represents payment related data that is input for and/or generated during the payment processing within IPF. A Message Object is a part of ISO 20022 message on basis of which processing (by means of a specific process flow) takes place in IPF. The Message Object is a abstract representation of a part of a (ISO 20022) message. The relevant data itself is represented by the Message Object Data data entity of the model. Each Message Object has an Object Type attribute that consists of the ISO 20022 message type (e.g. pain.001) and the name of the data element in the ISO 20022 message to which the concerning Message Object refers. The list of Message Object types is listed below.
+Message Object Data entity represents the data that is input for and generated by the process flow in IPF during the processing of the concerning Message Object. As this data is received through multiple and separate processing events that are handled individually and subsequently added to the ODS, the relevant data of each processing event is stored in a separate Message Object Data record (hence the 1-to-many relationship with Message Object data entity). In this way data can be stored in the ODS on basis of a append only principle without updating data that is already stored. When the data for a specific MDS Object is queried (via the ODS APIs) the API returns a result that consists of the merged data of all MDS Object Data records of the concerning MDS Object.
+Message Object Relationship data entity used used to relate two Message Objects with each other. This can be a relationship of objects from the same message (e.g.
+pain001.CdtTrfTxInf
+object that is a child of a
+pain001.PmtInf
+object), but it can also be the relationship between between two objects from different messages (e.g.
+pain001.CdtTrfTxInf
+object and a
+pacs008.CdtTrfTxInf
+object).  This setup makes it possible to relate any Message Object with any Message Object (and add new relationships) without dependency on the data model or the need to change the data model.
+Message Processing Event refers to the events that are performed by IPF process flows for the concerning Message Object.
+Message Object Status data entity refers to the status of a Message Object. It is possible to register multiple types of statuses for one MDS Object as well as multiple statuses of the same type for one MDS object. For example, it is possible to make a distinction between 'processStatus' and 'lifecycleStatus' as status types. The first one is the status of a Message Object within the execution of a process, the second one the status across all processes. The latest added status is also the actual status for that Message Object.
+Exchange Message refers to inbound and outbound (ISO 20022) messages that are exchanged with external (non-IPF) systems (customer channels, CSM gateways) and are input for or generated by IPF process flows. An Exchange Message has a direction indicator (inbound or outbound), the message type (pain.001, pacs.008, ...), a version indicator and the application from which it is received from (inbound) or sent to (outbound).
+Message Object Message Relation refers to the relation of a Message Object with Exchange Messages. One Message Object can be related to multiple inbound and outbound messages as well as one message can relate to multiple Message Objects.
+Message Object Index refers to the index/table/collection that are used to search for a Message Objects of a certain type on basis of specific criteria. Each object type has specific search criteria, each Message Object type has also its own index.
+It needs to be defined how the processing events that are written by the IPF Processing Nodes to the event store are translated into the data model and structures of the ODS. It may be possible that the data model needs to be changed to so that it matches better with the processing events.
+Message Object Types
+The table below list a subset of the Message Object types that need to be supported in the ODS. The list below is based on the SCT Inst scheme with the associated rulebook and message implementation guidelines (IGs). Over time this list needs to be extensible when new message types and the underlying MDS object types.
+ISO 20022 message
+Data element(s) in message
+Message Object Type in ODS
+Description
+pain.001
+GrpHdr
+pain001.GrpHdr
+The pain.001 message is used by payment originators (the debtor or a party on behalf of the debtor) to the debtor bank (directly or via a forwarding agent). A
+pain001
+message contains always one (and only one)
+GrpHdr
+object. The
+GrpHdr
+object holds data related to the message like unique (message) identifier, creation date and sender and receiver of the message.
+pain.001
+PmtInf
+pain001.PmtInf
+The
+PmtInf
+object represents an individual customer payment instruction. One pain.001 message (represented by the
+GrpHdr
+object) can contain one or more payment instructions (
+PmtInf
+objects). Each payment instruction can refer to another payment type (SEPA CT, international, UK domestic non-instant (BACS), UK domestic instant (FPS), etc.).
+pain.001
+CdtTrfTxInf
+pain001.CdtTrfTxInf
+The
+CdtTrfTxInf
+object represents the credit side of a payment instruction (
+PmtInf
+), also referred to as credit transfer transaction. One instruction can contain one or more credit transfer transactions. Theoretically it is possible that one customer instruction contains transactions with different transfer currencies, but in practice this is not supported by banks. In case on an instant payment, an
+PmtInf
+(instruction object) can have one or more
+CrdtTxInf
+objects, although many banks will not support this (at least not in the beginning).
+pain.002
+GrpHdr.OrgnlGrpInfAndSts
+pain002.GrpHdr
+The pain.002 message is used by the debtor bank to inform the originator of the pain.001 (and when applicable also other parties like debtor) on the status (updates) of the complete pain.001, one or more payment instructions in the pain.001 or one or more credit transfer transactions from one or more instructions.
+Each pain.002 message contains always one GrpHdr object that identifies the message and the sender and recipient of the message.
+As a pain.002 message contains one (and only one)
+OrgnlGrpInfAndSts
+data element, this element is also part of this message object and not a separate one.
+pain.002
+OrgnlPmtInfAndSts
+pain002.OrgnlPmtInfAndSts
+The
+OrgnlPmtInfAndSts
+object represents the status update of an individual payment instruction. In case of an instant payment this object may have an occurrence of one or more in one pain.002. The latter is only applicable if also the original pain.001 has more than one payment instruction.
+pain.002
+TxInfAndSts
+pain002.TxInfAndSts
+The
+TxInfAndSts
+object represents the status update of an individual transaction in an instruction. In case of an instant payment one
+OrgnlPmtInfAndSts
+can have none to more occurrences of
+TxInfAndSts
+. The latter is only applicable if also the original
+PmtInf
+has more than one
+CdtTrfTxInf
+.
+pacs.008
+GrpHdr
+pacs008.GrpHdr
+The pacs.008 message is used by the debtor bank to send a credit transfer to the creditor bank, directly of via a CSM. A pacs.008 has always one (and only one)
+GrpHdr
+object. The
+GrpHdr
+object holds data related to the message like unique (message) identifier, creation date, sender and receiver of the message, clearing and settlement related data, etc.
+pacs.008
+CdtTrfTxInf
+pacs008.CdtTrfTxInf
+The
+CdtTrfTxInf
+object represents the data of an individual credit transfer. It includes a unique transaction identifier of the sending (debtor) agent. This is not the identifier of the transaction data as provided by the payment originator in the pain.001. It is a new identifier that has been generated by the debtor agent (this is
+PmtId/TxId
+or
+PmtId/EUTR
+. In SCT Inst this must be
+PmtId/TxId
+). The ODS needs to hold the correlation between the
+CdtTrfTxInf
+object in the pain.001 and the associated
+CdtTrfTxInf
+object in the pacs.008 (only applicable for Outbound pacs.008). The
+End2End
+identifier that the payment originator has placed in the
+CdtTrfTxInf
+in the pain.001 cant be used as there is no guarantee it is unique across all transactions.
+In SCT Inst, one pacs.008 (or better said the
+GrpHdr
+object) can only hold one
+CdtTrfTxInf
+. This may be different in other instant payment schemes. In most non-instant payment schemes, one pacs.008 can hold more than one
+CdtTrfTxInf
+.
+pacs.002
+GrpHdr
+pacs002.GrpHdr
+The pacs.002 message is used by Financial Institutions and CSMs to inform other parties (like debtor agent as well as creditor agent) about the status of one or more pacs.008 and/or one or more transactions in a pacs.008 message that has been exchanged between the concerning parties. Each pacs.002 message has one (and only one)
+GrpHdr
+object. It holds data like message identifiers as well as sending and receiving party.
+pacs.002
+OrgnlGrpInfAndSts
+pacs002.OrgnlGrpInfAndSts
+The
+OrgnlGrpInfAndSts
+object on pacs.008 message level (represented by the
+GrpGdr
+object of the pacs.008). One pacs.002 can refer to more than one pacs.008 message. This object can include the status update of a complete pacs.008 message (and associated
+GrpHdr
+), for instance when the complete pacs.008 message has been rejected due to a duplicate message identifier.
+In case of SCT Instant the Implementation Guidelines (IG) define that a pacs.002 can only have one
+OrgnlGrpInfAndSts
+occurrence, meaning that one pacs.002 can refer to only one pacs.008. The
+OrgnlGrpInfAndSts
+object contains data like a reference to the original message identification (which is the message identifier of the
+GrpHdr
+of the pacs.008).
+pacs.002
+TxInfAndSts
+pacs002.TxInfAndSts
+The
+TxInfAndSts
+object represents the status update of an individual transaction (
+CdtTrfTxInf
+) of a pacs.008. One pacs.002 (represented by the
+GrpHdr
+object) can have multiple
+TxInfAndSts
+objects. In case of SCT Instant, the number of occurrences of a
+TxInfAndSts
+object in a pacs.002 is restricted to one. The
+TxInfAndSts
+object contains data elements that refer to the instruction ID (if specified) and transaction id as specified in the
+CdtTrfTxInf
+object of the pacs.008.
+camt.056
+Assgnmt
+Case
+CtrlData
+camt056.GrpHdr
+The camt.056 message is used by the debtor agent to request the creditor agent for the cancellation/recall of a payment. irrespectively whether the payment has been settled between the banks already or not.
+GrpHdr
+is not an object in the message itself, but is used to group several data objects that appear in the camt.056 message on the highest level with occurrence of zero or (maximum) one, being:
+Assgnmt
+Case
+CtrlData
+The reason to introduce this
+GrpHdr
+object for the camt.056 is to be as consistent as possible in the ODS across the different message types (remarkable that they did not take care there was more consistency between the different messages in the ISO 20022 standard).
+camt.056
+Undrlyg
+camt056.Undrlyg
+The
+Undrlyg
+object contains the data with respect to the cancellation. It is possible to cancel a complete message or group (only one) as well as one or more transactions. In case of SCT Inst the IG do not allow to cancel a complete message, but only one or more individual transactions. One camt.056 can hold multiple
+Undrlyg
+objects, Therefore this message object is out of scope for the initial implementation.
+camt.056
+TxInf
+camt056.TxInf
+The TxInf object represents an individual transaction to be cancelled/recalled. The
+TxInf
+object contains data elements referring to the original message ID, instruction ID (if specified) and transaction id as specified in the original pacs.008. One
+UndrLyg
+object can hold multiple
+TxInf
+objects, also in case of SCT Inst.
+pacs.004
+GrpHdr
+pacs004.GrpHdr
+The pacs.004 message is used by the creditor agent to inform the debtor agent that the payment cancellation request has been accepted and that the funds will be returned to the debtor agent. The
+GrpHdr
+object contains data elements like message ID, creation date, sender and receiver info and settlement info. A camt.056 message has one and only one
+GrpHdr
+object.
+The object type also holds the
+OrgnlGrpInf
+data element as the occurrence in a pacs.004 is none or one and therefore there is no added value to consider it as a separate message object.
+pacs.004
+TxInf
+pacs004.TxInf
+The
+TxInf
+object refers to the individual credit transfer transaction that is returned. Data elements referring to the original GrpHdr of the pacs.008 message can be specified in the
+OrgnlGrpInf
+object as well as in the
+TxInf
+object of the pacs.004 message. The original transaction id needs to be specified in the
+TxInf
+object. One pacs.004 message can contain one or more
+TxInf
+objects, also in the case of SCT Inst.
+camt.029
+Assgnmt
+RslvdCase
+Sts
+camt029.GrpHdr
+The camt.029 is used by the creditor agent to inform the debtor agent that the debtor agent that the payment cancellation request has been declined (and the funds are not returned). The message is used as a response to a camt.056 (request for cancellation) or a camt.028 (request for status update) that is sent by the debtor bank to inform after the status of a previously sent camt.056 for which no confirmation (pacs.004 or camt.029) has been received yet.
+GrpHdr
+is not an object in the camt.029 message itself, but is used in the ODS to group several data objects that appear in the camt.029 message on the highest level with occurrence of zero or (maximum) one, being:
+Assgnmt
+RslvdCase
+Sts
+The reason to introduce this
+GrpHdr
+object for the camt.029 is to be as consistent as possible in the ODS across the different message types (remarkable that they did not take care there was more consistency between the different messages in the ISO 20022 standard).
+camt.029
+CxlDtls
+camt029.CxlDtls
+The
+CxlDtls
+object contains the status update of a cancellation/recall request that has been received. One camt.029 can contain one or more
+CxLDtls
+objects, also in case of SCT Inst. One
+CxlDtls
+object can refer to one or more transactions. If a cancellation/recall request has been sent for a complete pacs.008 message (represented by the
+GrpHdr
+object) the original group information is part of this object. In SCT Inst it is not possible to cancel a complete group, and therefore this situation is not applicable for SCT Inst.
+camt.029
+OrgnlPmtInfAndSts
+camt029.OrgnlPmtInfAndSts
+The
+OrgnlPmtInfAndSts
+object refers to an individual transaction for which a cancellation/recall has been received. The
+OrgnlPmtInfAndSts
+object contains references to the original cancellation/recall request such as original message ID, group ID, instruction ID and transaction ID. In addition, it holds data on the status of the cancellation and reason codes for declining the cancellation/recall request.
+pacs.028
+GrpHdr
+pacs028.GrpHdr
+The camt.028 message is used by the debtor agent in to cases:
+a. to request the creditor agent about the status of a credit transfer transaction (as a pacs.008) that has been sent earlier to the creditor and for which no response (as a pacs.002 or pacs.004) has been received. In this case the response message is either a pacs.002 (credit transfer accepted) or a pacs.004 (credit transfer rejected).
+b. to request the response on a previously sent cancellation/recall request (camt.056) when it has not received a response on the camt.056 from the creditor agent. In this case the response message is either a pacs.004 (cancellation/recall accepted) or a camt.029 (cancellation/recall declined).
+Because it concerns to different use cases (not clear why they did not define two separate message types for the two cases), the implementations and use of data elements will be different between these cases.
+The
+GrpHdr
+object holds data with respect to the (camt.028) message like message ID, creation datetime, sender, receiver, etc.
+A pacs.028 can be used to request the status of a complete pacs.008 message (by referring to the message ID as specified in the original pacs.008 or camt.056 message) or an individual transaction. In the first case the pacs.028 has one or more
+OrgnlGrpInf
+objects (in case of SCT Inst restricted to one occurrence), in the second case the pacs.028 has one or more
+TxInf
+objects.
+pacs.028
+OrgnlGrpInf
+pacs028.OrgnlGrpInf
+The
+OrgnlGrpInf
+object refers to an original group (in pacs.008) for which the status update is requested via the message ID
+GrpHdr
+object of the original pacs.008. As the camt.056 does not include a
+GrpHdr
+object the
+OrgnlGrpInf
+does not contain a reference to the original message ID, but only the Original Message Name Identifier (
+OrgnlMsgNmId
+).
+pacs.028
+TxInf
+pacs028.TxInf
+The
+TxInf
+object refers to one or more individual credit transfer instructions (use case 1) or a cancellation/recall instructions (use case 2). For SCT Inst, a pacs.028 message contains one (and contain one)
+TxInf
+object.
+In case of use case 1, the data element
+TxInf/OrgnlInstrId
+in the pacs.028 refers to the data element
+CdtTrfTxInf/PmtId/TxId
+(transaction ID) in the pacs.008.
+In case of the latter the data element
+TxInf/OrgnlInstrId
+in the pacs.028 refers to the data element
+Undrlyg/TxInf/CxlId
+(cancellation ID) in the camt.056.
+all
+SplmtryData
+nnnnnnnn.SplmtryData
+The
+SplmtryData
+object can appear in the message listed above. It contains data that is not relevant to the processing of payments, but needs to be included when the transaction is forwarded to other parties. In case of SCT Inst, the
+SplmtryData
+is not yet used.
+All messages can be received from external systems/parties to be processed by IPF (referred as inbound) as well as generated by IPF and submitted to external systems/parties. Pain.001 is in most cases only inbound, but in case the bank acts as forwarding agent or IPF is only used for instruction management, the pain.001 can also be outbound. The same can be said for pain.002 with the difference it is in most cases only outbound.
+The diagram below is an example of how the message objects from pain.001 messages can be mapped to the message objects of outbound pacs.008 messages that are sent to CSMs and pain.002 that are sent to the payment originator. This example demonstrates that credit transfers from one and the same pain.001 or even the same payment instruction (
+PmtInf
+) can be routed (and settled with) different CSM (agents). Also, credit transfers from different payment instruction or even pain.001 messages can be grouped together to be sent to a specific CSM agent (only applicable when it concerns a batch based/net settlement CSM type).
+The diagram also demonstrates that there can be all types of relationships/links between the pain.001, the pain.002 and the underlying message objects of those messages. It is possible to generate a pain.002 with status update of the pain.001 on message (
+GrpHdr
+) level, but it is also possible to return status updates on payment instruction or transaction level. It is also possible that multiple pain.002 messages are created for the different instructions/transactions of one pain.001 message. It is also possible that the for one and the same payment instruction or transaction multiple status updates are generated during its processing lifecycle (for instance one to inform a transaction has been accepted and booked and one to inform that the transaction has been booked on the creditors account). This demonstrates the importance of a flexible model to link any message object with any message object so that a payment can be tracked and traced across its full lifecycle.
+Note that this example only covers a subset of the messages and underlying message objects that are in scope of the ODS and even SCT Inst. When the complete message scope would be included in the example (with cancellation requests and responses and status update requests and responses), it will end up with a very complex diagram with many messages and message objects and the relationships between all these objects.
+Operational Data Store (ODS)
+Supported APIs

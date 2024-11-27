@@ -1,0 +1,80 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.credit%20transfer%20unhappy%20path.Handle%20Status%20Request%20with%20Send%20Outcome%20Enabled.html ===
+Handle Status Request with Send Outcome Enabled.story
+Meta
++sendOutcomeEnabled+:
+Scenario: Handling status request with Send Outcome Enabled
+Steps
+When the Payment Service sends a 'Clear And Settle Request'
+Then the CSM receives a 'Customer Credit Transfer'
+When the Payment Service sends a 'Status Request'
+Then the CSM receives a 'Payment Status Request' with values:
+| FIToFIPmtStsReq.OrgnlGrpInf.OrgnlMsgNmId | pacs.008.001.02 |
+When CSM sends a 'Send Outcome' with values:
+| HEADER.IPG_SEND_OUTCOME        | <Result>        |
+| HEADER.IPG_SEND_FAILURE_REASON | <FailureReason> |
+Then Payment Service receives a  'Technical Response' with values:
+| status | <Result>        |
+| reason | <FailureReason> |
+When the CSM sends a 'Payment Status Report' with values:
+| fIToFIPmtStsRpt.orgnlGrpInfAndSts.orgnlMsgId   | #StatusRequest.payload.content.grpHdr.msgId |
+| fIToFIPmtStsRpt.orgnlGrpInfAndSts.orgnlMsgNmId | pacs.028.001.001                            |
+Then the Payment Service receives a 'Status Request Response'
+Examples:
+Result
+FailureReason
+SUCCESS
+NOT_SET
+FAILURE
+technical-response-failure
+Example: {Result=SUCCESS, FailureReason=NOT_SET, sendOutcomeEnabled=}
+When
+the i12Payment Servicei12  sends a Clear
+And
+Settle Request
+Then
+the i12CSMi12  receives a Customer Credit Transfer
+When
+the i12Payment Servicei12  sends a Status Request
+Then
+i12the CSMi12  receives a Payment Status Request with values:
+| FIToFIPmtStsReq.OrgnlGrpInf.OrgnlMsgNmId | pacs.008.001.02 |
+When
+i12CSMi12  sends a Send Outcome with values:
+| HEADER.IPG_SEND_OUTCOME        | i12SUCCESSi12         |
+| HEADER.IPG_SEND_FAILURE_REASON | i12NOT_SETi12  |
+Then
+i12Payment Servicei12  receives a  Technical Response with values:
+| status | i12SUCCESSi12         |
+| reason | i12NOT_SETi12  |
+When
+the i12CSMi12  sends a Payment Status Report with values:
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.orgnlMsgId   | #StatusRequest.payload.content.grpHdr.msgId |
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.orgnlMsgNmId | pacs.028.001.001                            |
+Then
+the i12Payment Servicei12  receives a Status Request Response
+Example: {Result=FAILURE, FailureReason=technical-response-failure, sendOutcomeEnabled=}
+When
+the i12Payment Servicei12  sends a Clear
+And
+Settle Request
+Then
+the i12CSMi12  receives a Customer Credit Transfer
+When
+the i12Payment Servicei12  sends a Status Request
+Then
+i12the CSMi12  receives a Payment Status Request with values:
+| FIToFIPmtStsReq.OrgnlGrpInf.OrgnlMsgNmId | pacs.008.001.02 |
+When
+i12CSMi12  sends a Send Outcome with values:
+| HEADER.IPG_SEND_OUTCOME        | i12FAILUREi12         |
+| HEADER.IPG_SEND_FAILURE_REASON | i12technical-response-failurei12  |
+Then
+i12Payment Servicei12  receives a  Technical Response with values:
+| status | i12FAILUREi12         |
+| reason | i12technical-response-failurei12  |
+When
+the i12CSMi12  sends a Payment Status Report with values:
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.orgnlMsgId   | #StatusRequest.payload.content.grpHdr.msgId |
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.orgnlMsgNmId | pacs.028.001.001                            |
+Then
+the i12Payment Servicei12  receives a Status Request Response

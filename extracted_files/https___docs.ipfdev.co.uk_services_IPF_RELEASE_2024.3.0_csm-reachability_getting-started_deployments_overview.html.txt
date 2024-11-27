@@ -1,0 +1,518 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/deployments/overview.html ===
+Configurations overview
+Docker-Compose
+Docker-compose.yaml
+# This contains only infrastructure and payment, query + CSM adapters.
+services:
+
+  reachability-service:
+    image: csm-reachability-application:2.0.14
+    container_name: reachability-service
+    ports:
+      - "8080:8080"
+    user: "${UID:-root}:${GID:-root}"
+    environment:
+      - IPF_JAVA_ARGS=-Dma.glasnost.orika.writeClassFiles=false -Dma.glasnost.orika.writeSourceFiles=false
+    volumes:
+      - ./config/reachability-app:/csm-reachability-application/conf
+      - ./import:/csm-reachability-application/import
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+    depends_on:
+      - ipf-mongo
+
+  ipf-mongo:
+    image: registry.ipf.iconsolutions.com/ipf-docker-mongodb:latest
+    container_name: ipf-mongo
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+application.conf
+ipf.mongodb.url = "mongodb://ipf-mongo:27017/ipa"
+
+ipf.csm-reachability {
+  debug.enabled = true
+
+  settings-api {
+    http.client.host = reachability-service
+    connection = direct
+    direct.parallelism = 16
+    exclusion-list.parallelism = 16
+    iban-plus.parallelism = 16
+    party-entity.parallelism = 16
+    read-query-batch-size {
+      iban-plus-processor = 1000
+      iban-structure-processor = 1000
+      participant-processor = 1000
+      participant-post-processor = 1000
+      exclusion-list-processor = 1000
+      exclusion-list-post-processor = 1000
+      party-entity-processor = 1000
+      party-entity-post-processor = 1000
+    }
+  }
+
+  iban-structure {
+    enabled = false
+    file-ingestion {
+      interval = 5s
+      files-directory = "/csm-reachability-application/import/ibanstructure"
+    }
+  }
+
+  iban-plus {
+    enabled = false
+    file-ingestion {
+      interval = 10s
+      files-directory = "/csm-reachability-application/import/swift/ibanplus"
+    }
+  }
+
+  exclusion-list {
+    enabled = false
+    file-ingestion {
+      interval = 10s
+      files-directory = "/csm-reachability-application/import/exclusionlist"
+    }
+  }
+
+  bic-dir-2018 {
+    enabled = false
+    file-ingestion {
+      interval = 10s
+      files-directory = "/csm-reachability-application/import/bicdir2018"
+    }
+  }
+
+  party-entity.swift-bankplus {
+    enabled = false
+    file-ingestion {
+      interval = 10s
+      files-directory = "/csm-reachability-application/import/swift/partyentity"
+    }
+  }
+
+  party-entity.six-bankplus {
+    enabled = false
+    file-ingestion {
+      interval = 10s
+      files-directory = "/csm-reachability-application/import/six/partyentity"
+    }
+  }
+
+  participant {
+    tips {
+      process-participant.enabled = false
+      file-ingestion {
+        interval = 10s
+        files-directory = "/csm-reachability-application/import/tips"
+      }
+    }
+
+    rt1 {
+      process-participant.enabled = false
+      file-ingestion {
+        interval = 10s
+        files-directory = "/csm-reachability-application/import/rt1"
+      }
+    }
+
+    step2 {
+      process-participant.enabled = false
+      file-ingestion {
+        interval = 10s
+        files-directory = "/csm-reachability-application/import/step2"
+      }
+    }
+
+    sic {
+      process-participant.enabled = false
+      http {
+        client {
+          endpoint-url = "http://mock-server:1080/bankmaster/v2/public"
+        }
+      }
+      load-settings {
+        six-bankmaster-version = "3.0"
+      }
+      scheduler-settings {
+        initial-delay = 3s
+        interval = 10s
+      }
+    }
+  }
+
+  should-save-history {
+    iban-plus-settings = false
+    exclusion-list-settings = false
+  }
+
+}
+
+file-ingestion.health {
+  enabled = true
+  process-failed-events = false
+}
+
+akka {
+  cluster.bootstrap.enabled = false
+  cluster.seed-nodes = ["akka://"${actor-system-name}"@0.0.0.0:"${akka.remote.artery.canonical.port}]
+  remote.artery {
+    canonical.port = 55001
+    canonical.hostname = 0.0.0.0
+    bind.hostname = 0.0.0.0
+    bind.port = 55001
+  }
+}
+
+event-processor.restart-settings {
+  min-backoff = 100 ms
+  max-backoff = 100 ms
+}
+Kubernetes
+The TIPS CSM Service operates as an un-clustered, stateless application and so can be easily deployed using the following manifests
+Deployment Manifest
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: csm-reachability
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/"
+    prometheus.io/port: "9001"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: csm-reachability
+      product: ipfv2
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/"
+        prometheus.io/port: "9001"
+      labels:
+        app: csm-reachability
+        product: ipfv2
+    spec:
+      imagePullSecrets:
+        - name: "registrysecret"
+      containers:
+        - name: csm-reachability
+          image: registry.ipf.iconsolutions.com/csm-reachability-init-container:2.0.14
+          imagePullPolicy: Always
+          securityContext:
+            runAsUser: 0
+            allowPrivilegeEscalation: true
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: debug-port
+              containerPort: 5005
+            - name: akka-artery
+              containerPort: 55001
+            - name: akka-management
+              containerPort: 8558
+            - name: akka-metrics
+              containerPort: 9001
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health/alive
+              port: akka-management
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health/ready
+              port: akka-management
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 2
+            successThreshold: 10
+            timeoutSeconds: 1
+          env:
+            - name: "POD_NAME"
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: "IPF_JAVA_ARGS"
+              value: "-Dma.glasnost.orika.writeClassFiles=false -Dma.glasnost.orika.writeSourceFiles=false"
+            - name: "POD_IP"
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: "KUBERNETES_NAMESPACE"
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          resources:
+            requests:
+              memory: 8Gi
+              cpu: 8
+          volumeMounts:
+            - mountPath: /csm-reachability-application/conf/logback.xml
+              name: config-volume
+              subPath: logback.xml
+            - mountPath: /csm-reachability-application/conf/application.conf
+              name: config-volume
+              subPath: application.conf
+            - name: shared-ingest
+              mountPath: /ingest/input
+      volumes:
+        - name: config-volume
+          configMap:
+            name: csm-reachability-cm
+        - name: keystore
+          secret:
+            secretName: keystore
+        - name: shared-ingest
+          emptyDir: {}
+Service Manifest
+apiVersion: v1
+kind: Service
+metadata:
+  name: csm-reachability
+  labels:
+    product: ipfv2
+spec:
+  selector:
+    app: csm-reachability
+    product: ipfv2
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      name: actuator
+    - protocol: TCP
+      port: 9001
+      targetPort: 9001
+      name: akka-metrics
+    - protocol: TCP
+      port: 55001
+      targetPort: 55001
+      name: remoting
+    - protocol: TCP
+      port: 5005
+      targetPort: 5005
+      name: debug
+ConfigMap Manifest
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: csm-reachability-cm
+data:
+  application.conf: |-
+    ipf.csm-reachability.settings-api.http.client {
+      host = csm-reachability.default.svc.cluster.local
+      port = 80
+    }
+
+    ipf.csm-reachability.should-save-history {
+      agent-settings-settings = false
+      agent-clearing-settings-settings = false
+      agent-settlement-settings-settings = false
+      cs-agent-selection-settings-settings = false
+      exclusion-list-settings = false
+      generic-processing-settings-settings = false
+      processing-entity-settings = false
+      bicdir2018-settings = false
+      party-entity-settings = false
+      iban-structure-settings = false
+      iban-plus-settings = false
+      participant-settings = false
+      party-entity-settings = false
+    }
+
+    ipf.mongodb.url = "mongodb://mongo:27017/db"
+    
+    file-ingestion.health {
+      enabled = false
+    }
+    
+    ipf.csm-reachability {
+      party-entity.swift-bankplus {
+        file-ingestion {
+          files-directory = "/ingest/input/party-entities/swift"
+          initial-delay = 35m
+          interval = 12h
+        }
+      }
+      
+      party-entity.six-bankmaster {
+        file-ingestion {
+          files-directory = "/ingest/input/party-entities/six"
+          initial-delay = 5m
+          interval = 12h
+        }
+      }
+      
+      iban-structure {
+        file-ingestion {
+          files-directory = "/ingest/input/ibanstructure"
+          directory-id = "iban-structure"
+          initial-delay = 2m
+          interval = 12h
+        }
+      }
+      
+      iban-plus {
+        file-ingestion {
+          files-directory = "/ingest/input/ibanplus"
+          directory-id = "IBANPLUS"
+          initial-delay = 5m
+          interval = 12h
+        }
+      }
+      
+      participant {
+        tips {
+          file-ingestion {
+            files-directory = "/ingest/input/participant/tips"
+            initial-delay = 2m
+            interval = 12h
+          }
+        }
+        
+        rt1 {
+          file-ingestion {
+            files-directory = "/ingest/input/participant/rt1"
+            initial-delay = 5m
+            interval = 12h
+          }
+        }
+        
+        step2 {
+          file-ingestion {
+            files-directory = "/ingest/input/participant/step2"
+            initial-delay = 2m
+            interval = 12h
+          }
+        }
+        
+        sic {
+          process-participant.enabled = true
+          http {
+            client {
+              endpoint-url = "http://mock-server:1080/bankmaster/v2/public"
+            }
+          }
+          load-settings {
+            six-bankmaster-version = "3.0"
+          }
+          
+          scheduler-settings {
+            initial-delay = 5m
+            interval = 12h
+          }
+        }
+        
+        tips.process-participant.enabled = false
+        rt1.process-participant.enabled = false
+        step2.process-participant.enabled = false
+      }
+      
+      bic-dir-2018.enabled = false
+      iban-plus.enabled = false
+      iban-structure.enabled = false
+      exclusion-list.enabled = false
+      party-entity.six-bankmaster.enabled = false
+      party-entity.swift-bankplus.enabled = true
+    }
+
+    ipf.behaviour.retries.initial-timeout = 3s
+
+    message.logger.enabled = false
+
+    ipf.csm-reachability.settings-api.connection = "direct"
+    ipf.csm-reachability.settings-api.file-handling.connection = "direct"
+    ipf.csm-reachability.setting.processing-entity-accounts {
+      # optional custom values
+      account-type.custom-codes = ["SuspenseAccount", "LedgerAccount"]
+      account-subtype.custom-codes = ["ReturnsRejects"]
+    }
+    
+    iconsolutions.akka.persistence.mongodb {
+      class = "com.iconsolutions.akka.persistence.mongodb.MongoDBAsyncWriteJournal"
+      plugin-dispatcher = "akka.actor.default-dispatcher"
+      url = "mongodb://mongo:27017/db"
+    }
+    akka {
+      # Use Kubernetes API to discover the cluster
+      discovery {
+        kubernetes-api {
+          pod-label-selector = "app=%s"
+        }
+      }
+      actor.provider = cluster
+      cluster {
+        seed-nodes = []
+        downing-provider-class = "akka.cluster.sbr.SplitBrainResolverProvider"
+        split-brain-resolver {
+          active-strategy = keep-majority
+          stable-after = 20s
+        }
+        sharding {
+          handoff-timeout = 8s
+          least-shard-allocation-strategy.rebalance-absolute-limit = 20
+          rebalance-interval = 2s
+          number-of-shards = 10
+          passivation {
+            strategy = "default-strategy"
+            default-strategy.active-entity-limit = 20000
+          }
+        }
+      }
+      remote.artery.canonical.hostname = ${POD_IP}
+      management {
+        # available from Akka management >= 1.0.0
+        health-checks {
+          readiness-path = "health/ready"
+          liveness-path = "health/alive"
+        }
+        # use the Kubernetes API to create the cluster
+        cluster.bootstrap {
+          contact-point-discovery {
+            service-name = "csm-reachability"
+            discovery-method = kubernetes-api
+            required-contact-point-nr = 1
+            required-contact-point-nr = ${?REQUIRED_CONTACT_POINT_NR}
+          }
+        }
+      }
+    }
+  logback.xml: |-
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <target>System.out</target>
+            <encoder>
+                <pattern>[%date{ISO8601}] [%level] [%logger] [%marker] [%thread] - %msg%n</pattern>
+            </encoder>
+        </appender>
+        
+        <logger name="akka.stream.scaladsl.RestartWithBackoffSource" level="WARN"/>
+        <logger name="com.iconsolutions.ipf.core.connector" level="INFO"/>
+        <logger name="com.iconsolutions.ipf.core.platform.read.processor" level="INFO"/>
+        <logger name="com.iconsolutions.akka.persistence.mongodb" level="INFO"/>
+        <logger name="com.iconsolutions.ipf.core.platform.journal.processor.EventProcessorStreamInitialiser" level="OFF"/>
+        
+        <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+            <queueSize>8192</queueSize>
+            <neverBlock>true</neverBlock>
+            <appender-ref ref="CONSOLE"/>
+        </appender>
+        
+        <root level="info">
+            <appender-ref ref="ASYNC"/>
+        </root>
+
+    </configuration>
+Deployment
+CSM Reachability Data Ingestion Configuration Reference

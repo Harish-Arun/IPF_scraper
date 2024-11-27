@@ -1,0 +1,129 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/getting-started/database-settings/simple-rule-setup-curl.html ===
+Rule
+The dynamic configurations required for Bank filtering can be set up using DPS Setting management APIs directly.
+Filtering rule is stored in next format:
+Field name
+Mandatory
+Data type
+Description
+requiresApproval
+Mandatory
+boolean
+Does request need to be approved
+createdBy
+Mandatory
+string
+Rule creator name
+source
+Mandatory
+string
+Rule source
+activeFromDate
+Mandatory
+timestamp
+Datetime when rule starts to be applied
+processingEntity
+Mandatory
+string
+A processing entity defines a sub-organization within an organization. A dedicated bank exclusion/blocking list can be defined for each sub-organization. Processing Entity is part of Dynamic Processing Setting (DPS) SettingDTO which is the superclass of BankFilteringRule, and is therefore not part of the payload.
+payload
+Mandatory
+object
+Rule specific settings
+payload.ruleId
+Mandatory
+string
+Rule ID
+payload.ruleName
+Mandatory
+string
+Short rule name
+payload.ruleDescription
+Mandatory
+string
+A comprehensive rule description
+payload.csmAgentIds
+Optional
+list of strings
+A list of CSM Agent IDs that identifies a CSM for which a bank exclusion list applies
+payload.country
+Optional
+string
+A country filter used to be matched against country code, extracted from input BIC (5. and 6. character in BIC)
+payload.currency
+Optional
+string
+Currency filter used to be matched against input currency. (Exact matching)
+payload.bic
+Optional
+string
+BIC filter used to be matched against input BIC. (Exact matching or starts with). It can be 4, 6, 8 or 11 characters long.
+payload.ncc
+Optional
+object
+NCC filter used to be matched against input NCC.
+payload.ncc.nccValue
+Optional
+list of strings
+List of string values used for NCC filtering.
+payload.ncc.Country
+Optional
+string
+NCC country used for NCC filtering.
+payload.direction
+Mandatory
+enum
+DEBTOR
+CREDITOR
+ANY
+A direction determines transactions to exclude based on whether a matched BIC is a debtor agent BIC, a creditor agent BIC, or any of them. Direction field does not have default value
+payload.startDate
+Optional
+datetime
+Optional field, which defines when the rule starts to be active. If not set, it’s assumed that rule started to be active. The field follows a date time format with the timezone specified in UTC. Any client implementations setting the startDate field will need to set the time of activation in UTC timezone by converting the local time value to UTC.
+payload.endDate
+Optional
+datetime
+Optional field, which defines when the rule starts to be inactive. If not set, it’s assumed that rule will never become inactive. The field follows a date time format with the timezone specified in UTC. Any client implementations setting the startDate field will need to set the time of activation in UTC timezone by converting the local time value to UTC.
+payload.severity
+Mandatory
+integer
+A severity of a rule of a bank exclusion/blocking list is returned to a process flow, so further decisions can be made. Possible values are 1 to 10 where 10 is the highest severity.
+Possible values are 0 to 10 where 10 is the highest severity.
+For cases when there is no matching rule, value is 0.
+It is important to mention that one of the fields: country, currency or BIC needs to be set.
+Adding Bank filtering rule
+curl -X 'POST' \
+  'http://localhost:8084/settings-objects/bankfilteringrule' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "requiresApproval": true,
+  "createdBy": "string",
+  "source": "string",
+  "activeFromDate": "2024-10-17T14:52:36.468Z",
+  "processingEntity": "string",
+  "payload": {
+    "ruleId": "string",
+    "ruleName": "string",
+    "ruleDescription": "string",
+    "csmAgentIds": [
+      "string"
+    ],
+    "country": "string",
+    "currency": "string",
+    "bic": "string",
+    "ncc": {
+      "nccValues": [
+        "string"
+      ],
+      "nccCountry": "AD"
+    },
+    "direction": "DEBTOR",
+    "startDate": "2024-10-17T14:52:36.468Z",
+    "endDate": "2024-10-17T14:52:36.468Z",
+    "severity": 10
+  }
+}'
+Cache
+Deployments

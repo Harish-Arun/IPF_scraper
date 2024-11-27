@@ -1,0 +1,76 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/tutorials/running_developer_app.html ===
+UTILS1 - IPF Developer App
+This document covers how to use the ipf-developer-app. There are two recommended approaches for the tutorial, both docker and non-docker. Let’s look at these:
+Using the Application Through Docker
+Below provides a simple docker file entry for the developer application:
+ipf-developer-app:
+    image: registry.ipf.iconsolutions.com/ipf-developer-app:2.1.2
+    container_name: ipf-developer-app
+    ports:
+      - 8081:8081
+    volumes:
+      - ./config/ipf-developer-app:/ipf-developer-app/conf
+      - ./logs:/ipf/logs
+    environment:
+      - IPF_JAVA_ARGS=-Dma.glasnost.orika.writeClassFiles=false -Dma.glasnost.orika.writeSourceFiles=false -Dconfig.override_with_env_vars=true
+    user: "${UID:-1000}:${GID:-1000}"
+    depends_on:
+      - ipf-mongo
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:8081/actuator/health" ]
+In addition, the application will need configuration which is placed in the
+application.conf
+file within a config directory relative to the above docker entry. The conf file contains:
+flow-restart-settings {
+  min-backoff = 1s
+  max-backoff = 5s
+  random-factor = 0.25
+  max-restarts = 5
+  max-restarts-within = 10m
+}
+spring.data.mongodb.uri = ${?ipf.mongodb.url}
+actor-system-name = ipf-developer
+ipf.mongodb.url = "mongodb://ipf-mongo:27017/ipf"
+ods.security.oauth.enabled = false
+application.write.url = "http://localhost:8080"
+ipf.processing-data.ingress.transport = http
+When executed the ipf-developer-app will listen for data on port 8081. This port will also be exposed to the host machine. The logs will be exported to
+logs/ipf-developer.app-log
+relative to the docker file.
+Using the Application Without Docker
+Prerequisites
+To run this simulator requires:
+A Java 17 runtime
+A MongoDB database
+Configuration
+Configuration can be overridden via the
+application.conf
+file located in the config directory.
+Property
+Description
+Example Value
+ipf.mongodb.url
+Defines the mongodb URL the developer application should use.
+"mongodb://ipf-mongo:27017/ipf"
+application.write.url
+Defines the host and port that the main ipf application will expose it’s query service on
+localhost:8080
+server.port
+Defines the port the application will run on
+8081
+Download
+The ipf-developer-app is available here:
+nexus.ipf.iconsolutions.com/repository/ipf-releases/com/iconsolutions/ipf/developer/ipf-developer-app/2.1.2/ipf-developer-app-2.1.2-runnable.jar
+You must choose and download a version of the ipf-developer-app
+that is compatible with the IPF Release you are using
+. Please check and replace the version numbers based on the
+IPF release documentation
+and/or the details for your target environment!
+Running
+Once downloaded, place it into this directory and run (replacing the version you are using):
+java -cp "ipf-developer-app-2.1.2.jar:config" -D"ma.glasnost.orika.writeClassFiles"=false -D"ma.glasnost.orika.writeSourceFiles"=false -D"config.override_with_env_vars"=true -D"loader.main"="com.iconsolutions.ipf.developer.app.IpfDeveloperApplication" "org.springframework.boot.loader.launch.PropertiesLauncher"
+The application will then start and be available from:
+localhost:8081/explorer.html
+Note that on Windows, the colon in the run command should be replaced by a semicolon.
+Fraud Simulator
+Using Debulker

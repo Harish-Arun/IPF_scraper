@@ -1,0 +1,89 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/deployments/deployment_diagrams.html ===
+Deployment
+CSM Reachability with DPS (Dynamic Processing Settings) Setting Management can be integrated to a Payment flow (client application) using standalone deployment:
+Standalone Deployment
+This option provides each IPF flow the ability to invoke external CSM Reachability standalone application. In this case CSM Reachability service is deployed as standalone application. The flow can invoke csm reachability via provided connector.
+DPS Setting Management Embedded
+This option integrates DPS Setting Management into a CSM Reachability standalone application.
+Dependencies needed on client side is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-client-connector</artifactId>
+    <version>${csm-reachability-api.version}</version>
+</dependency>
+Dependencies needed on CSM Reachability service side is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-setting-management-application</artifactId>
+    <version>${csm-reachability-app.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>participant-file-handling</artifactId>
+    <version>${csm-reachability-app.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-service</artifactId>
+    <version>${csm-reachability-app.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>bic-validation</artifactId>
+    <version>${csm-reachability-app.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>swift-ref-file-handling</artifactId>
+    <version>${csm-reachability-app.version}</version>
+</dependency>
+In order this to work we need to specify the configuration:
+ipf.csm-reacahbility.settings-api.connection = direct
+ipf.csm-reacahbility.settings-api.file-handling.connection = direct
+DPS Setting Management Standalone
+This option offers all applications to be deployed independently. DPS Setting Management is deployed as standalone application too. csm-reachability reads settings from DPS via connector.
+Dependencies needed on client side is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-client-connector</artifactId>
+    <version>${csm-reachability-api.version}</version>
+</dependency>
+Dependencies needed on CSM Reachability service side is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-setting-management-application</artifactId>
+    <version>${csm-reachability-app.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>participant-file-handling</artifactId>
+    <version>${csm-reachability-app.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-service</artifactId>
+    <version>${csm-reachability-app.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>bic-validation</artifactId>
+    <version>${csm-reachability-app.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>swift-ref-file-handling</artifactId>
+    <version>${csm-reachability-app.version}</version>
+</dependency>
+In order this to work we need to specify the configuration:
+ipf.csm-reacahbility.settings-api.http.client.host = setting-management-service
+ipf.csm-reachability.settings-api.connection = http
+ipf.csm-reachability.settings-api.file-handling.connection = http
+Dependencies needed on CSM Reachability DPS Setting Management side is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-setting-management-application</artifactId>
+    <version>${csm-reachability-app.version}</version>
+</dependency>
+We recommend taking the approach with CSM application stand alone and DPS embedded with CSM. This means you will have to deploy a springboot application (which you have to define and create), which uses the modules listed.
+Cosmos DB settings
+Configurations overview

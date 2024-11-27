@@ -1,0 +1,25 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/getting-started.html ===
+Getting Started
+This section covers how to integrate Bank filtering into your business flow.
+Recommended steps for integration:
+Decide which deployment method fulfill your needs, check
+Deployment methods
+.
+Add dependencies and configure your application with
+Configuration overview
+.
+Integrate Bank filtering logic into your business flow via
+Client Port
+.
+Add BankFilteringRules
+Adding rules
+via
+Bank Filtering Setting Management API
+.
+Also, there are 2 types of API specifications:
+Bank Filtering Setting Management API
+.
+Bank filtering Service API
+.
+Filtering By Currency
+Database settings

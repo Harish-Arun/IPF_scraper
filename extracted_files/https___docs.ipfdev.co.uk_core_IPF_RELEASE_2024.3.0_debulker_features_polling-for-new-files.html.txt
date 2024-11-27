@@ -1,0 +1,46 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/polling-for-new-files.html ===
+Polling For New Files
+Debulker’s new-file-polled connector is a component whose purpose is to send a notification to the new file notification service when a new file arrives in the file system if the client does not have the ability to notify the Debulker itself. The File Poller will monitor the folder for the presence of new files.
+Scenario
+This component utilises the IPF File Poller, so that when a file is polled, the IPF File Poller will send a notification in order to trigger the processing of the file.
+The new-file-polled-connector will get the process trigger notification and send it using a send connector to the ipf-file-notification receive connector in order to start the debulk process.
+Prerequisites
+The application should provide an adapter implementation for
+FilePollerAdapter
+Interface (in the file-poller-api), that should create a
+FilePolledNotification
+request and send the message to the
+NewFilePolledAdapter
+bean.
+The FilePolledNotification should also include the BulkId, which is by default generated as UUID, but this can be overwritten by implementing the BulkIdGenerator Interface.
+An example implementation is as follows:
+@Override
+    public CompletionStage<Void> triggerFileProcessing(FileDetails fileDetails) {
+        File file = new File(fileDetails.getFilePath());
+        FilePolledNotification filePolledNotification = FilePolledNotification.builder()
+                .fileName(file.getName())
+                .configName("pain.001.001.09")
+                .fileProvider("local")
+                .filePath(fileDetails.getFilePath().substring(0, fileDetails.getFilePath().lastIndexOf("/")))
+                .build();
+        filePolledNotification.setBulkId(bulkIdGenerator.generateBulkId(filePolledNotification));
+        return newFilePolledAdapter.send(determineContext(), filePolledNotification)
+                .thenApply(ignored -> null);
+    }
+Details on configuring the poller can be seen at the following link:
+IPF File Poller
+Configuration Properties
+Config
+Type
+Comment
+Default
+ipf.debulker.file-polled-message.kafka.producer.transport
+String
+Transport Type.
+kafka
+ipf.debulker.file-polled-message.kafka.producer.topic
+String
+Kafka Topic
+FILE_NOTIFICATION_REQUEST
+New File Notification
+Duplicate check

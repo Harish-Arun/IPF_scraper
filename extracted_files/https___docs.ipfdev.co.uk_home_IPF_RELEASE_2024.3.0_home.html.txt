@@ -1,0 +1,27 @@
+=== URL: https://docs.ipfdev.co.uk/home/IPF_RELEASE_2024.3.0/home.html ===
+Simplifying Banking Transformation
+Your browser does not support the video tag.
+Get Started
+Check out the high level concepts and ideas. Then create an IPF project to start your journey to payments running.
+View
+Learn IPF
+Learn all you need to implement the key features of IPF, building a complex flow to see IPF in action.
+View
+Core IPF
+Find the product documentation for IPF’s core features and components.
+View
+DSL & Orchestration
+A deep dive into the IPF DSL, reviewing the core concepts and features that it provides to orchestrate your payments processing.
+View
+Connector Framework
+A deep dive into the IPF Connector framework, looking at how it simplifies integration and supports the IPF ecosystem.
+View
+Testing
+Take a look at Icon’s Test Framework and how it works with IPF to provide rich testing capabilities of your IPF solution.
+View
+Introduction to IPF
+Watch an introduction to IPF and its underpinning technology from the people delivering it.
+Episode 1: Market Trends, Icon Solutions and the IPF Product
+The Icon Payments Podcast highlights some of the key challenges and learning curves when developing software products, and explores the motivations, architecture and principles driving the development of IPF.
+Episode 2: Accelerating Integration with the IPF Connectors
+Watch Episode 2 of The Icon Payments Podcast where we discuss accelerating integration with IPF Connectors, giving background on some of the design goals with Iconâs Matt Piper and Patrick Altaie.

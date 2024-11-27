@@ -1,0 +1,359 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/dynamic-configuration-set-up/dynamic-configurations-set-up-guide.html ===
+Dynamic Configuration Management Guidelines
+This page provides guidelines on setting up dynamic configurations for CSM Reachability. There are two ways the dynamic configurations for CSM Reachability can be set up.
+Set Up using IPF GUI
+Set Up using DPS Setting Management APIs
+1. Set Up using IPF GUI
+IPF GUI is an AOM that needs a separate licensing agreement for use and having a licensed access to CSM Reachability service does not directly enable client implementations with access to IPF GUI for management of dynamic configurations using IPF GUI.
+If as a client implementation, you have access to IPF GUI, below section provides the setup guides of how dynamic configurations for CSM Reachability can be managed using IPF GUI.
+Sr. No.
+Dynamic Configuration
+IPF GUI  Guidelines
+1
+Processing Entity
+IPF GUI - Processing Entity
+2
+Generic Processing - Intra Entity Parties
+IPF GUI - Generic Processing Settings
+3
+Generic Processing - Supported Transfer Currencies
+IPF GUI - Generic Processing Settings
+4
+Generic Processing - Processing Entity Accounts
+IPF GUI - Generic Processing Settings
+5
+Agent Settings
+IPF GUI - Agent Settings
+6
+Agent Settlement Settings
+IPF GUI - Agent Settlement Settings
+7
+Agent Clearing Settings
+IPF GUI - Agent Clearing Settings
+8
+CS Agent Selection Settings
+Documentation awaited.
+9
+CSM Participants
+Not supported on IPF GUI yet.
+2. Set Up using DPS Setting Management APIs
+The dynamic configurations required for CSM Reachability can be set up using DPS Setting management APIs directly.
+Examples of create curl scripts are added below:
+Processing Entity
+curl --location 'http://localhost:8089/settings-objects/processingentity' \
+--header 'Content-Type: application/json' \
+--data '{
+    "requiresApproval": false,
+    "createdBy": "init-script",
+    "source": "manual",
+    "processingEntity": "PE1",
+    "payload": {
+      "processingEntityName": "Bank Name",
+      "ledgerCurrency": "GBP",
+      "entityIdentifiers": [
+        {
+          "identifier": "NWBKGB2LXXX",
+          "identifierType": "BIC",
+          "identifierSubType": "SCHEME_MEMBERSHIP_BIC"
+        },
+        {
+          "identifier": "600004",
+          "identifierType": "NCC",
+          "identifierSubType": "GBDSC"
+        }
+      ],
+      "entityAddress": {
+        "country": "GB",
+        "addressLines": []
+      }
+    }
+  }'
+Generic Processing Settings
+Intra Entity Parties
+curl --location 'http://localhost:8080/settings-objects/genericprocessingsettings' \
+--header 'Content-Type: application/json' \
+--data '{
+    "requiresApproval": false,
+    "createdBy": "init-script",
+    "source": "manual",
+    "processingEntity": "PE1",
+    "payload": {
+      "settingCategory": "INTRA_ENTITY_PARTIES",
+      "categoryProcessingSettings": {
+        "identifierValueList": [
+          "600004",
+          "560061",
+          "601902",
+          "600127",
+          "010214"
+        ],
+        "partyIdentifierType": "NCC",
+        "partyIdentifierSubType": "GBDSC",
+        "partyIdentifierCountry": "GB",
+        "partyEntityLookupSource": "Bank_Directory_Plus"
+      }
+    }
+  }'
+Supported Transfer Currencies
+curl --location 'http://localhost:8080/settings-objects/genericprocessingsettings' \
+--header 'Content-Type: application/json' \
+--data '{
+    "requiresApproval": false,
+    "createdBy": "init-script",
+    "source": "manual",
+    "processingEntity": "PE1",
+    "payload": {
+      "settingCategory": "SUPPORTED_TRANSFER_CURRENCIES",
+      "categoryProcessingSettings": {
+       "transferCurrencies": [
+          {
+            "currency": "GBP",
+            "intraEntityTransfer": true,
+            "intraGroupTransfer": true,
+            "extraGroupTransfer": true
+          },
+          {
+            "currency": "EUR",
+            "intraEntityTransfer": false,
+            "intraGroupTransfer": true,
+            "extraGroupTransfer": true
+          },
+          {
+            "currency": "USD",
+            "intraEntityTransfer": false,
+            "intraGroupTransfer": false,
+            "extraGroupTransfer": true
+          }
+        ]
+      }
+    }
+  }'
+Processing Entity Accounts
+curl --location 'http://localhost:8080/settings-objects/genericprocessingsettings' \
+--header 'Content-Type: application/json' \
+--data '{
+    "requiresApproval": false,
+    "createdBy": "init-script",
+    "source": "manual",
+    "processingEntity": "PE1",
+    "payload": {
+      "settingCategory": "PROCESSING_ENTITY_ACCOUNTS",
+      "categoryProcessingSettings": {
+        "processingEntityAccounts": [
+          {
+            "accountId": "4892364923",
+            "accountCurrency": "CHF",
+            "accountType": "SuspenseAccount",
+            "accountSubType": "ReturnsRejects",
+            "branchIdentifier": {
+              "identifier": "230",
+              "identifierType": "NCC",
+              "identifierSubType": "CHBCC"
+            }
+          },
+          {
+            "accountId": "98469834687",
+            "accountCurrency": "EUR",
+            "accountType": "SuspenseAccount",
+            "accountSubType": "ReturnsRejects",
+            "branchIdentifier": {
+              "identifier": "230",
+              "identifierType": "NCC",
+              "identifierSubType": "CHBCC"
+            }
+          },
+          {
+            "accountId": "92374034762",
+            "accountCurrency": "CHF",
+            "accountType": "LedgerAccount",
+            "branchIdentifier": {
+              "identifier": "230",
+              "identifierType": "NCC",
+              "identifierSubType": "CHBCC"
+            }
+          }
+        ]
+      }
+    }
+  }'
+Agent Settings
+curl --location 'http://localhost:8080/settings-objects/agentsettings' \
+--header 'Content-Type: application/json' \
+--data '{
+    "requiresApproval": false,
+    "createdBy": "init-script",
+    "source": "manual",
+    "processingEntity": "PE1",
+    "payload": {
+      "agentUniqueId": "agent01",
+      "agentName": "Agent Name",
+      "agentIdentifiers": [
+        {
+          "identifier": "RBOSGB2LXXX",
+          "identifierType": "BIC",
+          "identifierSubType": "SCHEME_MEMBERSHIP_BIC"
+        },
+        {
+          "identifier": "151999",
+          "identifierType": "NCC",
+          "identifierSubType": "GBDSC"
+        }
+      ],
+      "agentType": "DIRECT_ACCOUNT_AGENT",
+      "agentRoles": {
+        "servicedAgent": false,
+        "intermediaryAgent": true
+      },
+      "intraGroup": true,
+      "agentAddress": {
+        "country": "GB",
+        "addressLines": []
+      }
+    }
+  }'
+Agent Settlement Settings
+curl --location 'http://localhost:8080/settings-objects/agentsettlementsettings' \
+--header 'Content-Type: application/json' \
+--data '{
+    "requiresApproval": false,
+    "createdBy": "init-script",
+    "source": "manual",
+    "processingEntity": "PE1",
+    "payload": {
+      "agentUniqueId": "agent01",
+      "transferCurrencies": [
+        "GBP"
+      ],
+      "transferDirection": "OUTBOUND",
+      "settlementAccount": {
+        "accountId": "10294857",
+        "accountIdType": "OTHR",
+        "accountCurrency": "GBP",
+        "accountType": "NOSTRO",
+        "accountServicingAgent": {
+          "agentName": "Bank Name",
+          "agentIdentifiers": [
+            {
+              "identifier": "600004",
+              "identifierType": "NCC",
+              "identifierSubType": "GBDSC"
+            }
+          ],
+          "agentCountry": "GB"
+        }
+      },
+      "agentLimits": [
+        {
+          "limitType": "INDIVIDUAL_MAX_AMOUNT_VALUE",
+          "limitValue": 300000
+        }
+      ],
+      "customParticipantLimits": [
+        {
+          "limitType": "INDIVIDUAL_MAX_AMOUNT_VALUE",
+          "limitValue": 150000,
+          "participantIdentifier": "AGRIMQMXXXX"
+        }
+      ],
+      "participantCountryLimits": [
+        {
+          "limitType": "INDIVIDUAL_MAX_AMOUNT_VALUE",
+          "limitValue": 250000,
+          "country": "GB"
+        }
+      ],
+      "higherParticipantLimitAllowed": false
+    }
+  }'
+Agent Clearing Settings
+curl --location 'http://localhost:8080/settings-objects/agentclearingsettings' \
+--header 'Content-Type: application/json' \
+--data '{
+    "requiresApproval": false,
+    "createdBy": "init-script",
+    "source": "manual",
+    "processingEntity": "PE1",
+    "payload": {
+      "agentUniqueId": "agent01",
+      "coverSerialMethod": "COVER",
+      "timeZone": "Europe/London",
+      "openingTime": "07:00:00",
+      "closingTime": "18:00:00",
+      "openingExtension": {
+        "extensionInMinutes": 90,
+        "extensionExpiresOnDate": "2020-07-09T00:00:00Z"
+      }
+    }
+  }'
+CS Agent Selection Settings
+curl --location 'http://localhost:8080/settings-objects/csagentselectionsettings' \
+--header 'Content-Type: application/json' \
+--data '{
+    "requiresApproval": false,
+    "createdBy": "init-script",
+    "source": "manual",
+    "processingEntity": "PE1",
+    "payload": {
+      "selectionId": "PE1-GBP-CT-Inst",
+      "transferCurrencies": [
+        "GBP"
+      ],
+      "paymentType": "CreditTransfer",
+      "serviceLevel": "Instant",
+      "csmAgentSelectionOptions": [
+        {
+          "selectionOrder": 1,
+          "agentUniqueId": "agent01",
+          "clearingSettlementMethod": "DIRECT_ACCOUNT"
+        },
+        {
+          "selectionOrder": 2,
+          "agentUniqueId": "agent02",
+          "clearingSettlementMethod": "DIRECT_ACCOUNT"
+        },
+        {
+          "selectionOrder": 3,
+          "agentUniqueId": "agent03",
+          "clearingSettlementMethod": "DIRECT_ACCOUNT"
+        },
+        {
+          "selectionOrder": 4,
+          "agentUniqueId": "FPS",
+          "clearingSettlementMethod": "CLEARING_HOUSE"
+        },
+        {
+          "selectionOrder": 5,
+          "agentUniqueId": "CHAPS",
+          "clearingSettlementMethod": "CLEARING_HOUSE"
+        }
+      ]
+    }
+  }'
+CSM Participants
+curl --location 'http://localhost:8080/settings-objects/participant' \
+--header 'Content-Type: application/json' \
+--data '{
+    "requiresApproval": false,
+    "createdBy": "init-script",
+    "source": "manual",
+    "processingEntity": "PE1",
+    "payload": {
+      "csmAgentId": "TIPS",
+      "csmParticipantIdentifier": "AGRIMQMXXXX",
+      "participantName": "Bank Name",
+      "routingBIC": "AGRIFRPPXXX",
+      "activeFromDate": "2020-07-09T00:00:00.000Z",
+      "participantType": "DIRECT",
+      "limits": [
+        {
+          "limitType": "MAX_TRANSACTION_VALUE",
+          "amount": {
+            "amountValue": 250000,
+            "currency": "GBP"
+          }
+        }
+      ]
+    }
+  }'
+Dynamic Configuration Set Up
+Integration

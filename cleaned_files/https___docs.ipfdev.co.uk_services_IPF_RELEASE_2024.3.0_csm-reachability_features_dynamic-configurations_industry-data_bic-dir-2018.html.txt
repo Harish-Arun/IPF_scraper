@@ -1,0 +1,82 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/bic-dir-2018.html ===
+SWIFTRef Bic Dir 2018
+SwiftRef BIC Plus Directory
+, loaded via local file ingesters and containing the following file types: BICDIR2018, containing information on institutions behind the BICs and their FIN connectivity status.
+File Types Supported
+File Name
+File Types Supported
+File Formats Supported
+File Naming Conventions
+BIC Directory 2018
+FULL
+TXT
+BICDIR2018
+_V1_FULL_XXXXXXXX
+BIC Directory 2018
+DELTA
+TXT
+BICDIR2018
+_V1_DELTA_YYYYMMDD
+AWS S3 Ingestion identifies this file when the file name starts with "BICDIR2018". The Full file is identified using the text FULL on the file name and the delta file is identified using the text DELTA.
+The client implementations should not modify the files names provided by industry sources and ingest the files as received.
+Bic Directory 2018 can be used by client implementations for BIC validation purposes.
+Bic Dir 2018 Data Structure
+Bic Dir 2018 property
+Description
+tag
+The type of institution(Usually FI)
+modificationFlag
+On the FULL file the value of MODIFICATION FLAG is always
+aAa (record to add)
+On the DELTA file the value of MODIFICATION FLAG  can be
+aAa (record to add)
+aMa (record to modify)
+aDa (record to delete)
+Source file records with a value of "D" will not be loaded.
+bicCode
+The BIC8 value
+branchCode
+The 3 character BIC Branch code
+BIC CODE concatenated with BRANCH CODE gives a BIC11
+institutionName
+Name of institution
+branchInformation
+For information only
+Bic Dir 2018 V1 file to Bic Dir 2018 Directory mapping
+Bic Dir 2018 V1 property
+Bic Dir 2018 property
+Comment
+TAG
+tag
+MODIFICATION FLAG
+modificationFlag
+On the FULL file is always "A", and for DELTA file it can be "A", "M", or "D"
+BIC CODE
+bicCode
+BRANCH CODE
+branchCode
+INSTITUTION NAME
+institutionName
+BRANCH INFORMATION
+branchInformation
+Example Mapping
+Source Record from Industry file
+TAG	MODIFICATION FLAG	BIC CODE	BRANCH CODE	INSTITUTION NAME	BRANCH INFORMATION	CITY HEADING	SUBTYPE INDICATION	VALUE ADDED SERVICES	EXTRA INFO	PHYSICAL ADDRESS 1	PHYSICAL ADDRESS 2	PHYSICAL ADDRESS 3	PHYSICAL ADDRESS 4	LOCATION	COUNTRY NAME	POB NUMBER	POB LOCATION	POB COUNTRY NAME
+FI	U	AAAARSBG	XXX	MOBI BANKA AD		BEOGRAD	SUPE	FIN	                  CB	OMLADINSKIH BRIGADA 90V				11070 BEOGRAD	SERBIA
+FI	U	AAACKWKW	XXX	AL MUZAINI EXCHANGE CO. KSCC		KUWAIT	SUPE	FIN	                  CK	BUILDING 9	BLOCK 4	SAUD BIN ABDULAZIZ ST.		13022 KUWAIT	KUWAIT	POB 2156	13022 KUWAIT	KUWAIT
+FI	U	AAADFRP1	XXX	ABN AMRO INVESTMENT SOLUTIONS		PARIS	NSWB		                  NP	3 AVENUE HOCHE	CHEZ NSM	CHEZ NSM		75008 PARIS	FRANCE
+FI	U	AAAJBG21	XXX	ARCUS ASSET MANAGEMENT JSC		PLOVDIV	NSWB		                  N2	BUSINESS CENTER LEGIS	6TH OF SEPTEMBER BLVD. 152			4000 PLOVDIV	BULGARIA
+FI	U	AAAMFRP1	XXX	NEXAM		PARIS	NSWB		                  NP	20 RUE LE PELETIER				75009 PARIS	FRANCE
+FI	U	AAAOFRP1	XXX	ACA  ASSET MANAGEMENT COMPANY AND ASSOCIES		PARIS	NSWB		                  NP	241 BOULEVARD ST GERMAIN				75007 PARIS	FRANCE
+FI	U	AAAPBGS1	XXX	ALARIC CAPITAL		SOFIA	NSWB		                  NS	EXARCH YOSIF 7				1301 SOFIA	BULGARIA
+Destination Record - BicDir2018
+{
+  "tag": "FI",
+  "modificationFlag": "U",
+  "bicCode": "AAAARSBG",
+  "branchCode": "XXX",
+  "institutionName": "MOBI BANKA AD",
+  "branchInformation": ""
+}
+IBAN Structure Directory
+CSM Reachability Operations

@@ -1,0 +1,488 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ipf-operational-dashboard/installation/deployment.html ===
+Deployment
+Table of Contents
+Running as a standalone application
+Additional information
+Building as a Container
+Kubernetes and OpenShift
+Running as a standalone application
+IPF Operational Dashboard can be created with 2 maven profiles:
+container
+- Generates docker containers
+runnable
+- Generates a runnable jar to run as a standalone application
+In this instance we are interested in the runnable jar.
+When building IPF Operational Dashboard using the archetype projects both the
+container
+and
+runnable
+can be generated in the pom.xml.
+If you want to generate the runnable you will need to invoke the
+runnable
+profile as follows:
+mvn clean install -P runnable
+All IPF runnable jars are produced as Spring Boot applications. To run an IPF Operational Dashboard, you would execute the following:
+java -cp ipf-operational-dashboard-docker/target/com.iconsolutions.payments_ipf-operational-dashboard-docker_3.0.1-SNAPSHOT-runnable.jar:config -Dconfig.override_with_env_vars=true -Dloader.main=com.iconsolutions.ipf.gui.BusinessOperationsMain org.springframework.boot.loader.PropertiesLauncher
+If using windows we need to replace the first ":" with a ";", namely: "ods-ingestion-app-1.10.24-runnable.jar;config"
+If you are overriding any of the default configuration for the applications then, in this example, the configuration file for the application, application.conf, would live in the config folder as defined by
+:config
+. We then leverage the Spring Boot
+PropertiesLauncher
+to load the properties into the application.
+Additional information
+In order to package up the required javacript for the IPF modules you have chosen to serve for your IPF Operational Dashboard you will need these two sections of code in your webapp pom:
+<build>
+    <resources>
+        <resource>
+            <directory>${project.build.directory}/static</directory>
+            <targetPath>static</targetPath>
+        </resource>
+    </resources>
+</build>
+<build>
+    <plugins>
+        <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <version>1.12.0</version>
+            <configuration>
+                <nodeVersion>v20.11.1</nodeVersion>
+                <npmVersion>10.2.4</npmVersion>
+                <installDirectory>${project.build.directory}</installDirectory>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>install node and npm</id>
+                    <goals>
+                        <goal>install-node-and-npm</goal>
+                    </goals>
+                </execution>
+                <execution>
+                    <id>Build</id>
+                    <goals>
+                        <goal>npm</goal>
+                    </goals>
+                    <configuration>
+                        <arguments>run build</arguments>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+You will need to match this in your service pom with the required java dependencies, ops-gui-service-ng-starter, your webapp, commons-codec and whichever IPF modules you chose:
+<dependencies>
+    <dependency>
+        <groupId>com.iconsolutions.ipf.gui</groupId>
+        <artifactId>ops-gui-service-ng-starter</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.iconsolutions.payments</groupId>
+        <artifactId>ipf-operational-dashboard-webapp</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.iconsolutions.ipf.gui</groupId>
+        <artifactId>ops-gui-service-ng-cluster</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.iconsolutions.ipf.gui</groupId>
+        <artifactId>ops-gui-service-ng-htm</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.iconsolutions.ipf.gui</groupId>
+        <artifactId>ops-gui-service-ng-metrics</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.iconsolutions.ipf.gui</groupId>
+        <artifactId>ops-gui-service-ng-payment-search</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>com.iconsolutions.ipf.gui</groupId>
+        <artifactId>ops-gui-service-ng-processing-settings</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>commons-codec</groupId>
+        <artifactId>commons-codec</artifactId>
+    </dependency>
+</dependencies>
+In order to create the required runnable jar.
+Building as a Container
+All the applications that IPF produce get pushed to
+ipf-releases
+in Nexus. The runnable jars will be available as an artifact with a suffix of
+runnable
+in the Nexus repository for each version of the application you need. For example if you want to fetch the IPF Operational Dashboard runnable jar for version 3.0.0 you would find it at this link:
+nexus.ipf.iconsolutions.com/#browse/browse:icon-releases:com%2Ficonsolutions%2Fpayments%2Fipf-operational-dashboard-docker%2F3.0.0%2Fipf-operational-dashboard-docker-3.0.0-runnable.jar
+The following
+Dockerfile
+can be used as a template for integration with your own underlying base container.
+FROM registry.ipf.iconsolutions.com/ubi8-minimal-openjdk-11:latest
+
+RUN mkdir -p /ipf-operational-dashboard-service/conf /ipf-operational-dashboard-service/lib
+
+COPY ipf-operational-dashboard-docker-3.0.0-runnable.jar /ipf-operational-dashboard-service/lib/
+COPY cinnamon-agent-2.17.3.jar /ipf-operational-dashboard-service/lib/
+
+WORKDIR /ipf-operational-dashboard-service
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s --retries=1 CMD wget -qO- http://localhost:8080/actuator/health/ | grep UP || exit 1
+
+ENTRYPOINT java \
+    -javaagent:/ipf-operational-dashboard-service/lib/cinnamon-agent-2.17.3.jar \
+    -cp "/ipf-operational-dashboard-service/ipf-operational-dashboard-docker-3.0.0-runnable.jar:/ipf-operational-dashboard-service/conf" \
+    $IPF_OPS_GUI_SERVICE_JAVA_ARGS \
+    -Dconfig.override_with_env_vars=true \
+    -Dloader.main=com.iconsolutions.ipf.gui.BusinessOperationsMain \
+    org.springframework.boot.loader.PropertiesLauncher
+Kubernetes and OpenShift
+The IPF Operational Dashboard operates as an un-clustered, stateless application and so can be easily deployed using the following manifests
+Deployment Manifest
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: ipf-operational-dashboard
+    labels:
+        app: operational-dashboard
+        product: ipfv2
+spec:
+    replicas: 3
+    selector:
+        matchLabels:
+            app: operational-dashboard
+            product: ipfv2
+    template:
+        metadata:
+            labels:
+                app: operational-dashboard
+                product: ipfv2
+        spec:
+            containers:
+                - name: operational-dashboard
+                  image: CONTAINER_REGISTRY/ipf-operational-dashboard-service:VERSION
+                  imagePullPolicy: Always
+                  ports:
+                    - containerPort: 8080
+                      name: server-port
+                    - containerPort: 55001
+                      name: akka-artery
+                  env:
+                    - name: IPF_PODNAME
+                      valueFrom:
+                        fieldRef:
+                          fieldPath: metadata.name
+                    - name: POD_IP
+                      valueFrom:
+                        fieldRef:
+                          fieldPath: status.podIP
+                    - name: POD_NAMESPACE
+                      valueFrom:
+                        fieldRef:
+                          fieldPath: metadata.namespace
+                    - name: "AKKA_CLUSTER_BOOTSTRAP_SERVICE_NAME"
+                      valueFrom:
+                        fieldRef:
+                          apiVersion: v1
+                          fieldPath: metadata.labels['app']
+                    - name: IPF_JAVA_ARGS
+                      value: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=60 -XX:InitialRAMPercentage=60 -XX:-PreferContainerQuotaForCPUCount"
+                  resources:
+                    limits:
+                      memory: 3.5Gi
+                    requests:
+                      memory: 2Gi
+                      cpu: 500M
+                  livenessProbe:
+                    httpGet:
+                      path: /actuator/health
+                      port: server-port
+                      scheme: HTTP
+                    initialDelaySeconds: 60
+                    periodSeconds: 5
+                    timeoutSeconds: 1
+                    failureThreshold: 3
+                    successThreshold: 1
+                  readinessProbe:
+                    httpGet:
+                      path: /actuator/health
+                      port: server-port
+                      scheme: HTTP
+                    initialDelaySeconds: 60
+                    periodSeconds: 5
+                    timeoutSeconds: 1
+                    failureThreshold: 3
+                    successThreshold: 1
+                  startupProbe:
+                    httpGet:
+                      path: /actuator/health
+                      port: server-port
+                      scheme: HTTP
+                    periodSeconds: 10
+                    failureThreshold: 30
+                  volumeMounts:
+                    - name: configuration-dashboard
+                      mountPath: /operational-dashboard-service/conf
+            volumes:
+              - name: configuration-dashboard
+                projected:
+                  defaultMode: 420
+                  sources:
+                    - secret:
+                      name: operational-dashboard
+                      items:
+                        - key: users.conf
+                          mode: 420
+                          path: users.conf
+                    - configMap:
+                      name: operational-dashboard-cm
+                      items:
+                        - key: logback.xml
+                          mode: 420
+                          path: logback.xml
+                        - key: application.conf
+                          mode: 420
+                          path: application.conf
+                    - configMap:
+                        name: operational-dashboard-cm-summary-layout
+                        items:
+                          - key: summary-layout.conf
+                            mode: 420
+                            path: summary-layout.conf
+                    - configMap:
+                        name: ipf-operational-dashboard-cm-reason-codes
+                        items:
+                          - key: reason-codes.conf
+                            mode: 420
+                            path: reason-codes.conf
+Service Manifest
+apiVersion: v1
+kind: Service
+metadata:
+    name: operational-dashboard
+    labels:
+        app: operational-dashboard
+        product: ipfv2
+spec:
+    selector:
+        app: operational-dashboard
+        product: ipfv2
+    ports:
+        - name: server-port
+          protocol: TCP
+          port: 8080
+          targetPort: 8080
+ConfigMap Manifest
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: ipf-operational-dashboard-cm
+data:
+    application.conf: |
+        spring.data.mongodb.uri = "${ipf.mongodb.url}"
+        
+        ipf {
+          business-operations = {
+            auth = {
+                jwt {
+                  secret = ""
+                  roles-claim = "roles"
+                }
+        
+                cors {
+                  allowed-origin-patterns = [ "*" ]
+                }
+        
+                saml2 {
+                  enabled = true
+                  verification-certificate = "classpath:idp.crt"
+                  registration-id = "sample-client"
+                  single-sign-on-service-location = "https://simplesaml.${environment_name}.ipfdev.co.uk/simplesaml/saml2/idp/SSOService.php"
+                  single-log-out-service-location = "https://simplesaml.${environment_name}.example.org/simplesaml/saml2/idp/SingleLogoutService.php"
+                  identity-provider-entity-id = "https://simplesaml.${environment_name}.example.org/simplesaml/saml2/idp/metadata.php"
+                  service-provider-entity-id = "sample-client"
+                  want-authn-requests-signed = false
+                  uid-attribute = "uid"
+                  roles-attribute = "roles"
+                  roles-separator = ","
+                  return-url = "/"
+                }
+        
+                oauth2 {
+                  enabled = true
+                  registrationId = "keycloak"
+                  clientId = "login-app"
+                  clientSecret = "802e7940-648b-4925-8079-24fa6dc47afe"
+                  scopes = "openid, roles"
+                  authorizationUri = "https://keycloak.${environment_name}.example.org/realms/demo/protocol/openid-connect/auth"
+                  tokenUri = "https://keycloak.${environment_name}.example.org/realms/demo/protocol/openid-connect/token"
+                  jwkSetUri = "https://keycloak.${environment_name}.example.org/realms/demo/protocol/openid-connect/certs"
+                  returnUrl = "/"
+                  rolesFromAttributes = true
+                  rolesAttribute = "roles"
+                  username = "preferred_username"
+                }
+            }
+            audit = {
+                enabled = true
+            }
+            cluster-management = {
+              systems = [
+                {
+                  name = "Payments Service"
+                  base-urls = [
+                    "http://payment-service:8558"
+                  ],
+                  akka-management = true,
+                  actuator = {
+                    protocol = "http",
+                    port = "8080"
+                  }
+                },
+                {
+                  name = "Notification Service"
+                  base-urls = [
+                    "http://notification-service:8558"
+                  ],
+                  akka-management = true,
+                  actuator = {
+                    protocol = "http",
+                    port = "8080"
+                  }
+                },
+                {
+                  name = "ODS Ingestion"
+                  base-urls = [
+                    "http://ods-ingestion:8558"
+                  ],
+                  akka-management = true,
+                  actuator = {
+                    protocol = "http",
+                    port = "8080"
+                  }
+                },
+                {
+                  name = "ODS Inquiry"
+                  base-urls = [
+                    "http://ods-inquiry:8080"
+                  ],
+                  akka-management = false,
+                  actuator = {
+                    protocol = "http",
+                    port = "8080"
+                  }
+                }
+              ]
+            }
+            metrics = {
+              http = {
+                client = {
+                  host = "grafana"
+                  port = "3000"
+                  endpoint-url = "/api/health"
+                }
+              }
+              metric-url = "http://grafana:3000",
+              local-metric-url = "https://grafana.${environment_name}.example.org",
+              call-timeout  = 30s,
+              dashboards = [
+                {
+                  title: "Business Metrics",
+                  name: "transactions",
+                  id: "0000000001",
+                  panels: [
+                    {id: "1"},
+                    {id: "2"},
+                    {id: "15"},
+                    {id: "16&var-lookback_period=1y"}
+                  ],
+                  columns: "2"
+                },
+                {
+                  title: "Debtor Credit Transfer Metrics",
+                  name: "transactions",
+                  id: "0000000001",
+                  panels: [
+                    {id: "4&var-behaviour=DebtorCreditTransferBehaviour&var-latency_type=FULL_FLOW", colspan: "1"},
+                    {id: "4&var-behaviour=DebtorCreditTransferBehaviour&var-latency_type=CSM_STATES_ONLY", colspan: "1"},
+                    {id: "4&var-behaviour=DebtorCreditTransferBehaviour&var-latency_type=NO_CSM_STATES", colspan: "1"},
+                    {id: "8&var-behaviour=DebtorCreditTransferBehaviour", colspan: "2"}
+                  ],
+                  columns: "3"
+                },
+                {
+                  title: "Creditor Credit Transfer Metrics",
+                  name: "transactions",
+                  id: "0000000001",
+                  panels: [
+                    {id: "4&var-behaviour=CreditorCreditTransferBehaviour&var-latency_type=FULL_FLOW", colspan: "1"},
+                    {id: "4&var-behaviour=CreditorCreditTransferBehaviour&var-latency_type=CSM_STATES_ONLY", colspan: "1"},
+                    {id: "4&var-behaviour=CreditorCreditTransferBehaviour&var-latency_type=NO_CSM_STATES", colspan: "1"},
+                    {id: "8&var-behaviour=CreditorCreditTransferBehaviour", colspan: "2"}
+                  ],
+                  columns: "3"
+                },
+                {
+                  title: "Connector Metrics",
+                  name: "ipf-connectors",
+                  id: "0000000002",
+                  panels: [
+                    {id: "1"},
+                    {id: "2"},
+                    {id: "4", colspan: "2"},
+                    {id: "5", colspan: "2"}
+                  ],
+                  columns: "2"
+                }
+              ]
+            }
+        
+            payment-search = {
+                ods = {
+                  security = {
+                    enabled = false
+                    grant_type = "password"
+                    client_id = "login-app"
+                    client_secret = "802e7940-648b-4925-8079-24fa6dc47afe"
+                    username = "test"
+                    password = "p4ssw0rd"
+                    jwt-certificate = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhXrGmY331co1PX/tDGdMpChoaVfokUMxdrrRul4lLIGSOAEBRegLdmmmY7FgCSTtIhmkkwZWu3gaZLs5+oyld9ncXSL4OpQQvoCOd84RvWiHLhxPBynuYmypTQUP2kLeM3ntCsXI13SwN59tE/y4H/GVGTBDrfN2ELaS43OeZRpQuW1XqLWuyNGDCtC4V7cd+gld5uDBa93PUB40ypWqnYQVrC+PRiiiXcF6uyEgkOgMinR8LerKFi/iFpuMytJa9zW0d/O5aOceulWDjUJeqf+6EbonWjfJv5GMSKdsCjQ6rnq/a1gaxSyYeCctmqtUpu0Ogjjjwfwf3qkj6fWUawIDAQAB"
+                  }
+                }
+                ods-inquiry-url = "http://ods-inquiry:8080"
+                payment-summaries.http.client.endpoint-url = ${ipf.business-operations.payment-search.ods-inquiry-url}"/views/summaries/payments"
+                payment-details.http.client.endpoint-url = ${ipf.business-operations.payment-search.ods-inquiry-url}"/views/details"
+                system-events.http.client.endpoint-url = ${ipf.business-operations.payment-search.ods-inquiry-url}"/catalogue/process-objects/system-events"
+                message-logs.http.client.endpoint-url = ${ipf.business-operations.payment-search.ods-inquiry-url}"/catalogue/process-objects/message-logs"
+                process-flow-events.http.client.endpoint-url = ${ipf.business-operations.payment-search.ods-inquiry-url}"/catalogue/process-objects/process-flow-events"
+                payment-objects.http.client.endpoint-url = ${ipf.business-operations.payment-search.ods-inquiry-url}"/all/payment-objects"
+                custom-objects.http.client.endpoint-url = ${ipf.business-operations.payment-search.ods-inquiry-url}"/all/custom-objects"
+                auth-server.http.client.endpoint-url = ${ipf.business-operations.payment-search.ods-inquiry-url}"/realms/demo/protocol/openid-connect/token"
+            }
+          }
+        }
+
+    logback.xml: |
+        <?xml version="1.0" encoding="UTF-8"?>
+        <configuration>
+          <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <target>System.out</target>
+            <encoder>
+              <pattern>[%date{ISO8601}] [%level] [%logger] [%marker] [%thread] - %msg%n</pattern>
+            </encoder>
+          </appender>
+        
+          <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+            <queueSize>8192</queueSize>
+            <neverBlock>true</neverBlock>
+            <appender-ref ref="CONSOLE" />
+          </appender>
+        
+          <logger name="com.iconsolutions" level="ERROR"/>
+        
+          <root level="INFO">
+            <appender-ref ref="ASYNC"/>
+          </root>
+        
+        </configuration>
+Service Configuration
+Guidelines

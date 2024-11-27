@@ -1,0 +1,5 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/getting-started.html ===
+Getting started
+Using Bulker
+Supported Messages
+List of System Events

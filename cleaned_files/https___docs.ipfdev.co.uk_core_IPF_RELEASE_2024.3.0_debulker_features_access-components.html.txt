@@ -1,0 +1,19 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/access-components.html ===
+Access Components
+On receipt of the Initiate Processing notification, the client application/flow can process the individual components by accessing the
+File Component Store
+.
+To do this, the Component Store provides interfaces which allows the client to call and ask for components.
+The initial notification received by the client will contain the BulkId of the file that has been processed. This is the Id of the top most component that has been debulked. By using this Id, the client can navigate through the stored components by calling the available "find" methods:
+findById
+findAllByParentIdAndMarker
+findAllByBulkId
+findAllByParentId
+Each of these methods will return either:
+A list of Ids of the child components that sit under it
+If it is the lowest level component in the structure, the component itself
+Both component content and Ids if the children make up part of the components content.
+A full description of how these can be implemented can be found in
+Getting started
+File Archiver
+Housekeeping component remover

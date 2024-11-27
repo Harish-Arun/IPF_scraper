@@ -1,0 +1,32 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/dynamic-settings/features/file-ingestion-system-events.html ===
+Data Ingestion System Events
+Processing Complete Event
+ProcessingComplete event is raised when ProcessedEntryResponses have outcome
+SUCCESS
+and size of responses is greater than zero. When this event is raised, metric named
+ipf_file_ingestion_processing_finished
+with outcome
+SUCCESS
+is exposed with processName and fileName.
+Processing Failed Event
+ProcessingFailedEvent is raised when error occurred while executing processing definition. When this event is raised, metric named
+ipf_file_ingestion_processing_finished
+with outcome
+FAILED
+is exposed, along with processName and fileName.
+Processing Skipped Event
+Processing Skipped Event is raised when ingestion of a non-corrupted file has been attempted from a directory not meant for the file being ingested (e.g. a Bank Directory Plus ingestion attempted from directory meant for IBANPlus). In the scenario, the file ingestion does not proceed and the file is moved to Archive directory and Processing Skipped Event is raised.
+File Entry Processed Event
+FileEntryProcessedEvent is raised for each entry is successfully processed. When this event is raised, metric named
+ipf_file_ingestion_file_entry_processed
+is exposed, along with entryId and fileName.
+File Entry Skipped Event
+FileEntrySkippedEvent is raised when BankMasterConcatenated entry with bankMasterConcatenated.getIid() doesnt have an associated Bank Master type entry. When this event is raised, metric named
+ipf_file_ingestion_file_entry_processed
+is exposed with
+bankMasterConcatenatedIid
+,
+fileName
+and proper message. It is raised only for BankMaster files.
+Settings Model
+How to guides

@@ -1,0 +1,45 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-api/schema.html ===
+SEPA Inquiry API
+Summary
+Description
+This API is used to inquire/request to modify a previously submitted payment
+Integration Pattern
+Asynchronous
+Reply Method
+Separate request/response queues/topics
+Integration Method
+JMS, Kafka
+Message Format
+JSON
+Message Model
+ISO20022
+Security
+TLS 1.2
+Resiliency Strategies
+Circuit Breaker, Backpressure, Automatic Retries
+Models
+ReceiveInquiryClaimRequest
+Version:
+camt.027.001.07
+Details:
+View the json schema
+ReceiveInquiryModifyRequest
+Version:
+camt.087.001.06
+Details:
+View the json schema
+SepaCsmInquiryRequest
+Version:
+pacs.008.001.08
+Details:
+View the json schema
+SepaCsmInquiryResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+TechnicalResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema

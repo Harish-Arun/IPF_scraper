@@ -1,0 +1,12 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-3-0/release-IPF-2024-3-0-bulker.html ===
+Bulker & Debulker - Changes & Fixes
+This page covers the Bulker & Debulker module changes and fixes provided in release IPF-2024.3.0.
+Bulker
+New
+Added the ability for child bulks to have the parent namespace prefix added when the bulk is being produced.
+Debulker
+New
+Added housekeeping settings to configure how to clean up the component store and source bulk file dependent on debulking outcome, i.e. Successful Processing, Failed Processing or Rejected. This is not a breaking change as the default settings are the same as previous versions.
+Added support for deletion of bulks from S3
+Optional Modules - Changes & Fixes
+CSM Reachability - Changes & Fixes

@@ -1,0 +1,17 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20happy%20path.Handle%20Resolution%20of%20Investigation.html ===
+Handle Resolution of Investigation.story
+Scenario: Handling resolution of investigation
+When
+the ï½Recall Serviceï½  sends a Send Recall To Csm Request
+Then
+the ï½CSMï½  receives a Payment Cancellation Request
+And
+ï½Recall Serviceï½  receives a Technical Response with values:
+| status | SUCCESS |
+And
+ï½Recall Serviceï½  receives a Send Recall To Csm Response
+When
+ï½the CSMï½  sends an Resolution Of Investigation
+Then
+ï½Recall Serviceï½  receives a Receive Negative Answer with values:
+|payload.content.cxlDtls[0].txInf*And*Sts[0].orgnlTxId | #SendRecallToCsmRequest.payload.content.undrlyg[0].txInf[0].orgnlTxId |

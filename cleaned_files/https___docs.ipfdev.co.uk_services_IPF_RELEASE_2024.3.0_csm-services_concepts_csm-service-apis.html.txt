@@ -1,0 +1,30 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/concepts/csm-service-apis.html ===
+CSM Service APIs
+API definitions (and their related documentation) have moved into their own repositories and have been separated by function. See below the list of top-level links
+to the individual API documentation pages:
+API
+Documentation link
+CSM: Clear And Settle
+CSM Clear and Settle
+CSM: Recall/Return/ROI (RRR, R-message)
+CSM Recall / Return
+CSM: Validation API
+CSM Validation
+CSM: Direct Debit API
+CSM Direct Debit
+CSM: Direct Debit Validation API
+CSM Direct Debit Validation
+The below table shows the list of non-CSM APIs that are traditionally used in conjunction with CSM services. They have
+been listed here for completeness but are not expected to be implemented by CSM services.
+API
+Documentation link
+Credit Transfer
+Credit Transfer
+Payment initiation
+Payment Initiation
+Payment status
+Payment Status
+Recall/Return/ROI
+Recall / Return
+Concepts
+Supported Flows

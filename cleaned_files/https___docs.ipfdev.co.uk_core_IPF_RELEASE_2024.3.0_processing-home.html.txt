@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/processing-home.html ===
+Processing
+IPF contains a number of features within the core which are optionally used depending on your solution requirements. This section covers those which are related to core processing.
+IPF Cache - this module provides a simple Caffeine backed caching interface that IPF solutions can use for in memory caching (also see
+Transaction Caching
+for transaction specific caching, especially where a long lived persistent cache is required).
+Persistent Scheduler - scheduling future processing and jobs is covered by this component and works with cron expressions in combination with calendars to execute one-time or recurrent jobs. It also features a persistence layer whose main role is to keep single source of truth.
+Dynamic Settings - Dynamic Processing Settings provides a platform to manage configurable settings and their lifecycle.
+Bulk File Processing - the modules here provide the capability to process bulks of transactions or records, streamed from or to files.
+Message Logger - module and interface to allow the logging and/or publishing of IPF processing data.
+Payments Notification Service - an application that produces Payment Status Notifications, based Domain Events from IPF processing.
+The Updater: Handling Dangling Nodes
+IPF Cache

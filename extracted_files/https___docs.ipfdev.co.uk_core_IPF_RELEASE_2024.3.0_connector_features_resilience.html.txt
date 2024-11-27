@@ -1,0 +1,91 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/features/resilience.html ===
+Resilience
+Messaging is always a fraught process since networks and remote systems are not up 100% of the time.
+The connector library incorporates a number of strategies to cope with transient failures in external systems.
+The included strategies are, retries, circuit breaking and re-routing.
+As with other connector features, resilience is configurable; so as much, or as little of it can be used, dependent on the situation.
+Retry
+One of the simplest resilience strategies is to retry the failed operation.
+This can resolve transient failures that may have caused a previous message send to fail or timeout.
+Retries can be configured for both sending and receiving messages.
+For sending the retry decorates the message send over the transport.
+When receiving messages the client supplied receiver function is decorated with the retry.
+The configuration is explained
+here
+Circuit Breaking
+Electronics Analogy
+Circuit breakers are based on the same named term in electronics.
+In electronics a circuit breaker is effectively a resettable fuse which cuts the power whenever dangerous amounts of current pass through.
+The circuit breaker keeps the power off until the problem is resolved at which point it can be reset.
+Circuit Breakers in Connectors
+Circuit breakers used in messaging system, such as the connector library, work in very much the same way.
+Their purpose is to protect systems from being bombarded with messages while they attempt to recover.
+If a connector transport is failing for an extended period of time, the circuit breaker may deem it unhealthy and will prevent any messages from being sent to it.
+In circuit breaking terms this is referred to as an
+OPEN
+circuit, i.e. rejects messages
+fast
+, without sending anything to the downstream system.
+This gives the remote system some time to come back, and also prevents the sender from wasting time trying to send messages that will probably fail.
+After some time passes, the circuit breaker may begin to allow
+some
+messages to be sent through to the transport.
+The circuit breaker is now considered to be
+HALF OPEN
+.
+If the transport continues to fail, then the circuit breaker goes back to
+OPEN
+and the circuit breaker will wait again before attempting to close again.
+While in the
+HALF OPEN
+state; if messages are responded to successfully, then the circuit breaker will change state to
+CLOSED
+and will begin to function as normal.
+The circuit breaker configuration is makes up part of the resiliency config and can be found
+here
+Dead Letter Appender
+When receiving messages, retries can get exhausted either due to the message being invalid for the processing logic, or a temporary failure may be preventing processing within the given timeframe.
+Upon retry exhaustion, the failed message will be routed to the configured
+DeadLetterAppender
+.
+Routing these messages to the appender enables handling of common fault patterns and potential software bugs while also unblocking the connector and allowing for handling of new messages.
+A
+DeadLetterAppeder
+is an abstraction of
+Invalid Message Channel
+and
+Dead Letter Channel
+patterns.
+The users of the connector library can create arbitrary appender logic, sending failed messages to different destinations based on the encountered error — for instance, separating message format errors from potentially transient transport errors and building additional retry logic around the messages contained in the transport error destination.
+Dead letter appenders can use the send connectors to publish messages to their destinations, but it possible to use any Java library to do your sending, allowing you to integrate with destinations and technologies not currently supported by the connector framework.
+For a code sample, please see
+this page
+.
+Routing Logic
+Routing logic is another resilience mechanism specific to sending connectors.
+Sending connectors can be configured to send using one or more transports and routing logic determines the strategy used to select the transport to use when sending a message.
+Routing logic ties in quite nicely with circuit breaking and typically the strategies will avoid selecting transports whose circuit breaker is not closed.
+To configure the routing strategy, an implementation of the RoutingLogic interface must be provided when building a sending connector.
+RoutingLogic.java
+@FunctionalInterface
+public interface RoutingLogic<T> {
+    CircuitBreakerTransport<T> select(List<CircuitBreakerTransport<T>> transports);
+}
+The connector library provides three RoutingLogic implementations, these are
+Failover
+,
+Round Robin
+and
+Weighted Round Robin
+.
+If no RoutingLogic is provided then the round-robin strategy will be used by default.
+Failover
+The failover strategy is used with two transports, where one is the primary and the other a failover.
+The failover transport is selected when the primary transport is failing, i.e. has a non-closed circuit breaker.
+Round Robin
+The round-robin strategy can be used with 1 or more transports, where each message sent will use the next transport, effectively load balancing equally across transports.
+Weighted Round Robin
+Weighted round-robin is similar to the standard round-robin strategy.
+The main difference is that each transport is given a weighting that will cause more or less messages to be sent to it relative to the others.
+Error Handling
+Metrics

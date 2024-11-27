@@ -1,0 +1,34 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/csm-reachability-operations/reachability-reason-codes.html ===
+Reachability Reason Codes
+CSM Reachability Service provides reason codes for functional failures or reachability rejections when encountered in execution of the requests. These are not technical exceptions but functional failures in completing the request satisfactorily.
+The reason codes come with a descriptions and both the codes and descriptions inform the API user with more details on the reasons for the failures or negative reachability results.
+Below is the list of reason codes used on CSM Reachability. The list will be kept updated as and when more reason codes are defined on the service.
+CSM Reachability Reason Codes
+Reason Code
+Reason Description
+IPFRCH001
+Transfer Currency cannot be settled.
+IPFRCH002
+IBAN deconstruction failed.
+IPFRCH003
+Participation details not specified on Agent Settings.
+IPFRCH004
+Participation identifier look up did not return required identifier type, check party entity directory.
+IPFRCH005
+Counter Party is not a participant for specified Agent.
+IPFRCH006
+Transfer Currency different from Settlement Account currency. Limit checks not supported.
+IPFRCH007
+Multiple settlement accounts exist for Transfer Currency. Limit checks not supported.
+IPFRCH008
+Transfer amount is greater than allowed limits.
+IPFRCH009
+AgentUniqueId on selection order not found.
+IPFRCH010
+Intra Entity Parties list not defined for the Processing Entity.
+IPFRCH011
+Supported transfer currencies not defined for processing entity.
+IPFRCH012
+Multiple party entity records match on Party Entity Directory for specified identifier value. Reachability request can be re-run including the identifier type used for membership by the Agent for accurate results.
+CSM Reachability Operations
+Validate Intra Entity Reachability

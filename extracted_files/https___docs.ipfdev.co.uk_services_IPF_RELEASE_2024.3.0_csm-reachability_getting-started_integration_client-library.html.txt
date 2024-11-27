@@ -1,0 +1,206 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/integration/client-library.html ===
+Client Library
+Regardless of the deployment method, client module which invokes CSM Reachability should import csm-reachability-client-port and use ClientPort provided interfaces to invoke CSM Reachability logic.
+Following Maven dependency should be added:
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-client-port</artifactId>
+    <version>${csm-reachability-api.version}</version>
+</dependency>
+CSM Reachability currently supports connector implementation of client port interfaces.
+Following Maven dependency should be added:
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-client-connector</artifactId>
+    <version>${csm-reachability-api.version}</version>
+</dependency>
+How to use client library
+An example how client port can be used:
+import com.iconsolutions.ipf.csmreachability.client.port.v2.BicValidationClientPort;
+import com.iconsolutions.ipf.csmreachability.client.port.v2.IbanDeconstructClientPort;
+import com.iconsolutions.ipf.csmreachability.client.port.v2.PartyEntitiesClientPort;
+import com.iconsolutions.ipf.csmreachability.client.port.v2.ProcessingEntityClientPort;
+import com.iconsolutions.ipf.csmreachability.client.port.v2.SelectCsmAgentClientPort;
+import com.iconsolutions.ipf.csmreachability.client.port.v2.SettlementAgentClientPort;
+import com.iconsolutions.ipf.csmreachability.client.port.v2.ValidateCsmReachabilityClientPort;
+import com.iconsolutions.ipf.csmreachability.client.port.v2.ValidateIntraEntityReachabilityClientPort;
+import com.iconsolutions.ipf.csmreachability.dto.v2.IbanServiceResponseDto;
+import com.iconsolutions.ipf.core.connector.api.Response;
+import com.iconsolutions.ipf.core.shared.domain.context.ProcessingContext;
+import com.iconsolutions.ipf.core.shared.domain.context.SupportingContext;
+...
+
+@AllArgsConstructor
+public class DecisionLibraryAdapter implements DecisionLibraryPort {
+
+    private final BicValidationClientPort bicValidationClientPort;
+    private final IbanDeconstructClientPort ibanDeconstructClientPort;
+    private final PartyEntitiesClientPort partyEntitiesClientPort;
+    private final ProcessingEntityClientPort processingEntityClientPort;
+    private final SelectCsmAgentClientPort selectCsmAgentClientPort;
+    private final SettlementAgentClientPort settlementAgentClientPort;
+    private final ValidateCsmReachabilityClientPort validateCsmReachabilityClientPort;
+    private final ValidateIntraEntityReachabilityClientPort validateIntraEntityReachabilityClientPort;
+    ...
+
+    @Override
+    public Outcomes performBicValidation(Parameters decision) {
+        String bic = decision.getBic();
+
+        return bicValidationClientPort.deconstruct(
+                processingContext,
+                supportingContext,
+                bic
+        ).thenApply(DecisionLibraryAdapter::handleBicValidationResponse);
+    }
+
+    private static Outcomes handleBicValidationResponse(Response<Boolean> response) {
+        if (response.getValue()) {
+            return continueProcessing();
+        } else {
+            return Outcomes.BIC_NOT_VALID;
+        }
+    }
+
+    private static Outcomes continueProcessing() {
+        ...
+    }
+}
+How to configure client library
+As mentioned, client implementation supports HTTP connector transport.
+Each API connector can be set up independently, but we also provide default connector configuration.
+HTTP client configuration:
+This configuration is deprecated and scheduled for removal in future releases.
+csm-reachability-api.http.client {
+    host = "localhost"
+    port = "8080"
+}
+This configuration is changed to follow IPF standard, but it is still backward compatible with the old naming:
+ipf.csm-reachability-api {
+  http.client {
+    host = "localhost"
+    port = "8080"
+  }
+  http.client = ${?csm-reachability-api.http.client}
+}
+Resiliency configuration:
+This configuration is deprecated and scheduled for removal in future releases.
+csm-reachability-api.resiliency-settings {
+    # Determines the maximum number of retries to be made. Note that this includes the first failed attempt.
+    max-attempts = 2
+    # Retry if HTTP error code is in the list
+    retryable-status-codes = [500, 503]
+    # Determines the minimum number of calls (within a sliding window period) that need to be made before the circuit breaker can calculate the error rate to determine the transport health.
+    minimum-number-of-calls = 10
+}
+Changed to follow the IPF standard, but is still backward compatible with the old naming.
+We have the default connector configuration which every connector inherits and can override:
+ipf.csm-reachability-api {
+  connector {
+    get-party-entities = ${ipf.csm-reachability-api.default-connector}
+    get-processing-entities = ${ipf.csm-reachability-api.default-connector}
+    bic-validation = ${ipf.csm-reachability-api.default-connector}
+    iban-deconstruct = ${ipf.csm-reachability-api.default-connector}
+    validate-csm-reachability = ${ipf.csm-reachability-api.default-connector}
+    validate-intra-entity-reachability = ${ipf.csm-reachability-api.default-connector}
+    select-csm-agent = ${ipf.csm-reachability-api.default-connector}
+    get-settlement-agent = ${ipf.csm-reachability-api.default-connector}
+  }
+
+  default-connector {
+    resiliency-settings {
+      # Determines the maximum number of retries to be made. Note that this includes the first failed attempt.
+      max-attempts = 2
+      # Retry if HTTP error code is in the list
+      retryable-status-codes = [500, 503]
+      # Determines the minimum number of calls (within a sliding window period) that need to be made before the circuit breaker can calculate the error rate to determine the transport health.
+      minimum-number-of-calls = 10
+    }
+    resiliency-settings = ${?csm-reachability-api.resiliency-settings}
+  }
+}
+SelectCsmAgentConnector
+Usage example:
+SelectCsmAgentCriteria req = SelectCsmAgentCriteria.builder()
+                .processingEntity("001")
+                .creditorIban("CH7330005011623852957")
+                .serviceLevel("SVC")
+                .paymentType("RTGS")
+                .currency("EUR")
+                .paymentAmount(BigDecimal.valueOf(900))
+                .build();
+ CompletionStage<Response<SelectCsmAgentDto>> res = selectCsmAgentClientPort.getCsmAgent(processingContext, supportingContext, req);
+PartyEntitiesConnector
+Usage example:
+GetPartyEntitiesCriteria req = GetPartyEntitiesCriteria.builder()
+                .entityIdentifierType(EntityIdentifierType.BIC)
+                .entityIdentifier("MDBALT22XXX")
+                .entityCountry("LT")
+                .entityDataSource("Bank_Directory_Plus")
+                .build();
+CompletionStage<Response<PartyEntitiesDto>> res = partyEntitiesClientPort.getPartyEntities(processingContext, supportingContext, req);
+ProcessingEntityConnector
+Usage example:
+GetProcessingEntityCriteria req = GetProcessingEntityCriteria.builder()
+                .processingEntity("001")
+                .includeGenericProcessingSettings(true)
+                .settingCategories(List.of("PROCESSING_ENTITY_ACCOUNTS", "SUPPORTED_TRANSFER_CURRENCIES"))
+                .build();
+CompletionStage<Response<ProcessingEntitiesDto>> res = processingEntitiesClientPort.getProcessingEntity(processingContext, supportingContext, req);
+IbanDeconstructConnector
+Usage example:
+String req = "IBAN0123456789";
+
+CompletionStage<Response<IbanServiceResponseDto>> res = ibanDeconstructClientPort.deconstruct(processingContext, supportingContext, request);
+BicValidationConnector
+Usage example:
+CompletionStage<Response<Boolean>> res = bicValidationClientPort.validateBic(processingContext, supportingContext, "MDBALT22XXX");
+SettlementAgentConnector
+Usage example:
+GetSettlementAgentsCriteria req = GetSettlementAgentsCriteria.builder()
+        .processingEntity("001")
+        .agentIdentifier("MDBALT22XXX")
+        .agentIdentifierType(EntityIdentifierType.BIC)
+        .transferCurrency("EUR")
+        .transferDirection(TransferDirection.INBOUND)
+        .includeSettlementSettings(true)
+        .includeClearingSettings(true)
+        .build();
+CompletionStage<Response<SettlementAgentsResponseDto>> res = settlementAgentClientPort.getSettlementAgent(processingContext, supportingContext, req);
+ValidateCsmReachabilityConnector
+Usage example:
+ValidateCsmReachabilityCriteria req = ValidateCsmReachabilityCriteria.builder()
+                .processingEntity("PE_001")
+                .agentUniqueId("testCsmAgentId")
+                .counterPartyIdentifiers(List.of(
+                        CounterPartyIdentifier.builder()
+                                .identifier("IBAN0123456789")
+                                .identifierType("IBAN")
+                                .build(),
+                        CounterPartyIdentifier.builder()
+                                .identifier("csmParId")
+                                .identifierType("BIC")
+                                .build()
+                ))
+                .transferCurrency("GBP")
+                .transferAmount(BigDecimal.TEN)
+                .asOfDate(LocalDate.of(2024, 5, 1))
+                .build();
+
+CompletionStage<Response<ValidateCsmReachabilityDto>> res = validateCsmReachabilityClientPort.validate(processingContext, supportingContext, req);
+ValidateIntraEntityReachabilityConnector
+Usage example:
+ValidateIntraEntityReachabilityCriteria req = ValidateIntraEntityReachabilityCriteria.builder()
+                .processingEntity("PE_001")
+                .counterPartyIdentifier(
+                        CounterPartyIdentifier.builder()
+                                .identifier("IBAN0123456789")
+                                .identifierType("IBAN")
+                                .build()
+                )
+                .transferCurrency("GBP")
+                .build();
+
+CompletionStage<Response<ValidateIntraEntityReachabilityDto>> res = validateIntraEntityReachabilityClientPort.validate(processingContext, supportingContext, req);
+CSM Reachability Service API
+DPS Connectors

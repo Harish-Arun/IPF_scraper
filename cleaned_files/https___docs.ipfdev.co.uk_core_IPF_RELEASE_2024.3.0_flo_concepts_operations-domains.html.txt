@@ -1,0 +1,155 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo/concepts/operations-domains.html ===
+Domain Operations
+In this section we cover how, within IPF, we model domains (both our IPF domain and those external to IPF).
+We also cover some other key pieces of functionality which help control the '
+flow
+' of processing -
+Decisions
+&
+Additional Events
+.
+External Domains
+After an event is processed, the application can then perform one or more activities to determine what happens next on a payment.  So for example on receipt of "Event A" we may wish to do some validation and call some other application to ask it to validate our data (other common payment based examples include duplicate checking, sanctions system calls or accounting system posting calls).
+To support this post-event processing, the most important concept is the
+"External Domain"
+.  This represents some business domain -
+not our current flows
+- that we need to interact with.
+For example, lets assume that we need to talk to a sanctions system during part of the flow.  To support this, we would model that sanctions system as an external domain.
+Each external domain consists of the three types of interaction we can make with it:
+"
+Instructions
+" - instructions are the simplest thing
+we receive from an external domain
+.  It can be triggered by the external domain at any time and we will start processing.  This can be thought of as the external domain pushing information to us.
+"
+Notifications
+" - notification are the opposite of instructions.  These are
+used when we want to push our data out to an external domain
+.
+"
+Requests
+" - a request is used when we need a "
+response
+" back from the external domain in reply.
+Instructions
+These can be initiated by an external system and contain the following properties:
+"
+Name
+"
+"
+Description
+"
+List of "
+Business Data Elements
+"
+When the IPF application receives an instruction it will raise a corresponding event. The events business data is then populated with all the matching business data elements.
+Notifications
+Notifications, like an instruction, has the following properties:
+"
+Name
+"
+"
+Description
+"
+List of "
+Business Data Elements
+"
+When the IPF application sends out a notification it will populate all the business data elements it has a matching record for.
+Requests
+The
+request
+can be thought of to have to parts, the request itself and the corresponding response expected as part of the external domain interaction.
+The request part contains:
+"
+Name
+"
+"
+Description
+"
+List of "
+Business data
+"
+List of "
+Responses
+"
+The response part is slightly different and has some new features to consider:
+"
+Name
+"
+"
+Description
+"
+List of "
+Business data
+"
+"
+Response code set
+" - this is a group of response codes.  A "
+Response Code"
+is an expected outcome code for a response that could be used for onward processing.
+"
+Reason code set
+" - this is a group of reason codes.  A "
+Reason Code"
+is a reason why the response code is set.  So for example your response code could be "Rejected" with a reason "Incorrect Currency".
+"
+Completing
+" flag - this defines whether the calling request should be considered completed when this response arrives.  This is particularly useful when more than one response is expected during the interaction. For example, consider a request where the external system sends a technical acknowledgement followed by a final business response.  In this case we would define two responses - one to represent the technical ack (non-completing) and one for the final business response (completing).
+In ISO terms, a response code is analogous with a "Status", whilst a reason code is analogous with a "Status Reason"
+The IPF product provides a default "AcceptOrReject" response code set which is used for standard pass / fail type responses.   It also provides a set of all the ISO reason codes.
+If we put together the key elements covered here we can see the basic pattern of any flow:
+When IPF receives something from an external domain (either an instruction or a response), it leads to an event being raised which may cause a state transition followed by the invocation of a notification or request to an external domain.
+Domain Functions
+Its possible that we dont want (or need) to call an external domain in order to continue processing our flow.  This might happen because either we know what to do next or we can calculate what to do next, the processing is within our application.
+One option is to use the "
+Domain Function
+" capability that the flow itself offers.  Functionally from a flow modelling perspective it works in a very similar way to a request/response pair in an external domain call, except that in the case of a domain function the IPF application itself is the domain. Thus the actual call stays internal (& the code necessary to fulfill the request is written within our IPF application). Regardless when we call a domain function, we will expect to get a response and then that response will be transformed into an event which can then cause onward processing.
+Like a request, the domain function has a number of properties:
+"
+Name
+"
+"
+Description
+"
+List of "
+Business data
+"
+List of "
+Responses
+"
+Additional Events
+Its possible that in order to continue processing our flow we dont have an external interaction from another system.
+One option is the use of an "
+Additional Event
+"-  used to move the flow on.
+When an additional event is raised, the system will process it as though it has been received into the application via an instruction or response.
+Lets add these to our diagram:
+Decisions
+There is also a feature to perform logic conditionally. For example, we may only want to run a fraud check if the value of the payment is over A50.  In this case we can use a "
+Decision
+".
+A decision allows us to perform some logic programmatically and then take different processing routes based on the outcome of that decision.
+A decision has a number of properties:
+"
+Name
+"
+"
+Description
+"
+List of "
+Business data
+" - this is the data that is sent when calling the decision so that it can process based upon it.
+List of "
+Decision Outcomes
+" - these are the possible results of running the decision, each decision can have as many different outcomes as needed and these outcomes are unique to the decision.  They are defined simply by providing a name.
+The decisions themselves are stored within a "
+Decision Library
+".  The libraries are flow-independent and as such the same decision can be used in multiple flows.
+We can use a decision in two places:
+To determine which event needs to be raised in response to an input (response or instruction)
+To determine which actions need to be performed after a state transition.
+Lets add these to our diagram:
+A special type of event "A Decision Outcome Event" will also be raised so that the decision being invoked and the result returned will be audited and can be used for onward processing.
+States & Events
+Behaviours

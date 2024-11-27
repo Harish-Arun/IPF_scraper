@@ -1,0 +1,29 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/file-archiver.html ===
+File Archiver
+The debulker provides functionality for archiving files. This feature will place a copy of the received bulk file in an archive location once it has been successfully processed.
+Currently supported locations are:
+local
+s3
+Config
+Type
+Default
+Comment
+ipf.debulker.archiver.file-system
+String
+local
+Property that defines the location that the bulk files will be copied to.
+ipf.debulker.configurations[0].archive-path
+String
+Property that defines the directory or s3 bucket that the bulk files will be copied to.
+When enabling archiving to S3 the following config must also be provided
+ipf.file-manager.s3 {
+    enabled = true
+    region = "us-east-1"
+    upload-parallelism = 1
+    credentials {
+        access-key-id = "accessKey"
+        secret-access-key = "secretAccessKey"
+    }
+}
+Client Processing Kafka
+Access Components

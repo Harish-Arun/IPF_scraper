@@ -1,0 +1,3 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-api/api.html ===
+SEPA CT Validation OpenAPI Specifications
+SwaggerUI

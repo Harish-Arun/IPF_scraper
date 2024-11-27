@@ -1,0 +1,944 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/getting-started/csm-service-library.html ===
+Building a CSM Service implementation
+This guide will explain how to bootstrap your own CSM service implementation using the pre-built CSM service starter library.
+Purpose
+All IPF CSM services implement the various IPF payment APIs (as documented in
+APIs
+),
+including:
+Clear and Settle
+Receive Payment
+Send Recall to CSM
+And so on.
+The CSM service starter library bundles the following components together for ease of development for those wanting to create their own CSM service implementation:
+API definitions
+Kafka and JMS bindings for communication between an IPF application and the CSM service
+Default interfaces for receiving messages from the IPF application, which are then forwarded to the scheme
+Default implementations for forwarding messages from the scheme to the IPF application
+Steps
+Heres how to get started with creating your own CSM service implementation.
+Step 1: Add required dependencies
+The dependencies you need to add depend on which transport bindings you want to use in your implementation.
+These dependencies are all available as part of the
+ipf-bom
+. If you are using this, you dont need to specify any versions as you will receive the CSM Service Starter library version that has been validated for the
+ipf-bom
+in use.
+Transport type
+Dependency
+Kafka
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm</groupId>
+    <artifactId>csm-service-starter-kafka</artifactId>
+</dependency>
+JMS
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm</groupId>
+    <artifactId>csm-service-starter-jms</artifactId>
+</dependency>
+Step 2: Implement API interfaces for receiving messages from IPF to forward to scheme
+csm-service-starter-*
+provides two API interfaces for receiving messages from an IPF application which will then be forwarded to the scheme:
+com.iconsolutions.instantpayments.csm.ct.CsmApiReceiver
+: for credit transfer-type messages
+com.iconsolutions.instantpayments.csm.rrr.CsmRApiReceiver
+: for recall/return/result of investigation-type messages
+com.iconsolutions.instantpayments.csm.dd.CsmDDApiReceiver
+: for direct debit-type messages
+Implementations of these interfaces must be Spring bean classes, and there are no default method implementations.
+Taking the
+CsmApiReceiver
+interface as an example, the simplest implementation will look something like this:
+import com.iconsolutions.instantpayments.csm.ct.CsmApiReceiver;
+import com.iconsolutions.ipf.payments.api.csm.clearandsettle.api.ClearAndSettleRequest;
+import org.springframework.stereotype.Component;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+// Additional required imports here...
+
+@Component
+(1)
+public class MyCsmApiReceiver implements CsmApiReceiver {
+(2)
+@Override
+    public CompletionStage<Void> clearAndSettle(ClearAndSettleRequest clearAndSettleRequest) {
+        return CompletableFuture.completedStage(null);
+    }
+
+    // Other overridden methods here...
+
+}
+1
+Defining the implementation class as a Spring bean
+2
+Implementing the (credit-transfer) receiver API interface
+Step 3: Handle an incoming request from IPF and forward to the scheme
+The implementation of each method in this class depends on how you want to process the incoming message (within the limits of the
+supported workflow
+for this message type). Using the
+clearAndSettle
+method as an example (which defines the IPF application to CSM Service interface for the
+Debtor Credit Transfer Flow
+), processing of the message, in its simplest form, would typically involve:
+forwarding the incoming request from IPF to a destination from which a scheme can consume it
+sending an acknowledgment (technical response) to IPF after the request has been delivered to its destination
+csm-service-starter-*
+provides the send connector for sending the acknowledgement to IPF (
+TechnicalResponseSender
+) and the required acknowledgement response type (
+TechnicalResponse
+), but we will need to create our own send connector to send the incoming request to the CSM.
+The default locations from which messages are consumed by the provided ReceiveConnectors and produced to by the provided SendConnectors can be found on the
+transport reference
+page. You can use the configuration paths on this page (listed under the
+Config Key
+columns in the table) to override these default location values as necessary.
+This SendConnector will need to be provided with:
+The appropriate transport for the CSM (Kafka or JMS)
+A function to transform the incoming request (
+ClearAndSettleRequest
+) to the target CSM scheme type (scheme-specific pacs.008) and enrich specific static values on the transformed message, e.g. instructing/instructed agent, clearing system, local instrument, etc.
+A function to convert the transformed scheme-specific pacs.008 message to the target output format, usually XML or bank-proprietary XML
+Transport
+Please see the
+Kafka Quickstart
+or
+JMS Quickstart
+pages for guidance on creating your own SendConnector transport.
+Transform incoming request to target CSM scheme type
+The simplest way to transform the incoming request to the target CSM scheme type and enrich the transformed message is to use the
+IPF mapping framework
+and leverage the provided
+com.iconsolutions.instantpayments.csm.MapperRegistry
+. First, create a Spring bean class that implements the
+com.iconsolutions.instantpayments.csm.MessageMapper<
+FromType
+,
+ToType
+>
+interface and contains your mapping function:
+import com.iconsolutions.instantpayments.csm.MessageMapper;
+import com.iconsolutions.ipf.payments.api.csm.clearandsettle.api.ClearAndSettleRequest;
+import com.myorg.myproject.mycsm.model.Header;
+import com.myorg.myproject.mycsm.model.ct.MyCsmOutboundCTRequest;
+import com.iconsolutions.ipf.transformation.TransformationService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import mycsm.scti.iso.std.iso._20022.tech.xsd.pacs_008_001_08.FIToFICustomerCreditTransferV08;
+
+@Slf4j
+@RequiredArgsConstructor
+@Component
+public class IpfToMyCsmPacs008Mapper implements MessageMapper<ClearAndSettleRequest, MyCsmOutboundCTRequest> {
+(1)
+private final TransformationService transformationService;
+(2)
+@Override
+    public Class<ClearAndSettleRequest> supportedType() {
+(3)
+return ClearAndSettleRequest.class;
+    }
+
+    @Override
+    public MyCsmOutboundCTRequest map(ClearAndSettleRequest request) {
+        log.debug("Mapping ClearAndSettleRequest with id: {}", request.getRequestId());
+        var fi2fi = transformationService.mapThenEnrichWithDefault(request.getPayload().getContent(), FIToFICustomerCreditTransferV08.class);
+(4)
+// Set some additional fields (e.g. accptncDtTm) on the transformed message here
+        return new MyCsmOutboundCTRequest(new Header(request.getRequestId()), fi2fi);
+(5)
+}
+}
+1
+Implementing the
+MessageMapper
+interface, with
+FromType
+=
+ClearAndSettleRequest
+and
+ToType
+=
+MyCsmOutboundCTRequest
+2
+Wiring in the IPF mapping framework
+TransformationService
+3
+Instructing the
+MappingRegistry
+to use this mapper when mapping a
+ClearAndSettleRequest
+type
+4
+Transforming the request payload from an IPF ISO20022 canonical pacs.008 to its scheme-specific equivalent
+5
+Creating a new
+MyCsmOutboundCTRequest
+, which is a custom object that allows you to send a
+Header
+with your message in the SendConnector:
+import mycsm.scti.iso.std.iso._20022.tech.xsd.pacs_008_001_08.FIToFICustomerCreditTransferV08;
+import com.myorg.myproject.mycsm.model.Header;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class MyCsmOutboundCTRequest {
+    private Header header;
+    private FIToFICustomerCreditTransferV08 payload;
+}
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class Header {
+    private String aUsefulHeaderId;
+}
+Now wire in this mapper, via the
+MapperRegistry
+, into a Spring bean class that will act as a base for all of your mapping logic:
+import com.iconsolutions.instantpayments.csm.MapperRegistry;
+import com.iconsolutions.ipf.payments.api.csm.clearandsettle.api.ClearAndSettleRequest;
+import com.myorg.myproject.mycsm.model.ct.MyCsmOutboundCTRequest;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MyCsmMapper {
+
+    private final MapperRegistry mapperRegistry;
+(1)
+public MyCsmMapper(final MapperRegistry mapperRegistry) {
+        this.mapperRegistry = mapperRegistry;
+    }
+
+    public MyCsmOutboundCTRequest map(ClearAndSettleRequest clearAndSettleRequest) {
+        return mapperRegistry.map(clearAndSettleRequest);
+    }
+}
+1
+Wiring in the
+MapperRegistry
+which now contains the
+IpfToMyCsmPacs008Mapper
+Convert transformed pacs.008 message to the target output format
+The target output message format for a CSM will typically be XML. Therefore, we need to convert the scheme-specific pacs.008 java object into XML before sending.
+Firstly, we will need to create a
+JAXBContext
+containing the scheme-specific pacs.008 Document definition:
+private JAXBContext myCsmJAXBContext() throws JAXBException {
+    return JAXBContext.newInstance(mycsm.scti.iso.std.iso._20022.tech.xsd.pacs_008_001_08.Document.class);
+}
+Then we will need to create a marshaller using the IPF provided
+com.iconsolutions.mapper.JaxbObjectToStringMapper<>
+and the
+JAXBContext
+created above:
+private JaxbObjectToStringMapper<Object> marshaller() {
+    return new JaxbObjectToStringMapper<>(myCsmJAXBContext(), false);
+(1)
+}
+1
+Setting "jaxb.formatted.output" to
+false
+as we dont need JAXB to format the output here
+If desired, you have the option to include schema validation in the marshaller. To do this, we first need to create a
+Resource
+from the scheme pacs.008 xsd file:
+@Value("classpath:xsd/mycsm_pacs_008.xsd")
+private Resource myCsmPacs008Xsd;
+Then we create our
+Schema
+definition in the following way:
+private Schema myCsmSchema() throws IOException, SAXException {
+    StreamSource[] schemaStreamSources = {
+            new StreamSource(myCsmPacs008Xsd.getInputStream())
+    };
+    return SchemaFactory.newInstance(W3C_XML_SCHEMA_NS_URI).newSchema(schemaStreamSources);
+}
+And we can then include this within our marshaller definition:
+private JaxbObjectToStringMapper<Object> marshaller() {
+    return new JaxbObjectToStringMapper<>(myCsmJAXBContext(), myCsmSchema(), false);
+}
+We then use our marshaller to convert the
+MyCsmOutboundCTRequest
+to our target (transport) message format:
+public TransportMessage convertToTransport(MyCsmOutboundCTRequest request) {
+    var myCsmPacs008ObjectFactory = new mycsm.scti.iso.std.iso._20022.tech.xsd.pacs_008_001_08.ObjectFactory();
+    var document = myCsmPacs008ObjectFactory.createDocument();
+    document.setFIToFICstmrCdtTrf(request.getPayload());
+    var convertedMessage = marshaller.map(document);
+    log.debug("Converted MyCsmOutboundCTRequest to transport message type: {}", convertedMessage);
+    return new TransportMessage(convertedMessage);
+}
+Including all of this above,
+MyCsmMapper
+now looks like this:
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import com.iconsolutions.instantpayments.csm.MapperRegistry;
+import com.iconsolutions.mapper.JaxbObjectToStringMapper;
+import org.springframework.core.io.Resource;
+import com.iconsolutions.ipf.payments.api.csm.clearandsettle.api.ClearAndSettleRequest;
+import com.myorg.myproject.mycsm.model.ct.MyCsmOutboundCTRequest;
+import com.iconsolutions.ipf.core.connector.message.TransportMessage;
+import javax.xml.bind.JAXBContext;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.bind.JAXBException;
+import org.xml.sax.SAXException;
+import java.io.IOException;
+
+@Slf4j
+@Component
+public class MyCsmMapper {
+
+    private final MapperRegistry mapperRegistry;
+    private final JaxbObjectToStringMapper<Object> marshaller;
+
+    public MyCsmMapper(@Value("classpath:xsd/mycsm_pacs_008.xsd") Resource myCsmPacs008Xsd,
+                       final MapperRegistry mapperRegistry) {
+        this.mapperRegistry = mapperRegistry;
+        this.marshaller = marshaller();
+    }
+
+    public MyCsmOutboundCTRequest map(ClearAndSettleRequest clearAndSettleRequest) {
+        return mapperRegistry.map(clearAndSettleRequest);
+    }
+
+    public TransportMessage convertToTransport(MyCsmOutboundCTRequest request) {
+        var myCsmpacs008ObjectFactory = new mycsm.scti.iso.std.iso._20022.tech.xsd.pacs_008_001_08.ObjectFactory();
+        var document = myCsmpacs008ObjectFactory.createDocument();
+        document.setFIToFICstmrCdtTrf(request.getPayload());
+        var convertedMessage = marshaller.map(document);
+        log.debug("Converted MyCsmOutboundCTRequest to transport message type: {}", convertedMessage);
+        return new TransportMessage(convertedMessage);
+    }
+
+    private JaxbObjectToStringMapper<Object> marshaller() {
+        return new JaxbObjectToStringMapper<>(myCsmJAXBContext(), myCsmSchema(), false);
+    }
+
+    private JAXBContext myCsmJAXBContext() throws JAXBException {
+        return JAXBContext.newInstance(mycsm.scti.iso.std.iso._20022.tech.xsd.pacs_008_001_08.Document.class);
+    }
+
+    private Schema myCsmSchema() throws IOException, SAXException {
+        StreamSource[] schemaStreamSources = {
+                new StreamSource(myCsmPacs008Xsd.getInputStream())
+        };
+        return SchemaFactory.newInstance(W3C_XML_SCHEMA_NS_URI).newSchema(schemaStreamSources);
+    }
+}
+Now we have all the required components for the SendConnector, we can go ahead and create it:
+import akka.actor.ClassicActorSystemProvider;
+import com.iconsolutions.ipf.core.connector.SendConnector;
+import com.iconsolutions.ipf.core.connector.transport.ConnectorTransport;
+import com.iconsolutions.ipf.core.messagelogger.MessageLogger;
+import com.iconsolutions.ipf.core.shared.correlation.CorrelationId;
+import com.iconsolutions.ipf.core.shared.correlation.CorrelationService;
+import com.iconsolutions.ipf.payments.api.csm.clearandsettle.api.ClearAndSettleRequest;
+import com.myorg.myproject.mycsm.mapper.ct.MyCsmMapper;
+import com.myorg.myproject.mycsm.model.ct.MyCsmOutboundCTRequest;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.context.annotation.Bean;
+
+@AutoConfiguration
+public class MyCsmConfig {
+
+    private final ClassicActorSystemProvider actorSystem;
+    private final CorrelationService correlationService;
+    private final MessageLogger messageLogger;
+
+    public MyCsmConfig(ClassicActorSystemProvider actorSystem,
+                       CorrelationService correlationService,
+                       MessageLogger messageLogger) {
+        this.actorSystem = actorSystem;
+        this.correlationService = correlationService;
+        this.messageLogger = messageLogger;
+    }
+
+    @Bean
+    SendConnector<ClearAndSettleRequest, MyCsmOutboundCTRequest> clearAndSettleRequestSendConnector(MyCsmMapper mapper,
+                                                                                                    ConnectorTransport<MyCsmOutboundCTRequest> transport) {
+        String connectorName = "myCsmClearAndSettleRequestSender";
+        String configRoot = "my-csm.send-cas-connector";
+        return SendConnector.<ClearAndSettleRequest, MyCsmOutboundCTRequest>builder(connectorName, configRoot, actorSystem)
+                .withMessageLogger(messageLogger)
+                .withCorrelationService(correlationService)
+                .withConnectorTransport(transport)
+                .withDomainToTargetTypeConverter(clearAndSettleRequest -> mapper.map(clearAndSettleRequest))
+(1)
+.withSendTransportMessageConverter(outboundRequest -> mapper.convertToTransport(outboundRequest))
+(2)
+.withCorrelationIdExtractor(outboundRequest -> CorrelationId.of(outboundRequest.getPayload().getGrpHdr().getMsgId()))
+                .build();
+    }
+}
+1
+Using our
+MyCsmMapper
+'s
+map()
+method to transform the incoming
+ClearAndSettleRequest
+to the output
+MyCsmOutboundCTRequest
+type
+2
+Using our
+MyCsmMapper
+'s
+convertToTransport()
+method to convert the
+MyCsmOutboundCTRequest
+to the target output XML format
+Please visit the
+Sending Connector
+page if you are unfamiliar with any of the other SendConnector options provided above.
+With our SendConnector now created, we can provide an implementation for the
+clearAndSettle
+method in our
+MyCsmApiReceiver
+class:
+import com.iconsolutions.instantpayments.csm.ct.CsmApiReceiver;
+import com.iconsolutions.ipf.payments.api.csm.clearandsettle.api.ClearAndSettleRequest;
+import com.myorg.myproject.mycsm.model.ct.MyCsmOutboundCTRequest;
+import com.iconsolutions.instantpayments.csm.TechnicalResponseSender;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import java.util.concurrent.CompletionStage;
+import java.time.Instant;
+import java.util.UUID;
+// Additional required imports here...
+
+@RequiredArgsConstructor
+@Component
+public class MyCsmApiReceiver implements CsmApiReceiver {
+(2)
+private final SendConnector<ClearAndSettleRequest, MyCsmOutboundCTRequest> clearAndSettleRequestSendConnector;
+    private final TechnicalResponseSender technicalResponseSender;
+
+    @Override
+    public CompletionStage<Void> clearAndSettle(final ClearAndSettleRequest request) {
+        log.debug("Handling clear and settle request for id: {}", request.getRequestId());
+        return clearAndSettleRequestSendConnector.send(request.getProcessingContext(), request)
+(1)
+.thenCompose(deliveryOutcome -> {
+                    final var sendOutcomeSuccess = deliveryOutcome.getDeliveryReport().getOutcome() == DeliveryReport.Outcome.SUCCESS;
+                    return technicalResponseSender.send(TechnicalResponse.builder()
+(2)
+.responseId(UUID.randomUUID().toString())
+                            .requestId(request.getRequestId())
+                            .processingContext(request.getProcessingContext())
+                            .version(request.getVersion())
+                            .createdAt(Instant.now())
+                            .ipfId(request.getIpfId())
+                            .responseCode(StringUtils.EMPTY)
+                            .status(sendOutcomeSuccess ? PaymentResponse.Status.SUCCESS : PaymentResponse.Status.FAILURE)
+                            .reason(sendOutcomeSuccess ? "" : deliveryOutcome.getDeliveryReport().getDeliveryException().toString())
+                            .build());
+                });
+    }
+
+    // Other overridden methods here...
+
+}
+1
+Sending the clear and settle request message received by the CSM service to a configured destination using our
+ClearAndSettleSendConnector
+2
+Sending a technical response back to the IPF application after the clear and settle request message has been delivered using the SendConnector and response type provided in the
+csm-service-starter-*
+library
+Step 4: Handle an incoming response from a CSM
+In the previous step, we implemented a method to handle an incoming clear and settle request from IPF. Now we need to provide a way of handling the response we get for this request from the CSM. For this scenario,
+csm-service-starter-*
+provides a SendConnector for forwarding the response back to IPF, but we will need to create our own ReceiveConnector to consume the response from the CSM.
+This ReceiveConnector will need to be provided with:
+The appropriate transport for the CSM (Kafka or JMS)
+A function that converts the XML formatted payment status report from the scheme to the scheme-specific pacs.002 java object, and then transforms this into a
+ClearAndSettleResponse
+A function to forward the
+ClearAndSettleResponse
+to IPF
+Transport
+Please see the
+Kafka Quickstart
+or
+JMS Quickstart
+pages for guidance on creating your own ReceiveConnector transport.
+Convert payment status report from scheme into ClearAndSettleResponse
+Just as we did earlier in
+Step 3
+, the initial stage in converting the payment status report XML from the scheme to the scheme-specific pacs.002 java object is to create a JAXBContext containing the scheme-specific pacs.002 Document definition. We can add this definition to our previously created JAXBContext:
+private JAXBContext myCsmJAXBContext() throws JAXBException {
+    return JAXBContext.newInstance(
+            mycsm.scti.iso.std.iso._20022.tech.xsd.pacs_008_001_08.Document.class,
+            mycsm.scti.iso.std.iso._20022.tech.xsd.pacs_002_001_10.Document.class
+        );
+}
+Then we will need to create an unmarshaller using the IPF provided
+com.iconsolutions.mapper.StringToJaxbObjectMapper<>
+and the
+JAXBContext
+created above:
+private StringToJaxbObjectMapper<Object> unmarshaller() {
+    return new StringToJaxbObjectMapper<>(myCsmJAXBContext());
+}
+Again, you have the option to include schema validation in the unmarshaller. To do this, we need to create another
+Resource
+from the scheme pacs.002 xsd file:
+@Value("classpath:xsd/mycsm_pacs_002.xsd")
+private Resource myCsmPacs002Xsd;
+Then we add this to our previously created
+Schema
+definition:
+private Schema myCsmSchema() throws IOException, SAXException {
+    StreamSource[] schemaStreamSources = {
+            new StreamSource(myCsmPacs008Xsd.getInputStream()),
+            new StreamSource(myCsmPacs002Xsd.getInputStream())
+    };
+    return SchemaFactory.newInstance(W3C_XML_SCHEMA_NS_URI).newSchema(schemaStreamSources);
+}
+And we can then include this within our unmarshaller definition:
+private StringToJaxbObjectMapper<Object> unmarshaller() {
+    return new StringToJaxbObjectMapper<>(myCsmJAXBContext(), myCsmSchema());
+}
+We then use our unmarshaller to convert the payment status report XML from the scheme to the scheme-specific pacs.002 java object:
+var messageXml = transportMessage.getPayload().toString();
+var myCsmPacs002 = unmarshaller.map(messageXml);
+To transform the unmarshalled scheme-specific pacs.002 to a
+ClearAndSettleResponse
+, we can again leverage the provided
+com.iconsolutions.instantpayments.csm.MapperRegistry
+and create a Spring bean class that implements the
+com.iconsolutions.instantpayments.csm.MessageMapper<
+FromType
+,
+ToType
+>
+interface and contains the required mapping function:
+import com.iconsolutions.instantpayments.csm.MessageMapper;
+import com.myorg.myproject.mycsm.model.ct.MyCsmOutboundCTResponse;
+import com.myorg.myproject.mycsm.model.Header;
+import com.iconsolutions.ipf.transformation.TransformationService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import com.iconsolutions.iso20022.message.definitions.payments_clearing_and_settlement.pacs002.FIToFIPaymentStatusReportV10;
+import mycsm.scti.iso.std.iso._20022.tech.xsd.pacs_002_001_10.Document;
+import com.iconsolutions.ipf.payments.api.csm.clearandsettle.api.ClearAndSettleResponse;
+
+@Slf4j
+@RequiredArgsConstructor
+@Component
+public class MyCsmToIpfPacs002Mapper implements MessageMapper<Document, MyCsmOutboundCTResponse> {
+
+    private static final Version VERSION = new Version(1, 0, 0);
+
+    private final TransformationService transformationService;
+
+    @Override
+    public Class<Document> supportedType() {
+        return Document.class;
+    }
+
+    @Override
+    public MyCsmOutboundCTResponse map(Document schemePaymentStatusReportDocument) {
+        var schemePaymentStatusReport = schemePaymentStatusReportDocument.getFIToFIPmtStsRpt();
+        log.debug("Mapping scheme PaymentStatusReport: {}", schemePaymentStatusReport);
+        var isoPaymentStatusReport = transformationService.map(schemePaymentStatusReport, FIToFIPaymentStatusReportV10.class);
+            return new MyCsmOutboundCTResponse(
+(1)
+new Header(schemePaymentStatusReport.getOrgnlGrpInfAndSts().getOrgnlMsgId()),
+                    ClearAndSettleResponse.builder()
+                            .responseId(schemePaymentStatusReport.getTxInfAndSts().getOrgnlTxId())
+                            .requestId(isoPaymentStatusReport.getGrpHdr().getMsgId())
+                            .version(VERSION)
+                            .createdAt(Instant.now())
+                            .payload(new Payload<>(isoPaymentStatusReport, VERSION))
+                            .status(status)
+                            .build());
+    }
+}
+1
+Creating a new
+MyCsmOutboundCTResponse
+, which is a custom object that allows you to send a
+Header
+with the
+ClearAndSettleResponse
+in the
+ClearAndSettleSendConnector
+:
+import com.iconsolutions.ipf.payments.api.csm.clearandsettle.api.ClearAndSettleResponse;
+import com.myorg.myproject.mycsm.model.Header;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
+@Data
+@AllArgsConstructor
+public class MyCsmOutboundCTResponse {
+    private Header header;
+    private ClearAndSettleResponse payload;
+}
+Bringing this all together, our
+MyCsmMapper
+now looks like this:
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import com.iconsolutions.instantpayments.csm.MapperRegistry;
+import com.iconsolutions.mapper.JaxbObjectToStringMapper;
+import org.springframework.core.io.Resource;
+import com.iconsolutions.ipf.payments.api.csm.clearandsettle.api.ClearAndSettleRequest;
+import com.myorg.myproject.mycsm.model.ct.MyCsmOutboundCTRequest;
+import com.myorg.myproject.mycsm.model.ct.MyCsmOutboundCTResponse;
+import com.iconsolutions.ipf.core.connector.message.TransportMessage;
+import javax.xml.bind.JAXBContext;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.SchemaFactory;
+import com.iconsolutions.mapper.JaxbObjectToStringMapper;
+import com.iconsolutions.mapper.StringToJaxbObjectMapper;
+import javax.xml.bind.JAXBException;
+import org.xml.sax.SAXException;
+import java.io.IOException;
+
+@Slf4j
+@Component
+public class MyCsmMapper {
+
+    private final MapperRegistry mapperRegistry;
+    private final JaxbObjectToStringMapper<Object> marshaller;
+    private final StringToJaxbObjectMapper<Object> unmarshaller;
+
+
+    public MyCsmMapper(@Value("classpath:xsd/mycsm_pacs_008.xsd") Resource myCsmPacs008Xsd,
+                       @Value("classpath:xsd/mycsm_pacs_002.xsd") Resource myCsmPacs002Xsd,
+                       final MapperRegistry mapperRegistry) {
+        this.mapperRegistry = mapperRegistry;
+        this.marshaller = marshaller();
+        this.unmarshaller = unmarshaller();
+    }
+
+    public MyCsmOutboundCTRequest map(ClearAndSettleRequest clearAndSettleRequest) {
+        return mapperRegistry.map(clearAndSettleRequest);
+    }
+
+    public TransportMessage convertToTransport(MyCsmOutboundCTRequest request) {
+        var myCsmpacs008ObjectFactory = new mycsm.scti.iso.std.iso._20022.tech.xsd.pacs_008_001_08.ObjectFactory();
+        var document = myCsmpacs008ObjectFactory.createDocument();
+        document.setFIToFICstmrCdtTrf(request.getPayload());
+        var convertedMessage = marshaller.map(document);
+        log.debug("Converted MyCsmOutboundCTRequest to transport message type: {}", convertedMessage);
+        return new TransportMessage(convertedMessage);
+    }
+
+    public MyCsmOutboundCTResponse convertToResponse(TransportMessage transportMessage) {
+        var messageText = message.getPayload().toString();
+        log.debug("Converting to MyCsmOutboundCTResponse: {}", messageText);
+        var schemePaymentStatusReportDocument = unmarshaller.map(messageText);
+        return mapperRegistry.map(schemePaymentStatusReportDocument);
+    }
+
+    private JaxbObjectToStringMapper<Object> marshaller() {
+        return new JaxbObjectToStringMapper<>(myCsmJAXBContext(), myCsmSchema(), false);
+    }
+
+    private StringToJaxbObjectMapper<Object> unmarshaller() {
+        return new StringToJaxbObjectMapper<>(myCsmJAXBContext(), myCsmSchema());
+    }
+
+    private JAXBContext myCsmJAXBContext() throws JAXBException {
+        return JAXBContext.newInstance(
+            mycsm.scti.iso.std.iso._20022.tech.xsd.pacs_008_001_08.Document.class,
+            mycsm.scti.iso.std.iso._20022.tech.xsd.pacs_002_001_10.Document.class
+        );
+    }
+
+    private Schema myCsmSchema() throws IOException, SAXException {
+        StreamSource[] schemaStreamSources = {
+                new StreamSource(myCsmPacs008Xsd.getInputStream()),
+                new StreamSource(myCsmPacs002Xsd.getInputStream())
+        };
+        return SchemaFactory.newInstance(W3C_XML_SCHEMA_NS_URI).newSchema(schemaStreamSources);
+    }
+}
+Forward ClearAndSettleResponse to IPF
+The last thing we need to create for our ReceiveConnector is a
+ReceiveHandler
+that will be responsible for forwarding the
+ClearAndSettleResponse
+message to IPF. Using the provided
+ClearAndSettleResponseSender
+, the simplest implementation of a
+ReceiveHandler
+Spring Bean class may look like something like this:
+import com.iconsolutions.instantpayments.csm.ct.ClearAndSettleResponseSender;
+import com.iconsolutions.ipf.core.connector.api.ReceivingContext;
+import com.iconsolutions.ipf.core.connector.receive.stages.ReceiveHandler;
+import com.iconsolutions.ipf.payments.api.csm.clearandsettle.api.ClearAndSettleResponse;
+import com.myorg.myproject.mycsm.model.ct.MyCsmOutboundCTResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+import lombok.extern.slf4j.Slf4j;
+import java.util.concurrent.CompletionStage;
+
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class MyCsmReceiveHandler implements ReceiveHandler<MyCsmOutboundCTResponse> {
+(1)
+private final ClearAndSettleResponseSender clearAndSettleResponseSender;
+
+    @Override
+    public CompletionStage<Void> handle(ReceivingContext receivingContext, MyCsmOutboundCTResponse myCsmOutboundCTResponse) {
+        var payload = myCsmOutboundCTResponse.getPayload();
+        log.debug("Handling clear and settle response with id: {}", payload.getResponseId());
+        return clearAndSettleResponseSender.send(payload);
+(2)
+}
+}
+1
+Implementing the
+ReceiveHandler
+interface which is used by the ReceiveConnector to handle consumed messages
+2
+Using the provided
+ClearAndSettleResponseSender
+to forward the
+ClearAndSettleResponse
+to IPF
+Now we have all the required components for the ReceiveConnector, we can go ahead and add it to our config class:
+import akka.actor.ClassicActorSystemProvider;
+import com.iconsolutions.ipf.core.connector.SendConnector;
+import com.iconsolutions.ipf.core.connector.transport.ConnectorTransport;
+import com.iconsolutions.ipf.core.connector.transport.ReceivingConnectorTransport;
+import com.iconsolutions.ipf.core.messagelogger.MessageLogger;
+import com.iconsolutions.ipf.core.shared.correlation.CorrelationId;
+import com.iconsolutions.ipf.core.shared.correlation.CorrelationService;
+import com.iconsolutions.ipf.payments.api.csm.clearandsettle.api.ClearAndSettleRequest;
+import com.myorg.myproject.mycsm.mapper.ct.MyCsmMapper;
+import com.myorg.myproject.mycsm.mapper.ct.MyCsmReceiveHandler;
+import com.myorg.myproject.mycsm.model.ct.MyCsmOutboundCTRequest;
+import com.myorg.myproject.mycsm.model.ct.MyCsmOutboundCTResponse;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.context.annotation.Bean;
+
+@AutoConfiguration
+public class MyCsmConfig {
+
+    private final ClassicActorSystemProvider actorSystem;
+    private final CorrelationService correlationService;
+    private final MessageLogger messageLogger;
+
+    public MyCsmConfig(ClassicActorSystemProvider actorSystem,
+                       CorrelationService correlationService,
+                       MessageLogger messageLogger) {
+        this.actorSystem = actorSystem;
+        this.correlationService = correlationService;
+        this.messageLogger = messageLogger;
+    }
+
+    @Bean
+    SendConnector<ClearAndSettleRequest, MyCsmOutboundCTRequest> clearAndSettleRequestSendConnector(MyCsmMapper mapper,
+                                                                                                    ConnectorTransport<MyCsmOutboundCTRequest> transport) {
+        String connectorName = "myCsmClearAndSettleRequestSender";
+        String configRoot = "my-csm.send-cas-connector";
+        return SendConnector.<ClearAndSettleRequest, MyCsmOutboundCTRequest>builder(connectorName, configRoot, actorSystem)
+                .withMessageLogger(messageLogger)
+                .withCorrelationService(correlationService)
+                .withConnectorTransport(transport)
+                .withDomainToTargetTypeConverter(clearAndSettleRequest -> mapper.map(clearAndSettleRequest))
+(1)
+.withSendTransportMessageConverter(outboundRequest -> mapper.convertToTransport(outboundRequest))
+(2)
+.withCorrelationIdExtractor(outboundRequest -> CorrelationId.of(outboundRequest.getPayload().getGrpHdr().getMsgId()))
+                .build();
+    }
+
+    @Bean
+    ReceiveConnector<MyCsmOutboundCTResponse> csmAdapterReceiveConnector(MyCsmMapper mapper,
+                                                                         MyCsmReceiveHandler receiveHandler,
+                                                                         ReceivingConnectorTransport transport) {
+        String connectorName = "myCsmReceiver";
+        String configRoot = "my-csm.receive-connector";
+        return ReceiveConnector.<MyCsmOutboundCTResponse>builder(connectorName, configRoot, actorSystem)
+                .withMessageLogger(messageLogger)
+                .withCorrelationService(correlationService)
+                .withCorrelationIdExtractor(response -> CorrelationId.of(response.getHeader().getAUsefulHeaderId()))
+                .withConnectorTransport(transport)
+                .withReceiveTransportMessageConverter(transportMessage -> mapper.convertToResponse(transportMessage))
+                .withReceiveHandler(receiveHandler)
+                .build();
+    }
+}
+Please visit the
+Receiving Connector
+page if you are unfamiliar with any of the other ReceiveConnector options provided above.
+After creating this ReceiveConnector, we now have all the required components and logic to implement this part of the
+Debtor Credit Transfer Flow
+:
+The steps weve gone through to implement this workflow can subsequently be used to implement any of the other
+supported CSM workflows
+you want to include in your csm service. In summary, this process involves:
+Implementing the appropriate receive message method(s) in the provided
+CsmApiReceiver
+/
+CsmRApiReceiver
+interfaces
+Creating connectors to forward messages to/receive messages from the CSM, and transforming the messages as required
+Using the provided senders (e.g.
+ClearAndSettleResponseSender
+) to forward messages from the CSM to IPF
+Appendix A: CSM Feature Reference
+As described in the
+Steps
+section,
+csm-service-starter-*
+provides a set of out-of-the-box connectors and associated transports that facilitate the exchange of CSM specific messages between the CSM Service and IPF for all
+supported CSM workflows
+. The below table summarises the configuration properties that can be used to enable/disable these connectors, allowing you to tailor your CSM Service feature set to your specific requirements. By default, all the CSM features below are
+enabled
+.
+CSM Service Features
+Feature
+Property
+Description
+Default Value
+Clear And Settle
+Debtor
+csm.clear-and-settle.debtor.enabled
+Enables the send and ReceiveConnectors associated with the debtor clear and settle workflow.
+true
+Clear And Settle
+Creditor
+csm.clear-and-settle.creditor.enabled
+Enables the send and ReceiveConnectors associated with the creditor clear and settle workflow.
+true
+Clear And Settle Technical
+csm.clear-and-settle.technical.enabled
+Enables the clear and settle technical response SendConnector.
+true
+Clear And Settle Notifications
+csm.clear-and-settle.notification.enabled
+Enables the SendConnectors for clear and settle notifications.
+true
+Status Request
+csm.status-request.enabled
+Enables the send and ReceiveConnectors for status requests.
+true
+Receive Payment
+csm.receive-payment.enabled
+Enables receive payment and receive payment settled SendConnectors.
+csm.clear-and-settle.creditor.enabled
+must also be set to
+true
+for this to be enabled.
+true
+Recall/Return/Result Of Investigation
+Debtor
+csm.rrr.debtor.enabled
+Enables the send and ReceiveConnectors associated with the debtor RRR workflows.
+true
+Recall/Return/Result Of Investigation
+Creditor
+csm.rrr.creditor.enabled
+Enables the send and ReceiveConnectors associated with the creditor RRR workflows.
+true
+Collect And Settle
+Creditor
+csm.collect-and-settle.creditor.enabled
+Enables the send and ReceiveConnectors associated with the creditor collect and settle workflow.
+false
+Collect And Settle Technical
+csm.collect-and-settle.technical.enabled
+Enables the collect and settle technical response SendConnector.
+false
+Appendix B: Overriding default CSM Service configuration
+Using the
+transport reference
+page as a guide, the following examples demonstrate how to override the default locations that the connectors provided in
+csm-service-starter-*
+consume from and produce to.
+Kafka
+csm.kafka {
+
+  producer {
+    topics {
+      clear-and-settle {
+        csm-to-debtor = CLEARANDSETTLE_CSM_TO_DEBTOR //csm-service sends
+        csm-to-creditor = CLEARANDSETTLE_CSM_TO_CREDITOR //csm-service sends
+        technical-response = CLEARANDSETTLE_TECHNICAL_RESPONSE //csm-service sends
+      }
+      collect-and-settle {
+        csm-to-creditor = COLLECTANDSETTLE_CSM_TO_CREDITOR //client receives
+        technical-response = COLLECTANDSETTLE_TECHNICAL_RESPONSE //client receives
+      }
+      rrr {
+        csm-to-debtor = RRR_CSM_TO_DEBTOR //csm-service sends
+        csm-to-creditor = RRR_CSM_TO_CREDITOR //csm-service sends
+        technical-response = RRR_TECHNICAL_RESPONSE //csm-service sends
+      }
+      notifications = CSM_NOTIFICATIONS //csm-service sends
+    }
+  }
+
+  consumer {
+    kafka-clients {
+      group.id = csm-client-group
+    }
+    topics {
+      clear-and-settle {
+        debtor-to-csm = CLEARANDSETTLE_DEBTOR_TO_CSM //csm-service receives
+        creditor-to-csm = CLEARANDSETTLE_CREDITOR_TO_CSM //csm-service receives
+      }
+      collect-and-settle {
+        creditor-to-csm = COLLECTANDSETTLE_CREDITOR_TO_CSM //service receives
+      }
+      rrr {
+        debtor-to-csm = RRR_DEBTOR_TO_CSM //csm-service receives
+        creditor-to-csm = RRR_CREDITOR_TO_CSM //csm-service receives
+      }
+    }
+  }
+}
+JMS
+csm.jms {
+  clear-and-settle {
+    debtor-to-csm.queue = clearandsettle.debtor.to.csm //csm-service receives
+    creditor-to-csm.queue = clearandsettle.creditor.to.csm //csm-service receives
+    csm-to-debtor.queue = clearandsettle.csm.to.debtor //csm-service sends
+    csm-to-creditor.queue = clearandsettle.csm.to.creditor //csm-service sends
+    technical-response.queue = clearandsettle.technical.response //csm-service sends
+  }
+
+  collect-and-settle {
+      creditor-to-csm.queue = collectandsettle.creditor.to.csm //client sends
+      csm-to-creditor.queue = collectandsettle.csm.to.creditor //client receives
+      technical-response.queue = collectandsettle.technical.response //client receives
+  }
+
+  rrr {
+    debtor-to-csm.queue = rrr.debtor.to.csm //csm-service receives
+    creditor-to-csm.queue = rrr.creditor.to.csm //csm-service receives
+    csm-to-debtor.queue = rrr.csm.to.debtor //csm-service sends
+    csm-to-creditor.queue = rrr.csm.to.creditor //csm-service sends
+    technical-response.queue = rrr.technical.response //csm-service sends
+  }
+
+  notifications.queue = csm.notifications //csm-service sends
+}
+Appendix C: Deadletter Appenders
+csm-service-starter-*
+provides two
+DeadLetterAppender
+interfaces for handling received messages that fail during processing:
+com.iconsolutions.instantpayments.csm.ct.CsmCTDeadLetterAppenders
+: for credit transfer ReceiveConnectors
+com.iconsolutions.instantpayments.csm.rrr.CsmRMessageDeadLetterAppenders
+: for recall/return/result of investigation ReceiveConnectors
+Use the CSM Service Client Library
+List of System Events

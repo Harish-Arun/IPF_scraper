@@ -1,0 +1,42 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/test-fw/features.html ===
+Features
+Running Modes
+The test-fw can be used in three different modes:
+'White' box testing - this is where the test framework can interact directly with the system under test.  This means it can understand and potentially hook into operations that are being executed by the application.  These tests are normally executed against an application running as a local java process.
+'Black' box testing - this is where the test framework acts upon a deployed environment, so has no knowledge of the internal workings of the system.  Typically we use the black box testing approach when testing deployed applications in a docker environment.
+'Containerised' - similar to the black box approach, in this case all of the test framework utilities, configuration and code will be placed into a container that can then be invoked using an API.  More details of this approach can be found in
+How do I use the feature-test executor?
+UI Support
+Frontend test framework is an extension of the Icon test framework allowing for the testing of web based screens using
+Selenium.This was developed to allow for the testing of the operational GUI whilst having the ability to interact with IPF using
+existing transport mechanism.
+e.g. Trigger ROI from GUI and respond with pacs002 using existing stet steps
+Though this was created to serve the operational GUI, this test framework module has been made generic and should
+be able to test non IPF related web components.
+See
+How do I create a 'Web' Test?
+for details
+Expressions
+In order to read and write properties on message objects in an abstract and general way, the common steps in test-fw-core
+uses the ExpressionEngine class.
+The Expression Engine is a turbocharged
+Spring Expression Language
+evaluator, leveraging reflective property access, type conversion and method invocation.Getting and Setting values on an object with
+Expression Engine
+will always convert from String to the properties data type.To provide conversion control on a given data type conversion you simply need to register an instance of a data type converter that supports the conversion.
+See
+How do I create a custom data type converter?
+for details
+System Awareness
+System awareness is an advanced, optional feature that allows greater control on how the test-fw acts when emulating multiple external systems. For example different systems may share message types or payload types.
+System awareness effectively restricts the message definitions handling by association with the receivingSystem and sendingSystem properties on the CommonTransportSteps, as such the following changes need to be satisfied.
+See
+How do I restrict a message to a given system?
+for details.
+Step Library Creation
+It is possible to use a maven plugin to generate a library of the supported steps in a friendly html based format that can be used to share information on available steps.
+See
+How do I create a step library?
+for details.
+Concepts
+Getting Started

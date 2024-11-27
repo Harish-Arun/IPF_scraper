@@ -1,0 +1,39 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/guides/filter.html ===
+Filter Messages
+How do I filter messages so they are not passed to my receive handler?
+This Connector example shows how you can filter messages based on their header values.
+Defining a Filter
+Simply define a filter by defining Criteria as such:
+var propNameToFilterOn = "myprop";
+
+        new ReceiveConnector
+                .Builder<String>("OurReceiver")
+                .withActorSystem(actorSystem)
+                .withConnectorTransport(receivingTransport)
+                .withMessageLogger(logger())
+                .withFilterCriteria(new MessageHeaderCriteria(propNameToFilterOn, "1"))
+(1)
+.withReceiveTransportMessageConverter(a -> a.getPayload().toString())
+                .withManualStart(false)
+                .withProcessingContextExtractor(a -> ProcessingContext.unknown())
+                .withSkipCorrelationOn(a -> true)
+                .withReceiveHandler((receivingContext, response) ->
+                        CompletableFuture.supplyAsync(() -> list.add(response))
+                                .thenApply(a -> null))
+                .build();
+1
+Defining the filter
+In the above example, we filter out (i.e. do not accept) any messages that have a property name
+myprop
+having the
+value
+1
+.
+Note that it is possible to write custom
+Criteria
+and also use logical AND and OR operators to combine operators.
+See
+Filtering
+for more information on this.
+How to get Connector metrics
+How to accept PascalCase messages

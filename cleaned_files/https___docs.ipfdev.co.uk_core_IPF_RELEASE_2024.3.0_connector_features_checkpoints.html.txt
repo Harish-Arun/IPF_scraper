@@ -1,0 +1,61 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/features/checkpoints.html ===
+Checkpoints
+The Checkpoint implementation is used to capture the causal relationship between "pseudo-events" that occur within IPF.
+The ProcessingContext contains a updatable
+checkpoint
+field that relates to a unique identifier of a given IPF processing object.
+ConnectorMessageMetadata
+public class ConnectorMessageMetadata {
+    private final Checkpoint checkpoint;
+}
+The ConnectorMessage class contains an element called metadata. This ConnectorMessageMetadata allows a Checkpoint to be assigned to the ConnectorMessage that is passed between Connector stages without directly influencing the message ProcessingContext.
+ReceiveConnector
+For a ReceiveConnector, the inbound message ProcessingContext is updated through the following Connector stages:
+CorrelationStage
+If the received message contains a processing context, any processing context contained in the correlation will be merged with the message context. See
+Context Merging
+documentation for further details.
+MessageLoggingStage
+The inbound messages ProcessingContext checkpoint is passed into the logged Message
+The MessageLogEntrys unique
+messageId
+is assigned to the ConnectorMessageMetadata
+checkpoint
+field.
+Checkpoint Stage
+If the ConnectorMessageMetadata
+checkpoint
+field exists, use it to generate the ProcessingContext
+checkpoint
+field, creating a causal link between the previous IPF object and the ProcessingContext.
+The ProcessingContext is then persisted to the remainder of the Connector flow.
+SendConnector
+For a SendConnector, the outbound messages ProcessingContext is updated through the following Connector stages:
+Before any stage when the MessageDelivery instance is created
+New
+messageId
+is calculated and assigned to the SendConnectorMessageMetadata
+checkpoint
+field.
+The checkpoint of a current SendRequest ProcessingContext is assigned to the SendConnectorMessageMetadata
+previousCheckpoint
+field.
+Both ConnectorMessage ProcessingContext and target message ProcessingContext (if target message is an instance of
+UpdatebleProcessingContextHolder
+) are updated with the SendConnectorMessageMetadata
+checkpoint
+field, creating a causal link between the previous IPF object and the ProcessingContext.
+MessageLoggingStage
+SendConnectorMessageMetadata
+checkpoint
+is passed into the logged Message and used as a value for
+messageId
+.
+SendConnectorMessageMetadata
+previousCheckpoint
+is passed into the logged Message and used as a value for
+processingContext.checkpoint
+.
+The ProcessingContext is then persisted to the remainder of the Connector flow.
+Message Logging
+Error Handling

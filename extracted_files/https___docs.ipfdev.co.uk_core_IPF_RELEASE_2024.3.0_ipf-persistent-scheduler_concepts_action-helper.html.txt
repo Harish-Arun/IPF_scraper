@@ -1,0 +1,29 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-persistent-scheduler/concepts/action-helper.html ===
+The Action Helper
+This can be thought of as the engine that receives the scheduled commands to run. It awaits messages from the scheduler
+which - when the time comes to run a job as per the cron expression - will hand the command to the
+SchedulingHelper
+and
+being executing
+Interface
+The
+SchedulingHelper
+has two methods:
+execute(String, Command)
+: Run a task
+This is what the scheduler will call at the right time. The "String" is the
+triggerIdentifier
+from the
+JobSpecification
+, and the
+Command
+is the
+triggerCommand
+from the same specification.
+supports(Command)
+: Does this SchedulingHelper support this command?
+When defining multiple SchedulingHelpers, the scheduler needs to know which
+SchedulingHelper
+can support which command.
+Concepts
+Calendars

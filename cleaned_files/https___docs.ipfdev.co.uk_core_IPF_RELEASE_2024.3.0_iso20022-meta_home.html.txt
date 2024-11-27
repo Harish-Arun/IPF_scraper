@@ -1,0 +1,235 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-meta/home.html ===
+IPF ISO20022 Meta Model
+Overview
+The ISO20022 Meta repository contains MPS based tooling focused on leveraging the
+ISO20022
+,
+Meta Model
+and
+E-Repository
+to build various software representations to support payment systems, including IPF.
+A full glossary for the various concepts and terms can be found at on the
+Concepts
+page.
+Previous process
+The previous process was traditional XSD to Java generation using XJC and some XSL customisations to further decorate the resulting Java pojos.
+New process
+The new process instead is based on referencing the underlying iso2002 source, and EMF e-repository, which contains all the raw data needed for the original XSDs plus much more.
+We take this data, import it into an MPS implementation and leverage the generation capabilities of MPS to produced better, deeper and richer domain code.
+Why not just stick with XSDs and Jaxb?
+Greater model depth
+The ISO20022 Meta-Model is conceptually rich and goes way beyond the structures defined in the
+Message Definition
+,
+XSDs
+.
+Some of this can be seen by reviewing the associated supporting
+Message Definition Reports
+, where contents of the Message Definitions are linked to an underlying
+Business Model
+.
+This information is not otherwise formally expressed, but it
+is
+represented within the Meta-Model and E-Repository, and therefore can be leveraged for generation.
+Enhanced generation opportunities
+This approach, of leveraging the Meta-Model and E-Repository, in combination with MPSs generation capabilities, provides much more opportunity for additional generation such as:
+Generation of the underlying Business Model
+Generation of mappings between
+Message Model
+to Business Model
+Generation of any/all the other Message Definitions and Business Domains
+Ability to augment and complement the existing concepts with solution specific concepts such as IPFs MDS and PDS
+Non-java representations (Kotlin, Open-API, JsonSchema, ProtoBuf)
+Better generation capabilities of the message model (removal of Lombok)
+Interoperability with other MPS language
+Capturing ISO20022 message types within MPS gives a unique ability to be able to begin leveraging these types within other MPS languages.
+For example, we know that an upcoming capability is a language to be able to define message validation rules - typically this would usually be done one of two ways:
+Free-text expressions, similar to SPEL where the user defines expressions and rules in a text format, which is brittle and unsafe.
+Based on a javaType, with type safety - but really is a wrapper on writing java code, and clunky (as we have seen with lightweightDSL and the deprecated DomainDecision features of flo-lang)
+Having the ISO types as MPS concepts nodes means that we are in a better position to provide a direct typesafe experience.
+From a flo-lang perspective, the library of -pre-built java representations ISO types can now "itself" be automatically generated
+Model insight
+By modelling and storing the ISO20022 E-Repository content within MPS, we also implicitly provide the basis for an accessible analytical tool for Business Analysts to use when reviewing the relationship between Message Components.
+With the entire power of IDE support it trivial to find all usages of a given
+Message Element
+, to its various Message Definitions, and how the data is traces across Message Choreographies.
+Extensibility
+It is now trivial to reliably customise or extend, or define new Message Definitions (leveraging the same types) within the existing Meta-Model.
+Project structure
+The below table contains brief details over what each folder relates to
+Folder/Module
+Directory Type
+Description
+erepo
+Binary
+This folder contains iso20022 EMF e-repository file(s).
+iso20022-emf-loader
+Java source
+This Maven module contains custom Java code for reading an eclipse EMF XMI model.
+iso20022-java-metamodel
+Java source
+This Maven module contains a Java representation of the ISO20022 MetaModel, this serves as the DTO model for importing from the EMF E-repo into the MPS model
+iso20022-mps
+MPS project
+This Maven module contains the MPS Languages and Solutions for importing EMF E-repositories and generating useful models such as Java representation of the Message Definitions
+iso20022-mps-dependencies
+Java source
+This Maven module contains custom Java code that is depended on by the generated code from iso20022, for example custom Annotations
+erepo
+This folder contains
+ISO20022
+E-Repository(s)
+.
+The complete E-Repository as of Dec 2022 is found in
+erepo/1_original/20220520_ISO20022_2013_eRepository_original.iso20022
+We also provide a subset based on the
+Message Definitions
+used by IPF (listed below) as of Dec 2022, found here:
+erepo/new_run/iconExampleSubset.iso20022
+The above repo is loaded by default and contains the following
+Message Definitions
+camt.027.001.07
+camt.029.001.09
+camt.052.001.08
+camt.054.001.10
+camt.055.001.08
+camt.056.001.08
+camt.087.001.06
+pain.001.001.09
+pain.002.001.10
+pain.007.001.09
+pain.008.001.08
+pain.013.001.07
+pain.014.001.07
+pacs.002.001.10
+pacs.003.001.07
+pacs.004.001.09
+pacs.007.001.09
+pacs.008.001.08
+pacs.009.001.08
+pacs.028.001.03
+iso20022-emf-loader
+This Maven module contains custom Java code for reading an Eclipse EMF XMI model.
+This is used by the MPS project but is also usable standalone.
+There are various unit tests that can be used to facilitate Repl like access to the raw EMF as a set of Java objects, see the gettings-standard guides for info on exploring the raw EMF repository.
+iso20022-java-metamodel
+This Maven module contains a Java representation of the ISO20022 MetaModel, this serves as the DTO model for importing from the EMF E-repo into the MPS model.
+This model was generated using Eclipse gen-model with the ISO20022 Ecore from the resources loaded.
+If the ISO20022 Meta Model itself (
+iso20022.ecore
+) changes, we will need to re-generate and copy this again, this may happen later in 2023. Whilst we can automate this, we actually would do better to not blindly accept the changes without knowledge of them.
+iso20022-mps-dependencies
+This Maven module contains custom IPF Java code that is depended on by the generated code from ISO20022, this current is simply a set of custom Annotations to decorate the resultant classes with Meta Model context, however this is unlikely to be desirable long term as the Annotation type system is quite limited.
+iso20022-mps
+The MPS domain of this project consists of a primary Language implementation of the ISO20022 Meta Model.
+It targets full coverage of the Model and enhanced generation capabilities.
+It also includes plugin integration for automated importing of ISO20022 EMF repositories into MPS solutions.
+The intention being that a user can download any e-repository from the Registration Authority website, and import it directly into MPS, where they can inspect, analyse, and then generate the various output representations.
+MPS solution overview - CURRENT
+The below shows the current overview.
+It is quite simple, the Importer function is a plugin of the main Language, we have a separate runtime solution for the generator dependencies, and a separate extension language.
+MPS solution overview - target
+The below shows a targeted refactor to remove the EMF concerns away from the language itself, this is something we will aim towards in future.
+MPS Solution Detail
+Language (com.iconsolutions.iso20022)
+This MPS language is based on the original ISO20022 Metamodel, it was created by leveraging an
+Ecore
+to MPS language conversion tool called
+EcoreImport
+to do an initial transformation, followed by a few minor manual adjustments to account for implementation difference between EMF and MPS, for example how enums are implemented.
+The language also contains a plugin aspect provides automatic import of an ISO20022 e-repository (available from the ISO20022 Registration Authority website) into a selected target MPS model.
+To use the plugin, right-click on a blank model and select one of the two options below.
+Import Default ISO Repo
+This loads in a default subset of the ISO repository (the payments messages used by IPF as of December 2022)
+Import ISO Repo from File
+This allows selection of any e-repository from the file system, e-repositories are downloadable from the ISO20022 registration authority
+com.iconsolutions.iso20022.
+repository.ipf
+This is the default "ipf" repository where the imported nodes get generated, there is nothing special about this solution/model.
+Any solution can be created and have the ISO data imported - though in reality we only would need one.
+This solution comes pre-populated with the Icon specific ISO20022 subset.
+com.iconsolutions.iso20022.
+generator
+.runtime
+This solution contains all the Java dependencies that are required by the generator aspect pertaining to ISO.For example, we currently add Lombok and Javax XML annotation to the generated Message Definition classes.
+The dependencies are loaded by maven to the libs directory of the solution, as defined by the e
+mf-generator-libs.directory
+maven property.
+They are committed to version control for convenience of use.
+Default model packaging
+Below is the current default packaging of the resulting Java collateral from ISO20022. We will be generating the message model, business model and in the future validators and mappers. These values are overrideable as part of the generation options
+Base package
+The proposed base package for all generated iso20022 code.
+com.iconsolutions.iso20022
+Message Model
+The ISO20022 Message model consists of all the message related types.
+<base_package>
+.
+message
+com.iconsolutions.iso20022.message
+Message Definitions
+Message definitions require a seperate subpackage to differentiate
+<base_package>
+.message.
+definitions
+.
+<business_area>.<msg_functionality>.<MessageDefinition>
+For example the pain.001.001.08 Message Definition:
+com.iconsolutions.iso20022.message.definitions.payments_initiation.pain001.CustomerCreditTransferInitiationV09
+Message Components
+Message Components are group by their respective Business Component domain.
+They are not grouped with Message Definitions since many Message Definitions may share the same components.
+<base_package>
+.message.
+components
+.
+<business_component_trace_name>.<message_component_name>.MessagComponent
+For example, the GroupHeader85 complex type used by Pain.001.001.09:
+com.iconsolutions.iso20022.message.components.payment.group_header_85.GroupHeader85
+Message components that are not business related are consolidated to a "technical" package
+<base_package>
+.message.
+components
+.
+technical
+.
+<MessageComponent>
+For example, the ControlData1 type used by camt056.001.08 (and others):
+com.iconsolutions.iso20022.message.components.technical.ControlData1
+Business Model
+The ISO20022 Business Model is the conceptual model that underpins the message model, it is more general and can be seen as a set of super types from which members of the message model are traced.
+<base_package>
+.
+business
+com.iconsolutions.iso20022.business
+Business Components
+Business Components will currently be generated into a single components package.
+<base_package>
+.business.
+components
+.
+<BusinessComponent>
+For example, the Payment concept:
+com.iconsolutions.iso20022.business.components.Payment
+In the future we may be able to split the components onto one of the 6 Business Domains:
+Business Application Header
+Cards
+FX
+Payments
+Securities
+Trade Services
+But this requires an enhancement to trace a BusinessComponent to a Business Domain by checking all of its usages within Message Definition traces (this information is not explicitly captured within the e-repository, though it is derivable through some calculations)
+In that case we would have
+<base_package>
+.business.
+<business_domain>.
+components
+.<BusinessComponent>
+For example, the Payment concept:
+com.iconsolutions.iso20022.business.payments.components.Payment
+Concepts
+Getting Started
+How-to Guides
+Analysing an EMF repo
+Validating an Example Message
+Concepts

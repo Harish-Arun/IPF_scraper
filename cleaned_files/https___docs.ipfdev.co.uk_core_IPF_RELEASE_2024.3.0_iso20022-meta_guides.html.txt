@@ -1,0 +1,5 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-meta/guides.html ===
+How-to Guides
+Analysing an EMF repo
+Getting Started
+Analysing an EMF repo

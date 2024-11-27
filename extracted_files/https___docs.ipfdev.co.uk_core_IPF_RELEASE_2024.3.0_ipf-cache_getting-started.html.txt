@@ -1,0 +1,31 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-cache/getting-started.html ===
+Getting Started
+Modules
+There are 3 separate modules:
+ipf-cache-api
+- all the API contracts
+ipf-cache-caffeine
+- using spring backed cache provides caffeine backed implementation
+ipf-cache-infinispan
+- provides our implementation around famous InfiniSpan caching technology.
+Dependency
+Declare the api dependency if a custom implementation is to be used.
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.platform</groupId>
+    <artifactId>ipf-cache-api</artifactId>
+    <version>${project-version}</version>
+</dependency>
+If you want a pre-prepared Caffeine flavour then simply add the following;
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.platform</groupId>
+    <artifactId>ipf-cache-caffeine</artifactId>
+    <version>${project-version}</version>
+</dependency>
+If you want a pre-prepared InfiniSpan flavour then simply add the following;
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.platform</groupId>
+    <artifactId>ipf-cache-infinispan</artifactId>
+    <version>${project-version}</version>
+</dependency>
+InfiniSpan
+Persistent Scheduler

@@ -1,0 +1,19 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/scaffolder/how-to-docker.html ===
+How do you build a project without docker dependencies?
+When the scaffolder runs, it’s default mode will generate a set of docker scripts that can be used to run the application.  These docker scripts provide containers for mongodb.  The docker based mongo containers are required in order for the generated tests to work.  To stop them from being generated entirely, we simply run the scaffolder with the "useEmbeddedMongo" config option set to "y". Note that the "includeE2E" setting should also be set to no in this case.
+If
+includeE2E
+is set to no then the bdd test in the application module will utilise embedded mongo instead of testcontainers (which requires docker).
+Users may specify a docker registry (the standard icon registry is
+registry.ipf.iconsolutions.com
+).
+If specifying a registry other than this, the Mongo TestContainer infrastructure
+will be defined
+in
+the project instead of referenced from
+shared-test-mongo
+, as this has a dependency on
+registry.ipf.iconsolutions.com
+.
+Getting Started
+How do you use your own parent dependency?

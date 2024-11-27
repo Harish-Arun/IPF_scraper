@@ -1,0 +1,7 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/entity-relation.html ===
+Entity Relation Diagram
+Entity Relation Diagram showing relations between dynamic-configurations:
+The entity relation view has been provided for better understanding of how dynamic configurations are related to each other. This view is not meant to be replacement of the API specs and schema. For actual implementation please see
+CSM Reachability Setting Management API
+CSM Reachability Logical Data Model
+Processing Data

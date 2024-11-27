@@ -1,0 +1,37 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/concepts/explainers/start-your-first-ipf-project.html ===
+How to Start Your First IPF Implementation Project
+Are you about to start your IPF journey? This page lists suggested steps you can take to make a successful start in building solutions with IPF.
+1. Prerequisites
+Make sure you understand where your solution built with IPF will be deployed. If the environment isn’t ready, make sure someone is working on getting it ready. You’ll need a suitable database and somewhere for the containers to be hosted
+Identify if you need any
+training
+Ensure you have access to our Nexus repository
+2. Getting started for developers
+Install and setup MPS
+Create you own project from scratch:
+Create New Project
+Create a sample credit transfer flow with a domain function or some kind of validation to be implemented (DSL tutorial link:
+DSL Domain Function
+)
+Create an external domain (can also use fraud/sanction examples:
+DSL External Domain
+)
+Implement validations and checks on Java side
+Implement connectors in order to communicate with external domain(s)
+Create test application (SpringBoot app)
+Build the test flow
+Build the test environment (example: docker containers for Mongo, Kafka, developer-app, use some of the IPF simulators as well)
+Test the flow in a Docker environment
+Deploy to your cloud environment and test there
+3. Getting started for Business Analysts & Architects
+Define the E2E business process you wish to implement
+Identify the systems that will be used to implement the process and how they will interact to do so
+Draft the MPS flows for the component(s) that will be built using IPF in MPS
+Pick a simple flow to start with and write stories to implement the various steps in the flow (link to story writing guide section "Typical User Story Writing Process for IPF")
+Don’t forget to cover NFRs!
+4. Starting the proper implementation
+Once your developers and BA’s are ready, prioritise your backlog and start the normal agile process. Remember to play any needed setup stories to do things like
+setup repos, create services etc.
+before starting functional stories. You may find in the early stages of a project it is worth, as well having refinement sessions, to have pre-refinement sessions with a smaller, more senior group to iron out any big unknowns without taking up the time of the whole team. Once the team has settled into a normal delivery rhythm pre-refinement most likely won’t be needed anymore.
+IPF Training
+User Story Guide for IPF Solution Projects

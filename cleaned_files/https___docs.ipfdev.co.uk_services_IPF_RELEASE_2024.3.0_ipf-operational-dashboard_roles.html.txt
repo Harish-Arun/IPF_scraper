@@ -1,0 +1,83 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ipf-operational-dashboard/roles.html ===
+IPF GUI Roles
+Introduction
+This purpose of this page is to outline all the roles supported within the IPF GUI and provide a description of the features and functions that each role is associated with.
+It is possible for an operator to have more than one role assigned to them for each module. I.e. An operator for HTM can have both the ROLE_HTM_EXECUTE and the ROLE_HTM_APPROVER roles assigned to them.
+ODS Search
+Role
+Description
+ROLE_PAYMENT
+Allows the operator to view and search against the data within the ODS Search tile. This includes viewing payment summaries and system events.
+ROLE_PAYMENT_EXPORT
+Allows the operator to export the payment summaries
+Processing Settings
+Role
+Description
+ROLE_DPS_PE_R
+Allows the operator to view Processing Entity settings.
+ROLE_DPS_PE_C
+Allows the operator to create new processing entities.
+ROLE_DPS_PE_U
+Allows the operator to update an existing processing entity.
+ROLE_DPS_PE_A
+Allows the operator to approve the creation or deletion of a processing entity.
+ROLE_DPS_PE_D
+Allows the operator to delete an existing processing entity.
+ROLE_DPS_AS_R
+Allows the operator to view agent, agent settlement and agent clearing settings.
+ROLE_DPS_AS_C
+Allows the operator to create new agent, agent settlement and agent clearing settings.
+ROLE_DPS_AS_A
+Allows the operator to approve the creation, modification or deletion of agent, agent settlement and agent clearing settings.
+ROLE_DPS_AS_U
+Allows the operator to update existing agent, agent settlement and agent clearing settings.
+ROLE_DPS_AS_D
+Allows the operator to delete existing agent, agent settlement and agent clearing settings.
+ROLE_DPS_BF_R
+Allows the operator to view a bank filtering rules settings.
+ROLE_DPS_BF_C
+Allows the operator to create new bank filtering rules.
+ROLE_DPS_BF_A
+Allows the operator to approve the creation, modification or deletion of a bank filtering rule.
+ROLE_DPS_BF_U
+Allows the operator to update existing bank filtering rules.
+ROLE_DPS_BF_D
+Allows the operator to delete an existing bank filtering rule.
+ROLE_DPS_GP_R
+Allows the operator to view generic processing settings.
+ROLE_DPS_GP_C
+Allows the operator to create new generic processing settings.
+ROLE_DPS_GP_A
+Allows the operator to approve the creation, modification or deletion of generic processing settings.
+ROLE_DPS_GP_U
+Allows the operator to update existing generic processing settings.
+ROLE_DPS_GP_D
+Allows the operator to delete existing generic processing settings.
+ROLE_DPS_P_R
+Allows the operator to view participant details.
+Human Task Manager
+Role
+Description
+ROLE_HTM_VIEWER
+Allows the operator to view and search tasks within the HTM feature. They will not be able to execute any tasks.
+ROLE_HTM_EXECUTE
+Allows the operator to view and execute tasks within the HTM feature.
+ROLE_HTM_APPROVER
+Allows the operator to view all tasks and execute tasks that are awaiting approval within the HTM feature.
+ROLE_HTM_B_C
+Allows the operator to bulk execute tasks within the HTM feature.
+ROLE_HTM_B_R
+Allows the operator to view and search bulk tasks within the HTM feature. They will not be able to bulk execute any tasks.
+Audit
+Role
+Description
+ROLE_AUDIT
+Allows the operator to view the Audit tile and search for the relevant audit data.
+Metrics
+Role
+Description
+ROLE_METRICS
+Allows the operator to view the Metrics tile and search for the relevant data.
+There are currently no roles associated with the Permissions, IPF Version and IPF Cluster Health tiles and therefore these tiles are visible to all users of IPF Operational Dashboard.
+Operational Dashboard
+Service Configuration

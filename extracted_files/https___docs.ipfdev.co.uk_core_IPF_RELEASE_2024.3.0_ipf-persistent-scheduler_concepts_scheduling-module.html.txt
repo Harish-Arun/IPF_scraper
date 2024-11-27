@@ -1,0 +1,26 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-persistent-scheduler/concepts/scheduling-module.html ===
+Scheduling Module
+The scheduling module is how to interact with the IPF Persistent scheduler. It offers typical scheduling operations that
+you would expect to see on such a tool. They are documented below.
+scheduleJob
+and
+updateJob
+- [re]schedule a job
+This method takes a
+JobSpecificationDto
+, persists the job specification and enqueues the job to run in Quartz with the
+relevant scheduler cron expression ("specification") and calendar if present.
+Note that if the key for this job already exists, then the existing job will be updated to this new specification.
+cancelJob
+- cancel a job
+Takes the
+JobSpecificationKey
+only, and any future executions of this job - if any - will not be executed. Please note
+that the execution history of the job will be retained.
+findJobById
+- get a job’s latest status
+Takes the
+JobSpecificationKey
+of a job and returns its specification and latest run status.
+Job Specification and Status
+Scheduling Status

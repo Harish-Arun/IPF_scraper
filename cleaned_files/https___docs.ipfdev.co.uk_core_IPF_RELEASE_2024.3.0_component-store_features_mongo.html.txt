@@ -1,0 +1,35 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/component-store/features/mongo.html ===
+MongoComponentStore
+The MonoComponentStore is an adapter implementation for a mongo data store.
+It is a pluggable component that can easily be swapped for another provided that it implements ComponentStore interface.
+Below are methods provided by the adapter and their description:
+Interface
+The
+ComponentStore
+interface is defined with the following operations.
+public interface ComponentStore<T> {
+
+    CompletionStage<Component<T>> findById(ComponentId id);
+
+    Flux<Component<T>> findAllByBulkIdAndMarkerFlux(BulkId bulkId, String marker);
+
+    Flux<Component<T>> findAllByParentIdAndMarkerFlux(ComponentId parentId, String marker);
+
+    Flux<Component<T>> findAllByBulkIdFlux(BulkId bulkId);
+
+    Flux<Component<T>> findAllByParentIdFlux(ComponentId parentId);
+
+    CompletionStage<Void> deleteAllByBulkId(BulkId bulkId);
+
+    CompletionStage<Boolean> existsByParentId(ComponentId id);
+
+    CompletionStage<Void> deleteById(ComponentId id);
+
+    CompletionStage<Void> deleteOlderThan(Instant creationDate);
+
+    CompletionStage<Component<T>> save(Component<T> component);
+
+    CompletionStage<Component<T>> findRootParentComponentById(ComponentId id);
+}
+Features
+Getting started

@@ -1,0 +1,133 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/features/supported-messages.html ===
+Supported Messages
+BulkIngestionMessage.java
+public abstract class BulkIngestionMessage {
+    private String requestId;
+    private String bulkId;
+}
+BulkIngestionReceiveAdapter.java
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@SuperBuilder
+public class AddComponentMessage extends BulkIngestionMessage {
+    private String parentId;
+    private String path;
+    private String content;
+}
+AddComponentWithBulkAutoCreateMessage.java
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@SuperBuilder
+public class AddComponentWithBulkAutoCreateMessage extends BulkIngestionMessage {
+    private String parentId;
+    private String path;
+    private String content;
+    private String configName;
+}
+AddRecurringBulkComponentMessage.java
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
+public class AddRecurringBulkComponentMessage extends BulkIngestionMessage {
+    private String path;
+    private String content;
+    private String configName;
+}
+ArchiveBulkMessage.java
+@EqualsAndHashCode(callSuper = true)
+@NoArgsConstructor
+@SuperBuilder
+public class ArchiveBulkMessage extends BulkIngestionMessage {
+}
+CloseBulkMessage.java
+@AllArgsConstructor
+@Data
+@SuperBuilder
+public class CloseBulkMessage extends BulkIngestionMessage {
+}
+CreateBulkMessage.java
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
+public class CreateBulkMessage extends BulkIngestionMessage {
+    private String configName;
+}
+CreateRecurringBulkMessage.java
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
+public class CreateRecurringBulkMessage extends BulkIngestionMessage {
+    private String configName;
+}
+FinaliseBulkMessage.java
+@AllArgsConstructor
+@Data
+@SuperBuilder
+public class FinaliseBulkMessage extends BulkIngestionMessage {
+
+    private String bulkFileName;
+
+}
+GetBulkReportMessage.java
+@Data
+@NoArgsConstructor
+@SuperBuilder
+public class GetBulkReportMessage extends BulkIngestionMessage {
+
+}
+GetCurrentOpenBulkMessage.java
+@NoArgsConstructor
+@SuperBuilder
+public class GetCurrentOpenBulkMessage extends BulkIngestionMessage {
+}
+OpenBulkMessage.java
+@AllArgsConstructor
+@Data
+@SuperBuilder
+public class OpenBulkMessage extends BulkIngestionMessage {
+}
+@EqualsAndHashCode(callSuper = true)
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@SuperBuilder
+public class RejectBulkMessage extends BulkIngestionMessage {
+
+    RejectBulkReason rejectBulkReason;
+    String rejectDescription;
+}
+RemoveComponentMessage.java
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@SuperBuilder
+public class RemoveComponentMessage extends BulkIngestionMessage {
+    private String componentId;
+    private String content;
+}
+@Data
+@NoArgsConstructor
+@SuperBuilder
+public class TerminateBulkMessage extends BulkIngestionMessage {
+
+}
+UpdateComponentMessage.java
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
+public class UpdateComponentMessage extends BulkIngestionMessage {
+    private String componentId;
+    private String content;
+}
+Bulk Archiver
+Getting started

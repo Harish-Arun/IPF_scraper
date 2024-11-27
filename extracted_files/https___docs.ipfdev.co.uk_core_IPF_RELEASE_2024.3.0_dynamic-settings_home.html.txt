@@ -1,0 +1,49 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/dynamic-settings/home.html ===
+Dynamic Processing Settings
+Background
+Dynamic Processing Settings provides a platform to manage configurable settings and their lifecycle. This platform provides for defining, maintaining and exposing configurable settings that can be referenced from
+an external application such as IPF.
+The initial use case which has been used to prove out the framework in the first instance is
+CSM Reachability
+.
+High Level Project Structure
+The following diagram shows an example of the high level structure of components involved in Dynamic Processing Settings.
+Platform Projects:
+Project
+Description
+file-ingestion-service
+Contains the required infrastructure to consume settings from a source e.g. a file and propagate the consumed settings through to the setting management API via a Process Manager.
+setting-domain
+Contains generic setting domain and model objects e.g. CreateSetting, UpdateSetting, Setting
+setting-management
+Contains the API framework which is used to manage the settings (CRUD API)
+setting-workflow
+Contains the MPS generated artefacts to support lifecycle management via Event Sourced Behaviours
+setting-catalogue
+Specific settings which have been defined to be managed by the Dynamic Processing Settings framework. Contains supporting infrastructure such as read side models and settings definitions
+CSM Reachability Solution Projects:
+The CSM Reachability Solution leverages the Platform Projects and defines additional solution specific projects
+Project
+Description
+csm-reachability
+Pulls in the relevant platform projects, and contains the validate csm reachability business service, which invokes the setting management APIs in order to determine CSM reachability given a specific input
+csm-reachability-app
+Wrapper project which pulls in all the relevant modules and runs as a single sprint boot application. It also builds a docker image of the same.
+csm-reachability-service
+Contains the orchestration service - csm-reachability-service
+csm-reachability-setting-management
+Leverages setting-management and specific setting definitions relevant to the CSM Reachability Solution
+participant-file-handling
+Leverages file-ingestion-service and specific setting definitions relevant to the CSM Reachability Solution
+csm-reachability-e2e-test
+Verifies the CSM Reachability App assembles and runs successfully as a docker image
+Documentation
+How to create a project based on Dynamic Settings
+-
+An overview of modules needed to assemble an application built on top of dynamic-settings-workflow
+Creating a Setting
+- Example of adding a setting to the dynamic processing settings framework
+Workflow Documentation
+- An overview of all the concepts relating to the dynamic settings workflow
+Scheduling Your First Job
+Features

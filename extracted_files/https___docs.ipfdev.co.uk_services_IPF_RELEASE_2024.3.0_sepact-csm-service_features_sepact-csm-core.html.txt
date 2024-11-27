@@ -1,0 +1,291 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/features/sepact-csm-core.html ===
+Core Configuration
+SEPA CT CSM Core configuration options and explanations.
+Liquidity Adjustment Checkpoints Configuration
+This config defines when the Scheme specified LAC window is closing and identifies the latest point in time up to which files will be accepted by the scheme.
+The cut-off values for this configuration are aligned to the timings provided by the scheme and can be changed if the scheme times change.
+It is recommended that these are not changed without having specific confirmation from the scheme as unintended change could cause the cycle times to be mis-aligned between the IPF implementation and the scheme, causing unwanted rejections / liquidity positions.
+The standard values are populated for the STEP2 SCT CSM Service implementation, however, it is recommended that the client implementation teams compare the standard values against those specified by the scheme at the point of implementation and update the values if required.
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-ct.lac.timezone
+String
+Time zone for liquidity adjustment checkpoints
+CET
+ipf.csm.sepa-ct.lac.sending-cutoffs
+Array
+Array of objects describing liquidity adjustment checkpoints. For each object, time represents the time buffer time ahead of LAC Sending cut-off at which the file level bulk will be finalized. A day offset equal to 1 indicates the LAC sending cut-off time which is the first for a given day.
+[
+{
+time = "21:30"
+day-offset = 0
+},
+{
+time = "01:00"
+day-offset = 1
+}
+]
+ipf.csm.sepa-ct.lac.eod-validation-cutoff
+String
+Scheme cut-off time when the Scheme moves from Real Time Validation for same day settlement.
+20m
+ipf.csm.sepa-ct.lac.settlement-rollover-buffer
+String
+Buffer time ahead of SEPA CT CGD EOD - Real Time Validation Cut-off
+20m
+ipf.csm.sepa-ct.lac.cgs-eod-cutoff
+String
+The cut-off time when the last LAC has closed and the CGS EOD has started.
+16:30
+ipf.csm.sepa-ct.lac.cgs-eod-output-delivery-buffer
+String
+Buffer time after the CGS EOD cut-off, after which the output files should reach the CSM Service after CGS EOD has started
+30m
+cgs-eod-trigger-buffer
+String
+Allowed time window before or after the scheduled CGS EOD cut-off time
+5s
+Extra notes -  LAC Sending Cut-off Buffer Time
+ipf.csm.sepa-ct.lac.sending-cutoffs
+Buffer time ahead of LAC Sending cut-off (Refer Documentation) at which the file level bulk (e.g. ICF File) will be finalized to be sent to the scheme.
+This begins creation of the files to be sent to the scheme ahead of the LAC Sending cut-offs and ensures that all the participants in the chain of events leading to the file being received by the scheme, have enough time to perform those steps.
+Examples of the steps that should happen between LAC Sending Cut-Off Buffer and LAC Sending Cut-Off are:
+Finalization of the bulks within IPF Bulker and generation of scheme files
+Streaming of the files to the scheme through client file system
+Validation of the files by the scheme in real time and generation of CVF responses
+Generation of the LCR requests to the SCT service for settlement purposes
+Settlement of the individual LCR requests by the scheme
+This configuration is specific to IPF Bulker implementation designed to work with IPF STEP2 SCT CSM Service.
+The client implementation teams should update the default value of the config to a value as per the volume and performance expectations from the IPF implementation.
+Extra notes - EOD Real Time Validation Cut-Off
+ipf.csm.sepa-ct.lac.eod-validation-cutoff
+Scheme cut-off time when the Scheme stops Real Time Validation of the messages for same day settlement.
+After this time, the scheme will reject any bulks that are sent to it with the same day value specified in the Interbank Settlement date.
+Only files that should settle on the next business day(s) will be processed and warehoused.
+Effectively, this is the latest that the bulks with same day settlement requests should be sent to SCT service.
+The value of this configuration can be changed but this should be done as per scheme guidelines, unilateral change on the IPF implementation can cause unwanted rejections from the scheme.
+Extra notes - Settlement Date Roll Over Buffer Time
+ipf.csm.sepa-ct.lac.settlement-rollover-buffer
+Buffer time ahead of Real Time Validation Cut-off time (Refer documentation), at which the Current Settlement Date value on STEP2 SCT CSM Service is rolled over to the next valid Target2 Business day.
+Beyond this time, the messages with the same day settlement date value will be rejected by STEP2 SCT CSM Service.
+This configuration is also used for validations of the Interbank Settlement date on submitted bulks through Clear and Settle route as well as the Validation API.
+The client implementation teams should update the default value of the config to a value as per the volume and performance expectations from the IPF implementation.
+Extra notes - CGS EOD Output Delivery Extension Configuration
+The property
+ipf.csm.sepa-ct.lac.opening-extension.extension-in-minutes
+is intended to extend the CGS EOD cut-off time.
+If this value is set, the CGS EOD cut-off time will be extended by the specified number of minutes.
+If the value is not set, the default value of 0 minutes will be used.
+Allowed values for this property range from 0 to 360 minutes. For example, if
+cgsEodCutoffDateTime
+is 5 PM CEST and
+extensionInMinutes
+is configured to 10 minutes, the new
+cgsEodCutoffDateTime
+will be scheduled for 5:10 PM CEST.
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-ct.lac.opening-extension.extension-in-minutes
+Integer
+Allowed values range from 0 to 360 minutes.
+0
+Extra notes - CGS EOD Output Delivery Phase Buffer
+ipf.csm.sepa-ct.lac.cgs-eod-output-delivery-buffer
+A buffer time after the CGS EOD cut-off, after which the output files should reach the CSM Service after CGS EOD has started.
+If the RSF files are not received after this buffer time has passed beyond the CGS EOD cut-off, the CSM Service will assume there have not been any settlement failures / cancellations and will send a "Settlement Success response" to the client flows in form of pacs.002 message.
+This configuration defines the longest the STEP2 SCT CSM Service will wait to be informed of settlement failures through RSF files before assuming settlement success.
+The configuration should allow enough time for all the steps required for the files to reach IPF STEP2 SCT CSM Service from the scheme to avoid sending successful settlement responses to the client implementation flows while settlement failures get informed through RSF failures.
+If this configuration is not set carefully, this could cause serious challenges with the settlement confirmations and will involve higher operational work to revert accounting entries.
+Processing Entity Configuration
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-ct.processing-entity.validate-debtor-agent
+Boolean
+Should debtor agent be validated or not
+false
+ipf.csm.sepa-ct.processing-entity.validate-creditor-agent
+Boolean
+Should creditor agent be validated or not
+false
+ipf.csm.sepa-ct.processing-entity.valid-agent-bics
+Map
+Must be provided in order for SEPA CT CSM Service to start. Each map entry contains a valid direct participant bic value and a list of valid indirect participant bic values associated with this direct participant bic:
+[
+{
+direct-participant-bic = "ICONGBA0"
+indirect-participant-bics = [
+"ICONGBA1"
+]
+}
+]
+Not provided
+ipf.csm.sepa-ct.processing-entity.pacs008-duplicate-message-check-period
+Period
+Sets the duplicate validation period for Pacs.008 messages. The check considers a previous message with the same
+message header a duplicate only when it has been created in the given period and ignores it otherwise. If set to
+0
+the check falls down to the default behaviour.
+13m
+SEPA CT Reason Code Mapping Configuration
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-ct.reason-code-type.iso
+Array
+List of ISO20022 SEPA CT Reason Code types.
+[
+"AM18",
+"DT03",
+"FF01",
+"FF08",
+"IN02",
+"RR02",
+"RR03",
+"BE04",
+"BE07",
+"DU03",
+"AM05"
+]
+ipf.csm.sepa-ct.reason-code-type.proprietary
+Array
+List of STEP2 CSM specific SEPA CT Reason Code types.
+[
+"B02",
+"B03",
+"B05",
+"B10",
+"B12",
+"B13",
+"B14",
+"B15",
+"B16",
+"XT13",
+"XT33",
+"XT73",
+"XT81",
+"XT91"
+]
+Bulk File Processing Configuration
+This configuration defines whether post-processing of the bulk file produced by the IPF Bulker should be performed.
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-ct.bulk-file-processing.validate
+Boolean
+If enabled, schema validation of the bulk file will be performed. If the validation fails, the bulk file will be deleted.
+false
+ipf.csm.sepa-ct.bulk-file-processing.archive
+Boolean
+If enabled, archiving of the bulk file will be performed. If schema validation is also enabled archiving will only be performed if validation passes.
+false
+Camt0x7 Payment Adapter Sender
+See the
+SEPA CSM Inquiry API
+for description of the types
+For inbound Camt.0x7 messages, we have created a new connector that supports sending Camt.027 or Camt.087 messages to the Payment Adapter and Client Service Implementation. Two types of request objects are supported:
+ReceiveInquiryClaimRequest - CAMT.027
+ReceiveInquiryModifyRequest - CAMT.087
+The following configuration property allows you to define the name of the Kafka topic to which the notifications are published. We can configure whether we want to turn on or off this type of notification using the property.
+Outbound Inquiry - SepaCsmInquiryRequest/SepaCsmInquiryResponse
+ID
+Name
+ISO20022 payload
+Description
+JMS Queue Default Value
+Kafka Topic Default Value
+JMS Queue Config Key
+Kafka topic key (see note)
+1-1
+Sepa Csm Inquiry Canonical Request
+pacs.008
+CSM Service provides an Inquiry Canonical API to enable the Client Implementation flows or SDK clients to inquire on or modify previously submitted payments.
+SEPA_INQUIRY_REQUEST_TO_CSM
+SEPA_INQUIRY_REQUEST_TO_CSM
+ipf.csm.sepa-ct.inquiry.outbound-canonical.jms.request.queue
+ipf.csm.sepa-ct.inquiry.outbound-canonical.kafka.consumer.topic
+1-2
+Sepa Csm Inquiry Canonical Response
+pacs.002
+The Canonical Inquiry API provided by CSM Service allows clients to inquire about or modify payments that have been
+previously submitted, facilitating the implementation flows of client implementations or SDK clients.
+SEPA_INQUIRY_RESPONSE
+SEPA_INQUIRY_RESPONSE
+ipf.csm.sepa-ct.inquiry.outbound-canonical.jms.response.queue
+ipf.csm.sepa-ct.inquiry.outbound-canonical.kafka.producer.topic
+1-3
+Sepa Csm Inquiry External Request
+pacs.008
+CSM Service provides an Inquiry External API to enable the Client external legacy services to inquire on or modify with
+ISO 2022 XML format messages about previously submitted payments.
+SEPA_INQUIRY_EXTERNAL_REQUEST_TO_CSM
+SEPA_INQUIRY_EXTERNAL_REQUEST_TO_CSM
+ipf.csm.sepa-ct.inquiry.outbound-external.jms.request.queue
+ipf.csm.sepa-ct.inquiry.outbound-external.kafka.consumer.topic
+1-4
+Sepa Csm Inquiry External Response
+pacs.002
+The External Inquiry API provided by CSM Service allows clients to inquire about or modify payments that have been
+previously submitted, with ISO 2022 XML format response messages.
+SEPA_INQUIRY_EXTERNAL_RESPONSE
+SEPA_INQUIRY_EXTERNAL_RESPONSE
+ipf.csm.sepa-ct.inquiry.outbound-external.jms.response.queue
+ipf.csm.sepa-ct.inquiry.outbound-external.kafka.producer.topic
+Inbound Inquiry - Camt0x7 Sender
+ID
+Name
+ISO20022 payload
+Description
+JMS Queue Default Value
+Kafka Topic Default Value
+JMS Queue Config Key
+Kafka topic key (see note)
+1-1
+Send Camt027/Camt.087 Request
+camt.027
+ camt.087
+The Inquiry API provided by CSM Service allows inbound clients, such as Client Implementation flows or SDK clients, to inquire about or modify payments that have been previously submitted.
+SEPA_CSM_TO_INQUIRY_REQUEST
+SEPA_CSM_TO_INQUIRY_REQUEST
+ipf.csm.sepa-ct.inquiry.inbound.jms.request.queue
+ipf.csm.sepa-ct.inquiry.inbound.kafka.producer.topic
+Bulk Size Limits
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-ct.bulk-size.maximum-file-size
+Size in
+bytes
+Maximum size of the bulk, when size of the bulk reaches this value, bulk will be closed and data will be streamed to a file.
+480MB
+ipf.csm.sepa-ct.bulk-size.size-check-cron
+Cron Expression
+Cron expression for checking if the size of the bulk reached 'maximum-file-size'.Needs to be repeatable in order to periodically check the size of the bulk.
+"*/30 * * ? * *"
+ipf.csm.sepa-ct.bulk-size.maximum-number-of-minibulks-per-bulk
+Long
+Maximum number of ISO messages in an ICF/IQF bulk.
+500
+ipf.csm.sepa-ct.bulk-size.maximum-components-per-minibulk
+Long
+Maximum number of components per ISO message bulk.
+100000
+File Count Limits Per LAC
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-ct.lac.file-limit-per-lac
+Integer
+Maximum files that can be produced in a single LAC window. Subsequent files will be scheduled for the next available LAC window.
+500
+Extension Points
+Notifications

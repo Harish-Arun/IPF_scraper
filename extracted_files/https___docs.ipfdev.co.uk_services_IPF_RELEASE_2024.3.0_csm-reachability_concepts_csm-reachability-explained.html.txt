@@ -1,0 +1,21 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/concepts/csm-reachability-explained.html ===
+CSM Reachability Explained
+1. Reachability Explained
+Reachability in context of payment processing and IPF refers to the ability of the processing entity to clear and settle a payment with a counterparty (Creditor Agent) through a "Clearing and Settlement mechanism".
+A clearing and Settlement mechanism (referred to as CSM henceforth in documentation), is an entity that facilitates Clearing and Settlement of the payments between the entity that is processing the payment and the counter-party. A CSM can be a Clearing House, an agent that is acting as intermediary or an agent with the processing entity holds a direct settlement relationship.
+Reachability in IPF is determined using below criteria:
+Agent Settlement Criteria : Ability of the Processing entity to settle given transfer currency with a CSM Agent.
+Participation Criteria : A check whether the counterparty is a participant of the CSM Agent (Direct or indirect) or the CSM Agent itself is the intended counterparty.
+Limits Criteria : Where specified, a check on the TransferAmount against specified limits on dynamic configurations that apply. There can be limits specified against the CSM Agent or against individual participant of the CSM Agent.
+In future more criteria will be introduced to further enhance accuracy of the reachability results ( some examples are CSM Agent Operating Hours, Country Level Limits)
+When all the criteria are met for a payment, the CounterParty on the payment is deemed to be "Reachable" through a CSM Agent. It is important to note that a counter party may be reachable through one or more CSM agents and client implementations will likely have a preference to choose an agent over another in these situations. This is supported through IPF Dynamic configurations and APIs provided for purposes of Reachability Checks.
+2. Why check CSM Reachability?
+In most cases, when a Payments Orchestration implementation is processing a payment, the only information available is, the transfer currency, transfer amount and the identifier of the counterparty which needs to be credited.
+There are several scenarios possible for the payment processing:
+The CounterParty is not reachable through any CSM Agent.
+The CounterParty is reachable through only one CSM Agent.
+The CounterParty is reachable through multiple CSM Agents.
+Processing payments without carrying out a CSM Reachability check exposes the Payments orchestration implementations to risks of failures in payment clearing or settlement, delays or higher processing costs. All of these are adverse outcomes for the clients and their end customers. These could be avoided by carrying out an effective CSM Reachability check and submitting the payment to a CSM Agent knowing with confidence that it is the best choice for Clearing and settlement of the payment.
+It is important to know that carrying out reachability checks does not remove liquidity and settlement risks as these factors are outside of the remits of Reachability check. They depend on the ability of CSM Agents and counter-parties to honor the settlement. This risk should be managed through standard liquidity risk management functions within the client environment.
+Processing Entity Explained
+IPF Configurations

@@ -1,0 +1,70 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/working-days-service/deployment-config.html ===
+Deployment & Configuration
+The options for integrating with working days service from a client application are outlined below.
+Standalone
+The working days service is deployed as a separate application and accessed via a REST interface. Client connectors are available to assist with invoking the working days service from a client application.
+Add the following dependency to a client application to utilise the client connectors to access the working days service if it is deployed as a standalone application:
+<dependency>
+    <groupId>com.iconsolutions.ipf.csm.workingdays</groupId>
+    <artifactId>working-days-service-client-connector</artifactId>
+</dependency>
+Configuration
+Property Name
+Type
+Comment
+Default
+ipf.working-days-service.connector.enabled
+boolean
+Enable connectors for integrating with WDS
+true
+ipf.working-days-service.connector.http.client.host
+String
+Hostname where working days service is deployed
+localhost
+ipf.working-days-service.connector.http.client.port
+String
+HTTP port where WDS can be accessed
+8080
+ipf.working-days-service.connector.http.client.endpoint-url
+String
+Path to access the service
+/
+As with all connectors, resiliency-settings can also be configured at the config path
+ipf.working-days-service.connector.resiliency-settings
+. Specific properties that can be configured are documented
+Resilience
+Embedded
+Alternatively, the working days service can be embedded into an existing application.
+Add the following dependency to an existing application to add working days service functionality to that application.
+<dependency>
+    <groupId>com.iconsolutions.ipf.csm.workingdays</groupId>
+    <artifactId>working-days-service-starter-direct</artifactId>
+</dependency>
+Which can then be accessed using the client dependency below, this dependency provides convenience methods that allow for passing
+ProcessingContext
+with request and response message.
+<dependency>
+    <groupId>com.iconsolutions.ipf.csm.workingdays</groupId>
+    <artifactId>working-days-service-client-direct</artifactId>
+</dependency>
+Configuration
+Property Name
+Type
+Comment
+Default
+ipf.working-days-service.direct.enabled
+boolean
+Enable client access to WDS directly, used when WDS is embedded inside the client application
+true
+With this option Working Days Service Functionality is added to an existing application and is accessible via the
+WorkingDaysServiceClientPort
+Embedded Working Days Service, DPS Setting Management Standalone*
+*Not yet supported
+Another option is to have the working days service embedded into an existing application, but to deploy DPS as a separate application.
+Add the following dependency to an existing application to add working days service functionality but call out to a DPS instance that is deployed as a separate application.
+<dependency>
+    <groupId>com.iconsolutions.ipf.csm.workingdays</groupId>
+    <artifactId>working-days-service-starter-connector</artifactId>
+</dependency>
+Validating Settlement Date
+Working Days Service

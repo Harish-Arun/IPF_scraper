@@ -1,0 +1,18 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features.html ===
+Features
+Debulking Configuration
+New File Notification
+Polling For New Files
+Duplicate check
+Schema Validation
+Splitter
+JSON Splitter
+XML Splitter
+Client Processing
+Client Processing Kafka
+File Archiver
+Access Components
+Housekeeping component remover
+Housekeeping - scheduler
+Concepts
+Debulking Configuration

@@ -1,0 +1,22 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.validate%20scheme%20rules.Handle%20Validate%20Scheme%20Rules%20-%20AcceptanceDtTm.html ===
+Handle Validate Scheme Rules - AcceptanceDtTm.story
+Scenario: Handling validation of scheme rules invalid acceptanceDtTm checked for Creditor direction
+When
+the ï½Payment Serviceï½  sends a Validate Scheme Rules Request with values:
+| getPayload().getContent().cdtTrfTxInf[0].accptncDtTm | 2021-09-12T12:43:27.475725+02:00         |
+| customBusinessData                                   | supportingContext(flowType,CREDITOR) |
+Then
+ï½the Payment Serviceï½  receives a Validate Scheme Rules Response using predicate:
+| status                                | FAILURE                           |
+| getPayload().getContent().reasonCode  | AB06                              |
+| getPayload().getContent().description | Timeout                           |
+| requestId                             | #ValidateSchemeRulesRequest.ipfId |
+Scenario: Handling validation of scheme rules invalid acceptanceDtTm not checked for Debtor direction
+When
+the ï½Payment Serviceï½  sends a Validate Scheme Rules Request with values:
+| getPayload().getContent().cdtTrfTxInf[0].accptncDtTm | 2021-09-12T12:43:27.475725+02:00       |
+| customBusinessData                                   | supportingContext(flowType,DEBTOR) |
+Then
+ï½the Payment Serviceï½  receives a Validate Scheme Rules Response using predicate:
+| status     | SUCCESS                           |
+| requestId  | #ValidateSchemeRulesRequest.ipfId |

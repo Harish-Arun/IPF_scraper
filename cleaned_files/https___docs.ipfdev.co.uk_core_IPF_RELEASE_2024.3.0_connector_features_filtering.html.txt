@@ -1,0 +1,57 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/features/filtering.html ===
+Filtering
+In receive connectors, it is possible to filter messages based on their header content before consuming their body
+such that they do not reach the downstream receiver, but are still acknowledged such that the upstream system can
+continue to operate as normal.
+Some message brokers such as Kafka require additional software (
+Kafka Streams
+)
+to enable this functionality, and HTTP does not offer this functionality at all. For this reason IPF Connectors offer
+this capability via the
+Criteria
+interface.
+Criteria
+Interface
+The
+Criteria
+interface is as follows:
+public interface Criteria {
+    Predicate<TransportMessage> toPredicate();
+}
+Supply a
+Predicate
+which analyses the
+TransportMessage
+(header and body) and returns a predicate as to whether
+this message matches. In the relevant
+ReceiveConnectorTransport
+this is negated so that messages that match this
+criteria are
+not
+consumed.
+Predefined Criteria Implementations
+There are three implementations of
+Crtieria
+already available:
+MessageHeaderCriteria
+: Filter based on
+TransportMessage
+headers
+AndCriteria
+: Combine multiple criteria in a logical AND
+OrCriteria
+: Combine multiple criteria in a logical OR
+Filtering and JMS
+There is a small semantic difference when using the
+Criteria
+API with JMS, in that the criteria are it is converted to
+a
+JMS Selector
+which prevents consuming
+messages in the first place. With other transports the messages are consumed but are not relayed to the receiver
+function.
+Filtering and Crypto
+Note that filtering takes place before message decryption. So if messages are
+encrypted
+then you can only filter based
+on message headers and not the body.

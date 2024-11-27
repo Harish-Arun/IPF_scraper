@@ -1,0 +1,10 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/installation/requirements.html ===
+System Requirements
+ODS Ingestion
+When ODS ingestion is expected to build summary projections of a unit of work, it should be deployed with a minimum of three instances, each given at least 1 CPU, and 500MB (Xms and Xmx) of memory.
+If summary projections are disabled, and ODS Ingestion is deployed to support IPF Archiver only, a single instance may be adequate.
+ODS Inquiry
+ODS Inquiry is stateless, and can be deployed as a single instance. Additional instances can be deployed if horizontal scaling is required.
+ODS Inquiry should be given at least 1 CPU and 500MB (Xms and Xmx) of memory.
+Sizing Guidelines
+Kubernetes Deployment Guidelines

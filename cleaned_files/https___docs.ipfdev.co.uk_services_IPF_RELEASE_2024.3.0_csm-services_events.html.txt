@@ -1,0 +1,294 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/events.html ===
+List of System Events
+The below table documents the system events that can be raised by
+CSM Service
+. Payload schemas are documented as
+JSON Schema draft 4
+.
+Use a tool such as
+this one
+for a visual representation of the payload
+schemas.
+All events contain some basic top-level information, and a payload. The top-level information is represented as
+members of the
+IPFSystemEvent
+type, and their payloads are documented below.
+The schema for the top-level
+IPFSystemEvent
+type is as follows:
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "IPF System Event",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "name" : {
+      "type" : "string"
+    },
+    "level" : {
+      "type" : "string",
+      "enum" : [ "DEBUG", "INFO", "WARN", "ERROR" ]
+    },
+    "createdAt" : { },
+    "version" : {
+      "$ref" : "#/definitions/EventVersion"
+    },
+    "type" : {
+      "type" : "string",
+      "enum" : [ "TECHNICAL", "FUNCTIONAL" ]
+    },
+    "processingContext" : {
+      "$ref" : "#/definitions/ProcessingContext"
+    },
+    "source" : {
+      "type" : "string"
+    },
+    "metadata" : {
+      "type" : "object",
+      "additionalProperties" : {
+        "type" : "string"
+      }
+    },
+    "payload" : {
+      "$ref" : "#/definitions/Object"
+    }
+  },
+  "definitions" : {
+    "EventVersion" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "major" : {
+          "type" : "integer"
+        },
+        "minor" : {
+          "type" : "integer"
+        },
+        "patch" : {
+          "type" : "integer"
+        }
+      },
+      "required" : [ "major", "minor", "patch" ]
+    },
+    "ProcessingContext" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "associationId" : {
+          "type" : "string"
+        },
+        "checkpoint" : {
+          "type" : "string"
+        },
+        "unitOfWorkId" : {
+          "type" : "string"
+        },
+        "clientRequestId" : {
+          "type" : "string"
+        },
+        "processingEntity" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Object" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : { }
+    }
+  }
+}
+CSM Service System Events
+Name
+Description
+Type
+Level
+Payload schema
+DuplicatePaymentStatusReportReceived
+Published when a duplicate payment status report is received
+FUNCTIONAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "status" : {
+      "type" : "string"
+    },
+    "rawMessage" : {
+      "type" : "string"
+    }
+  }
+}
+InvalidMessageReceived
+Published when there is a technical issue with the message being received from CSM
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "csm" : {
+      "type" : "string"
+    },
+    "description" : {
+      "type" : "string"
+    },
+    "rawMessage" : {
+      "type" : "string"
+    }
+  }
+}
+LiquidityAdjustmentReceived
+Published when a liquidity adjustment notification is received from the CSM
+FUNCTIONAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "csm" : {
+      "type" : "string"
+    },
+    "rawMessage" : {
+      "type" : "string"
+    }
+  }
+}
+LiquidityPositionReceived
+Published when a liquidity position notification is received from the CSM
+FUNCTIONAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "csm" : {
+      "type" : "string"
+    },
+    "rawMessage" : {
+      "type" : "string"
+    }
+  }
+}
+OrphanPaymentStatusReportReceived
+Published when a payment status report that doesnt correspond to a previous payment is received
+FUNCTIONAL
+WARN
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "csm" : {
+      "type" : "string"
+    },
+    "status" : {
+      "type" : "string"
+    },
+    "rawMessage" : {
+      "type" : "string"
+    },
+    "transactionId" : {
+      "type" : "string"
+    },
+    "description" : {
+      "type" : "string"
+    }
+  }
+}
+OutgoingMessageTechnicalIssue
+Published when there is a technical issue with message sent to the CSM
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "csm" : {
+      "type" : "string"
+    },
+    "reasonCode" : {
+      "type" : "string"
+    },
+    "rawMessage" : {
+      "type" : "string"
+    }
+  }
+}
+ParticipantUnavailableReceived
+Published when a participant unavailable notification is received from the CSM
+FUNCTIONAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "csm" : {
+      "type" : "string"
+    },
+    "participantId" : {
+      "type" : "string"
+    },
+    "rawMessage" : {
+      "type" : "string"
+    }
+  }
+}
+SchemeCorrelationError
+Published when status request was not able to be correlated by the CSM
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "csm" : {
+      "type" : "string"
+    },
+    "description" : {
+      "type" : "string"
+    }
+  }
+}
+SchemeRuleValidationFailed
+Published when a message intended for the CSM fails validation
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "reasonCode" : {
+      "type" : "string"
+    },
+    "description" : {
+      "type" : "string"
+    },
+    "expectedValue" : {
+      "type" : "string"
+    },
+    "actualValue" : {
+      "type" : "string"
+    }
+  }
+}
+Building a CSM Service implementation
+FedNow CSM Service

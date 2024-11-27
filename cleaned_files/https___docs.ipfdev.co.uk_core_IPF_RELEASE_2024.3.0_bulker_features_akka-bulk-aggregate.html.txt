@@ -1,0 +1,35 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/features/akka-bulk-aggregate.html ===
+Akka Bulk Aggregate
+Akka Bulk Aggregate is a
+BulkAggregate
+implementation which uses akka actors for ingesting bulk components and performing validation.
+Maven Dependency
+To use the Akka Bulk Aggregate, the following dependency must be provided, with a version matching
+ipf-bulker
+to ensure compatibility.
+<dependency>
+        <groupId>com.iconsolutions.ipf.bulk</groupId>
+        <artifactId>ipf-bulker-aggregate-akka</artifactId>
+        <version>${ipf-bulker.version}</version>
+    </dependency>
+Retry Configuration
+Akka Bulk Aggregate uses AskWithRetry pattern when sending commands to Single and Recurring Bulk actors, with the following configuration.
+ipf.bulker.aggregate.retry {
+    # The amount of time to wait for the Aggregate to process a single BulkCommand message
+    processing-timeout = 5s
+
+    # The number of times to attempt sending a single command to the aggregate
+    max-attempts = 3
+
+    # The delay multiplier to use on subsequent send attempts
+    backoff-factor = 2
+
+    # The percentage of randomness to use when retrying bulk commands
+    jitter-factor = 0.2
+}
+Bulk Actor Passivation
+In case there is no interaction with recurring/single bulk actor, that actor will be passivated after configured time. Default value is set to '2m' (2 minutes), but it can be overriden using this property:
+ipf.bulker.aggregate.actor-idle-timeout
+.
+Bulk Aggregate
+Automatic Finalisation of a Bulk

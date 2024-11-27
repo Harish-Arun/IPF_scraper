@@ -1,0 +1,24 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-extension-point-api/extension-schema.html ===
+Extension Point API
+Summary
+Description
+This API is used to forward message level content for external processing, potentially rejecting inbound message processing on receipt of a REJECT response
+Integration Pattern
+Asynchronous
+Reply Method
+Separate request/response queues/topics
+Integration Method
+JMS, Kafka
+Message Format
+JSON
+Security
+TLS 1.2
+Resiliency Strategies
+Circuit Breaker, Backpressure, Automatic Retries
+Models
+ExtensionPointRequest
+Details:
+View the json schema
+ExtensionPointResponse
+Details:
+View the json schema

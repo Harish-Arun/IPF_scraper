@@ -1,0 +1,137 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/csm-participant/step2-routing-tables-mapping.html ===
+EBA STEP2 Routing Tables - Mapping
+File Types Supported
+File Name
+File Types Supported
+File Formats Supported
+File Naming Conventions
+SCT Direct Participant Routing Table
+FULL
+TXT
+S204SCT
+BBBBBBBBYYMMDDHHMMSS
+D
+NN
+.T
+SCT Reachable BIC Routing Table
+FULL
+TXT
+S204SCT
+BBBBBBBBYYMMDDHHMMSS
+I
+NN
+.T
+BBBBBBBB is the BIC(8) of the Direct Participant or of the Preferred Agent configured for the CGS Settlement BIC. YYMMDDHHMMSS is the file creation date and time. NN is the incremental number reset for every file creation date. T indicates the type of the file (RTF file). Highlighted part of the file name is used to identify the file during ingestion for AWS S3 ingestion.
+The client implementations should not modify the files names provided by industry sources and ingest the files as received.
+Mapping Definitions
+SCT Direct Participant Routing Table Mapping  (Direct Participants)
+SCT Direct Participant Routing Table (Source)
+CSM Participant Property (Destination)
+Comment
+/
+csmAgentId
+Constant value: STEP2 SCT
+DP BIC
+csmParticipantIdentifier
+DP Name
+participantName
+/
+participantType
+Constant value: DIRECT
+INIT DATE
+activeFromDate
+END DATE
+activeToDate
+PAYMENT TYPE ALLOWED
+paymentTypeAllowedList
+STATUS
+N/A - but Only load ENABLED into IPF
+SCT Reachable BIC Routing Table Mapping (Indirect Participants)
+STEP2 property
+Participant property
+Comment
+/
+csmAgentId
+Constant value: STEP2 SCT
+AP BIC
+csmParticipantIdentifier
+AP NAME
+participantName
+/
+participantType
+Constant value: INDIRECT
+INIT DATE
+activeFromDate
+END DATE
+activeToDate
+DP BIC
+routingBIC
+PAYMENT TYPE ALLOWED
+paymentTypeAllowedList
+STATUS
+N/A - but Only load ENABLED into IPF
+Example Mappings
+The example records documented here are representational and do not confirm the participation of the entities with the CSM Agent, client implementations should use the files provided by industry data source for getting correct membership data.
+Direct  Participant
+Source Record from Industry file
+SCT DIRECT PARTICIPANT ROUTING TABLE
+
+
+SEARCH CRITERIA
+BIC	NAME	DATE FROM	DATE TO	STATUS	MATCHING RECORDS
+        	                                                  	        	        	ALL      	 426
+
+RESULTS
+BIC	NAME	INIT DATE	END DATE	SETTLEMENT BIC	STATUS	PAYMENT TYPE ALLOWED
+AABBCCD1	AEGON BANCA                                       	20180723	20180923	AABBCCD1XXX	ENABLED
+AAKRDK20	BANK OF ALAND PLC                                 	20101001	20160210	AAKRDK21XXX	ENABLED  	C00	C01
+Destination Record - CSM Participant
+{
+  "_id": "DynamicSettings|participant-STEP2-AABBCCD1",
+  "payload": {
+    "csmAgentId": "STEP2",
+    "csmParticipantIdentifier": "AABBCCD1",
+    "participantName": "AEGON BANCA",
+    "participantCountry": "FR",
+    "activeFromDate": {
+      "$date": "2008-01-28T00:00:00.000Z"
+    },
+    "participantType": "DIRECT",
+    "paymentTypeAllowedList": [
+      "C00"
+    ]
+  }
+}
+Indirect  Participant
+Source Record from Industry file
+SCT DIRECT PARTICIPANT ROUTING TABLE
+
+
+SEARCH CRITERIA
+BIC	NAME	DATE FROM	DATE TO	STATUS	MATCHING RECORDS
+        	                                                  	        	        	ALL      	 426
+
+RESULTS
+BIC	NAME	INIT DATE	END DATE	SETTLEMENT BIC	STATUS	PAYMENT TYPE ALLOWED
+AABBCCD1	AEGON BANCA                                       	20180723	20180923	AABBCCD1XXX	ENABLED
+AAKRDK20	BANK OF ALAND PLC                                 	20101001	20160210	AAKRDK21XXX	ENABLED  	C00	C01
+Destination Record - CSM Participant
+{
+  "_id": "DynamicSettings|participant-STEP2-AABBCCD1",
+  "payload": {
+    "csmAgentId": "STEP2",
+    "csmParticipantIdentifier": "AABBCCD1",
+    "participantName": "AEGON BANCA",
+    "routingBIC": "BNPAFRPPXXX",
+    "activeFromDate": {
+      "$date": "2021-11-09T00:00:00.000Z"
+    },
+    "participantType": "INDIRECT"
+  },
+  "version": 1,
+  "status": "ACTIVE",
+  "processingEntity": "UNKNOWN",
+  "_class": "com.iconsolutions.ipf.dynamicsettings.repository.ParticipantSettings"
+}
+EBA RT1 SEPA INST - Routing Tables Mapping
+TIPS SEPA Inst Directory Mapping

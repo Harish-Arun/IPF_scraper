@@ -1,0 +1,62 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/concepts/scenarios.html ===
+RT1 Scenarios
+Below are the scenarios supported by the CSM service including happy and failure cases.
+Clicking on the test name, will show the associated BDD which will include details such as:
+What happens when validations fail
+Details of system events and when system events are raised
+Interactions/messages associated to each scenario
+Notification
+Handle Participant Unavailable Notification
+Handle Liquidity Adjustment Notification
+Handle Liquidity Position Notification
+Rrr Happy Path
+Handle Outbound Resolution
+Handle Bulk Receive Recall Enquiry Request
+Handle Outbound Return For Bank
+Handle Receive Recall Enquiry Request
+Handle Recall Request
+Handle Return Request
+Handle Receive Recall Request
+Handle Resolution of Investigation
+Handle Outbound Return
+Handle StsReq for Recall
+Credit Transfer Unhappy Path
+Handle Invalid Receive Payment Request
+Handle Invalid Payment Status Request
+Handle Clear And Settle Request with Send Outcome Enabled
+Handle Invalid Clear And Settle Response
+Handle Clear And Settle Response TM01
+Handle Inbound Clear And Settle Response Format Reject
+Handle Status Request with Send Outcome Enabled
+Handle Invalid Clear And Settle Request
+Handle Receive Payment Response with Send Outcome Enabled
+Handle Clear And Settle Response Format Reject
+Handle Receive Payment Timeout
+Credit Transfer Happy Path
+Handle Receive Payment Response with Send Outcome Disabled
+Handle Bulk Inbound Status Request
+Handle Inbound Status Request
+Handle Clear And Settle Request with Send Outcome Disabled
+Handle Receive Payment Request
+Handle Status Request with Send Outcome Disabled
+Rrr Unhappy Path
+Handle Recall Status Request Rejection From CSM GrpSts
+Handle Recall Request Rejection From CSM TxSts
+Handle Outbound Resolution With Missing Cancellation Id
+Handle Invalid Return Request received
+Handle Invalid Receive Recall Request
+Handle Recall Request Invalid ROI received
+Handle Recall Request Rejection From CSM GrpSts
+Handle Outbound Resolution Rejected From CSM TxSts
+Handle Invalid Receive Recall Enquiry Request
+Handle Outbound Resolution Rejected From CSM GrpSts
+Orphan
+Handle Orphan Send Recall To Csm Response
+Handle Orphan Clear And Settle Response
+Validate Scheme Rules
+Handle Validate Scheme Rules - AmtLimit
+Handle Validate Scheme Rules
+Handle Validate Scheme Rules - AcceptanceDtTm
+Handle Validate Scheme Rules - Bic
+RT1 Supported Flows
+Messages Handled by RT1-CSM-Service

@@ -1,0 +1,14 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20happy%20path.Handle%20Outbound%20Resolution.html ===
+Handle Outbound Resolution.story
+Scenario: Handle outbound resolution
+When
+the ï½Recall Serviceï½  sends a Send Negative Answer To CSM Request with values:
+| customBusinessData | supportingContext(cancellationId,abcd1234) |
+Then
+ï½the CSMï½  receives a Resolution Of Investigation with values:
+| rsltnOfInvstgtn.cxlDtls.txInf*And*Sts.cxlStsRsnInf.addtlInves[0] | ATR6abcd1234 |
+And
+ï½IPFï½  receives a Send Negative Answer To CSM Response using predicate:
+| payload.content.txInf*And*Sts[0].orgnlTxId    | #SendNegativeAnswerToCSMRequest.payload.content.cxlDtls[0].txInf*And*Sts[0].cxlStsId |
+| payload.content.orgnlGrpInf*And*Sts[0].grpSts | ACCP                                                                               |
+| status                                      | SUCCESS                                                                            |

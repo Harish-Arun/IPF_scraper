@@ -1,0 +1,27 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/architecture/hexagonal-architecture.html ===
+Hexagonal Architecture
+Principle
+Hexagonal architecture is an architectural pattern used in software design. It aims at creating
+loosely coupled
+application components that can be easily connected to their software environment by means of ports and
+adapters
+. This makes components exchangeable at any level and facilitates test automation (from
+en.wikipedia.org/wiki/Hexagonal_architecture_(software
+)).
+In IPF, we implement hexagonal architecture within IPF services (
+microservices/applications
+) where the core domain logic is encapsulated and separated from the rest of the application with interface classes, which allows the domain to be portable and adapters that implement interfaces to be exchangeable.
+Hexagonal architecture pattern is primarily followed in payment processing-type IPF services due to the nature of the domain code to be generated based on payment flows - defined using Payments DSL on an MPS editor. This generated domain code is embedded within the application and receive and send connectors communicate with the domain through input and output ports.
+It is expected to follow hexagonal architecture for all applications developed using IPF, as the pattern promotes portability and extensibility.
+Rationale
+The patterns promote extensibility and portability:
+Domain logic can be tested and developed independently without requiring all the application components
+Domain could be ported in different applications without having to change the business logic implementation but only updating the input/output adapters
+Implications
+Domain logic is defined or developed independently than the other application components
+Client specific adapters can easily be injected to the application without having to change the domain logic or other parts of the application.
+Different industry or technology adapters can be introduced without having to rewrite the whole logic, i.e. different DAO adapters such as MongoDB or CosmosDB
+Examples of applying the principle
+Any payment processing service that execute processing flows.
+Architecture
+CQRS-ES

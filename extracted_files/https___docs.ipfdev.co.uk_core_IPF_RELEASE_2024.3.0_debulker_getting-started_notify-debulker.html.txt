@@ -1,0 +1,28 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/getting-started/notify-debulker.html ===
+Sending File Notifications
+The Debulker can learn that there is a file ready for processing via a notification, an API is provided which is essentially a receive connector. The Debulker comes with a Kafka implementation of this receive connector.
+This means something (script/application/flow) needs to send a Kafka event to a specific topic, thus communicating a new file is ready for processing.
+Configuration
+The default topic is FILE_NOTIFICATION_REQUEST, but can be overridden, see the
+feature page here
+.
+Notification Format
+The notification has several properties which must be provided:
+configName
+- name of the configuration which will be used by debulker to debulk the bulk file into components.
+bulkId
+- a globally unique Id to correlate produced components by debulker.
+fileProvider
+- name of the provider which will be used to retreive the bulk file for processing.
+filePath
+- path to the file.
+FileNotification message example:
+{
+  "configName": "pain.001.001.09",
+  "bulkId": "pain.001.12345",
+  "fileProvider": "local",
+  "filePath": "/tmp/bulk_files",
+  "fileName": "pain_001_test.xml"
+}
+Configuring Debulker
+Process Debulked Components

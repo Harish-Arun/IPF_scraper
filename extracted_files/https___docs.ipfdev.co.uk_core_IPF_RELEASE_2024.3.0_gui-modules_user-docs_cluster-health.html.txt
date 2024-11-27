@@ -1,0 +1,23 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/gui-modules/user-docs/cluster-health.html ===
+Cluster Health
+Introduction
+The cluster health screen is a technical screen providing the information gathered from the health actuator endpoint.
+It provides information on the nodes IP and health. It is useful to identify any members of a cluster or other IPF services.
+The status of the services will only appear here if they have been configured in the dashboard configuration.
+Getting Started
+To begin using the library simply run
+npm i @iconsolutions/cluster-health
+in whatever angular app you need to use the library in.
+You will need to add the following to the app routing module:
+{
+    path: 'cluster-health',
+    loadChildren: () =>
+    import('@iconsolutions/cluster-health').then((m) => m.ClusterHealthModule)
+}
+Dependencies
+Peer Dependencies
+Icon Solutions
+Icons own library for use of commonly used components.
+"@iconsolutions/common"
+Audit
+Common Library

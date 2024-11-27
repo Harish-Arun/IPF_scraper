@@ -1,0 +1,337 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/guides/schema-evolution.html ===
+Handle Schema Evolution in IPF Events
+Over the life of an IPF flow, changes will be made to the events that are persisted by that flow. Changes to flows
+can happen for many reasons, such as:
+Better business understanding of the flow leading to a change in requirements
+Design-time assumptions not being correct and therefore requiring a change to the initially agreed-upon events
+Regulatory reasons for needing to capture more data in an event
+The technical nature of these changes can vary, but they are generally variants on the below patterns, which will also serve as the subheadings for this guide.
+The patterns for schema evolution are:
+Adding a data field to an event
+Changing the fully-qualified class name (FQCN) of an event
+Changing the name of a data element in an event
+Changing the data type of an element in an event
+Splitting an event into multiple, smaller events
+Removing an event
+The process for updating events is out of scope of this document. Follow the DSL portion of the tutorial for event
+definition and modification.
+These event migrations should only be implemented if the flow itself is not changing.
+If the flow itself is also changing in addition to its events, then consider creating a new version of the flow
+altogether. See the DSL portion of the tutorial for how to define multiple versions of flows
+Adding a Data Field to an Event
+Consider v1 of an event being as follows:
+public class UserRegistered extends DomainEvent {
+    private final String name;
+}
+This would be serialised in JSON as:
+{"name": "jeff"}
+If the new data being added is simply a new optional field, like this:
+package com.myorg.events;
+
+import java.time.LocalDate;
+
+public class UserRegistered extends DomainEvent {
+    private final String name;
+    private final LocalDate dob;
+}
+The old serialised version will still be successfully parsed as a
+UserRegistered
+, and
+no change is required
+. But of course the
+dob
+field will be
+null
+.
+However, business rules may not allow the
+dob
+field to be null, but there may be a special placeholder date of birth
+0001-01-01
+that you can use to indicate that the lack of availability of a date of birth for this user. In which case,
+this
+JacksonMigration
+will check for
+dob
+, and - if absent - will set it to the default value before it is
+deserialised as
+UserRegistered
+:
+package com.myorg.migrations;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+public class DobFillerMigration extends JacksonMigration {
+
+    private static final String DOB_FIELD_NAME = "dob";
+
+    @Override
+    public int currentVersion() {
+        return 2;
+    }
+
+    @Override
+    public JsonNode transform(int fromVersion, JsonNode json) {
+        if (!json.has(DOB_FIELD_NAME)) {
+            ((ObjectNode) json).set(DOB_FIELD_NAME, "0001-01-01");
+        }
+    }
+}
+And then bound to the UserRegistered event by adding it to the IPF configuration like so:
+akka.serialization.jackson.migrations {
+  "com.myorg.events.UserRegistered" = "com.myorg.migrations.DobFillerMigration"
+}
+Remember, if the new field is allowed to be null, no migration needs to be written.
+Changing the fully-qualified class name (FQCN) of an event, or renaming an event
+This cannot be remedied by fixing a
+JacksonMigration
+, since
+JacksonMigration
+works on the body and not the type.
+However, if nothing else has changed apart from the fully qualified classname (or just the name) of the event, and the Icon
+MongoDB Akka Persistence plugin is being used, this can be remedied using a MongoDB update statement.
+As an example, if the package name of the events was misspelt as
+com.myorg.evnets
+and we want to correct the typo, the
+following update statement will change the package name of all
+com.myorg.evnets
+events to
+com.myorg.events
+:
+const updates = [];
+db.journal.find({"eventPayloads.payload.type":/com.iconsolutions.instantpayments/})
+    .forEach(doc => {
+        doc.eventPayloads.forEach(pld => {
+            const oldFQCN = pld.payload.type;
+            const newFQCN = oldFQCN.replace("com.iconsolutions", "com.monkey");
+            updates.push({"updateOne": {
+                "filter": {$and: [{"_id": doc._id}, {"eventPayloads.payload.type":oldFQCN}]},
+                "update": {$set: {"eventPayloads.$.payload.type": newFQCN}}
+            }})
+        })
+    });
+print(updates);
+// uncomment after this line to actually run the update
+// const result = db.journal.bulkWrite(updates);
+// print(JSON.stringify(result));
+Some things to note about the snippet above:
+The default name of the journal is
+journal
+but this may be overridden with
+iconsolutions.akka.persistence.mongodb.journal-collection
+Changing the Name of a Data Element in an Event
+This can also be resolved by writing a
+JacksonMigration
+.
+Consider v1 of the event being:
+import java.time.LocalDate;
+
+public class UserRegistered extends DomainEvent {
+    private final String name;
+    private final LocalDate dob;
+}
+This would be serialised in JSON as:
+{"name": "jeff", "dob": "1985-01-01"}
+But you decide that
+dob
+might not be so clear and decide to rename it to
+dateOfBirth
+:
+package com.myorg.events;
+
+import java.time.LocalDate;
+
+public class UserRegistered extends DomainEvent {
+    private final String name;
+    private final LocalDate dateOfBirth;
+}
+Write the following migration to rename
+dob
+to
+dateOfBirth
+:
+package com.myorg.migrations;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+public class DobRenameMigration extends JacksonMigration {
+
+    private static final String OLD_FIELD_NAME = "dob";
+    private static final String NEW_FIELD_NAME = "dateOfBirth";
+
+    @Override
+    public int currentVersion() {
+        return 2;
+    }
+
+    @Override
+    public JsonNode transform(int fromVersion, JsonNode json) {
+        if (json.has(OLD_FIELD_NAME)) {
+            //get value of dob
+            var seqValue = json.get(OLD_FIELD_NAME);
+            //set it to new field
+            ((ObjectNode) json).set(NEW_FIELD_NAME, seqValue);
+            //remove old field
+            ((ObjectNode) json).remove(OLD_FIELD_NAME);
+        }
+        return json;
+    }
+}
+And then bound to the UserRegistered event by adding it to the IPF configuration like so:
+akka.serialization.jackson.migrations {
+  "com.myorg.events.UserRegistered" = "com.myorg.migrations.DobRenameMigration"
+}
+Changing the Data Type of an Element in an Event
+Changing a type can mean multiple things, such as:
+A data element splitting into multiple elements
+Moving from a simple type to a complex type
+But both are handled in more-or-less the same way, which is writing a
+JacksonMigration
+to map the values from the old
+version of the event to its new representation.
+Continuing with the previous example v1 event:
+package com.myorg.events;
+
+import java.time.LocalDate;
+
+public class UserRegistered extends DomainEvent {
+    private final String name;
+    private final LocalDate dateOfBirth;
+}
+Imagine the business wants to devolve the name details into a separate
+Name
+object:
+package com.myorg.model;
+
+import java.time.LocalDate;
+
+public class Name {
+    private final String firstName;
+    private final String middleName;
+    private final String lastName;
+}
+So the new event looks like this:
+package com.myorg.events;
+
+import com.myorg.model.Name;
+import java.time.LocalDate;
+
+public class UserRegistered extends DomainEvent {
+    private final Name name;
+    private final LocalDate dateOfBirth;
+}
+Assuming the following imaginary migration rule from the business:
+If a name contains two tokens, split into first and last name in that order
+If a name contains three tokens, split into first, middle and last name in that order
+This is not a good way to devolve someone’s name into constituent parts!
+Under these rules, the migration would be:
+package com.myorg.migrations;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;import com.fasterxml.jackson.databind.node.ObjectNode;
+
+public class NameMigration extends JacksonMigration {
+
+    @Override
+    public int currentVersion() {
+        return 2;
+    }
+
+    @Override
+    public JsonNode transform(int fromVersion, JsonNode json) {
+        var name = json.get("name").asText();
+        var nameNode = JsonNodeFactory.instance.objectNode();
+        var nameSplit = name.split("\s");
+        if (nameSplit.length == 2) {
+            nameNode.set("firstName", nameSplit[0]);
+            nameNode.set("lastName", nameSplit[1]);
+        } else if (nameSplit.length == 3) {
+            nameNode.set("firstName", nameSplit[0]);
+            nameNode.set("middleName", nameSplit[1]);
+            nameNode.set("lastName", nameSplit[2]);
+        }
+        ((ObjectNode) json).set("name", nameNode);
+        return json;
+    }
+}
+And in the IPF configuration:
+akka.serialization.jackson.migrations {
+  "com.myorg.events.UserRegistered" = "com.myorg.migrations.NameMigration"
+}
+Splitting an Event Into Multiple, Smaller Events
+This can be implemented using an
+EventAdapter
+. The approach is similar to writing a JacksonMigration, but is
+implemented after the events have been deserialised.
+Consult the Akka docs for more information on this topic:
+Split large event into fine-grained events
+To implement an EventAdapter that will be passed into the
+EventSourcedBehaviour
+for the flow, when initiating the domain,
+use
+withBehaviourExtensions
+to supply a
+BehaviourExtensions
+implementation like this:
+import java.util.Optional;
+
+public class MyBehaviourExtensions implements BehaviourExtensions {
+    @Override
+    public Optional<EventAdapter<Event, Event>> eventAdapter() {
+        return Optional.of(new EventAdapter<>() {
+            @Override
+            public Event toJournal(Event event) {
+                return event;
+            }
+
+            @Override
+            public String manifest(Event event) {
+                return "";
+            }
+
+            @Override
+            public EventSeq<Event> fromJournal(Event event, String manifest) {
+                //if it's MySuperEvent, devolve it into two smaller events
+                if (event instanceof MySuperEvent) {
+                    var mse = (MySuperEvent) event;
+                    return EventSeq.create(List.of(
+                            new MySmallerEvent1(mse.data1()),
+                            new MySmallerEvent2(mse.data2())
+                    ));
+                }
+                //otherwise return any other event as-is
+                return EventSeq.single(event);
+            }
+        });
+    }
+}
+and then…​
+@EventListener
+public void init(ContextRefreshedEvent event, MyBehaviourExtensions myBehaviourExtensions) {
+    new MyDomain.Builder(actorSystem)
+            .withEventBus(eventBus)
+            .withSchedulerAdapter(schedulerAdapter)
+            .withSystemAActionAdapter(new SampleSanctionsActionAdapter(sanctionsAdapter))
+            .withSystemBActionAdapter(new SampleSanctionsActionAdapter(sanctionsAdapter))
+            .withBehaviourExtensions(myBehaviourExtensions)
+(1)
+.build();
+}
+1
+How to add the BehaviourExtensions implementation
+Removing an Event
+This is the same as above, but instead emit an
+EventSeq.empty
+(the rest of the implementation is the same):
+@Override
+public EventSeq<Event> fromJournal(Event event, String manifest) {
+    //if it's MyUnwantedEvent, pretend we didn't see it
+    if (event instanceof MyUnwantedEvent) {
+        return EventSeq.empty();
+    }
+    //otherwise return any other event as-is
+    return EventSeq.single(event);
+}
+Transaction Cache Data Model
+How to troubleshoot error messages

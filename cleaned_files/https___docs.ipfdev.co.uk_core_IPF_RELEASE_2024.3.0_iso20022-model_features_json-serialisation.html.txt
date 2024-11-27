@@ -1,0 +1,43 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/features/json-serialisation.html ===
+Json serialisation
+Instances of Message Definitions can be serialised to and from a Json representation using the
+JsonMapper
+class.
+This is accessible through the
+ISO20022MessageModel
+instance.
+Example
+Below is a simplified example of Json Serialisation for an object. Message Definitions, Documents, and Message
+Components are supported for Json Serialisation
+// Get JsonMapper instance
+JsonMapper jsonMapper = ISO20022MessageModel.getInstance().jsonMapper();
+
+// De-serialising from Json
+String json = "{\"grpHdr\": {\"msgId\": \"MsgId0\", \"creDtTm\": \"2006-05-04T18:13:51Z\"}}";
+FIToFICustomerCreditTransferV08 cct = jsonMapper.fromJson(json, FIToFICustomerCreditTransferV08.class);
+
+// Serialising to Json
+String jsonAgain = jsonMapper.toJson(cct);
+
+System.out.println(jsonAgain);
+Implementation notes
+The
+JsonMapper
+leverages the existing IPF
+SerializationHelper
+, which is itself a simple wrapper around a Jackson
+ObjectMapper
+. If customisation is needed with regard to JSON formatting or type conversion, it is recommended to create
+a custom class, getting access to a separate instance of
+SerializationHelper
+'s definition of
+ObjectMapper
+, and
+customise accordingly.
+When doing conversion from IPF canonical types to external types it is always recommended to use your own mappings even if using the same xsd models from the
+ISO 20022 website
+. This is because the way IPF generated the models might be different to the way a customer generated the models and the data types and field conversions could have slight differences. One way to solve this would be to do the above-mentioned and customise the
+SerializationHelper
+but this could mean that you should be using your own ISO types for externally sent out messages to other services.
+Validation
+XML Serialisation

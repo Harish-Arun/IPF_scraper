@@ -1,0 +1,22 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2023-3-0-1/release-IPF-2023-3-0-1.html ===
+Release Notes for IPF-2023.3.0.1
+This page details everything required to get going on IPF Release 2023.3.0.1 made available on 2 February 2024.
+Details
+Binaries
+The core binaries are available from
+IPF-Releases
+.
+The Lightbend Telemetry (formerly known as "Cinnamon") binaries are available from
+IPF Lightbend
+.
+Archetype
+The latest version of the Archetype is 2.0.0
+Developer App
+The latest version of the Developer App is 1.0.75
+Features and Changes
+Here’s what’s new and changed in 2023.3.0.1
+Fix Spotlight
+Fixed issue (when using persistent scheduler for retry/timeout scheduling) where IPF would try to cancel
+already-cancelled timeouts and retries, causing unnecessary database load
+Migration Steps for IPF-2023.3.0
+Migration Steps for IPF-2023.3.0.1

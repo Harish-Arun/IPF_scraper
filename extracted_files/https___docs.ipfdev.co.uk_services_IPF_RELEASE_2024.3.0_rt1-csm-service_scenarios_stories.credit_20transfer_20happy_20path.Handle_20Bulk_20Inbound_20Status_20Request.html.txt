@@ -1,0 +1,41 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.credit%20transfer%20happy%20path.Handle%20Bulk%20Inbound%20Status%20Request.html ===
+Handle Bulk Inbound Status Request.story
+Scenario: RT1 sends a pacs028 following a pacs008
+When
+the ï½CSMï½  sends a Customer Credit Transfer
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Request
+When
+the ï½CSMï½  sends a Customer Credit Transfer
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Request
+When
+the ï½CSMï½  sends a Customer Credit Transfer
+Then
+the ï½Payment Serviceï½  receives a Receive Payment Request
+When
+ï½CSMï½  sends a Bulk Payment Status Request
+Then
+ï½Payment Systemï½  receives a Receive Payment Status Inquiry Request using predicate:
+| payload.content.txInf[0].orgnlTxId | #PACS_008_SENT_STACK[0].document.FIToFICstmrCdtTrf.CdtTrfTxInf.PmtId.TxId |
+And
+ï½Payment Systemï½  receives a Receive Payment Status Inquiry Request using predicate:
+| payload.content.txInf[0].orgnlTxId | #PACS_008_SENT_STACK[1].document.FIToFICstmrCdtTrf.CdtTrfTxInf.PmtId.TxId |
+And
+ï½Payment Systemï½  receives a Receive Payment Status Inquiry Request using predicate:
+| payload.content.txInf[0].orgnlTxId | #PACS_008_SENT_STACK[2].document.FIToFICstmrCdtTrf.CdtTrfTxInf.PmtId.TxId |
+When
+ï½Payment Systemï½  sends a Receive Payment Status Inquiry Response with values:
+| requestId | #RECEIVE_PAYMENT_STATUS_INQUIRY_REQUEST_RECEIVED_STACK[0].document.requestId |
+Then
+ï½CSMï½  receives a Payment Status Report
+When
+ï½Payment Systemï½  sends a Receive Payment Status Inquiry Response with values:
+| requestId | #RECEIVE_PAYMENT_STATUS_INQUIRY_REQUEST_RECEIVED_STACK[1].document.requestId |
+Then
+ï½CSMï½  receives a Payment Status Report
+When
+ï½Payment Systemï½  sends a Receive Payment Status Inquiry Response with values:
+| requestId | #RECEIVE_PAYMENT_STATUS_INQUIRY_REQUEST_RECEIVED_STACK[2].document.requestId |
+Then
+ï½CSMï½  receives a Payment Status Report

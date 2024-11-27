@@ -1,0 +1,4 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/getting-started/database-settings/database-settings.html ===
+Database settings
+Getting Started
+Indexes

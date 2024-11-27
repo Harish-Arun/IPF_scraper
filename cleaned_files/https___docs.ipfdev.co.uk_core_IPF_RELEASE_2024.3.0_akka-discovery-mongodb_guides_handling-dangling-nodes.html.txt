@@ -1,0 +1,25 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/akka-discovery-mongodb/guides/handling-dangling-nodes.html ===
+The Updater: Handling Dangling Nodes
+When an IPF node using Akka Discovery MongoDB gracefully shuts down, the plugin removes its own entry from the MongoDB
+collection as a Coordinated Shutdown step.
+In some containerised cases where the IPF application takes a long time to stop, it may be killed (
+SIGKILL
+) by the
+container orchestration engine (e.g. Docker, Docker Compose, Kubernetes).
+In this case, Coordinated Shutdown will not have a chance to run, and so there will be some dangling references to
+nonexistent nodes in the database collection. New nodes starting up will try to contact these ghost nodes, which will
+slow down the startup process.
+To handle this situation, the plugin creates a MongoDB
+TTL index
+which deletes old entries based on their
+lastUpdated
+value.
+By default, each node updates its own
+lastUpdated
+entry every 30 seconds. This index will purge entries that have not
+been updated for 60 seconds. These values are all configurable, and the updater can be disabled.
+See
+Appendix A
+.
+Multiple DC Active - Passive (Warm Stand-By), One Database
+Processing

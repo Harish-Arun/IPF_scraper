@@ -1,0 +1,25 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/features/validation-api.html ===
+Validation API
+SEPA CT STEP2 CSM Service provides a Validation API to enable the Client Implementation flows or SDK clients to submit the bulks for validation purposes only. The request to the API does not lead to the bulks being submitted for Clearing and Settlement.
+The response from the service will be a canonical pacs.002 with the status of the validations. It can also include an xml scheme version of the submitted pacs.008 if the 'returnEBASchemeMessage' flag is set to True.
+Endpoints
+Validate EBA Scheme Rules
+The endpoint for Validate EBA Scheme rule carries out the validations on the submitted bulks and included transactions and provides a validation response. Below validations are performed:
+Message Level Validation (Bulk level validations)
+Validation of Group Header totals (or equivalent, e.g. Assignment for camt.056) such as Count of transactions and Interbank Settlement Amounts.
+Scheme Rules Validations against the Header fields
+Mapping from the IPF Canonical format message to the EBA Scheme format message
+Individual Transaction Validations (or equivalent, e.g. TxInfAndSts for camt.029) and Scheme Rule Validations
+EBA Schema Check of the final validations
+The Validations API can return the EBA Scheme format message in the response if requested in the "Validate EBA Scheme Rules" request. The transactions that fail the validations will be removed from the EBA format message so the output EBA scheme format message will always be  acceptable by the scheme. When removing the failed transactions, the CSM service will adjust the group header totals (count of transactions and amounts) so they match the transactions that have passed validations. The scheme does not alter the contents of individual transactions in any shape or form so the transactions transparency is always maintained.
+Please note that below validations are not performed when the bulks are submitted to the Validation API.
+Duplicate check on the submitted bulks
+Duplicate check at transaction level
+Validations against the settlement dates submitted on the bulks
+The duplicate checks are not performed on the validation API call. This is to ensure the same bulk can be submitted multiple times for validation without being rejected as duplicate in later attempts or when it is eventually submitted for clearing and settlement.
+Interbank Settlement date Validations are not performed keeping in mind that the submission to validation API is not same as request to clear and settle and that the dates on the transactions may be updated when they are finally submitted for clearing.
+A separate endpoint will be made available in near future to validate interbank settlement dates on their own so the date validation aspect is covered.
+See the Validation API Swagger Specification here
+Validation API
+Validations
+Business Day Calculator

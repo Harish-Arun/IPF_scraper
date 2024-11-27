@@ -1,0 +1,96 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/iban-plus-directory.html ===
+IBAN Plus Directory
+SwiftRef IBAN Plus Directory
+, loaded via local file ingesters and containing the following file types:
+.. IBAN Plus, containing IBAN-related data for financial institutions in SEPA and non-SEPA countries that have adopted IBAN. Supports both
+FULL
+and
+DIFF
+imports in both
+XML
+and
+TXT
+.
+Iban Plus Directory Structure
+Iban Plus property
+Comment
+modificationFlag
+On the FULL file is always "A", and for DELTA file it can be "A", "M", or "D"
+ibanBic
+The BIC of the Institution.
+Loaded from IBAN BIC field of SWIFTRef published IBANPLUS file (part of IBANPlus Directory)
+ibanIsoCountryCode
+Country where the bank is located.
+Loaded from IBAN ISO COUNTRY CODE field of IBANPLUS file
+isoCountryCode
+Country where the bank is located.
+ibanNationalId
+Used along with IBAN ISO COUNTRY CODE to look up this table when deconstructing or validating an IBAN to retrieve the related IBAN BIC and ROUTING BIC
+Loaded from the IBAN NATIONAL ID field of IBANPLUS file
+institutionName
+Name of the Institution.
+Loaded from the INSTITUTION NAME field of IBANPLUS file
+routingBic
+Loaded from the ROUTING BIC field of IBANPLUS file
+From SWIFT IBAN Plus FAQ document -
+The ROUTING BIC is NOT related to SEPA (ISO 20022 XML) payments.
+The ROUTING BIC can be applied to non-SEPA IBAN payments to find the following
+information:
+a the SWIFT-connected correspondent of an unconnected bank
+a the central payments processing address of a bank with many unconnected branch BICs or
+with multiple BICs due to take-overs and mergers
+serviceContext
+Loaded from the SERVICE CONTEXT field of IBANPLUS file
+File Types Supported
+File Name
+File Types Supported
+File Formats Supported
+File Naming Conventions
+IBAN Plus
+FULL
+TXT, XML
+IBANPLUS_V3_FULL_YYYYMMDD
+IBAN Plus
+DELTA
+TXT, XML
+IBANPLUS_V3_DELTA_YYYYMMDD
+AWS S3 Ingestion identifies this file when the file name starts with "IBANPLUS". The Full file is identified using the text FULL on the file name and the delta file is identified using the text DELTA.
+The client implementations should not modify the files names provided by industry sources and ingest the files as received.
+Mapping Definition
+Iban Plus Directory Mappings
+Iban Structure V2 property
+Iban Structure property
+Comment
+modification_flag
+modificationFlag
+iban_bic
+ibanBic
+iban_iso_country_code
+ibanIsoCountryCode
+iso_country_code
+isoCountryCode
+iban_national_id
+ibanNationalId
+institution_name
+institutionName
+routing_bic
+routingBic
+service_context
+serviceContext
+Example Mappings
+Source Record from Industry file
+MODIFICATION FLAG	RECORD KEY	INSTITUTION NAME	COUNTRY NAME	ISO COUNTRY CODE	IBAN ISO COUNTRY CODE	IBAN BIC	ROUTING BIC	IBAN NATIONAL ID	SERVICE CONTEXT	FIELD A	FIELD B
+A	IB0000000001	MoraBanc	ANDORRA	AD	AD	BINAADADXXX	BINAADADXXX	00070014	SEPA
+Destination Record IBANPLus
+{
+  "modificationFlag": "A",
+  "ibanBic": "BINAADADXXX",
+  "ibanIsoCountryCode": "AD",
+  "isoCountryCode": "AD",
+  "ibanNationalId": "00070014",
+  "institutionName": "MoraBanc",
+  "routingBic": "BINAADADXXX",
+  "serviceContext": null
+}
+Bank Directory Plus to Party Entity Directory mapping
+Exclusion List Directory

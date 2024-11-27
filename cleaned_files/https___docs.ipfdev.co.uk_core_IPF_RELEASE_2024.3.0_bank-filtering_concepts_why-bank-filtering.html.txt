@@ -1,0 +1,14 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/concepts/why-bank-filtering.html ===
+Why Bank Filtering?
+There are different reasons client implementations may want to filter payments and have an ability to apply "emergency breaks" on processing of payments that match a particular criteria. Some of these can be:
+Concerns around a particular currency de-valuation.
+Concerns around a geopolitical / economic circumstances in a country where settlements are supposed to take place.
+Concerns around ability of some parties to honour the settlements.
+A need to put policy controls in place on settlements through certain schemes in a country or with a particular party (e.g. to avoid high value payments to / from a party or country but allow low value payments to reduce settlement risk).
+A need to carry out regulatory reporting against payments matching specific criteria.
+The situations that lead to a need of using the "emergency breaks" can arise suddenly and the operations teams involved are required to have ability to use them without needing a service outage and without letting significant volume of payments processed if the process of "applying breaks" takes significantly longer time.
+Bank Filtering service provides this ability to the client implementations where the filtering rules can be configured using IPF proprietary "Dynamic Processing Settings" design pattern (referred as DPS henceforth in the documentation).
+The rules configured dynamically start getting applied to the payments at the desired time of activation and until desired time.
+Bank Filtering solution does not replace a need to perform sanctions screening against the payments and should not be seen as an alternative to sanctions screening which is a regulatory requirements for most of the licensed banking entities.
+Bank Filtering
+Bank Filtering Rules

@@ -1,0 +1,10 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20unhappy%20path.Handle%20Invalid%20Receive%20Recall%20Enquiry%20Request.html ===
+Handle Invalid Receive Recall Enquiry Request.story
+Scenario: Handling receiving of invalid recall enquiry request
+When
+the i12CSMi12  sends a invalid recall Payment Status Request
+Then
+i12Payment Servicei12  receives a System Event using predicate:
+| level | ERROR                |
+| name  | InboundMessageFailed |
+| type  | TECHNICAL            |

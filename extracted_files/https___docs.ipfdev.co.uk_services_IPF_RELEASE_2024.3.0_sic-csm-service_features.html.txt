@@ -1,0 +1,8 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/features.html ===
+Features
+SIC CSM Application Structure
+SIC Validations
+CSM Events
+Supported Transports
+Interfaces
+SIC CSM Application Structure

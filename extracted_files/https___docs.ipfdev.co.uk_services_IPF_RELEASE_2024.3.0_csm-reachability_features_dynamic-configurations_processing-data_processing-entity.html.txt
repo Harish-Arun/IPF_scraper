@@ -1,0 +1,81 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/processing-data/processing-entity.html ===
+Processing Entity
+Processing Entity is the entity for which a payment is processed. Read more about Processing Entity here
+Processing Entity Explained
+.
+Dynamic Configuration Properties
+Name
+Description
+ProcessingEntity
+A unique processing entity Id as assigned by client implementations
+ProcessingEntityName
+The Name of this Processing Entity. This can be actual name of the entity, Processing Entity Name is not a unique Id.
+ProcessingEntityType
+Where several different levels and sublevels are required for a client this will be used to determine which level this setting relates to.
+LedgerCurrency
+The base currency of the processing entity in the country / region of operation. This is the currency that the processing entity normally operates in the region.
+EntityIdentifiers
+The industry identifiers that the Processing Entity is known by. More than one identifiers can be added for the processing entity.
++ Identifier
+The Identifier value for the Agent
++ IdentifierType
+The type of identifier being specified under identifier value. Please refer
+Party Identifiers Explained
+to know more on the identifier types.
++ IdentifierSubType
+Conditionally mandatory when identifier type is: BIC or NCC. Please refer to r
+Party Identifiers Explained
+to know more on the identifier subtypes.
+EntityAddress
+The address of the processing entity.
++AddressType
+ISO20022 defined address types.
+Supported values: ADDR, PBOX, HOME, BIZZ, MLTO, DLVY
++ Department
+Department name
++ SubDepartment
+SubDepartment name.
++ StreetName
+Street name
++ BuildingNumber
+Building number
++ BuildingName
+Building Name
++ Floor
+Floor
++ PostBox
+Post box
++ Room
+Room
++ PostCode
+Post code
++ TownName
+This can be a Town Name or name of the City.
++ TownLocationName
+Town location name
++ DistrictName
+District Name
++ CountrySubDivision
+country sub division
++ Country
+ISO 3166 Alpha 2 Country Code
++ AddressLines
+List of address lines
+EntityEmail
+Email of Processing Entity
+EntityPhoneNumber
+Phone number of Processing Entity. Support special characters.
+Regex: +[0-9]{1,3}-[0-9()+\-]{1,30}
+Searchable Fields
+Searchable fields for Processing Entity are:
+identifier
+identifierType
+country
+For these fields
+indexes
+in the database should be created.
+Please refer
+Dynamic Configuration Management Guidelines
+for steps to be followed for configuring the dynamic configurations.
+Processing Data
+Generic Processing Settings

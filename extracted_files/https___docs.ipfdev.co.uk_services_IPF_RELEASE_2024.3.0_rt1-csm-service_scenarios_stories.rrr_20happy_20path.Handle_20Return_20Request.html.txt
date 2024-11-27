@@ -1,0 +1,18 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20happy%20path.Handle%20Return%20Request.html ===
+Handle Return Request.story
+Scenario: Handling return request
+When
+the ï½Recall Serviceï½  sends a Send Recall To Csm Request
+Then
+the ï½CSMï½  receives a Payment Cancellation Request
+And
+ï½Recall Serviceï½  receives a Technical Response with values:
+| status | SUCCESS |
+And
+ï½Recall Serviceï½  receives a Send Recall To Csm Response
+When
+ï½CSMï½  sends a Payment Return with values:
+| PmtRtr.txInf.orgnlTxId | #SendRecallToCsmRequest.payload.content.undrlyg[0].txInf[0].orgnlTxId |
+Then
+ï½Recall Serviceï½  receives a Receive Positive Answer with values:
+|payload.content.txInf[0].orgnlTxId | #SendRecallToCsmRequest.payload.content.undrlyg[0].txInf[0].orgnlTxId |

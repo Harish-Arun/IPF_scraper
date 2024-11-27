@@ -1,0 +1,22 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20happy%20path.Handle%20StsReq%20for%20Recall.html ===
+Handle StsReq for Recall.story
+Scenario: Handling StsReq for recall
+When
+the ï½Recall Serviceï½  sends a Send Recall To Csm Request
+Then
+the ï½CSMï½  receives a Payment Cancellation Request
+And
+ï½Recall Serviceï½  receives a Technical Response with values:
+| status | SUCCESS |
+And
+ï½Recall Serviceï½  receives a Send Recall To Csm Response
+When
+the ï½Recall Serviceï½  sends a Recall Enquiry Request
+Then
+ï½the CSMï½  receives a Payment Status Request with values:
+| FIToFIPmtStsReq.OrgnlGrpInf.OrgnlMsgNmId | camt.056.001.01 |
+Then
+ï½Recall Serviceï½  receives a Technical Response with values:
+| status | SUCCESS |
+Then
+the ï½Recall Serviceï½  receives a Recall Enquiry Response

@@ -1,0 +1,44 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/tutorials/running_fraud_sim.html ===
+UTILS4 - Fraud Simulator
+This document covers how to use the fraud simulator. There are two recommended approaches for the tutorial, both docker and non-docker. Let’s look at these:
+Using the Application Through Docker
+Below provides a simple docker file entry for the developer application:
+fraud-sim:
+    image: registry.ipf.iconsolutions.com/sample-systems-fraud-simulator-http:2.1.46
+    container_name: fraud-sim
+    environment:
+      - FRAUD_SIM_ENCRYPTION_ENABLED=FALSE
+    ports:
+      - 8089:8080
+      - 8090:55555
+    volumes:
+      - ./config/fraud-sim:/fraud-simulator-http/conf
+      - ./logs:/ipf/logs
+    user: "${UID:-1000}:${GID:-1000}"
+The fraud simulator requires no specialised configuration beyond the defaults. When executed the fraud-simulator will listen for data on port 55555 on the docker network. This is mapped to port 8090 on the host machine. The logs will be exported to logs/fraud-sim.app-log relative to the docker file.
+Using the Application without Docker
+Prerequisites
+To run this simulator requires:
+A Java 17 runtime
+Configuration
+Property
+Description
+Default Value
+simulator.http.port
+Defines the port upon which to listen for http requests.
+55555
+server.port
+Defines the port the application will run on
+8080
+The fraud, payment-initiation and sanctions simulator will all listen on port 55555, so when running together on one host it is important to override the properties to give them unique ports.
+Download
+The fraud simulator is available here:
+nexus.ipf.iconsolutions.com/repository/ipf-releases/com/iconsolutions/ipf/sample/samplesystems/fraud-simulator-http/2.1.46/fraud-simulator-http-2.1.46-runnable.jar
+Running
+Once downloaded, place it into this directory and run:
+java -cp "fraud-simulator-http-2.1.46-runnable.jar:config" -D"loader.main"="com.iconsolutions.samplesystems.fraud.simulator.FraudSimulatorHttpApplication" "org.springframework.boot.loader.launch.PropertiesLauncher"
+The application will then start and be available from:
+localhost:55555/index.html
+Note that on Windows, the colon in the run command should be replaced by a semicolon.
+Payment Initiation Simulator
+Developer App

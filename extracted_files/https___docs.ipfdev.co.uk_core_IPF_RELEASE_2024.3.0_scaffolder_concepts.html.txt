@@ -1,0 +1,81 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/scaffolder/concepts.html ===
+Scaffolder Concepts
+Output
+Once the scaffolder has run it will generate a new project.
+This key configuration options to consider here is the 'outputDir' and 'artifactId'
+This properties will be used to determine the location to which th name of the generated project.
+So if running with an 'artifactId' for example of 'my-test' and an outputDir of '/build' then this will lead to a new folder being generated called /build/my-test.
+Inside this folder will be a fully functional IPF application which can be used as the basis from which to build your IPF application"
+The Icon BOM
+The generated project uses the Icon BOM (a Maven Bill of Materials) as its parent.
+This provides all the dependencies and their versions for the generated application to use.
+If the project you are building needs to extend for your own parent, this can be updated post generation.
+Configuration Options
+The following table defines the different configuration options available for use within the scaffolder.
+Property Name
+Description
+Allowed Values
+Example
+ipfVersion
+The IPF version you wish to use
+2024.2.0
+includeSampleSystems
+This will by default add the dependencies to include the IPF sample system functions in your project
+y / n
+n
+includeApplication
+This will add a runnable spring boot application to your project
+y / n
+n
+includeE2E
+This will by default add the dependencies to include a docker environment setup to your application
+y / n
+n
+useBuildScripts
+If the application is intended to be used a reusable component in a different solution, this should be set
+y / n
+n
+solutionName
+The name of the MPS solution for your project
+Alpha first uppercase, rest lower
+Examplesolution
+modelName
+The name of the MPS model for your project
+Alpha all lowercase
+examplemodel
+groupId
+The standard Maven archetype
+groupId
+setting
+com.iconsolutions
+artifactId
+The standard Maven archetype
+artifactId
+setting
+example-project
+version
+The standard Maven archetype
+version
+setting
+0.0.1-SNAPSHOT
+outputDir
+The location where the new project should be generated (should be any empty directory)
+Any valid file path
+Unix-like
+: /build/example-project
+Windows
+: C:/build/example-project
+The Business Function Library and Sample System Library are experimental and subject to change.
+If you wish to use these please contact your IPF representative.
+You must supply the target version of both the scaffolder (
+scaffolderVersion
+) and the IPF version (
+ipfVersion
+).
+The
+versions must be compatible
+, please check and replace the numbers based on
+IPF’s release documentation
+and/or the details for your target environment!
+Application Scaffolder
+Features

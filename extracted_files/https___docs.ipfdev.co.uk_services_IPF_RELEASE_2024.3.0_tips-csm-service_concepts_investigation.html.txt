@@ -1,0 +1,54 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/tips-csm-service/concepts/investigation.html ===
+Investigation Flow
+Step
+Involved Messages
+Involved Actors
+Description
+1
+FIToFIPaymentStatusRequest
+Originator Participant, Ancillary System or Instructing Party as Sender
+TIPS as receiver
+TIPS receives an incoming Investigation request from the Originator Participant, Ancillary System or Instructing Party.
+Technical validation, check of mandatory fields and authentication checks have already been successfully executed
+2
+TIPS
+TIPS successfully executes the checks:
+- Access Rights check.
+2e
+FIToFIPaymentStatusReport
+TIPS as sender
+Originator Participant, Ancillary System or Instructing Party as receiver
+TIPS unsuccessfully executes the checks of step 2.
+At the first negative check the system stops and sends a message to the Originator Participant, Ancillary System or Instructing Party - same DN of the Sender â containing the error.
+3
+TIPS
+For each transaction referenced in the Investigation request, TIPS successfully executes the check:
+- Instructing Party authorised for queries;
+- Payment Transaction existence.
+3e
+FIToFIPaymentStatusReport
+TIPS as sender
+Originator Participant, Ancillary System or Instructing Party as receiver
+TIPS unsuccessfully executes the check of step 3.
+In the case of a negative check the system stops and sends a message to the Originator Participant, Ancillary System or Instructing Party â same DN of the Sender â containing the error.
+4
+TIPS
+TIPS successfully executes the check:
+- Investigation allowed.
+TIPS checks if the Investigation request has been received after the SCTInst Timestamp Timeout + Investigation Offset.
+4e
+FIToFIPaymentStatusReport
+TIPS as sender
+Originator Participant, Ancillary System or Instructing Party as receiver
+TIPS unsuccessfully executes the check of step 4 for each transaction referenced in the Investigation request.
+In the case of a negative check the system stops the processing for the transaction and sends a message to the Originator Participant, Ancillary System or Instructing Party â same DN of the Sender â containing the error.
+5
+TIPS
+For each transaction referenced in the Investigation request, TIPS retrieves the last FIToFIPaymentStatusReport sent to the Participant initiating the investigation
+6
+FIToFIPaymentStatusReport
+TIPS as sender
+Originator Participant, Ancillary System or Instructing Party as receiver
+For each transaction referenced in the Investigation request, the system sends the last FIToFIPaymentStatusReport to the Originator Participant, Ancillary System or Instructing Party â same DN of the query Sender.
+Instant Payment Transaction Missing/Delayed Beneficiary-side Answer
+Recall and Return Process

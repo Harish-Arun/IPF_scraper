@@ -1,0 +1,10 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo/guides/action_mapping.html ===
+How do I supply missing data for an action
+A mapping function can be used as a method of creating missing data for an action. When used in this way, the mapping function will be invoked on the point of execution of the action call but will not be persisted of update the behaviour of the flow itself in any way.
+For example, suppose we are trying to call a function that requires a specific business data element to be present. When we first attempt to invoke the action we see:
+To resolve this, we could just ensure that the flow is provided that data at some point earlier in it’s execution so it is available.  Alternatively, we can invoke the mapping function.
+We do this by bringing up the detailed inspector view for the action by clicking on it and either processing CTRL + ALT + I or by right clicking and selecting inspect node.
+This brings up the inspector:
+Here we can simply set the mapping function that we want to use.
+Increasing memory for BDD generation
+Add meta data to an action

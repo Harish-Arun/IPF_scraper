@@ -1,0 +1,358 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/tutorials/write_http_connector.html ===
+CON3 - Writing your own Connector (HTTP)
+Getting Started
+The tutorial step uses the "add_kafka" solution of the project as its starting point.
+If at anytime you want to see the solution to this step, this can be found on the "add_http" solution!
+In
+CON2 - Writing your own connector (Kafka)
+, we connected our application with an external sanctions system to make requests. To do this, we created our own Kafka connector and used it for communication to send requests and receive the responses over Kafka . In this tutorial, were going to change our protocols and look at using HTTP.
+One important difference with the previous example, is that whereas when using Kafka we were using the connector in an asynchronous way, this time we need to use a synchronous HTTP call. This means that we need to use a different style of connector - the "
+RequestReplyConnector
+"
+Youll do this by integrating in with a test fraud system. This system:
+Expects to receive a custom
+OlafRequest
+object.
+Will return a custom
+OlafResponse
+object.
+Supporting Classes
+The first thing well do is import the domain definition for the fraud system. To do this we need to add a dependency into our applications
+pom.xml
+:
+<dependency>
+    <artifactId>fraud-domain</artifactId>
+    <groupId>com.iconsolutions.ipf.sample.samplesystems</groupId>
+</dependency>
+Lets look at the key classes we receive from this module. The first is the request object we send to the fraud system.
+@Data
+public class OlafRequest extends SampleEvent<OlafRequestPayload> {
+}
+If we dig a little further well find that the key element of the payload is the FraudRequest:
+@Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class FraudRequest {
+    ObjectNode fiToFICstmrCdtTrf;
+}
+Here we can see that it is expecting to be provided with a pacs.008 in an object node format. This is just a jackson representation of the pacs008.
+Mapping
+In our Kafka example we used a pre-packaged mapper to convert from our pacs.008 to the OlafRequest. Here as an example of the different approaches available well write our own mapper.
+So lets start by creating a mapping class that can take our pacs.008 and create our Fraud request for us. Youll do this by creating a new "mappers" package and then adding a class for the "FraudMapper".
+To create the FraudRequest object well need to use the jackson mappers
+valueToTree
+method. We can then use this to construct our FraudRequest. Once we have this we wrap it in the OlafRequest object.
+The olafRequest object itself expects a header which must contain a technical event id and a functional component (you can see this digging into the SampleEvent class and the Header class from samplesystems.shared.model). See if you can create this mapping method now, and when ready the solution is below:
+@AllArgsConstructor
+public class FraudMapper {
+
+    private final Config config;
+    private final String prefix;
+    private final ObjectMapper objectMapper;
+
+    public OlafRequest mapToRequest(FIToFICustomerCreditTransferV08 fiToFICustomerCreditTransfer) {
+        FraudRequest fraudRequest = new FraudRequest();
+        fraudRequest.setFiToFICstmrCdtTrf(objectMapper.valueToTree(fiToFICustomerCreditTransfer));
+
+        OlafRequest olafRequest = new OlafRequest();
+        olafRequest.setHeader(Header.builder()
+                .technical(Technical.builder().eventId("EventId").build())
+                .functional(Functional.builder().build())
+                .build());
+        olafRequest.setPayload(new OlafRequestPayload(fraudRequest));
+        return olafRequest;
+    }
+}
+Note here that were not using any special frameworks to do our mapping as in this case its just a simple java mapping that is easiest.
+Now lets think about the response side. Firstly well need a method to map from the body of the HTTP response to a
+FraudResponse
+object. For this again well just use the object mapper:
+public OlafResponse convertResponse(String messageText) {
+    try {
+        return objectMapper.readValue(messageText, OlafResponse.class);
+    } catch (JsonProcessingException e) {
+        throw new IconRuntimeException(e);
+    }
+}
+Lets add this method to our FraudMapper.
+Finally, well also need a method to map the OlafRequest object to a
+TransportMessage
+. In this case our transport message needs to include two things:
+The olaf request itself as a string payload
+A set of headers containing:
+An "httpUrl" header containing the endpoint url to target
+An "httpMethod" header, in this case just a constant "POST"
+A "Content-Type" header, in this case just a constant "application/json"
+For the endpoint URL well retrieve the value from configuration
+See if you can add the method to our FraudMapper, and then when ready the solution is below:
+public TransportMessage mapToTransport(OlafRequest olafRequest) {
+    try {
+        Config httpConfig = config.getConfig(prefix + ".http.client");
+        String endpointUrl = httpConfig.hasPath("endpoint-url") ? httpConfig.getString("endpoint-url") : null;
+        MessageHeaders messageHeaders = new MessageHeaders(CryptoHelper.messageHeaders())
+                .putHeader("httpUrl",  endpointUrl)
+                .putHeader("httpMethod", "POST")
+                .putHeader("Content-Type", "application/json");
+        return new TransportMessage(messageHeaders, objectMapper.writeValueAsString(olafRequest));
+    } catch (JsonProcessingException e) {
+        throw new IconRuntimeException(e);
+    }
+}
+We do need to use spring to provide to us an instance of the FraudMapper that we can use. To do this well create a new bean within the
+IpfTutorialConfig
+class as:
+@Bean
+public FraudMapper fraudMapper(ActorSystem actorSystem, ObjectMapper objectMapper) {
+    return new FraudMapper(actorSystem.classicSystem().settings().config(), "fraud", objectMapper);
+}
+Thats all of our mappings prepared, lets go ahead and start creating our connector.
+The Connector
+Now that we have our mapper ready, were good to start building our connector.
+Firstly, lets add the dependency for the connector frameworks HTTP implementation.
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.connector</groupId>
+    <artifactId>connector-http</artifactId>
+</dependency>
+Now lets write our connector, again youll need to make a few decisions first:
+Types
+- The definition of a request-reply connector is
+RequestReplySendConnector<REQ_D, REQ_T, REP_D, REP_T>
+. In this instance:
+the
+REQ_D
+the domain request type provided by the flow
+the
+REQ_T
+the http request type sent to the HTTP service
+the
+REP_D
+the domain response type sent back to the flow
+the
+REP_T
+the http response type received from the HTTP service
+In our connector will take in a
+FIToFICustomerCreditTransferV08
+, transform it to an
+OlafRequest
+to send to the Fraud system and then return a
+OlafResponse
+. When we receive that
+OlafResponse
+well leave it in that format (but we could map it to something else if we wanted!).
+Logging
+- As with our previous example, well make it as simple as possible and use the logging implementation that has been provided for us.
+Mapping
+- Here well use our mapper we discussed above!
+Lets start by thinking at the class level. Youll create a new class within our connectors package for the
+FraudConnectorConfiguration
+.
+Your class will need to access the actor system, the fraud mapper and the message logger implementation to support the creation of the request reply connector.
+@Slf4j
+@Configuration
+@AllArgsConstructor
+public class FraudConnectorConfiguration {
+
+    private final ClassicActorSystemProvider actorSystem;
+    private final MessageLogger messageLogger;
+    private final FraudMapper fraudMapper;
+
+    @Bean
+    public RequestReplySendConnector<FIToFICustomerCreditTransferV08, OlafRequest, OlafResponse, OlafResponse> fraudSendConnector() {
+
+        return new RequestReplySendConnector.Builder<FIToFICustomerCreditTransferV08, OlafRequest, OlafResponse, OlafResponse>(
+                "Fraud", "fraud.connector", actorSystem)
+                .withMessageLogger(messageLogger)
+                .withDomainToTargetTypeConverter(fraudMapper::mapToRequest)
+                .withSendTransportMessageConverter(fraudMapper::mapToTransport)
+                .withConnectorTransport(fraudHttpConnectorTransport)
+                .withReceiveTransportMessageConverter(message -> fraudMapper.convertResponse(message.getPayload().toString()))
+                .build();
+    }
+
+    @Bean
+    @SneakyThrows
+    public HttpConnectorTransport fraudHttpConnectorTransport() {
+        return new HttpConnectorTransport.Builder("OlafRequestReplyHttpConnectorTransport", actorSystem, "fraud")
+                .build();
+    }
+
+}
+This is important enough to walk through each part in turn.
+The builder construction
+- this takes a simple string to name the connector, the configuration prefix for the connector
+the actor system
+- An Actor System in
+Akka
+provides a runtime environment for managing and executing actors, coordinating message-passing, and handling concurrency. Although helpful to know, youre not required to understand the actor system to develop with IPF effectively.
+the transport
+- we construct this here, providing a simple name,
+the actor system
+, and the configuration prefix
+the message logger
+- as discussed well just use standard logging approaches here for now.
+the domain to target type converter
+- here well use our mapToRequest method we built on the FraudMapper, to map
+FIToFICustomerCreditTransfer
+to an
+OlafRequest
+.
+the transport message converter
+- here well use our
+mapToTransport
+method we built on the
+FraudMapper
+, to map the
+OlafRequest
+to a
+TransportMessage
+.
+the receive transport type converter
+- here well just supply a function that converts the message payload to a string and then uses our fraud mapper service to change into our
+OlafResponse
+.
+Thats it, thats our very first request/reply send connector built from scratch.
+You may wonder where the correlation controls are. In the request reply world, because everything is synchronous, the correlation features are a complexity we dont have to worry about as everything is handled within the same thread!
+Thats our connector defined.
+Using the connector
+Now lets look back at our
+FraudSystemActionAdapter
+. To make things simple in our current use case, youll simply adapt the existing success case (else) to send to the
+FraudSystem
+using the newly built HTTP connector, sending your pacs.008 to the fraud service. Youll assume for brevity that any response is successful.
+See if you can update the adapter now, and when ready the solution is below (the other else if conditions remain as before).
+@Slf4j
+public class FraudSystemActionAdapter implements FraudSystemActionPort {
+
+    private RequestReplySendConnector<FIToFICustomerCreditTransferV08, OlafRequest, OlafResponse, OlafResponse> fraudConnector;
+
+    @Autowired
+    public FraudSystemActionAdapter(RequestReplySendConnector<FIToFICustomerCreditTransferV08, OlafRequest, OlafResponse, OlafResponse> fraudConnector) {
+        this.fraudConnector = fraudConnector;
+    }
+
+    ...
+
+        } else {
+            return fraudConnector.send(action.getProcessingContext(),action.getCustomerCreditTransfer())
+                    .thenCompose(response -> IpftutorialmodelDomain.fraudSystem().handle(new FraudCheckResponseInput.Builder(action.getId(), AcceptOrRejectCodes.Accepted).build())
+                    .thenAccept((Done done) -> log.debug("Sent input of type {} for id {} with result {}", done.getCommandName(), action.getId(), done.getResult().name())));
+        }
+    }
+}
+You also need to make a modification to use the
+RequestReplySendConnector fraudConnector
+and the changed
+FraudSystemActionAdapter
+now that we added the
+FraudConnector
+to its constructor.
+@Bean
+  public IpftutorialmodelDomain init(ActorSystem actorSystem,
+                   IsoMappingService mappingService,
+                   SendConnector<FIToFICustomerCreditTransferV08, SanctionsRequest> sanctionsConnector,
+                   RequestReplySendConnector<FIToFICustomerCreditTransferV08, OlafRequest, OlafResponse, OlafResponse> fraudConnector) {
+    ...
+
+                .withFraudSystemActionAdapter(new FraudSystemActionAdapter(fraudConnector))
+
+    ...
+Thats all our code done, next up lets look at configuration.
+Configuration
+Youll add our configuration into our application configuration file (
+ipf-tutorial-app/application.conf
+).
+fraud {
+  transport = http
+  http {
+    client {
+      host = "localhost"
+      port = "8089"
+      endpoint-url = "/v1"
+    }
+  }
+}
+This configuration assumes that the fraud simulator will be running on the localhost and port 8089. This is what it will be when running from the command line (see non-docker setup). If were running from within docker, well need to update only the host and port.
+Thats everything from our application side complete.
+Running the application
+To run the application, the first thing youll need to do is set up the actual fraud service that you will be talking to. For this you need a new entry in the
+application.yml
+(
+docker/application.yml
+)
+Docker Setup
+fraud-sim:
+    image: registry.ipf.iconsolutions.com/sample-systems-fraud-simulator-http:2.1.46
+    container_name: fraud-sim
+    environment:
+      - FRAUD_SIM_ENCRYPTION_ENABLED=FALSE
+    ports:
+      - 8089:8080
+      - 8090:55555
+    volumes:
+      - ./config/fraud:/fraud-simulator-http/conf
+      - ./logs:/ipf/logs
+    user: "${UID:-1000}:${GID:-1000}"
+Note that the "2.1.46" version provided here is the latest version at the time of writing of this document.
+To make things easier youll also add a
+logback.xml
+file:
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="FILE"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/ipf/logs/fraud-sim.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
+            <fileNamePattern>/ipf/logs/fraud-sim.log.%i</fileNamePattern>
+            <minIndex>1</minIndex>
+            <maxIndex>20</maxIndex>
+        </rollingPolicy>
+        <triggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <maxFileSize>50MB</maxFileSize>
+        </triggeringPolicy>
+        <encoder>
+            <pattern>%date{yyyy-MM-dd} %d{HH:mm:ss.SSS} %-5level %X{traceId} %logger{36} %X{sourceThread} %X{akkaSource} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="FILE" />
+    </root>
+</configuration>
+Youll also need to update the application.conf in the docker setup to tell it the hostname of the new fraud simulator. To do this we simply add:
+fraud {
+  http {
+    client {
+      host = "fraud-sim"
+      port = 8080
+    }
+  }
+}
+Non Docker Setup
+Details for how to run the the fraud simulator can be found here:
+Using the fraud simulator
+Testing it all works
+Nows the time to check everything works, so lets rebuild the application:
+mvn clean install -rf :ipf-tutorial-app
+And then you can send in a payment:
+curl -X POST localhost:8080/submit -H 'Content-Type: application/json' -d '{"value": "25"}' | jq
+Note here you are sending in a value of 25. Thats to ensure you reach our happy path and call out to the Fraud Simulator.
+And if you bring up the payment in the
+Developer GUI
+and look at the messages of the tutorial flow (
+search by unit of work ID, click view, click ipf tutorial flow, click messages
+) then you will see:
+Here you can see that we are now also sending out
+OlafRequest
+fraud messages. If you look at the message data (
+Click to view body
+), you should see the Request message contains the full
+fiToFICstmrCdtTrf
+(pacs.008) and the response has the
+fraudFeedback
+payload.
+Conclusions
+In this section, weve established a new HTTP connection to an existing fraud server.
+CON2 - Writing your own connector (Kafka)
+REUSE1 - Creating a Reusable DSL Library

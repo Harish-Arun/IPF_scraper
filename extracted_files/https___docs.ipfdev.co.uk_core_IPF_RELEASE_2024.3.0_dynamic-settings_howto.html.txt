@@ -1,0 +1,6 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/dynamic-settings/howto.html ===
+How to guides
+Create a Project Based on Dynamic Settings Workflow
+Create Settings
+Data Ingestion System Events
+Create a Project Based on Dynamic Settings Workflow

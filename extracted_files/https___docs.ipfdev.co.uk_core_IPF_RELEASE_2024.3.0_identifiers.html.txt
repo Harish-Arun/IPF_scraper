@@ -1,0 +1,1209 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/identifiers.html ===
+Identifiers in IPF
+There are many identifiers within IPF application components, and it can often be confusing and daunting to understand which
+identifiers you are responsible for providing as an IPF application developer vs which are internal, and the impacts and relationship
+each identifier has with other identifiers and application behaviour.
+This page aims to catalogue all the main identifiers you will/may come across whilst using IPF. The details of each identifier
+may be moved and detailed further within appropriate domain specific documentation. This page should retain an index and
+catalogue to navigate what people are referring to with each identifier.
+The page is broken into sections per technical area.
+Component
+Identifier
+Processing Context
+Unit of Work ID
+Processing Context
+Request ID
+Processing Context
+Processing Entity
+Processing Context
+Association ID
+Processing Context
+Checkpoint
+Process Flow
+Persistence ID
+Process Flow
+Entity Type
+Process Flow
+Entity ID
+Process Flow
+Event ID
+Process Flow
+Flow Definition ID
+Process Flow
+Flow Hash
+Process Flow
+Command ID
+Process Flow
+Input.ID
+Process Flow
+Input ID
+Process Flow
+Physical Message ID
+Process Flow
+Calling Flow ID
+Process Flow
+Initiating ID
+Process Flow
+Caused By Event ID
+Correlation Service
+Correlation ID
+Message Log
+Message ID
+IPF API Request
+External Request ID
+Message Data Structure
+MDS ID
+Operational Data Store
+ODS ID
+Operational Data Store
+Process Object ID
+ISO20022 Messages
+Transaction ID
+ISO20022 Messages
+UETR
+ISO20022 Messages
+End To End ID
+ISO20022 Messages
+Message ID
+Processing Context
+Unit of Work ID
+unitOfWorkId
+The
+Unit of Work ID
+is an internal IPF identifier that tracks the
+global
+processing of an item of work (typically a payment) through the entire journey within IPF processing services.
+The value is internal, and should not be derived from any message content.
+Synonyms and related concepts
+uowId
+Common locations
+Processing Context
+Every Object emitted from IPF-Data-Egress
+Who specifies this value?
+The IPF core application code.
+The first Icon controlled application entry point, typically an
+Initiating Receive Connector
+will trigger the generation of a new
+Unit of Work ID
+within a new
+Processing Context
+.
+Uniqueness
+Unique across an IPF installation (UUID V4).
+Example
+fdsf23f32f-fdfdsf44-gg6u6-bfbf33
+Developer comments
+Currently, inbound payments (in various solutions) are mapping this value from message Identifiers within financial messages (eg grpHdr.msgId).
+These msgId values are unique only within a given timescale within a scheme, also msgId is often leveraged in functional/technical duplicate check which is NOT provided in relation to unitOfWorkId.
+Client Request ID
+clientRequestId
+The
+Client Request ID
+is a single field that is reserved for allocation to a client-specific value that will allow association and inquiry to an IPF unit of work.
+It allows clients to inquire on payment statuses and details from "their" identifier - rather than needing to keep a reference to a
+Unit of Work ID
+Synonyms and related concepts
+-
+Common locations
+Processing Context
+Every Object emitted from IPF-Data-Egress
+Who specifies this value?
+The IPF client solution
+The first Icon-controlled application entry point, typically an Initiating Receive Connector, delegates to a solution-specific mapper that optionally extracts a clientRequestId from an initiating message.
+Often the
+External Request ID
+of the initiating message is used
+Uniqueness
+Not enforced, but the ODS provides out of the box inquiry support for clientRequestID, as such if a client uses the same clientRequestId value for multiple payments, then multiple payments will be returned when queried - which may be confusing.
+Example
+abc123456xyz
+Developer comments
+-
+Processing Entity
+processingEntity
+An internal identifier that the IPF Solution has defined to refer to the physical entity that is associated with the processing of work for a given
+IPF Solution
+.
+Synonyms and related concepts
+-
+Common locations
+Processing Context
+Every Object emitted from IPF-Data-Egress
+Processing Settings
+Who specifies this value?
+This may be configured as part of processing settings or standard application configuration
+Any IPF component may choose to update the
+Processing Entity
+within the current
+Processing Context
+at a point in time
+Uniqueness
+One value per processing entity
+Example
+001
+Developer comments
+We need to confirm whether it is reasonable to infer a relationship between this value and the
+legal entity
+within IPF context.
+Association ID
+associationId
+The
+Association ID
+within the
+Processing Context
+associates a point-in-time event (such as a message-log or system event emission etc) with a local context such as an
+IPF Processing Flow.
+This way we can state "this message log was caused by this Flow" rather than just created to a single
+unitOfWork
+that may span multiple services and flows.
+The
+Association ID
+field itself makes no assumption about the meaning or reference for its value. It is a raw field that should only be used within a known context. That being said, 90% of the current use case is for this to refer to the
+Persistence ID
+of the currently executing
+ProcessFlow
+.
+Synonyms and related concepts
+-
+Common locations
+Processing Context
+Every Object emitted from IPF-Data-Egress
+Who specifies this value?
+The IPF application is responsible for setting this value and using this value appropriately based on context.
+Uniqueness
+Context dependant.
+Example
+PaymentInitiation|abc-123-ef-456
+(by convention)
+Developer comments
+The
+Association ID
+started as purely a data field to be able to associate data points with another label. It is being used in many use cases to help govern control flow by storing
+Persistence ID
+of the currently executing
+IPF Process Flow
+.
+Ideally this "convention" should be formalized, either by type enforcement or by splitting concerns into separate fields. It feels unsafe for this raw value to be used differently in different contexts in the future.
+Checkpoint
+checkpoint
+A
+Checkpoint
+refers to an identifier for the last "processing event" that occurred for a given
+Processing Context
+.
+A "processing event" may be one of (but not limited to):
+A Domain Event being persisted
+A Message log being emitted
+A System Event being emitted
+The value of the
+ckeckpoint
+is an identifier dependent on the type of "processing event". The type itself by convention, is included as part of the identifier as a prefix.
+A checkpoint refers to a
+processingObjectId
+Synonyms and related concepts
+checkpointId
+Common locations
+Processing Context
+Every Object emitted from IPF-Data-Egress
+ODS Objects
+Who specifies this value?
+The IPF application core components should automatically update this property:
+Flo-Lang updates the checkpoint based on the effective processObjectId for the last
+Domain Event
+persisted.
+The
+Connector
+framework will automatically update the
+Checkpoint
+based on the effective
+Process Object ID
+for the last Message Sent/Received (through
+Message Log
+).
+Uniqueness
+Not unique.
+Example
+A
+Checkpoint
+for a
+Domain Event
+:
+PROCESS_FLOW_EVENT|PaymentInitiation|abc-123-ef-456|3
+A
+Checkpoint
+pertaining to
+Message Log
+:
+MESSAGE_LOG|jgjfgdg884t722
+Developer comments
+A
+null
+or absent value indicates that the
+Pseudo Event
+is the first
+Checkpoint
+in processing for a
+Unit of Work
+.
+Process Flows
+Persistence ID
+persistenceId
+The
+Persistence ID
+is a unique reference, within a single
+Akka
+service definition, to an instance of a persistence actor.
+In the case of IPF this is usually an instance of a
+Process Flow
+. The default implementation comprised of two parts, an
+Entity Type
+and
+Entity ID
+.
+For further information, please refer to the official Lightbend documentation regarding
+Persistence IDs in Akka
+.
+Synonyms and related concepts
+flowId
+behaviourId
+aggregateId
+Common locations
+Who specifies this value?
+The IPF application is responsible for providing this value when sending commands to an
+IPF Processing Flow
+. The value itself is typically stored in the
+Processing Context
+as an
+Association ID
+.
+Uniqueness
+Requires uniqueness within a given IPF service.
+Will cause data aggregation issues if not globally unique across an IPF solution
+Example
+Of the format <
+Entity Type
+>|<
+Entity ID
+>:
+PaymentInitiation|abc-123-ef-456
+Developer comments
+The population of the
+Process Context
+Association ID
+with the
+Persistence ID
+is really convention and not enforced. This needs to be improved as per the developer comments on the
+Association ID
+entry.
+Entity Type
+entityType
+The
+Entity Type
+is the name of behavior defined by a Akka persistent actor. In IPF this is the
+Processing Flow
+name. This is the name of the flow described in MPS and many of the resulting generated Java classes have the
+Entity Type
+as a prefix (e.g
+PaymentInitiationProcessFlow
+,
+PaymentInitiationInitialiser
+etc).
+In the Context of
+IPF Processing Flows
+It is composed of
+flowName
++
+flowVersion
+if the flow is versioned
+For further information, please refer to the official Lightbend documentation regarding
+Persistence IDs in Akka
+.
+Synonyms and related concepts
+entityTypeKey
+entityTypeName
+Common locations
+Akka Persistent Actors
+Who specifies this value?
+This value is set during the definition of the
+IPF Processing Flow
+at build time.
+Uniqueness
+Requires uniqueness within a given
+IPF Service
+.
+Will cause data aggregation issues if not globally unique across an
+IPF Solution
+.
+Example
+Within the below examples of a
+Persistence ID
+, the highlighted section captures the
+Entity Type
+section.
+Un-versioned:
+PaymentInitiation
+|abc-123-ef-456
+Versioned:
+PaymentExecutionv1
+|abc-123-ef-456
+Developer comments
+Entity Type
+is assumed to be unique across a given
+IPF Solution
+. There is a capacity for data overlap if different
+IPF Services
+within a single
+IPF Solution
+have the same
+Entity Type
+.
+For example, the
+ODS
+stores metadata for the "definition" of each
+IPF Processing Flow
+, which is keyed by
+Flow Definition ID
+, based on
+Entity Type
+.
+Entity ID
+entityId
+The
+Entity ID
+represents an internal identifier which uniquely identifies a domain entity, that may be represented across one or more Akka
+Persistent Actors
+. In IPF context this means multiple _IPF Processing Flows).
+For further information, please refer to the official Lightbend documentation regarding
+Persistence IDs in Akka
+.
+Synonyms and related concepts
+logicalUniqueKey
+(in Dynamic Processing Settings)
+Common locations
+Akka Persistent Actors
+Who specifies this value?
+The IPF application constructs this internally.
+Uniqueness
+Unique per IPF Solution.
+Example
+In the below
+Persistence ID
+example, the highlighted section captures the
+Entity ID
+.
+PaymentInitiation|
+abc-123-ef-456
+Developer comments
+This value has assumed uniqueness by the
+Akka
+framework, as such it may initially be tempting to use this as a basis for providing functional duplicate checking. It should, however, really always be an internally random generated UUID (v4).
+Duplicate-checking should be implemented through standard business functions.
+Event ID
+eventId
+The
+Event ID
+is a uniquely identifies an
+IPF Process Flow Domain Event
+within a deployment. The
+Event ID
+is a composite id based on the
+Persistence ID
+and the sequence for that event within the context of a Lamport timestamp on the
+unitOfWork
+.
+Synonyms and related concepts
+-
+Common locations
+Domain Events
+Who specifies this value?
+The IPF application constructs this internally.
+Uniqueness
+Unique per
+IPF Solution
+Example
+PaymentInitiation|abc-123-ef-456|3
+Developer comments
+Flow Definition ID
+flowDefinitionId
+This uniquely identifies an
+IPF Process Flow Definition
+within a given
+IPF Solution
+. It is implemented/equal to the
+Entity Type
+part of the
+Persistence ID
+.
+Synonyms and related concepts
+processFlowDefinitionId
+Common locations
+Process Flow Definition
+ODS
+Who specifies this value?
+As per
+Entity Type
+, value of
+Flow Definition ID
+is defined during the creation of the flow within MPS (Flow Name + optional version).
+Uniqueness
+Unique per IPF Solution
+Example
+Within the below examples of a
+Persistence ID
+, the highlighted section captures the
+Flow Definition ID
+section.
+Unversioned:
+PaymentInitiation
+|abc-123-ef-456
+Versioned:
+PaymentExecutionv1
+|abc-123-ef-456
+Developer comments
+Flow Definition ID
+is assumed to be unique across a given
+IPF Solution
+. There is a capacity for data overlap if different
+IPF Services
+within a single
+IPF Solution
+have the same
+Flow Definition ID
+.
+For example, the
+ODS
+stores metadata for the "definition" of each
+IPF Processing Flow
+, which is keyed by
+Flow Definition ID
+.
+Flow Hash
+flowHash
+The
+Flow Hash
+is a derived value based on a hash calculation of the
+IPF Process Flow Definition
+at the point of compilation. It is added to each
+Domain Event
+during persistence.
+It is used to compare the "current" runtime version of an
+IPF Process Flow
+against the "original" compiled value. This can indicate whether or not subsequent changes have been made to the flows topology since the processing of a given transaction, and therefore provide a warning that that graph rendering will not be accurate.
+Synonyms and related concepts
+processFlowHash
+Common locations
+Domain Event
+Process Flow Definition
+Who specifies this value?
+The value is automatically derived by the IPF core application code.
+Uniqueness
+-
+Example
+An integer:
+94734234
+Developer comments
+Partially implemented, currently it does not account for changes into shared MPS concepts (e.g. shared
+Domain Events
+).
+Command ID
+commandId
+The
+Command ID
+is a composite identifier on a command that is sent to an
+Akka
+actor. It consists of a
+Command Name
+,
+Input ID
+and
+Physical Message ID
+. The most common example in IPF is the submission of an
+Input
+to an
+IPF Processing Flow
+. The
+Input
+abstraction is converted into a
+Command
+by the
+IPF Processing Flow Input Gateway
+, during which the
+Command ID
+is constructed from the associated values on the
+Input
+.
+the
+Command ID
+uniquely identifies a
+Command
+in the scope of a given
+Persistence ID
+. It also is the basis for
+Command Idempotency
+, which protects against duplicate side effects if duplicate Commands are submitted to an
+IPF Process Flow
+.
+Synonyms and related concepts
+originalCommandId
+Common locations
+Command
+Domain Event
+System Event
+Who specifies this value?
+The
+IPF Processing Flow Input Gateway
+is responsible for creating this based on values passed into the
+Input
+.
+The creation is "safe", defaulting to UUID (V4) if not provided.
+Uniqueness
+Unique within a
+Persistence ID
+.
+Example
+Of the form <
+Command Name
+>|<
+Input ID
+>|<
+Physical Message ID
+>
+HandleFraudResponse|abc-123-def-456|jms-id-444-55-666
+Developer comments
+A
+Command
+shouldn’t have any reference to the concept of an
+Input
+. We should rename this field reference.
+Input.ID
+input.id
+The
+id
+field on an
+Input
+represents the target
+Persistence ID
+of the
+IPF Processing Flow
+for which the Input is intended.
+In the case of an
+Instruction
+Input arriving into IPF to begin processing (e.g. a pain.001 from a channel) the id is treated as the expected
+Entity ID
+, with the associated
+Entity Type
+derived internally by the
+IPF Processing Flow Input Gateway
+.
+In the case of a
+Response
+Input being sent to an
+IPF Processing Flow
+, for example a response from a Sanctions Screening system for an existing payment, the id may either be:
+The full
+Persistence ID
+of the target
+IPF Processing Flow
+.
+Just the
+Entity ID
+, in which case the associated
+Entity Type
+is derived internally.
+Synonyms and related concepts
+-
+Common locations
+Input
+Who specifies this value?
+The IPF application will be responsible for setting the value onto the
+Input
+. These values will likely be taken from the current
+Processing Context
+and/or external message.
+Uniqueness
+The same semantics as
+Entity ID
+and
+Persistence ID
+Example
+Given a below
+Persistence ID
+, use-case 1 states that the entire value may be used.
+PaymentInitiation|abc-123-ef-456
+Given a below
+Persistence ID
+, use-case 2 states that only the highlighted
+Entity ID
+component need be provided.
+PaymentInitiation|
+abc-123-ef-456
+Developer comments
+This feels overly complex and potentially fragile.
+The ability to provide multiple structures within a raw string field and have internal logic derive each which entity the
+Input
+is relating too is very difficult to rationalize without looking into the MPS generated code.
+We should introduce some strongly typed representation of the identifier.
+Input ID
+inputId
+An
+Input ID
+is an optional identifier on an
+Input
+. It serves to associate the
+Input
+with a functional identity. If present, the
+Input ID
+property internally is mapped to the on the underlying
+Command ID
+, contributing to
+Command Idempotency
+.
+If an
+IPF Processing Flow
+has successfully processed a
+Command
+, and a subsequent
+Command
+is then submitted with the same
+Input ID
+(but different
+Physical Message ID
+) the
+IPF Processing Flow
+will return the original result that was returned when the original
+Command
+was processed.
+Common choices for this value include business-centric identifiers such as a payment
+Transaction ID
+.
+Synonyms and related concepts
+-
+Common locations
+Input
+Command
+Who specifies this value?
+The IPF application developer is responsible for providing the
+Input ID
+values as desired during construction of an Input. The
+Input ID
+value is most commonly populated from an appropriate business identifier on the related External Message.
+Uniqueness
+Required unique per
+Input
+.
+Example
+3333f23f32f-dgdgdh-gg6u6-bfbf33
+Developer comments
+Input ID
+is referenced on both
+Input
+and a
+Command
+concepts. Given that an
+Input
+is really just a facade upon a
+Command
+, the latter being a more formal concept - we may do well to consolidate the terminology.
+Also
+Input.ID
+vs
+Input ID
+is confusing.
+Physical Message ID
+physicalMessageId
+Complementing the
+Input ID
+, the
+Physical Message ID
+is an optional
+Input
+identifier that may be used to provide greater control of
+Command Idempotency
+.
+If an
+IPF Processing Flow
+has successfully processed a
+Command
+, and a subsequent
+Command
+is submitted with the same
+Input ID
+AND
+Physical Message ID
+then the Flow will return a response indicating the
+Command
+was a duplicate. If physicalMessageId is not provided (or not equal) then the
+IPF Processing Flow
+will return the original result that was returned when the original
+Command
+was processed.
+Candidates for this value are often taken from transport specific message identifiers such as a
+JMSMessageID
+.
+The primary focus for this identifier is to help differentiate between infrastructure-related retries and functional retries.
+Synonyms and related concepts
+-
+Common locations
+Input
+Command
+Who specifies this value?
+The IPF Application developer is responsible for populating this with an appropriate value. Often this will be from technical metadata on the related
+External Message
+.
+Uniqueness
+Required unique per
+Input
+for given
+Persistence ID
+.
+Example
+jms-correlationId-12862489y4218hdf
+Developer comments
+-
+Calling Flow ID
+callingFlowId
+The
+Calling Flow ID
+is an optional reference to the
+Persistence ID
+of a previous
+IPF Processing Flow
+instance.
+For example, if flow A calls flow B, then the flow B
+Aggregate
+(and subsequent
+Action
+invocations) will have additional reference to the
+Persistence ID
+of flow A.
+This is so that flow B can reliably "respond" to flow A when needed - without requiring additional appliucation specific data points, or by mandating that flows share a common
+Entity ID
+.
+Synonyms and related concepts
+-
+Common locations
+Flow Aggregate
+Action Parameters
+Who specifies this value?
+The
+Calling Flow ID
+is derived automatically by the
+IPF Processing Flow
+as long as the two flows facilitate the
+Caused By Event ID
+pattern.
+It is updated on the
+Aggregate
+and provided to all subsequent
+Actions
+through their respective
+Action Parameters
+instances.
+Uniqueness
+Uniquely identifies an
+IPF Processing Flow
+instance within an
+IPF Solution
+.
+Example
+As per
+Persistence ID
+.
+PaymentInitiation|abc-123-ef-456
+Developer comments
+Initiating ID
+TODO _to be written
+initiatingId
+Synonyms and related concepts
+-
+Common locations
+Flow Aggregate
+Action Parameters
+Event
+Who specifies this value?
+Uniqueness
+Example
+As per
+Persistence ID
+.
+PaymentInitiation|abc-123-ef-456
+Developer comments
+TODO
+Likely overlap with
+Calling Flow ID
+and
+Caused By Event ID
+Caused By Event ID
+causedByEventId
+The
+Caused By Event ID
+is the capture of a logical preceding
+Event ID
+. I.e. "which previous
+Domain Event
+relating to my
+Unit Of Work
+caused the current
+Action
+. The
+Action
+being the emission of a
+Command
+, API request and/or likely persistence of a subsequent
+Domain Event
+.
+This could be one
+IPF Processing Flow
+laterally
+invoking another, for example Payment Initiation calling Payment Execution. It could equally be used in a
+vertical
+(parent-child) context such as a single
+Bulk
+flow spawning many child
+Instruction
+flows.
+The *
+Caused By Event ID
+*s are the single-step links that form the causal ordering chain across the eventIds for a given Unit Of Work.
+They are used to help provide some sense of causal ordering within a
+distributed
+IPF Solution, through the use of a Lamport timestamp.
+There are caveats to the use of
+Caused By Event ID
+, and generally speaking if an IPF application developer wishes to obtain a Causal Ordered graph of data relating to a known
+Unit of Work
+they should refer to the
+Checkpoint
+functionality.
+Synonyms and related concepts
+-
+Common locations
+Input
+Event
+IPF API Requests (CustomBusinessData)
+Who specifies this value?
+The IPF application developer is responsible for both providing and consuming this data point to the IPF API Request, and then propagating it to the
+Input
+.
+Uniqueness
+Uniquely identifies an
+IPF Process Flow Event
+per IPF Solution.
+Example
+As per
+Event ID
+.
+PaymentInitiation|abc-123-ef-456|3
+Developer comments
+The
+Caused By Event ID
+is passed between IPF services on the IPF API Request payloads using the Custom
+SupportingContext
+Map with string literal access.
+This approach is too manual and too loose for a core feature. The representation of the
+Caused By Event ID
+within the core IPF API Requests should be represented as a first class citizen, similar to
+Processing Context.
+Application Identifiers
+Correlation ID
+correlationId
+The
+Correlation ID
+is a derived identifier that will uniquely associate a request sent from an IPF
+Connector
+with an asynchronously received response.
+The
+Correlation ID
+is the key for the entry stored by the
+Correlation Service
+application component. The value of the entry is the
+Processing Context
+containing the set of Internal IPF identifiers (
+Unit of Work ID
+etc). As such the
+Correlation ID
+is the "link" from an async response to "resume" the internal processing of an existing
+Unit of Work
+.
+Synonyms and related concepts
+-
+Common locations
+Correlation Service Entry key
+Who specifies this value?
+The IPF application developer is responsible for configuring the Send and Receive
+Connectors
+with the appropriate functions to
+derive the
+Correlation ID
+from
+Request
+and
+Response
+payloads.
+Uniqueness
+Required uniqueness for a given business message per infrastructure (topic/queue) for a configured duration of the
+Correlation Service
+.
+Example
+fbasf77bfjbasjfbsaf
+Developer comments
+There are likely some alternate use cases around handling multiple async requests for a given
+Unit of Work
+with shared
+correlationIds
+.
+Message ID
+messageId
+A
+Message ID
+uniquely identifies an
+External Message
+within the scope of a single
+Unit of Work
+.
+Synonyms and related concepts
+-
+Common locations
+Message Log
+Who specifies this value?
+The IPF application automatically generates this value when performing the
+Message Log
+stage of a
+Connector
+.
+Uniqueness
+Unique within a
+Unit of Work
+.
+Example
+jgjfgdg884t722
+Developer comments
+External Request ID
+externalRequestId
+This identifier is present on the standard
+IPF Message Exchange API
+s, for example Payment Initiation Request, Payment Execution Request etc.
+It’s intended use is to uniquely identify a
+Message
+, to support API level idempotency.
+A common pattern is to derive the
+Client Request ID
+from the
+External Request ID
+on the original
+Instruction
+message.
+Synonyms and related concepts
+requestId
+Common locations
+IPF Message Exchange API Requests
+IPF Message Exchange API Responses
+Who specifies this value?
+The API consumer (either an external system/channel or another
+IPF Service
+) is responsible for providing this value on the payload.
+Uniqueness
+Assumed unique per
+Message
+.
+Example
+-
+Developer comments
+-
+Message Data Structure ID
+mdsId
+The
+MDS Object ID
+uniquely identifies and MDS data point related to a
+Unit of Work
+.
+MDS objects can be queried by ID by the ODS, and MDS can relate to other MDS as a child parent relationship.
+For example, associating
+CreditTransferTransactions
+with a parent
+PaymentInstruction
+.
+Synonyms and related concepts
+mdsObjectContainer.id
+(Within IPF Processing Data)
+mdsObjectContainer.parentId
+(Within IPF Processing Data)
+Common locations
+MDS objects as emitted by IPF Processing Data Egress.
+Who specifies this value?
+IPF automatically generates and assign this value as
+Process Flow Domain Events
+containing
+MDS
+objects.
+Uniqueness
+Unique within an IPF Solution.
+Example
+The MDS ID generation function is a composite id based on:
+Unit of Work ID
+field name
+sequence number
+field type
+dgadasd-0372-dbdsa|customerCreditTransfer|3|GroupHeader83
+Developer comments
+The ability to manually specify an MDS ID value for a given MDS will need to be introduced to support relating
+MDS objects persisted in seperate
+Process Flows
+.
+Operational Data Store Identifiers
+ODS Object ID
+odsObjectId
+The ODS Object ID is an internal identifier (primary key) used for data objects persisted in the ODS.
+Synonyms and related concepts
+-
+Common locations
+ODS Objects
+Who specifies this value?
+The ODS application generates this value upon receiving an object from IPF to persist.
+Uniqueness
+Unique across an ODS installation (UUID V4) forever.
+Example
+fdsf23f32f-fdfdsf44-gg6u6-bfbf33
+Developer comments
+Process Object ID
+processObjectId
+A
+Process Object ID
+uniquely identifies a
+Process
+type  data object within a Unit of Work, within the context of IPF-generated identifiers.
+This is referred to as
+uniqueId
+when populating the Data Containers within the
+IPF Processing Data
+ingestion API.
+ODS uses this value as an
+idempotencyKey
+and presents this as
+Process Object ID
+on the ODS Inquiry API.
+The
+Processing Context
+Checkpoint
+refers to this value.
+Synonyms and related concepts
+uniqueId
+(In IPF Processing Data)
+idempotencyKey
+-
+Common locations
+Who specifies this value?
+Theis value is derived internally by the IPF application core components and enriched on the data emitted from IPF
+to ODS.
+Uniqueness
+Unique within a
+Unit of Work
+.
+Example
+For a
+Domain Event
+type
+Process Object
+:
+PROCESS_FLOW_EVENT|PaymentInitiation|abc-123-ef-456|3
+For a
+Message Log
+type
+Process Object
+:
+MESSAGE_LOG|jgjfgdg884t722
+Developer comments
+3 different names for different roles performed by a single identifier, could be consolidated.
+ISO20022 Message Identifiers
+This section details a few common payment-specific identifiers that commonly occur on the ISO20022 Message exchanges.
+This list is not exhaustive, full detail can be found at the official
+ISO20022 documentation
+Transaction ID
+transactionId
+Unique identification, as assigned by the first instructing agent, to unambiguously identify the transaction that is passed on, unchanged, throughout the entire interbank chain.
+Usage: The transaction identification can be used for reconciliation, tracking or to link tasks relating to the transaction on the interbank level.
+Usage: The instructing agent has to make sure that the transaction identification is unique for a pre-agreed period.
+Synonyms and related concepts
+-
+Common locations
+Transaction sections of common messages such as Custom Credit Transfer (Pacs.008 / Pacs.009).
+Who specifies this value?
+This field needs to be populated on the appropriate Credit Transfer message before it is transmitted to a scheme or CSM.
+For most common IPF scenarios this is during Payment Execution processing. The IPF application developer is responsible for setting this value whilst constructing the Credit Transfer message. Often it may be derived from one or more fields from a
+Payment Initiation
+request (pain.001), or a randomised UUID.
+Uniqueness
+Different Schemes mandate different durations for which the transactionId may be assumed to be unique to support future such as a duplicate check.
+in
+S.E.P.A Credit Transfer Instant
+payments, requests for
+Payment Recall
+may be offered up to 13 months after a payment has been settled. Recalls include a reference to an original payment by originalTransactionId reference.
+Example
+-
+Developer comments
+-
+Unique End-to-end Transaction Reference (UETR)
+UETR
+Universally unique identifier to provide an end-to-end reference of a payment transaction.
+Synonyms and related concepts
+-
+Common locations
+Payment Identification section of transaction blocks in related payment messages.
+Who specifies this value?
+The value is optionally present on a Payment Initiation Request (e.g. pain.001), so may be provided by a channel or client.
+Uniqueness
+Unique UUIDv4.
+Example
+``
+Developer comments
+End to End ID
+endToEndId
+Unique identification assigned by the initiating party to unambiguously identify the transaction. This identification is passed on, unchanged, throughout the entire end-to-end chain.
+Usage: The end-to-end identification can be used for reconciliation or to link tasks relating to the transaction. It can be included in several messages related to the transaction.
+Synonyms and related concepts
+-
+Common locations
+Payment Identification section of transaction blocks in related payment messages.
+Who specifies this value?
+The client provides this value on the Payment Initiation Request as part of the Payment Identification block of the transaction
+data.
+Uniqueness
+Unique identification as per the initiating party.
+Example
+-
+Developer comments
+-
+Message ID
+messageId
+Point to point reference, as assigned by the instructing party, and sent to the next party in the chain to unambiguously identify the message.
+Usage: The instructing party has to make sure that MessageIdentification is unique per instructed party for a pre-agreed period.
+Synonyms and related concepts
+msgId
+Common locations
+Most individual
+Message Definitions
+have a
+Message ID
+field. Within IPF it is sometimes used for
+Duplicate Checking
+- as part of the field hash criteria.
+Command Idempotency
+- as a source for
+Input ID
+alongside
+Physical Message ID
+.
+Client Request ID
+source.
+Who specifies this value?
+The IPF application is responsible for setting these values on Messages that it sends to external systems.
+Uniqueness
+Functionally this value should be unique, the scheme implementations loosen this requirement by allowing uniqueness within
+a pre-agreed period.
+Example
+-
+Developer comments
+-
+Data Processing & Persistence
+Processing Data

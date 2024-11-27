@@ -1,0 +1,35 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20unhappy%20path.Handle%20Recall%20Status%20Request%20Rejection%20From%20CSM%20GrpSts.html ===
+Handle Recall Status Request Rejection From CSM GrpSts.story
+Scenario: Recall Status Request rejected by CSM GrpSts
+When
+the ï½Recall Serviceï½  sends a Send Recall To Csm Request
+Then
+the ï½CSMï½  receives a Payment Cancellation Request
+And
+ï½Recall Serviceï½  receives a Technical Response with values:
+| status | SUCCESS |
+And
+ï½Recall Serviceï½  receives a Send Recall To Csm Response
+When
+the ï½Recall Serviceï½  sends a Recall Enquiry Request
+Then
+ï½the CSMï½  receives a Payment Status Request with values:
+| FIToFIPmtStsReq.OrgnlGrpInf.OrgnlMsgNmId | camt.056.001.01 |
+And
+ï½Recall Serviceï½  receives a Technical Response with values:
+| status | SUCCESS |
+When
+the ï½CSMï½  sends a for-pacs028 Payment Status Report with values:
+| FIToFIPmtStsRpt.orgnlGrpInf*And*Sts.grpSts           | RJCT |
+| FIToFIPmtStsRpt.orgnlGrpInf*And*Sts.stsRsnInf.rsn.cd | FF01 |
+Then
+ï½Recall Serviceï½  receives a Recall Enquiry Response
+And
+ï½Recall Serviceï½  receives a System Event using predicate:
+| level                                   | WARN                                                       |
+| name                                    | RecallStatusEnquiryError                                   |
+| type                                    | FUNCTIONAL                                                 |
+| payload.csm                             | RT1                                                        |
+| payload.rawMessage.externalResponseBody | prettyPrint(#PaymentStatusReport)                          |
+| payload.description                     | RecallStatusEnquiryRejected                                |
+| payload.transactionId                   | #PaymentStatusReport.fIToFIPmtStsRpt.txInf*And*Sts.orgnlTxId |

@@ -1,0 +1,7 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/features/supported-transports.html ===
+Supported Transports
+The RT1 CSM Service supports integration via JMS and Kafka. Please refer to
+Transport Reference
+for additional details.
+CSM Events
+SIC CSM Service

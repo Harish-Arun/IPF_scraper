@@ -1,0 +1,37 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-3-0/release-IPF-2024-3-0-csm-reach.html ===
+CSM Reachability - Changes & Fixes
+This page covers the CSM Reachability V2 improvements, changes and fixes provided in release IPF-2024.3.0.
+CSM Reachability and Industry Data Ingestion
+Changed
+During file ingestion,file names and extensions are not case-sensitive anymore.
+Data Ingestion
+Changed
+Due to bug fixes in the connector-file library, all
+ipf.csm-reachability.*.file-ingestion.interval
+configuration properties should now be set in seconds, rather than minutes or hours.
+The bug fixes ensure that ingesters will no longer mistakenly pick up the same file during each polling cycle while it is being processed.
+CSM Reachability now includes default directory structures for the ingestion of supported industry data files.
+Each industry file now has a default, dedicated path, removing the requirement of each deployment to provide their own overrides.
+Default ingestion paths can still be customized if needed, existing overrides will still apply.
+For more details, refer to the
+CSM Reachability Data Ingestion Configuration Reference
+page.
+Default
+ipf.csm-reachability.*.file-ingestion.interval
+is reduced, from
+1h
+to
+30s
+. All existing
+file-ingestion.interval
+overrides can now be safely removed.
+Directory mapping from MongoDB
+directory-mapping
+collection is deprecated. It requires migration to
+ipf.file-ingestion.directory-mapping
+HOCON configuration that should be used instead.
+Please ensure you follow the appropriate instructions
+here
+.
+Bulker & Debulker - Changes & Fixes
+Dynamic Processing Settings v2 - Changes & Fixes

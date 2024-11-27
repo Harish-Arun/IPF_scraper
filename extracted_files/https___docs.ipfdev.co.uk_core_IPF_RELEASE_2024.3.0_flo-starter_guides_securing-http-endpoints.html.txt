@@ -1,0 +1,212 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/guides/securing-http-endpoints.html ===
+Securing HTTP Endpoints
+By default, the IPF APIs do not authenticate inbound requests.
+This can be configured in the client implementation by including the
+spring-boot-starter-security
+dependency to the project.
+The full documentation on Spring Security can be found
+here
+.
+Example
+This section will demonstrate how a client implementation might add validation of JWT access tokens on the endpoints exposed by the
+ipf-read-starter
+.
+Prerequisites
+The read-side client implementation should be implemented and working with all valid requests being accepted.
+Add Maven Dependencies
+For this example, two dependencies are required.
+The first is the aforementioned
+spring-boot-starter-security
+module provided by the Spring framework.
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-security</artifactId>
+</dependency>
+The second is a JWT library that will be used to validate tokens on incoming requests.
+<dependency>
+    <groupId>com.auth0</groupId>
+    <artifactId>java-jwt</artifactId>
+</dependency>
+Service to Validate JWTs
+Next, a service will be created to validate and decode JWTs.
+The service requires the secret used to sign the token so that it can verify the token’s signature.
+The secret is autowired using the
+@Value
+annotation provided by Spring.
+@Service
+public class JWTService {
+
+    private final String secret;
+
+    @Autowired
+    public JWTService(@Value("${ipf.security.jwt.secret}") String secret) {
+        this.secret = secret;
+    }
+
+    public Optional<DecodedJWT> decodeAccessToken(String accessToken) {
+        return decode(secret, accessToken);
+    }
+
+    public List<GrantedAuthority> getRoles(DecodedJWT decodedJWT) {
+        return decodedJWT.getClaim("role").asList(String.class).stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
+    }
+
+    private Optional<DecodedJWT> decode(String signature, String token) {
+        try {
+            return Optional.of(JWT.require(Algorithm.HMAC512(signature.getBytes(StandardCharsets.UTF_8)))
+                    .build()
+                    .verify(token.replace("Bearer ", "")));
+        } catch (Exception ex) {
+            return Optional.empty();
+        }
+    }
+}
+Authorization Filter Component
+When a request is made, it is passed through a chain of
+WebFilter
+classes.
+Most of the chain is provided by Spring out of the box, though additional filters can be provided by the client.
+In this example one such WebFilter will be implemented to validate that requests made to secure endpoints have set the
+Authorization
+header with a valid token, otherwise the request should fail (unless another authentication filter is provided to allow requests to be authenticated a different way).
+@Component
+public class JWTAuthorizationFilter implements WebFilter {
+
+    private final JWTService jwtService;
+
+    public JWTAuthorizationFilter(JWTService jwtService) {
+        this.jwtService = jwtService;
+    }
+
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, @NotNull WebFilterChain chain) {
+        String header = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (header == null || !header.startsWith("Bearer ")) {
+            return chain.filter(exchange);
+        }
+
+        return jwtService.decodeAccessToken(header)
+                .map(token -> new UsernamePasswordAuthenticationToken(
+                        token.getSubject(),
+                        null,
+                        jwtService.getRoles(token)))
+                .map(token -> chain.filter(exchange)
+                        .subscriberContext(context -> ReactiveSecurityContextHolder.withAuthentication(token)))
+                .orElse(chain.filter(exchange)
+                        .subscriberContext(context -> ReactiveSecurityContextHolder.clearContext().apply(context)));
+    }
+}
+The
+JWTAuthorizationFilter
+implements the
+WebFilter
+class' single method
+filter
+.
+It checks that the request’s
+Authorization
+header for is prefixed with
+"Bearer "
+followed by a valid JWT.
+If the header is not set, the filter simply passes the exchange to the next filter without doing anything.
+If the token is valid, the filter sets the authentication into the security context.
+Otherwise, the filter clears the security context.
+Configure the SecurityWebFilterChain
+Finally, the
+SecurityWebFilterChain
+must be configured as a Spring bean.
+@Configuration
+@EnableWebFluxSecurity
+public class WebSecurityConfig {
+
+    @Bean
+    public SecurityWebFilterChain secureFilterChain(ServerHttpSecurity http,
+                                                    JWTAuthorizationFilter jwtAuthorizationFilter) {
+        return http
+                .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
+                .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .logout(ServerHttpSecurity.LogoutSpec::disable)
+                .authorizeExchange(spec -> spec
+                        .pathMatchers("/actuator/health").permitAll()
+                        .pathMatchers("/actuator/**").hasAnyRole("ADMIN")
+                        .anyExchange().authenticated()
+                )
+                .addFilterAt(jwtAuthorizationFilter, SecurityWebFiltersOrder.AUTHORIZATION)
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
+                .build();
+    }
+
+    @Bean
+    public AbstractJackson2Decoder jacksonDecoder(ObjectMapper mapper) {
+        return new Jackson2JsonDecoder(mapper);
+    }
+
+}
+This configuration is set up to disable some features which aren’t required (form login, http basic, csrf and logout).
+The two most important aspect are the
+authorizeExchange
+specification and
+addFilterAt
+method.
+The
+authorizeExchange
+block specifies a number of path matchers that will determine what shall be done with requests that match those matchers.
+The first matcher ensures any requests made to
+"/actuator/health"
+will be permitted, that is, no authorization token is required.
+The second matcher will only allow requests made to
+"/actuator/**"
+which have the role "ADMIN".
+This implicitly requires the token to be valid too.
+The last is a catch-all matcher which will ensure that any unspecified requests are authenticated, i.e. they have a valid token.
+The
+addFilterAt
+method simply adds the
+JWTAuthorizationFilter
+that was created previously into the filter chain and places it at the
+AUTHORIZATION
+stage within the chain.
+This ensures the request is passed to the filter at the right time.
+Testing
+To test the newly added configuration the
+ipf.security.jwt.secret
+property must be set.
+In this example the value
+secret
+will be used for simplicity.
+ipf.security.jwt.secret=secret
+A tool to create valid JWTs is required, the tool used in this demonstration can be found in this
+GitHub repository
+.
+Set the following environment variables.
+JWT_SECRET=secret
+JWT_EXPIRY_SECONDS=180 # 3 minutes
+JWT_ROLE=USER
+Then create the JWT with the following command.
+JWT=$(jwt encode \
+  --alg HS512 \
+  --sub user \
+  --exp $(expr $(date +%s) + ${JWT_EXPIRY_SECONDS}) \
+  --secret ${JWT_SECRET} \
+  '{"role": ["ROLE_${ROLE}"]}')
+At this point the service should be started, and the configuration can be tested using
+curl
+.
+# Verify the "/actuator/health" endpoint does not need to be authenticated
+curl localhost:8080/actuator/health # should return 200
+
+# Verify the "/transactions" endpoint needs to be authenticated
+curl localhost:8080/transactions -i # should return 401
+curl -H "Authorization: Bearer $JWT" localhost:8080/transactions # Should return 200
+
+# Verify the "/actuator/info" endpoint needs to be authenticated and have role ADMIN
+curl localhost:8080/actuator/info -i # should return 401
+curl -H "Authorization: Bearer $JWT" localhost:8080/actuator/info -i # should return 401
+JWT_ROLE=ADMIN
+JWT=<same as before>
+curl -H "Authorization: Bearer $JWT" localhost:8080/actuator/info -i # should return 200
+How to troubleshoot error messages
+How to use the persistent scheduler with a flow

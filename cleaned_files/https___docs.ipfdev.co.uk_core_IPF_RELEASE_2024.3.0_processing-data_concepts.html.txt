@@ -1,0 +1,96 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/processing-data/concepts.html ===
+Concepts
+Data Types
+The core type is the IPF Processing Data envelope which behaves as a message wrapper, and can contain any number of supported data types.
+It also holds the processing context for the data contained in the envelope.
+The supported data types are broken down into three categories, processing, MDS and PDS.
+Process Objects
+Process objects are those that originate around the processing of a payment, for example a process object is produced for each message exchanged with another system by the IPF processing flow.
+Process objects are assigned a unique id by default, which is composed of the "primary association" and a randomly generated uuid.
+For example, if an object is published more than once, or is consumed more than once, then only a single instance will exist in the database provided the received objects have the same unique id.
+Data Structures
+MDS Objects
+A Message Data Structures (MDS) object is a data structure that originate from iso 20022 objects - for example a pain.001 instruction contains a group header, one or more instructions, and within each instruction, one or more credit transfer transactions.Each is considered a distinct MDS object, that belongs to the original payment or unit of work.
+When a pain.001 is received by an IPF processing flow, and is surfaced as a business data element with the type
+MESSAGE_DATA_STRUCTURE
+, it is broken into parts, e.g. a pain.001 data element would be split into three objects, the top-level
+CustomerCreditTransferInitiation
+, the
+PaymentInstruction
+and a
+CreditTransferTransaction
+, and those parts are delivered in a single envelope.
+Each individual object is assigned a unique and "sort of" stable id in the form
+unit-of-work-id|data-element-name|sequence|object-name
+. e.g. for each of the pain.001 objects there would they would have the ids
+uow1|DataElement1|0|CustomerCreditTransferInitiation
+,
+uow1|DataElement1|0|PaymentInstruction
+and
+uow1|DataElement1|0|CreditTransferTransaction
+.
+If the pain.001 contained multiple instructions and/or transactions, then each sibling instruction or transaction would have its own unique id because of the sequence.
+Because this id is "sort of" stable, any other events that contain the same pain.001 would produce the same objects, with the same ids, allowing downstream consumers to identify the duplicates.
+PDS Objects
+A Processing Data Structures(PDS) object is a data structure to store data that is generated during the processing of a transaction.
+IPF includes a set of standard PDS Object definitions, and also allows for the implementation of client-specific PDS objects.
+PDS objects are identified through their name, which is unique within the context of a unit of work, and consistent across different versions of the same PDS object.
+Different versions of a PDS object with the same name are distinguished by the event sequence number they originated from.
+The IPF standard PDS objects are:
+PDS object name
+Description
+PaymentType
+The client-specific payment type for this unit of work
+JourneyType
+The IPF specific journey type for this unit of work, e.g. PAYMENT, RECALL, etc.
+CSM
+The Clearing and Settlement Mechanism assigned to this unit of work.
+Priority
+The priority for this unit of work
+TimeZone
+The time zone for this unit of work
+Fx
+The foreign exchange data for this unit of work
+RelatedUnitOfWork
+A unit of work related to the current unit of work, e.g. for a recall this might be the original payments unit of work id
+AdditionalIdentifier
+A identifier that can be added to this unit of work as an alternative method of identification
+Egress
+ipf-processing-data-egress
+contains modules for publishing ipf processing data
+Ingress
+ipf-processing-data-ingress
+contains modules for consuming ipf processing data
+Simulator
+The simulator is built upon
+ipf-simulator-ng
+, allowing requests, load and statistics REST calls.
+(See docs for further information).
+There is a simulator web page under /index.html on port 55555, which makes use of the REST calls outlined above.
+The simulator generates multiple Data Envelopes and sends them to the IPF_PROCESSING_DATA topic.
+The simulator currently sends the following 7 events to the topic for every transaction sent:
+By default, the simulator produced data using version 2 of the data model. It can be configured to produce data using version 1
+of the data model with
+ipf.processing-data.egress.schema-version = 1
+.
+Event Type
+Contents
+MdsObjects & ProcessObjects
+MdsObjects
+  PAIN_001 & PAIN_001_PAYMENT_INSTRUCTION & PAIN_001_CREDIT_TRANSFER_TRANSACTION
+ProcessObjects
+ ProcessFlowEvent  Flow Initiated
+ProcessObjects
+ProcessFlowEvent  Cleared And Settled
+ProcessObjects
+ProcessFlowEvent  Sanctions Passed
+ProcessObjects
+ProcessFlowEvent  Fraud Check Passed
+ProcessObjects
+ProcessFlowEvent  Fraud Passed
+ProcessObjects
+ProcessFlowEvent  Payment Enriched
+ProcessObjects
+ProcessFlowEvent  Payment Complete
+Processing Data
+Features

@@ -1,0 +1,59 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/getting-started/debulker-configuration.html ===
+Configuring Debulker
+Configuration is required to tell the Debulker the file of specific type (xml, json…​) and structure. The Debulker can then use this configuration for splitting the files. This is done via the
+ipf.debulker.configurations
+property, which expects an array of configuration objects, each one containing:
+name
+(string) - used to uniquely identify the configuration. File notification will contain the configuration name which will be used to debulk the file.
+splitter
+(string) - splitter type which will be used for extracting the components. Currently we have implemented XML and Json splitters.
+validate-before-debulk.schema-bean-name
+(string) - enables schema validation of the file before debulking is started.
+component-hierarchy
+(object) - tree structure representing the hierarchy of the components which will be extracted from the bulk file. Each node can have configured child nodes which will be extracted as separate components.
+Configuration example for debulking pain.001.001.09 XML file.
+ipf.debulker {
+  configurations = [
+    {
+      name = "pain.001.001.09"
+      splitter = "xml"
+      validate-before-debulk.schema-bean-name = "pain001Schema"
+      component-hierarchy {
+        marker = "Document"
+        children = [
+          {
+            marker = "CstmrCdtTrfInitn.PmtInf"
+            children = [
+              {
+                marker = "CdtTrfTxInf"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
+This configuration tells us that the pain.001 XML file will be validated against the Schema provided by the
+pain001Schema
+bean. If valid, it will then be debulked into single
+Document
+component that contains all child elements except
+CstmrCdtTrfInitn.PmtInf
+elements, which will be extracted as separate components. Each child
+PmtInf
+component will contain all child elements except
+CdtTrfTxInf
+elements, which will be extracted as separate child components of each
+PmtInf
+.
+In case of a pain.001 XML file which has 3
+PmtInf
+elements, each one containing 3
+CdtTrfTxInf
+elements, debulker will produce 12 components from the document:
+1 Document component
+3 PmtInf components
+9 CdtTrfTxInf components
+Use the Debulker Client Library
+Sending File Notifications

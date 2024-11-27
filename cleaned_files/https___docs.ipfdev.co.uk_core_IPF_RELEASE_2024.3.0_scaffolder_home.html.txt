@@ -1,0 +1,10 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/scaffolder/home.html ===
+IPF Scaffolder
+The IPF scaffolder is a java module that provides engineers with a quick and efficient way to boostrap a new project using the IPF SDK.  It can be executed via maven to generate a new IPF project that includes all the necessary dependencies and configuration to be able to run as a standalone project.
+To understand more about the key concepts and configuration options, we suggest you start with
+Scaffolder Concepts
+.  Alternatively you can just get going and create a quick IPF project using the
+Getting Started
+guides.
+Tracing and Other Telemetry With OpenTelemetry
+Concepts

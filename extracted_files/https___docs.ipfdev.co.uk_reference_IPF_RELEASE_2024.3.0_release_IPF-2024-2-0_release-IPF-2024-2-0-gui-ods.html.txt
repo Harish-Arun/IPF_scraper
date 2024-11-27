@@ -1,0 +1,172 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-2-0/release-IPF-2024-2-0-gui-ods.html ===
+ODS & GUI - Changes & Fixes
+This page covers the Operation Data Store (ODS) and GUI changes and fixes provided in release IPF-2024.2.0.
+ODS
+New
+V2 ODS Inquiry API specification.
+New Inquiry API version introduced to remove all
+/payment-objects
+endpoints (replaced with
+/mds-objects
+) and to unify search parameters and response types of the
+/views/summaries/
+endpoints.
+The ODS Inquiry application can handle calls to both the V2 and V1 Inquiry APIs
+A new set of client connectors can be enabled for the V2 API.
+It is important to note that a config change
+MUST
+be applied if you are already using the V1 client connectors and do not want to immediately migrate to the V2 client connectors. Your configuration must be updated to override the client connector version configuration as follows:
+ods.inquiry.client.version=1
+This will ensure your current V1 client connectors remain enabled and a code change will not be required. See
+V1 Inquiry API client documentation
+for more information on the V1 client APIs that can be enabled.
+Versioning details and the full V2 migration guide can be found on the
+API versioning overview
+page
+Changed
+Fixed an issue where ODS attempted to amend documents in the
+unitOfWorks
+collection concurrently, sometimes resulting as two inserts, and therefore a duplicate key exception. This impacted archiving which relied on attributes of the unit of work that had failed to be written.
+The following changes apply to ODS Inquiry API Version 2 only
+Improved support for customised summary mappings in ODS where the customised fields are not typically used for the journey type being customised.
+Simplified summary responses - all possible summary fields are returned for all journey types.
+Simplified summary search parameters - all possible summary search fields are supported for all journey types.
+GUI
+New
+GUI to reflect changes in Reachability data model:
+Updated ops-gui-service-ng with new reachability end points
+Created new list card component
+Implemented create page for Agent Settlement Setting
+Implemented create page for Agent Clearing Setting
+Added new multi select component to the dynamic form
+Implemented edit pages for Agent Setting, Agent Settlement Setting and Agent Clearing Setting
+Added new roles for the new Reachability modules
+Added new time input to the dynamic form
+Added Generic Processing Settings endpoint to dashboard
+Linked Agent Setting to Bank Filtering
+Implemented view page for Agent Settlement Setting
+Shortened processing settings roles
+Created a new loading spinner
+Added new multiple text input to the dynamic form
+Used config rather than enums in Processing settings Module so the inputs are configurable by the user
+Implemented new approval/rejection modal
+Displaying validation errors from the API in the various forms across Agent Settings and Generic Processing Settings
+New HTM screen for outbound Return awaiting scheme response
+GUI to support Creditor Reference as a conditional field
+Enable Audit for ODS Export
+Configuration changes:
+HTTP client host and port transport configuration, requiring of approval for deletion, creation and updating, call time-out and resiliency-settings added for agent settings, agent clearing settings, agent settlement settings and generic processing settings:
+ipf.business-operations.processing-settings.agent-settings.http.client.host
+ipf.business-operations.processing-settings.agent-settings.http.client.port
+ipf.business-operations.processing-settings.agent-settings.http.client.deletion-requires-approval
+ipf.business-operations.processing-settings.agent-settings.http.client.creation-requires-approval
+ipf.business-operations.processing-settings.agent-settings.http.client.update-requires-approval
+ipf.business-operations.processing-settings.agent-settings.http.client.call-timeout
+ipf.business-operations.processing-settings.agent-settings.http.client.resiliency-settings
+ipf.business-operations.processing-settings.agent-settlement-settings.http.client.host
+ipf.business-operations.processing-settings.agent-settlement-settings.http.client.port
+ipf.business-operations.processing-settings.agent-settlement-settings.http.client.deletion-requires-approval
+ipf.business-operations.processing-settings.agent-settlement-settings.http.client.creation-requires-approval
+ipf.business-operations.processing-settings.agent-settlement-settings.http.client.update-requires-approval
+ipf.business-operations.processing-settings.agent-settlement-settings.http.client.call-timeout
+ipf.business-operations.processing-settings.agent-settlement-settings.http.client.resiliency-settings
+ipf.business-operations.processing-settings.agent-clearing-settings.http.client.host
+ipf.business-operations.processing-settings.agent-clearing-settings.http.client.port
+ipf.business-operations.processing-settings.agent-clearing-settings.http.client.deletion-requires-approval
+ipf.business-operations.processing-settings.agent-clearing-settings.http.client.creation-requires-approval
+ipf.business-operations.processing-settings.agent-clearing-settings.http.client.update-requires-approval
+ipf.business-operations.processing-settings.agent-clearing-settings.http.client.call-timeout
+ipf.business-operations.processing-settings.agent-clearing-settings.http.client.resiliency-settings
+ipf.business-operations.processing-settings.generic-processing-settings.http.client.host
+ipf.business-operations.processing-settings.generic-processing-settings.http.client.port
+ipf.business-operations.processing-settings.generic-processing-settings.http.client.deletion-requires-approval
+ipf.business-operations.processing-settings.generic-processing-settings.http.client.creation-requires-approval
+ipf.business-operations.processing-settings.generic-processing-settings.http.client.update-requires-approval
+ipf.business-operations.processing-settings.generic-processing-settings.http.client.call-timeout
+ipf.business-operations.processing-settings.generic-processing-settings.http.client.resiliency-settings
+HTTP client host and port transport configuration removed for csm-agent and csm-agent-currency
+Added a time-zones.conf and country-codes.conf that is common for all modules but can be overridden per module
+Processing entity account type, processing entity account sub-types and agent-identifier types added to show in the drop-down choices in the UI module:
+ipf.business-operations.processing-settings.processing-entity-account-types
+ipf.business-operations.processing-settings.processing-entity-account-subtypes
+ipf.business-operations.processing-settings.agent-identifier-types
+Added new permissions roles for processing settings that are shortened.
+R
+meaning read,
+C
+create,
+U
+update,
+D
+delete and
+A
+approve.
+AS
+stand for agent settings,
+GP
+for generic processing settings,
+PE
+for processing entity and
+BF
+for bank filtering:
+ROLE_DPS_AS_R
+,
+ROLE_DPS_AS_C
+,
+ROLE_DPS_AS_A
+,
+ROLE_DPS_AS_U
+,
+ROLE_DPS_AS_D
+,
+ROLE_DPS_GP_R
+,
+ROLE_DPS_GP_C
+,
+ROLE_DPS_GP_A
+,
+ROLE_DPS_GP_U
+,
+ROLE_DPS_GP_D
+,
+ROLE_DPS_PE_R
+,
+ROLE_DPS_PE_C
+,
+ROLE_DPS_PE_A
+,
+ROLE_DPS_PE_D
+,
+ROLE_DPS_PE_U
+,
+ROLE_DPS_BF_R
+,
+ROLE_DPS_BF_C
+,
+ROLE_DPS_BF_A
+,
+ROLE_DPS_BF_D
+,
+ROLE_DPS_BF_U
+Value path is now conditional if you have more than one possible option in the summary layout config for ODS search in the UI. It can now be a string or an array of strings with the lower the index the more preferable value (if available).
+Changed
+Bug fixes and improvements:
+Can no longer create a bank filtering rule with a csm agent that has not been approved
+Resolved an issue with time zones being misaligned in the pipeline causing test failures
+Removal of the NCC field for bank filtering
+Can correctly search by id on csm agent and currency
+Can correctly search by status in agent settings
+Run swagger generate and make sure all fields still match new swagger
+Custom Participant Limits should not be sent on edit in agent settlement if no information has been supplied
+Dates to be displayed as "Dates" not "DateTimes"
+Optimise use of screen space on the summary page
+Make Amount Types in Search results configurable
+These are now handled by translations rather than static values
+Fixed issues with viewing payloads in ODS Search
+Correctly map the system event title
+Response Code should be toggelable on the UI for display on the Flo Graph
+Removed
+Removed Processing Entity Module from Processing Settings
+Removed authorities from JWT token
+CSM Reachability - Changes & Fixes
+SEPA CT CSM - Changes & Fixes

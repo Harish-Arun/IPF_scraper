@@ -1,0 +1,35 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/guides/dynamic-connectors.html ===
+Registering Dynamic Connectors
+How do I register a dynamically generated Connector as a Bean
+It is important that all Connectors are registered as Beans into the spring context. IPF leverages this fact in the Connector health indicators (ConnectorHealthIndicator) and internal event processors (ConnectorEventProcessor).
+Traditionally a connector would be created as a standard bean as follows:
+@Bean
+    public ReceiveConnector<CustomerCreditTransferInitiation> executePaymentReceiveConnector(
+            ReceiveConnectorTransport initPaymentReceiveConnectorTransport,
+            RequestHandler someRequestHandler,
+            ActorSystem actorSystem) {
+        return ReceiveConnector.<CustomerCreditTransferInitiation>builder("InitPaymentReceive", "initpayment.receive-connector", actorSystem)
+                .withMessageLogger(m -> log.debug("Receive connector has identified message: {}", m.getMessage()))
+                .withProcessingContextExtractor(tm -> ProcessingContext.builder()
+                        .unitOfWorkId(UnitOfWorkId.createRandom())
+                        .build())
+                .withConnectorTransport(initPaymentReceiveConnectorTransport)
+                .withReceiveTransportMessageConverter(message -> this.convertResponse(message.getPayload().toString()))
+                .withReceiveHandler((context, payload) -> someRequestHandler.process(payload))
+                .build();
+    }
+Sometimes it is not possible to define a Bean at compile time, and you may need to dynamically create the connector at runtime.
+To do this you need to register the connector object into the ApplicationContext at startup as follows (here we use @PostConstruct):
+@Autowired
+private final ConfigurableApplicationContext context;
+
+@PostContruct
+public void createDynamicConnector() {
+   ReceiveConnector<InitiationRequest> connector = createDynamicReceiveConnector();
+   context.getBeanFactory().registerSingleton(connector.getName(), connector);
+}
+To verify the connector has been added to the ApplicationContext bean factory you can visit the
+actuator/health
+endpoint and your connector should appear in the list.
+How to accept PascalCase messages
+Application Builder

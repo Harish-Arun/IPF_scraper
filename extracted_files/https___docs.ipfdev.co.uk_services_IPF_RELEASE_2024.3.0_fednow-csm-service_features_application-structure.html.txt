@@ -1,0 +1,28 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/fednow-csm-service/features/application-structure.html ===
+FedNow CSM Service Application Structure
+This application is intended to act as a proxy between a flow and the FedNow scheme.
+The application has 2 layers:
+Adapter
+: responsible for mapping and routing the canonical copy of the ISO messages according to the schema rules.
+Application
+: Runnable application, runtime dependencies.
+Module dependencies
+The following modules are present;
+fednow-model
+- responsible for converting the FedNow scheme XSDs into POJOs, with relevant JAXB annotations.
+fednow-mapping
+- responsible for mapping canonical messages used in the flow to and from the FedNow ISO equivalents.
+fednow-csm-adapter
+- adapts messages and applies scheme rules whilst interacting with the scheme.
+fednow-csm-application-core
+- responsible for pulling dependencies together and wiring all non-transport components together
+fednow-csm-application-jms
+- combines
+fednow-csm-application-core
+and standard CSM Service JMS connectors
+fednow-csm-application-kafka
+- combines
+fednow-csm-application-core
+and standard CSM Service Kafka connectors.
+Features
+FedNow Validations

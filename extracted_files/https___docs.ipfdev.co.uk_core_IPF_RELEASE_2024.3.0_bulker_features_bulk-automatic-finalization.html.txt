@@ -1,0 +1,181 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/features/bulk-automatic-finalization.html ===
+Automatic Finalisation of a Bulk
+Automatic finalisation can be time based in Scheduled or periodic intervals, or it could be based on the characteristics of the Bulk(Auto Close Triggers) such as number of elements or estimated total size of the output file.
+The method of finalisation is defined at the point the Bulk is first created. Currently, we support three types for automatic finalisation.
+periodic
+(i.e. 20 seconds after bulk is created)
+scheduled time
+(e.g. at midnight)
+auto close triggers
+(e.g. componentFullnessAutoCloseTrigger (finalise the bulk after reaching the maximum number of components))
+Config
+Type
+Default
+Comment
+scheduled-auto-close.auto-close-by-age
+Duration
+0
+Duration value that defines when the automatic finalization of the bulk will be scheduled with the help of the Scheduler. The values can be anything supported by the java.time.
+Duration class, if we want to exclude this option from the function, we need to specify
+0s
+for the value.
+scheduled-auto-close.schedule-at
+String
+" " Empty string
+A CRON expression is entered for the value, which is parsed and based on which the automatic closing of the bulk is scheduled.
+If we want to turn off this function, we need to specify "" for the value
+auto-close-triggers
+List<String>
+[] Empty array
+auto-close-triggers specify list of triggers that send the bulk to the finalized state after the certain criteria have been met.
+The values can be string name for concrete implementation of AutoCloseTrigger interface.
+If we want to exclude this option from the function, we need to specify
+[]
+for the value.
+finalise-on-auto-close
+boolean
+true
+boolean value that describes whether the bulk should be finalized after automatically closed by any trigger(AutoClose) default value true.
+Example:
+scheduled-auto-close = {
+    auto-close-by-age = 20s
+    schedule-at = "*/10 * * ? * *"
+}
+Important:
+scheduled-auto-close.auto-close-by-age
+,
+scheduled-auto-close.schedule-at
+and
+auto-close-triggers
+are configured at the bulk level and are part of the overall configuration for that bulk
+Example of configuration:
+ipf.bulker {
+  configurations = [
+    {
+      name = "pain.001.001.09"
+      file-name-prefix = "bulk-"
+      file-path = "/tmp/bulks"
+      component-hierarchy {
+        component-parser-name = "xml"
+        marker = "Document"
+        children = [
+          {
+            marker = "CstmrCdtTrfInitn.PmtInf"
+            children = [
+              {
+                before-elements = ["SplmtryData"]
+                marker = "CdtTrfTxInf"
+              }
+            ]
+          }
+        ]
+      }
+      auto-close-triggers = ["customAutoCloseTrigger"]
+      maximum-component-size = 50
+      scheduled-auto-close = {
+        auto-close-by-age = 30s
+        schedule-at = "*/10 * * ? * *"
+      }
+      finalise-on-auto-close = true
+    }
+]
+}
+Choice of Which Time to Use
+If
+auto-close-by-age
+is specified and
+schedule-at
+is turned off(empty string "") as an option, the time from
+auto-close-by-age
+will be used
+If
+schedule-at
+is specified and
+auto-close-by-age
+is turned off(0s) as an option, the time from
+schedule-at
+will be used
+If both values are specified for scheduling, the value closest to the bulk creation time will be used for auto close scheduler
+If we want to turn off the automatic closing of the bulk, it is necessary to configure
+auto-close-by-age = 0s and schedule-at = ""
+@RequiredArgsConstructor
+@Value
+public class ScheduleAutoClose {
+
+    Duration autoCloseByAge;
+    String scheduleAtCron;
+
+    @SneakyThrows
+    public Instant scheduleAt(Instant createdAt) {
+        if (autoCloseByAge == null && (scheduleAtCron == null || scheduleAtCron.isEmpty())) {
+            throw new IllegalStateException("At least one of autoCloseByAge or scheduleAtCron must be set");
+        }
+
+        if (autoCloseByAge == null) {
+            CronExpression cronExpression = new CronExpression(scheduleAtCron);
+            return Objects.requireNonNull(
+                            cronExpression.getNextValidTimeAfter(
+                                    Date.from(createdAt.atZone(ZoneId.systemDefault()).toInstant())))
+                    .toInstant();
+        }
+
+        if (scheduleAtCron == null || scheduleAtCron.isEmpty()) {
+            return createdAt.plus(autoCloseByAge);
+        }
+
+        CronExpression cronExpression = new CronExpression(scheduleAtCron);
+        Instant cronInstant = Objects.requireNonNull(
+                cronExpression.getNextValidTimeAfter(
+                                Date.from(convertToTimeZonedInstant(createdAt)))
+                        .toInstant());
+        Instant byAge = createdAt.plus(autoCloseByAge);
+            return cronInstant.isBefore(byAge) ? cronInstant : byAge;
+    }
+
+    private Instant convertToTimeZonedInstant(Instant createdAt) {
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        return Date.from(createdAt).toInstant();
+    }
+}
+The
+ClientComponent
+interface is defined as follows.
+public interface AutoCloseTrigger {
+    boolean isTriggered(AutoCloseContext context);
+(1)
+String getName();
+(2)
+}
+1
+isTriggered
+Defines the condition after which the bulk is sent to the finalized state
+2
+getName
+Name of the trigger
+Core Auto Close Triggers
+Bulk Component Fullness Auto Close
+A bulk is made up of a number of components of the same or different type, in our case the type of component doesn’t matter. When the bulk reaches a certain number  of components (child bulks are treated as single components), this passes automatically in to a finalisation state and other components cannot be added because the bulk is closed.
+'maximum-component-size'
+is configured at the bulk level and are part of the overall configuration for that bulk.
+Config
+Type
+Default value
+Comment
+maximum-component-size
+Long
+Long.MAX_VALUE
+Property that defines the maximum number of components a bulk can contain. Defined per bulk configuration.
+Bulk Size Fullness Auto Close
+A bulk is made up of a number of components of the same or different type, in our case the type of component doesn’t matter. When the bulk reaches a certain number  of components, this passes automatically in to a finalisation state and other components cannot be added because the bulk is closed.
+'maximum-bulk-size'
+is configured at the bulk level and are part of the overall configuration for that bulk.
+Config
+Type
+Default Value
+Comment
+maximum-bulk-size
+Long
+Long.MAX_VALUE
+Property that defines the maximum size of bulk. Defined per bulk configuration.
+Akka Bulk Aggregate
+Insertion Point Finder

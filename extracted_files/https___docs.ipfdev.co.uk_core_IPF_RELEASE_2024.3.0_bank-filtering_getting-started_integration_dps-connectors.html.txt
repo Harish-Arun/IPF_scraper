@@ -1,0 +1,7 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/getting-started/integration/dps-connectors.html ===
+DPS connectors
+At the moment Bank filtering doesn’t provide HTTP DPS Connectors.
+Please take a look at
+Deployment methods
+Client Library
+Bank Filtering Setting Management API

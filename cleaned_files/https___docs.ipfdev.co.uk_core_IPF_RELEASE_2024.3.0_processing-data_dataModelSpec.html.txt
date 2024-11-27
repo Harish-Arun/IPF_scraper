@@ -1,0 +1,5 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/processing-data/dataModelSpec.html ===
+IPF Processing Data Model Specifications
+SwaggerUI
+Configuring Kafka Topics
+System Events

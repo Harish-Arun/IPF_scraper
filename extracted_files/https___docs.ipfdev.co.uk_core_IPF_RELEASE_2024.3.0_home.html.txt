@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/home.html ===
+Core Overview
+IPF is a collection of modules and frameworks designed to work together to produce an overall application capable to supporting high throughput, low latency payment transactions.  These modules aim to let the engineer focus on developing the business needs rather than complex technical details.
+The following diagram shows a high level view of the overall IPF solution.
+The 'Core' in terms of IPF is considered to be:
+Orchestration Framework - this is at the heart of the IPF Product. Orchestration is provided through Icon’s flo-lang module.
+Connector Framework - being able to quickly and reliably integrate to other platforms is crucial for any payments platform.  The connector framework provides a fluent approach to utilise the power of the alpakka framework, to enable system connectivity in your solution.
+Application Builder - these are the modules which form the basis of any IPF application and include the IPF Archetype (providing engineers with a quick and efficient way to boostrap a new project using the IPF SDK) and Flo Start (which bootstraps an IPF flow implementation by providing an Akka ActorSystem and the Spring Boot autoconfiguration to wire all the necessary core dependencies that are required for running a command (write) and query (read) side).
+Data Processing & Persistence - being able to manage data is crucial to the success of any IPF project.  IPF provides it’s own canoncial data model based on the ISO standards, but it’s able to support any other types required too.
+Mapping Framework - closely aligned with the Connector Framework, IPF Core comes with a mapping framework that makes it possible to define mappings between data structures.
+Testing - testing of reactive message based systems can be hard.  With this in mind, IPF provides the Icon Test Framework together with specific extensions and libraries for common IPF scenarios to simplify this complex area.
+There are various other modules and features but the ones above are the heart of the IPF SDK.
+Orchestration

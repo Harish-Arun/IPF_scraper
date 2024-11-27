@@ -1,0 +1,15 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/mapping-framework/concepts.html ===
+Concepts
+The IPF Mapping Framework is split into four parts:
+The Transformation API
+-
+This is the part that application code will interact with directly, it is mainly interfaces you could be implemented with
+manually-created mapper.  The design approach is that there will be a single transformation service for each bounded context that the application is comprised of.
+The Orika Transformation API Implementation
+- While we could support multiple mapping types a series of spikes (see Java Bean to Bean Mapping approach and comparison) we ran selected orika as the best option from the contenders so we have created a single implementation.   Your application will depend on this module
+The framework generates the code that configures the object to object mappings in Orika, this is achieved using a Maven plugin (orika-transformation-generation-plugin)
+For the case where many of the mappings required can be created implicitly by Orika, we have added a basic reporter that can tell you what automatic mappings will be created between two objects
+Heres a diagram showing how the first three things link together:
+Figure 1. architectural overview
+Mapping Framework
+Features

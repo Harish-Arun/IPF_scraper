@@ -1,0 +1,189 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/home.html ===
+CSM Service
+This section of the documentation is concerned with explaining the CSM Service base, from which all other IPF CSM scheme packs are built. It provides the core interface, message types and supported flows.
+In reality as a user of IPF you are more likely to be interested in how the CSM Services are constructed and understanding the base from which all CSMs extend or are implemented is helpful. You can of course consider building your own CSM implementation using the CSM Service base as well, and this documentation will help you get started.
+Overview
+The goal of this starter is to contain everything you need to bootstrap a csm application with csm api functionality.
+CSM specific functionality (rt1 or tips for example) and the associated send connectors and transports remain the responsibility of the csm application.
+The child pages go into further details of the various components of the CSM Service.
+The starter comprises a single core module, that defines receive and send connectors, and transport specific modules (kafka and jms) that define the transports for these connectors.
+CSM Service Features
+The csm api receive connectors must be enabled explicitly.
+When they are enabled, any related connectors (such as response connectors) are also enabled.
+In your csm application you will need to choose which csm api features to enable.
+CSM Api Features
+Feature
+Property
+Description
+Clear And Settle Creditor
+csm.clear-and-settle.creditor.enabled
+Enables the clear and settle receive connector, and send connectors for creditor clear and settle response.
+Clear And Settle Debtor
+csm.clear-and-settle.debtor.enabled
+Enables the clear and settle receive connector, and send connectors for debtor clear and settle response.
+Clear And Settle Technical
+csm.clear-and-settle.technical.enabled
+Enables the clear and settle receive connector, and send connectors for technical response.
+Clear And Settle Notifications
+csm.clear-and-settle.notification.enabled
+Enables the clear and settle receive connector, and send connectors for notifications.
+Status Request
+csm.status-request.enabled
+Enables the status request receive connector, and the status request response send connector.
+Status Request Debtor
+csm.status-request-debtor.enabled
+Enables the debtor status request send connector.
+Status Request Creditor
+csm.status-request-creditor.enabled
+Enables the creditor status request send connector.
+Receive Payment
+csm.receive-payment.enabled
+Enables the receive payment and receive payment settled send connectors, and the receive payment response receive connector.
+Recall- Return- Result Of Investigation Creditor
+csm.rrr.creditor.enabled
+Enables the RRequest receive connector, and send connectors for creditor RResponse.
+Recall- Return- Result Of Investigation Debtor
+csm.rrr.debtor.enabled
+Enables the RRequest receive connector, and send connectors for debtor RResponse.
+Recall- Return- Using CT topics
+csm.rrr.using.clear-and-settle.topics
+Turns off client side receivers so that rrr messages are handled by either debtor or creditor topics.  Does depend on configuration being correctly assigned for client and server. The rrr-debtor will use creditor topic, and rrr-creditor will use the debtor topic.
+Collect And Settle Creditor
+csm.collect-and-settle.creditor.enabled
+Enables the collect and settle receive connector, and send connectors for creditor collect and settle response.
+Collect And Settle Technical
+csm.collect-and-settle.technical.enabled
+Enables the collect and settle receive connector, and send connectors for technical response.
+You can use the provided
+@ConditionOn-Feature-Enabled
+annotations to make your beans conditional on these features.
+The following config will give you a different implementation of
+SomeType
+when clear and settle is enabled.
+@Bean
+@ConditionalOnClearAndSettleEnabled
+SomeType clearAndSettleVersionOfSomeType() {
+    return new ClearAndSettleSomeType();
+}
+
+@Bean
+@ConditionalOnMissingBean
+SomeType genericVersionOfSomeType() {
+    return new GenericSomeType();
+}
+The available annotations are
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@ConditionalOnProperty(name = "csm.clear-and-settle.debtor.enabled", havingValue = "true")
+public @interface ConditionalOnClearAndSettleDebtorEnabled {
+}
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@ConditionalOnProperty(name = "csm.clear-and-settle.creditor.enabled", havingValue = "true")
+public @interface ConditionalOnClearAndSettleCreditorEnabled {
+}
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@ConditionalOnProperty(name = "csm.clear-and-settle.notification.enabled", havingValue = "true")
+public @interface ConditionalOnClearAndSettleNotificationsEnabled {
+}
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@ConditionalOnProperty(name = "csm.clear-and-settle.technical.enabled", havingValue = "true")
+public @interface ConditionalOnClearAndSettleTechnicalResponseEnabled {
+}
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@ConditionalOnProperty(name = "csm.rrr.creditor.enabled", havingValue = "true")
+public @interface ConditionalOnRRRCreditorEnabled {
+}
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@ConditionalOnProperty(name = "csm.rrr.debtor.enabled", havingValue = "true")
+public @interface ConditionalOnRRRDebtorEnabled {
+}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@ConditionalOnProperty(name = "csm.receive-payment.enabled", havingValue = "true")
+public @interface ConditionalOnReceivePaymentEnabled {
+}
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@ConditionalOnProperty(name = "csm.status-request.enabled", havingValue = "true")
+public @interface ConditionalOnStatusRequestEnabled {
+}
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@ConditionalOnExpression("${csm.status-request.enabled:false} || ${csm.status-request-creditor.enabled:false}")
+public @interface ConditionalOnStatusRequestCreditorEnabled {
+}
+
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@ConditionalOnExpression("${csm.status-request.enabled:false} || ${csm.status-request-debtor.enabled:false}")
+public @interface ConditionalOnStatusRequestDebtorEnabled {
+
+}
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@ConditionalOnProperty(name = "csm.rrr.using.clear-and-settle.topics", havingValue = "false", matchIfMissing = "true")
+public @interface ConditionalOnRRRNotUsingCT {
+}
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@ConditionalOnProperty(name = "csm.collect-and-settle.creditor.enabled", havingValue = "true")
+public @interface ConditionalOnCollectAndSettleCreditorEnabled {
+}
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE, ElementType.METHOD})
+@ConditionalOnProperty(name = "csm.collect-and-settle.technical.enabled", havingValue = "true")
+public @interface ConditionalOnCollectAndSettleTechnicalResponseEnabled {
+}
+Crypto
+Encryption can be enabled for the csm api send and receive connectors.
+Encryption is disabled by default, and when enabled several additional properties will need to be provided.
+When encryption is enabled...
+receive connectors will decrypt request payloads if the transport headers contains the encryption scheme and key alias.
+If the headers are missing the payload will be treated as plaintext.
+send connectors will always send encrypted payloads, and will populate the transport message headers with the encryption scheme and key alias.
+Encryption Properties
+Property
+Default Value
+Description
+csm.encryption.enabled
+false
+When set to true, the other properties will need to be defined, unless they have a default value.
+csm.encryption.keystorePath
+Required when encryption is enabled and must not be blank.
+Absolute path to a keystore such as
+/tmp/some-keystore.p12
+csm.encryption.keystoreType
+Required when encryption is enabled and must not be blank.
+For example
+PKCS12
+csm.encryption.keystorePassword
+Required when encryption is enabled and must not be blank.
+For example
+keystore-password
+csm.encryption.keyAlias
+Required when encryption is enabled and must not be blank.
+Identifies a key by name within the supplied keystore.
+For example
+KEY01
+csm.encryption.scheme
+AES
+Required when encryption is enabled and must not be blank.
+csm.encryption.transformation
+AES/CBC/PKCS5Padding
+Required when encryption is enabled and must not be blank.
+DeadLetter Appenders
+Every csm api receive connector can have its own implementation of DeadLetterAppender, which can be used to store malformed messages to dead letter queue.
+There are two interfaces:
+CsmCTDeadLetterAppenders
+and
+CsmRMessageDeadLetterAppenders
+, which provide default methods for each csm api receive connector.
+Scheme Pack Building
+Concepts

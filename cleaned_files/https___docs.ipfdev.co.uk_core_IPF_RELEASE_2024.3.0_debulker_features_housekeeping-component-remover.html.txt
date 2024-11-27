@@ -1,0 +1,20 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/housekeeping-component-remover.html ===
+Housekeeping component remover
+Housekeeping Component-Remover is a component whose purpose is to  delete components that are older than the components time to live as set in the configuration.
+Scenario:
+When the component in the database is older than the time to live set for the component in the configuration - the component is deleted from the database.
+Configuration Properties:
+Config
+Type
+Comment
+Default
+component.max-age
+String
+Components time to live.
+PT10D
+housekeeping-interval-seconds
+Integer
+Time interval between consecutive component clearing attempts in seconds.
+3600
+Access Components
+Housekeeping - scheduler

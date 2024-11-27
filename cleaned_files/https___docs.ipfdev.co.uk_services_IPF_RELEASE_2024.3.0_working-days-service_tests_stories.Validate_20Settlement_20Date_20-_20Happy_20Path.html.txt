@@ -1,0 +1,265 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/working-days-service/tests/stories.Validate%20Settlement%20Date%20-%20Happy%20Path.html ===
+Validate Settlement Date - Happy Path.story
+Scenario: Validate Settlement Date Happy Path
+Steps
+Given the working days service is available
+When the 'setting manager' sends a 'Create Annual Calendar Setting' request with values:
+| requiresApproval         | false            |
+| payload.calendarId       | uid('SEPAStep2') |
+| payload.weekendDayOne    | SATURDAY         |
+| payload.weekendDayTwo    | SUNDAY           |
+| payload.excludedDates[0] | 05-01            |
+| payload.excludedDates[1] | 12-25            |
+| payload.excludedDates[2] | 12-26            |
+| payload.excludedDates[3] | 01-01            |
+And the 'Get Annual Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2123-04-09       |
+And the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2123-04-11       |
+And the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2124-03-30       |
+And the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2124-04-02       |
+And the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When the 'payment engine' sends a 'Validate Settlement Date' request with values:
+| META.dateInput          | <DateInput>          |
+| META.calendarId         | uid('SEPAStep2')     |
+| META.settlementLeadDays | <SettlementLeadDays> |
+| META.cutOffTime         | <CutOffTime>         |
+Then the 'payment engine' receives a 'Date Function Response' with values:
+| executionDate  | <ExpectedExecutionDate>  |
+| settlementDate | <ExpectedSettlementDate> |
+| valid          | true                     |
+Examples:
+DateInput
+SettlementLeadDays
+ExpectedExecutionDate
+ExpectedSettlementDate
+CutOffTime
+2123-06-09
+2
+2123-06-07
+2123-06-09
+offsetTimeMinutesFromNow(-10)
+2124-12-27
+1
+2124-12-22
+2124-12-27
+offsetTimeMinutesFromNow(10)
+2124-03-31
+3
+2124-03-27
+2124-03-31
+offsetTimeMinutesFromNow(-10)
+Example: {DateInput=2123-06-09, SettlementLeadDays=2, ExpectedSettlementDate=2123-06-09, ExpectedExecutionDate=2123-06-07, CutOffTime=offsetTimeMinutesFromNow(-10)}
+com.iconsolutions.ipf.settingmanagement.tfw.BaseSteps.beforeScenario()
+Given
+the working days service is available
+When
+the 'setting manager' sends a 'Create Annual Calendar Setting' request with values:
+| requiresApproval         | false            |
+| payload.calendarId       | uid('SEPAStep2') |
+| payload.weekendDayOne    | SATURDAY         |
+| payload.weekendDayTwo    | SUNDAY           |
+| payload.excludedDates[0] | 05-01            |
+| payload.excludedDates[1] | 12-25            |
+| payload.excludedDates[2] | 12-26            |
+| payload.excludedDates[3] | 01-01            |
+And
+the 'Get Annual Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2123-04-09       |
+And
+the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2123-04-11       |
+And
+the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2124-03-30       |
+And
+the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2124-04-02       |
+And
+the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the payment engine sends a Validate Settlement Date request with values:
+| META.dateInput          | i122123-06-09i12           |
+| META.calendarId         | uid(SEPAStep2)     |
+| META.settlementLeadDays | i122i12  |
+| META.cutOffTime         | i12offsetTimeMinutesFromNow(-10)i12          |
+Then
+i12the payment enginei12  receives a Date Function Response with values:
+| executionDate  | i122123-06-07i12   |
+| settlementDate | i122123-06-09i12  |
+| valid          | true                     |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+Example: {DateInput=2124-12-27, SettlementLeadDays=1, ExpectedSettlementDate=2124-12-27, ExpectedExecutionDate=2124-12-22, CutOffTime=offsetTimeMinutesFromNow(10)}
+com.iconsolutions.ipf.settingmanagement.tfw.BaseSteps.beforeScenario()
+Given
+the working days service is available
+When
+the 'setting manager' sends a 'Create Annual Calendar Setting' request with values:
+| requiresApproval         | false            |
+| payload.calendarId       | uid('SEPAStep2') |
+| payload.weekendDayOne    | SATURDAY         |
+| payload.weekendDayTwo    | SUNDAY           |
+| payload.excludedDates[0] | 05-01            |
+| payload.excludedDates[1] | 12-25            |
+| payload.excludedDates[2] | 12-26            |
+| payload.excludedDates[3] | 01-01            |
+And
+the 'Get Annual Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2123-04-09       |
+And
+the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2123-04-11       |
+And
+the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2124-03-30       |
+And
+the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2124-04-02       |
+And
+the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the payment engine sends a Validate Settlement Date request with values:
+| META.dateInput          | i122124-12-27i12           |
+| META.calendarId         | uid(SEPAStep2)     |
+| META.settlementLeadDays | i121i12  |
+| META.cutOffTime         | i12offsetTimeMinutesFromNow(10)i12          |
+Then
+i12the payment enginei12  receives a Date Function Response with values:
+| executionDate  | i122124-12-22i12   |
+| settlementDate | i122124-12-27i12  |
+| valid          | true                     |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+Example: {DateInput=2124-03-31, SettlementLeadDays=3, ExpectedSettlementDate=2124-03-31, ExpectedExecutionDate=2124-03-27, CutOffTime=offsetTimeMinutesFromNow(-10)}
+com.iconsolutions.ipf.settingmanagement.tfw.BaseSteps.beforeScenario()
+Given
+the working days service is available
+When
+the 'setting manager' sends a 'Create Annual Calendar Setting' request with values:
+| requiresApproval         | false            |
+| payload.calendarId       | uid('SEPAStep2') |
+| payload.weekendDayOne    | SATURDAY         |
+| payload.weekendDayTwo    | SUNDAY           |
+| payload.excludedDates[0] | 05-01            |
+| payload.excludedDates[1] | 12-25            |
+| payload.excludedDates[2] | 12-26            |
+| payload.excludedDates[3] | 01-01            |
+And
+the 'Get Annual Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2123-04-09       |
+And
+the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2123-04-11       |
+And
+the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2124-03-30       |
+And
+the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the 'setting manager' sends a 'Create Holiday Calendar Setting' request with values:
+| requiresApproval     | false            |
+| payload.calendarId   | uid('SEPAStep2') |
+| payload.excludedDate | 2124-04-02       |
+And
+the 'Get Holiday Calendar Setting' request is sent, updated values are eventually reflected in the 'Setting Response' received by 'setting manager':
+| payload.calendarId | uid('SEPAStep2') |
+When
+the payment engine sends a Validate Settlement Date request with values:
+| META.dateInput          | i122124-03-31i12           |
+| META.calendarId         | uid(SEPAStep2)     |
+| META.settlementLeadDays | i123i12  |
+| META.cutOffTime         | i12offsetTimeMinutesFromNow(-10)i12          |
+Then
+i12the payment enginei12  receives a Date Function Response with values:
+| executionDate  | i122124-03-27i12   |
+| settlementDate | i122124-03-31i12  |
+| valid          | true                     |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()

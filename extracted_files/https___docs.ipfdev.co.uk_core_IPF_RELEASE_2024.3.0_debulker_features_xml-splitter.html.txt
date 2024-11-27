@@ -1,0 +1,89 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/xml-splitter.html ===
+XML Splitter
+The XML Splitter provided by IPF is implemented using the
+akka-stream-alpakka-xml
+library.
+It takes a component hierarchy, defining the structure of XML elements to split out.
+It is worth noting that the outputted XML element data will be compacted.
+That is to say that any extraneous whitespace in the original document will be removed from the components that are published.
+Future versions may include configuration to preserve the source formatting.
+Maven Dependency
+To use the XML splitter, the following dependency must be provided, with a version matching
+ipf-debulker-core
+to ensure compatibility.
+<dependency>
+    <groupId>com.iconsolutions.ipf.debulk</groupId>
+    <artifactId>ipf-debulker-xml-splitter</artifactId>
+    <version>${ipf-debulker-core.version}</version>
+</dependency>
+Usage Example
+Imagine we want to process potentially large XML files containing data about books in a library and split it into smaller chunks, so they can be used by some downstream system.
+The example file is small for demonstration purposes, but it could contain a large number of book elements.
+example.xml
+<library>
+    <name>Library of Alexandria</name>
+    <book>
+        <author>Martin, Robert</author>
+        <title>Clean Code</title>
+        <chapter>
+            <name>Clean Code</name>
+            <startPage>1</startPage>
+        </chapter>
+        <chapter>
+            <name>Meaningful Names</name>
+            <startPage>17</startPage>
+        </chapter>
+    </book>
+    <book>
+        <author>Bloch, Joshua</author>
+        <title>Effective Java</title>
+        <chapter>
+            <name>Introduction</name>
+            <startPage>1</startPage>
+        </chapter>
+        <chapter>
+            <name>Creating and Destroying Objects</name>
+            <startPage>5</startPage>
+        </chapter>
+    </book>
+</library>
+Given our example XML data, we might decide to split it using the following hierarchy.
+library
+âââ book
+    âââ chapter
+Note: path to the child component should be relative from parent in the hierarchy, in the example above we expect book element to be direct child of library element. If that is not the case, we need to specify relative path to it delimited with
+.
+.
+With these prerequisites out the way; let’s write the program.
+Bear in mind, this example makes use of
+Project Reactor
+to convert the Java 9
+Flow.Publisher
+to a
+Flux
+to make subscribing to the data a bit simpler, but this could be replaced with another reactive library that is compatible with the Java 9 reactive libraries, e.g. RxJava.
+ActorSystem system = ActorSystem.create();
+Splitter splitter = new AkkaXmlSplitter(system);
+
+InputStream stream = getClass().getClassLoader().getResourceAsStream("example.xml");
+
+ComponentHierarchy root = ComponentHierarchy.root("library");
+ComponentHierarchy book = root.addChild("book");
+book.addChild("chapter");
+
+Flow.Publisher<DebulkComponent> publisher = splitter.split(stream, root);
+Flux<DebulkComponent> flux = JdkFlowAdapter.flowPublisherToFlux(publisher);
+List<DebulkComponent> components = flux.collectList().block();
+
+components.forEach(System.out::println);
+Running this code should print a series of extracted components to the console.
+output
+DebulkComponent(bulkId=null, id=2318c220-515d-4904-a71f-daf1bc2f7b1a, parentId=f625f075-a1d3-4865-b0f3-c83aa1f485c6, marker=library.book.chapter, index=2, content=<chapter><name>Clean Code</name><startPage>1</startPage></chapter>)
+DebulkComponent(bulkId=null, id=4bd76b08-6dcb-4f09-882e-f20233ed375d, parentId=f625f075-a1d3-4865-b0f3-c83aa1f485c6, marker=library.book.chapter, index=3, content=<chapter><name>Meaningful Names</name><startPage>17</startPage></chapter>)
+DebulkComponent(bulkId=null, id=f625f075-a1d3-4865-b0f3-c83aa1f485c6, parentId=65fdf7ee-9646-4ba2-a654-78fab7d4be43, marker=library.book, index=1, content=<book><author>Martin, Robert</author><title>Clean Code</title></book>)
+DebulkComponent(bulkId=null, id=9fbf87f5-8873-4512-8c53-29488fd0e0e0, parentId=b763d8e5-880f-43f3-90f2-430eeb33218d, marker=library.book.chapter, index=5, content=<chapter><name>Introduction</name><startPage>1</startPage></chapter>)
+DebulkComponent(bulkId=null, id=c28d4e18-0610-41b0-bb0a-5f85723788af, parentId=b763d8e5-880f-43f3-90f2-430eeb33218d, marker=library.book.chapter, index=6, content=<chapter><name>Creating and Destroying Objects</name><startPage>5</startPage></chapter>)
+DebulkComponent(bulkId=null, id=b763d8e5-880f-43f3-90f2-430eeb33218d, parentId=65fdf7ee-9646-4ba2-a654-78fab7d4be43, marker=library.book, index=4, content=<book><author>Bloch, Joshua</author><title>Effective Java</title></book>)
+DebulkComponent(bulkId=null, id=65fdf7ee-9646-4ba2-a654-78fab7d4be43, parentId=, marker=library, index=0, content=<library><name>Library of Alexandria</name></library>)
+JSON Splitter
+Client Processing

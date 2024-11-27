@@ -1,0 +1,10 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/mapping-framework/getting-started.html ===
+Getting Started
+The framework offers a tool to generate Java code, available in the form of
+Maven plugins
+.
+The generated code will form a Java library to be imported into the user’s project.
+Defining the Mapping Relationships
+Code Generation and use
+Features
+Defining the Mapping Relationships

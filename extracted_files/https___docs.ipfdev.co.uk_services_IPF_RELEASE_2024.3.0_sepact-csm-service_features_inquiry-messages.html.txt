@@ -1,0 +1,31 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/features/inquiry-messages.html ===
+Inquiry Messages
+The SEPA CT scheme provides two Cash Management (camt) messages that do not result in the movement of funds, or a request to move funds. These messages are used to either update the settlement date or to investigate the whereabouts of a previously sent payment (pacs.008). In both cases, the pacs.008 in question is quoted within the camt message, with the additional data held in one or two additional fields.
+The Claim for Non-Reciept message (camt.027) contains a 140 character field that can contain free text that is to be used by the recipient bank to trace a previously sent payment that did not arrive at the intended account. Other than case management data held in meta-data fields, this single field is the only one to contain new information about the previously sent payment.
+The Request to Modify Payment message (camt.087) is used to change the settlement date of a previously sent payment. It contains the new date in its own field as well as an optional 140 character free text field for supporting information to go along with the request. As with the camt.027 these are the only fields that contain actionable data.
+There are two methods in which these messages can be submitted to the SEPA CT CSM for onwards processing to the scheme:
+Generation and Submit
+Schema Validation and Submit*
+* Schema Validation and Submit will be delivered in a future release of the scheme pack.
+Generation and Submit
+Using this method of submission, the SEPA CT CSM will generate the requested Inquiry message using the supplied data. This removes the need for the client to develop a system that will generate valid Inquiry messages and will just need to provide a copy of the original pacs.008 transaction in question and details of what Inquiry they would like to make.
+The SEPA CT CSM will validate the pacs.008 to make sure it still meets the criteria to be a valid message (in case it has been altered from the time it was initially submitted). The pacs.008 will not be checked for duplicates as the CSM would have already seen it when it was first submitted and mulitple Inquiries on different days are allowed for a given Case. The Duplicate check performed will make sure that there hasn’t already been a request for the current message type for this transaction on this day. It will then generate the requested message using data provided.
+Generated messages will be included in the next IQF to be delivered to the scheme.
+Input parameters
+In order to request an Inquiry Message the following parameters need to be supplied:
+pacs.008 - A copy of the transaction in question (Canonical)
+Message type - Either "camt_027" or "camt_087" (String)
+Case Id - The Identification of the investigation case (String, max 35 Char)
+Date - Optional new date to apply pacs.008 (Mandatory for camt.087, ISO format)
+Instructing Information - Explanatory text included in the Inquiry message for the receiving participant to act upon (String, 140 Char)
+Output pacs.002
+The following pacs.002 messages can be expected as a result of the Generation and Submit request:
+Rejection of the pacs.008 (If validation fails, details of the reason for failure will be provided )
+Rejection due to duplicate request where the OrgnMsgId will be set to the CaseId provided in the request.
+Accepted after technical checks have been performed (ACTC)
+Accepted by the Scheme (ACCP)
+API
+See the Inquiry API Specification here
+SEPA CSM Inquiry API
+Message Generator
+Error Handling

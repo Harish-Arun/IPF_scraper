@@ -1,0 +1,23 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-3-0/release-IPF-2024-3-0-aom.html ===
+Optional Modules - Changes & Fixes
+This page covers the optional module changes and fixes provided in release IPF-2024.3.0.
+Scheme Packs
+New
+Added documentation on how to configure SWIFT AGI Gateway
+SEPA Direct Debit Creditor MVP - support for IDF production and processing of DVF and RSF files
+New Collect and Settle API published
+Changed
+The IP SIC Scheme Pack Inbound processing has been updated to no longer expect a pacs.002 (CNC002) confirmation message in response to a pacs.002 (NEG002) rejection of a pacs.008 message, and no longer sends pacs.028 chasers following the rejection.
+TIPS scheme message in validation requests now correctly returned in XML format instead of JSON
+Aligned messages produced by TIPS scheme pack to follow namespace prefixes convention as provided in the samples provided by the scheme (validation messages and payment messages)
+SEPA CT CSM
+New
+VFG simulator supports reading/writing to S3
+VFG simulator supports generating DVF and RSF files (RSF files for SEPA DD only)
+Changed
+Scheme message in validation request messages are now correctly returning the modified message with transactions removed that are not valid
+Fixed ICF and IQF namespaces on produced files
+Sepa CT simulator, including docker images, have been renamed from sepact-vfg to sepa-vfg
+Extension points renamed from inbound/outbound - from scheme/to scheme
+Core - Improvements, Changes & Fixes
+Bulker & Debulker - Changes & Fixes

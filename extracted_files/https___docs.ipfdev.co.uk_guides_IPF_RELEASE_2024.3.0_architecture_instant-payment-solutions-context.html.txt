@@ -1,0 +1,8 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/architecture/instant-payment-solutions-context.html ===
+Instant Payment Solutions
+Below is a high-level view of how IPF features and components can be used to build a typical instant payments solution. It is based on current IPF capabilities generally used in bank specific solutions, but doesn’t necessarily represent any particular bank implementation.
+Note that below views are to demonstrate IPF capabilities and how IPF components can be put together to provide an instant payment solution which can be easily extended by adding relevant CSM services to the solution to support multi-CSM and additional processing entity settings to support multi-entity bank solutions.
+Context
+Solution Overview
+CQRS-ES
+Anatomy of a typical IPF orchestration application

@@ -1,0 +1,10 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/notification-service/concepts.html ===
+Concepts
+The Notification Service is an application that produces Payment Status Notifications, based Domain Events it receives. It does this by implementing an observer pattern where it reports a configurable subset of domain events to external system.
+The Payment Status Notification messages are sent as PAIN.002 messages in JSON format.
+Data Flows
+- The Notification Service essentially has two key data flows which are worth understanding, to show how various components are linked together to provide a solution which can produce notifications.
+Resequencer
+- The Resequencer Pattern is used for reordering of messages before processing.
+Identity Resolution Comparison API
+Data Flows

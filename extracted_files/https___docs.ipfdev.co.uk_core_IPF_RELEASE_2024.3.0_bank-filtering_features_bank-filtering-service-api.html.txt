@@ -1,0 +1,23 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/features/bank-filtering-service-api.html ===
+Bank Filtering Service API
+The Bank Filtering Service API provides means for passing on payments attributes to the filtering service to validate if any rules match the specified criteria.
+The API supports two endpoints:
+/bankfiltering/bic
+The endpoint accepts debtor and creditor BICs as well as currency as input parameters and returns the severity of the rules for each aspect (debtor, Creditor and Currency). The severity returned is of the rule that has got highest severity if multiple rules match for respective matching criteria.
+At least one of debtor, creditor or currency must be provided.
+For more details about the endpoint, please refer
+API Specification
+Endpoint - Bank Filtering BIC
+Filtering Behaviour
+Bank Filtering Behaviour
+/api/v2/bankfiltering/check-payment-risk
+The endpoint accepts both BICs and National Clearing Codes (NCCs) for debtor and creditor parties and currency as input parameters and returns the severity of the rules for each aspect (debtor, Creditor and Currency). The severity returned is of the rule that has got the highest severity if multiple rules match for respective matching criteria.
+At least one of debtor, creditor or currency must be provided.
+For more details about the endpoint, please refer
+API Specification
+Endpoint - Bank Filtering Check Payment Risk
+Filtering Behaviour
+Bank Filtering Behaviour
+It is important to consider that the debtor and creditor on the API requests do not always correspond to the debtor and creditor agents on the payment being processed and the Client implementations will need to determine which party from the payment being processed should be mapped into respective fields to ensure the right rule is applied (e.g. Instructing party, Instructed Party, Debtor Agent, Creditor Agent, Intermediary Agent etc). This could be determined based on message being processed and which party will be debited / credited as part of the payment settlement flow and corresponding party identifiers used on the request as debtor and/or creditor.
+Bank Filtering Rules
+Endpoint - Bank Filtering BIC

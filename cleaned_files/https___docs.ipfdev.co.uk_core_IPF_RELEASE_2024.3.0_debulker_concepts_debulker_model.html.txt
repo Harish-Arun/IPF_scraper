@@ -1,0 +1,426 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/concepts/debulker_model.html ===
+debulker Model
+Table of Contents
+Flows
+Debulker
+Flow Properties
+Flow Graph
+States
+Events
+Aggregate Functions
+Input Behaviour
+Input Enrichers
+Event Behaviour
+Supporting Libraries
+Business Data Libraries
+Business Data Library
+Business Data Elements
+External Domains
+DebulkClient
+Requests
+Notifications
+Instructions
+Mapping Functions
+Common Event Libraries
+Decision Libraries
+Domain Function Libraries
+Schema Validation
+Domain Functions
+Archive Bulk
+Domain Functions
+Clean Debulk
+Domain Functions
+Duplicate Check
+Domain Functions
+Start Debulk
+Domain Functions
+Response Code Libraries
+Reason Code Libraries
+Placeholder Libraries
+Global State Libraries
+Flows
+Debulker
+Flow Properties
+Flow Name:
+Debulker
+Version:
+0
+Description:
+This is a placeholder for the flow solution.
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Not Recoverable
+Is Passivating
+Validating Schema
+Check if the file is valid compared to schema
+PENDING
+No
+No
+No
+Duplicate Check
+Check if the file is already processed
+PENDING
+No
+No
+No
+Debulking
+File is being streamed and split into components.
+PENDING
+No
+No
+No
+Processing
+Waiting for external client to process the debulked components.
+PENDING
+No
+No
+No
+Cleaning
+Configurable step to delete/archive source file and clear component store.
+PENDING
+No
+No
+No
+Complete
+The flow has completed.
+ACCEPTED
+Yes
+No
+No
+Rejected
+Debulking rejected
+REJECTED
+Yes
+No
+No
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Initiate Debulk
+File Notification Message Log Checkpoint
+Payment Journey Type
+Debulking Completed
+File stream end and all components have been created.
+Debulk Result
+Archiving Completed
+Bulk file successfully archived.
+none
+Processing Completed
+Debulked components have been processed by the external client.
+Bulk Identifier
+Cleaning Completed
+Cleaning finished for debulk that went to processing .
+none
+Rejected Cleaning Completed
+Cleaning finished for debulk that was rejected on schema validation or duplicate check.
+none
+Duplicate Check Succeeded
+Duplicate check completed.
+none
+Duplicate Check Failed
+Duplicate check failed.
+none
+Schema Validation Succeeded
+Validation succeed.
+none
+Schema Validation Failed
+Validation failed.
+Validation Failure
+Aggregate Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Debulker (V0)
+none
+Flow Initiated
+Debulking Complete
+none
+Debulking Completed
+Bulk Archiving Complete
+none
+Archiving Completed
+Processing Result
+none
+Processing Completed
+Debulk Cleaned
+Accepted
+Cleaning Completed
+Debulk Cleaned
+Rejected
+Rejected Cleaning Completed
+Duplicate Check Response
+Accepted
+Duplicate Check Succeeded
+Duplicate Check Response
+Rejected
+Duplicate Check Failed
+Schema Validation Response
+Accepted
+Schema Validation Succeeded
+Schema Validation Response
+Rejected
+Schema Validation Failed
+Input Enrichers
+No enrichers defined.
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Validating Schema
+Call Function
+:
+Schema Validation
+Debulking
+On
+Debulking Completed
+Processing
+Call Function
+:
+Archive Bulk
+Call Request
+:
+Process Debulk
+Processing
+On all of
+Archiving Completed
+Processing Completed
+Cleaning
+Call Function
+:
+Clean Debulk
+Cleaning
+On
+Cleaning Completed
+Complete
+Cleaning
+On
+Rejected Cleaning Completed
+Rejected
+Duplicate Check
+On
+Duplicate Check Succeeded
+Debulking
+Call Function
+:
+Start Debulk
+Duplicate Check
+On
+Duplicate Check Failed
+Cleaning
+Call Function
+:
+Clean Debulk
+Validating Schema
+On
+Schema Validation Succeeded
+Duplicate Check
+Call Function
+:
+Check Duplicate
+Validating Schema
+On
+Schema Validation Failed
+Cleaning
+Call Function
+:
+Clean Debulk
+Supporting Libraries
+Business Data Libraries
+Business Data Library
+Business Data Elements
+Name
+Description
+Data Type
+Data Category
+Initiate Debulk
+Provides details required to start a new debulk
+com.iconsolutions.ipf.debulk.domain.InitiateDebulking
+PROCESSING_DATA_STRUCTURE
+Debulk Result
+Result of the debulking process
+com.iconsolutions.ipf.debulk.domain.DebulkingResult
+PROCESSING_DATA_STRUCTURE
+Bulk Identifier
+Identifies a bulk that is being processed
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+Validation Failure
+Provides details of why a file failed validation
+com.iconsolutions.ipf.debulk.domain.ValidationFailure
+PROCESSING_DATA_STRUCTURE
+File Notification Message Log Checkpoint
+Checkpoint Value of File Notification Request
+java.lang.String
+PROCESSING_DATA_STRUCTURE
+External Domains
+DebulkClient
+The client of the debulker, typically a IPF payment flow.
+Requests
+Name
+Description
+Business Data
+Response
+Process Debulk
+Signals to the debulker the the client has finished processing the debulked components and that they can be safely deleted. Passes the root component.
+Debulk Result
+Initiate Debulk
+Name:
+Processing Result
+Description:
+description
+Business Data:
+Bulk Identifier
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Notifications
+No notifications defined.
+Instructions
+No instructions defined.
+Mapping Functions
+No mapping functions libraries defined.
+Common Event Libraries
+No event libraries have been defined
+Decision Libraries
+No decisions libraries have been defined.
+Domain Function Libraries
+Schema Validation
+Schema validation functions library
+Domain Functions
+Name
+Description
+Business Data
+Response
+Schema Validation
+Trigger schema validation of a file
+Initiate Debulk
+Name:
+Schema Validation Response
+Description:
+description
+Business Data:
+Validation Failure
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Archive Bulk
+Archive Bulk
+Domain Functions
+Name
+Description
+Business Data
+Response
+Archive Bulk
+Triggers archiving of the bulk
+File Notification Message Log Checkpoint
+Initiate Debulk
+Name:
+Bulk Archiving Complete
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Clean Debulk
+Clean Debulk
+Domain Functions
+Name
+Description
+Business Data
+Response
+Clean Debulk
+Triggers clean up for a debulk
+Bulk Identifier
+Initiate Debulk
+Debulk Result
+Name:
+Debulk Cleaned
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Duplicate Check
+Duplicate Check
+Domain Functions
+Name
+Description
+Business Data
+Response
+Check Duplicate
+Triggers a duplicate check
+Initiate Debulk
+Name:
+Duplicate Check Response
+Description:
+description
+Business Data:
+none
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Start Debulk
+Start Debulk
+Domain Functions
+Name
+Description
+Business Data
+Response
+Start Debulk
+Triggers a debulk
+Initiate Debulk
+Name:
+Debulking Complete
+Description:
+description
+Business Data:
+Debulk Result
+ResponseCodes:
+none
+ReasonCodes:
+none
+Completing:
+Yes
+Response Code Libraries
+No response codes libraries have been defined.
+Reason Code Libraries
+No reason codes libraries have been defined.
+Placeholder Libraries
+No placeholders libraries have been defined.
+Global State Libraries
+No global state libraries have been defined.

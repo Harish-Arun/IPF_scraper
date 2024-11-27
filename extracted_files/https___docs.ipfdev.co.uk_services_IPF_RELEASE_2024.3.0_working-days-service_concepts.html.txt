@@ -1,0 +1,31 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/working-days-service/concepts.html ===
+Concepts
+Validation and calculation functionality is accomplished by retrieving an annual calendar and a holiday calendar (both retrieved by a
+calendarId
+) to determine non-working days. Both calendars are stored as Dynamic Processing Settings (DPS).
+An
+Annual Calendar
+holds configuration of weekends (if applicable) and also defines which days are excluded business days when such days fall on the same date every year (e.g. Christmas Day and Gregorian New Year’s).
+A
+Holiday Calendar
+excludes specific dates where day, month and year are taken into account. This is useful for moving Bank Holidays (e.g. President’s Day) and movable feasts (e.g. Easter, which is based on the lunar calendar).
+Calendar Management
+Non-working days are defined via either an
+Annual Calendar
+or
+Holiday Calendar
+- both calendars are
+Dynamic Processing Settings
+which can be created/retrieved/updated and deleted via a REST API.
+For more information, please refer to the
+Working Days Setting Management API
+Date Calculation
+In addition to calendar management, the Working Days Service exposes an API for:
+Validating execution date
+Calculating next execution date
+Validating settlement date
+Calculating next settlement date
+For details on usage please refer to
+Working Days Service API
+Working Days Service
+Get Next Execution Date

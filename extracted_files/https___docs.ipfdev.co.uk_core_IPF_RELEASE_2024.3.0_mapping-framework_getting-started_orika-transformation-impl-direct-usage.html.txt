@@ -1,0 +1,594 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/mapping-framework/getting-started/orika-transformation-impl-direct-usage.html ===
+Orika Transformation Implementation - Direct Usage
+The
+orika-transformation-impl
+library provides an extension to the Orika mapping library, aimed at simplifying the process of creating transformations.
+It introduces
+OrikaCustomiser
+and
+TransformationService
+as the two main interfaces. The
+OrikaCustomiser
+provides a simple interface for customizing the underlying Orika mapping factory. Each
+TransformationService
+instance will be customized with a set of mappers and enrichers that will support all the transformations needed in a given context.
+Orika Transformation Legacy Usage
+The
+orika-transformation-generation-plugin
+can be used to generate a
+TransformationFactory
+.
+This Factory can be used to create a configured instance of a
+TransformationService
+, as shown below:
+TransformationService transformationService
+                = new ExampleTransformationFactory(enrichmentContext).transformationService();
+Once the service is created, you can call the following methods to apply mappings or enrichments.
+Destination destination = transformationService.map(sourceObject, Destination.class);
+
+  transformationService.enrich(source, myObject);
+To use this library, add the following dependency:
+pom.xml
+<dependency>
+            <groupId>com.iconsolutions.ipf.core.mapper</groupId>
+            <artifactId>orika-transformation-impl</artifactId>
+            <version>UPDATE VERSION TO LATEST</version>
+        </dependency>
+Orika Transformation Extended Usage
+The
+OrikaTransformationServiceFactory
+uses
+SPEL
+and
+Orika
+to provide Transformations. Any differences from migrating to this option may be due to SPEL differences.
+Additionally, the library now enables the creation of conditional transformations, which were previously managed through a combination of Java code and transformation configurations. This previous approach was hard to manage and added unnecessary complexity.
+This latest version of this library extends the use of the Spring Expression Language in order to introduce conditional transformations.
+See Details:
+docs.spring.io/spring-framework/docs/3.2.x/spring-framework-reference/html/expressions.html
+This library introduces two new implementations of
+OrikaCustomisers
+used internally:
+OrikaEnrichmentsCustomiser
+-Provides the ability to enrich an entity through configuration
+OrikaMappingCustomiser
+- Provides the ability to map an entity from one type to another through configuration.
+The other key difference is the use of
+OrikaTransformationServiceFactory
+to construct
+TransformationService
+directly from configuration, rather than through code generation.
+Step-by-step Guide
+In order to use
+orika-transformation-impl
+, the following steps are required:
+Configure the latest
+orika-transformation-impl
+dependency.
+Autowire
+OrikaTransformationServiceFactory
+into a Spring Config class.
+Create appropriate
+.conf
+files for providing enrichment or mapping type transformations.
+Invoke the
+OrikaTransformationServiceFactory.transformationService(EnrichmentContext context, String…​ resource)
+factory method.
+Step 1. Configure the latest orika-transformation-impl dependency
+pom.xml
+<dependency>
+            <groupId>com.iconsolutions.ipf.core.mapper</groupId>
+            <artifactId>orika-transformation-impl</artifactId>
+            <version>UPDATE VERSION TO LATEST</version>
+        </dependency>
+Step 2. Autowire OrikaTransformationServiceFactory into a Spring Config class.
+The OrikaTransformationServiceFactory is provided by the OrikaTransformationServiceFactoryConfig class, which is automatically loaded into the Spring Application Context.
+@Configuration
+public class MyMappingTransformationServiceConfig {
+
+    @Bean
+    public TransformationService myTransformationService(OrikaTransformationServiceFactory orikaTransformationServiceFactory) {
+
+        //logic to create TransformationService.
+    }
+}
+Step 3. Create appropriate *.conf files for providing enrichment or mapping type transformations.
+Ensure all .conf files are located under
+src/main/resources.
+Mapping Example: src/main/resources/mapping-example.conf
+source-class: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel.TestSourceObject
+destination-class: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel.TestTargetObject
+implicit-mapping: false
+bidirectional-mapping: true
+target-class-name: TestSourceObjectMapper
+target-package: com.ubs.ipf.payments.common.execution.mapper
+mappings = [
+  {
+    source: age
+    destination: myage
+  },
+  {
+    source: name
+    destination: myname
+    conditions: {
+      a-to-b: [
+        "a.name == 'name-123'"
+      ]
+    }
+  },
+  {
+    source: address
+    destination: myaddress
+    conditions: {
+      a-to-b: [
+        "a.age >= 10"
+      ]
+    }
+  }
+]
+Enrichment Example: src/main/resources/enrichment-example.conf
+enrichment-target: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel.TestEnrichmentObject
+target-package: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel
+enrichments: [
+  {
+    destination: "myStringProperty",
+    enrichment-type: value,
+    value: "updatedText"
+  },
+  {
+    destination: "myIntegerProperty",
+    enrichment-type: value,
+    value: 500,
+    enrichment-field-conditions:[
+      "myIntegerProperty == 100",
+    ]
+  }
+]
+Step 4. Invoke the OrikaTransformationServiceFactory.transformationService(EnrichmentContext context, String…​ resource) factory method
+The OrikaTransformationServiceFactory.transformationService(EnrichmentContext context, String…​ resources) method is used to instantiate new TransformationService instances.
+It requires an EnrichmentContext and multiple transformation *.conf files as arguments.
+@Configuration
+public class MyMappingTransformationServiceConfig {
+
+    /**
+     * construct the TransformationService
+     */
+    @Bean
+    public TransformationService myTransformationService(OrikaTransformationServiceFactory orikaTransformationServiceFactory,
+                                                                    EnrichmentContext enrichmentContext) {
+
+        return orikaTransformationServiceFactory.transformationService(enrichmentContext,
+                "mapping-example.conf",
+                "enrichment-example.conf"
+        );
+    }
+
+    /**
+     * construct an EnrichmentContext to be used by each TransformationService.
+     */
+    @Bean
+    public EnrichmentContext enrichmentContext(Config config) {
+        return DefaultEnrichmentContext.builder()
+                .withClock(Clock.systemDefaultZone())
+                .withConfigProvider(() -> config)
+                .build();
+    }
+}
+Transformation Configuration Details
+Mapping Config Examples
+Example Java Code
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class TestSourceObject {
+
+    String name;
+    String address;
+    Integer age;
+}
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class TestTargetObject {
+    String myname;
+    String myaddress;
+    Integer myage;
+}
+Mapping Config with Conditions per individual mapping
+You can include a new optional element called "conditions" in each mapping.
+This element allows you to control whether a mapping is applied based on a specific condition expression.
+Within the conditions element, you can specify conditions for a
+single
+mapping direction either
+a-to-b
+or
+b-to-a
+.
+Conditions for each direction should be defined under separate mappings as per the below sample. When using spel,
+bidirectional-mapping
+should be true and conditions should be defined by ways if applicable.
+The example below demonstrates two separate mappings based on specific conditions. These mappings have the following effects:
+Mapping source.
+name
+to destination.
+myname
+when source.
+name
+== 'name-123'.
+Mapping source.
+address
+to destination.
+myaddress
+when source.
+age
+>= 10.
+source-class: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel.TestSourceObject
+destination-class: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel.TestTargetObject
+implicit-mapping: false
+bidirectional-mapping: true
+// fields below are no longer used and no longer need to be specified when using `orika-transformation-service-impl`
+target-class-name: TestSourceObjectMapper
+target-package: com.ubs.ipf.payments.common.execution.mapper
+mappings = [
+  {
+    source: name
+    destination: myname
+    conditions: {
+      a-to-b: [
+        "a.name == 'name-123'"
+      ]
+    }
+  },
+  {
+    source: name
+    destination: myname
+    conditions: {
+      b-to-a: [
+        "b.myname == 'name-123'"
+      ]
+    }
+  },
+  {
+    source: address
+    destination: myaddress
+    conditions: {
+      a-to-b: [
+        "a.age >= 10"
+      ]
+    }
+  }
+]
+Enrichment Config Examples
+Example Java Code
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+public class TestEnrichmentObject {
+
+    String myStringProperty;
+    Integer myIntegerProperty;
+}
+Enrichment Config with Conditions per individual enrichment
+You can include a new optional attribute called "enrichment-field-conditions" in each enrichment.
+This attribute provides the ability to control whether an enrichment is applied based on a specific condition expression.
+The example below demonstrates two separate enrichments based on specific conditions. These enrichments have the following effects:
+Enriching
+target.myIntegerProperty
+to
+500
+when
+source.myIntegerProperty == 100'
+Enriching
+target.myStringProperty
+to
+'updatedText'
+when
+source.myStringProperty == 'matchingText'
+enrichment-target: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel.TestEnrichmentObject
+// target-package is no longer used and does not need to be specified when using `orika-transformation-service-impl`
+target-package: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel
+enrichments: [
+  {
+    destination: "myIntegerProperty",
+    enrichment-type: value,
+    value: 500,
+    enrichment-field-conditions:[
+      "myIntegerProperty == 100",
+    ]
+  },
+  {
+    destination: "myStringProperty",
+    enrichment-type: value,
+    value: "updatedText",
+    enrichment-field-conditions:[
+      "myStringProperty == 'matchingText'"
+    ]
+  }
+]
+Enrichment Config with Conditions per group of enrichments
+You can include a new optional attribute called "enrichment-conditions" in each enrichment file.
+This attribute allows you to control whether the enrichments in the list are applied based on a specific condition expression.
+The example below applies all enrichments only when
+target.myIntegerProperty
+equals
+100
+AND
+source.myStringProperty
+equals '
+matchingText
+'.
+enrichment-target: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel.TestEnrichmentObject
+enrichment-conditions:[
+  "myIntegerProperty == 100",
+  "myStringProperty == 'matchingText'"
+]
+enrichments: [
+  {
+    destination: "myStringProperty",
+    enrichment-type: value,
+    value: "updatedText"
+  }
+]
+Testing Transformations
+Example Java Code
+@SpringBootTest(classes = {
+        //core transformation config
+        OrikaTransformationServiceFactoryConfig.class,
+
+        //Config object required
+        MyMappingTransformationServiceITest.DefaultAppConfig.class,
+
+        //include specific mapping spring config
+        MyMappingTransformationServiceConfig.class
+}
+)
+class MyMappingTransformationServiceITest {
+
+    @Autowired
+    private TransformationService myTransformationService;
+
+    @TestConfiguration
+    public static class DefaultAppConfig{
+
+        /**
+         * Config bean is required for EnrichmentContext.
+         */
+        @Bean
+        public Config config() {
+            return ConfigFactory.load("ipf");
+        }
+    }
+
+    @Test
+    void mapSourceToTarget() {
+
+        TestSourceObject sourceObject = new TestSourceObject("name-123", "address", "postcode", 10);
+
+        TestTargetObject targetObject = myTransformationService.map(sourceObject, TestTargetObject.class);
+
+        assertThat(targetObject).isEqualTo(TestTargetObject.builder().myname("name-123").myaddress("address").build());
+    }
+}
+Library Extensions
+Registering Enrichment Strategies
+Enrichment Strategy Interface
+public interface OrikaEnrichmentStrategy {
+    void applyEnrichment(EnrichmentContext enrichmentContext, Object target, OrikaEnrichment orikaEnrichment);
+}
+Define New Enrichment Strategy
+@RequiredArgsConstructor
+public class HelloWorldEnrichmentStrategy implements OrikaEnrichmentStrategy {
+
+    private final OrikaExpressionEvaluator orikaExpressionEvaluator;
+
+    @SneakyThrows
+    @Override
+    public void applyEnrichment(EnrichmentContext enrichmentContext, Object target, OrikaEnrichment orikaEnrichment) {
+        orikaExpressionEvaluator.setValue(target, orikaEnrichment.getFieldExpression(), "Hello World");
+    }
+}
+Define OrikaEnrichmentType Value
+public enum OrikaEnrichmentType {
+
+    VALUE("value", OrikaPropertyName.VALUE),
+    PROVIDED("provided", PATH),
+    CONFIG_VALUE("config-value", PATH),
+    FROM_INSTANT("from-instant", FORMAT),
+    RANDOM_ALPHA_NUMERIC("randomAlphaNumeric"),
+    ENRICHMENT_FUNCTION("enrichment-function"),
+    CURRENT_INSTANT("current-instant"),
+    CURRENT_LOCAL_DATE("current-local-date"),
+    CURRENT_OFFSET_DATETIME("current-offset-datetime"),
+    CURRENT_LOCAL_DATE_TIME("current-local-datetime"),
+    CURRENT_ZONED_DATE_TIME("current-zoned-datetime"),
+    CURRENT_ISO_DATE_TIME("current-iso-datetime"),
+
+    //new value added
+    HELLO_WORLD("hello-world");
+
+    private final String configPropertyName;
+    private final Set<OrikaPropertyName> requiredProperties;
+
+    OrikaEnrichmentType(String configPropertyName, OrikaPropertyName... requiredProperties) {
+        this.configPropertyName = configPropertyName;
+        this.requiredProperties = Set.of(requiredProperties);
+    }
+}
+Define Map of Enrichment Strategies and include new Bean.
+@Bean
+public Map<OrikaEnrichmentType, OrikaEnrichmentStrategy> orikaEnrichmentStrategies(@Qualifier("orikaExpressionEvaluator") OrikaExpressionEvaluator orikaExpressionEvaluator){
+
+    return ImmutableMap.<OrikaEnrichmentType, OrikaEnrichmentStrategy>builder()
+            .put(VALUE, new ValueEnrichmentStrategy(orikaExpressionEvaluator))
+            .put(CONFIG_VALUE, new ConfigValueEnrichmentStrategy(orikaExpressionEvaluator))
+            .put(ENRICHMENT_FUNCTION, new EnrichmentContextFunctionEnrichmentStrategy(orikaExpressionEvaluator))
+            .put(PROVIDED, new ProvidedEnrichmentStrategy(orikaExpressionEvaluator))
+            .put(FROM_INSTANT, new FromInstantEnrichmentStrategy(orikaExpressionEvaluator))
+            .put(RANDOM_ALPHA_NUMERIC, new FunctionEnrichmentStrategy(orikaExpressionEvaluator, EnrichmentContext::randomAlphaNumeric))
+            .put(CURRENT_INSTANT, new FunctionEnrichmentStrategy(orikaExpressionEvaluator, EnrichmentContext::currentInstant))
+            .put(CURRENT_LOCAL_DATE, new FunctionEnrichmentStrategy(orikaExpressionEvaluator, EnrichmentContext::currentLocalDate))
+            .put(CURRENT_OFFSET_DATETIME, new FunctionEnrichmentStrategy(orikaExpressionEvaluator, EnrichmentContext::currentOffsetDateTime))
+            .put(CURRENT_LOCAL_DATE_TIME, new FunctionEnrichmentStrategy(orikaExpressionEvaluator, EnrichmentContext::currentLocalDateTime))
+            .put(CURRENT_ZONED_DATE_TIME, new FunctionEnrichmentStrategy(orikaExpressionEvaluator, EnrichmentContext::currentZonedDateTime))
+            .put(CURRENT_ISO_DATE_TIME, new FunctionEnrichmentStrategy(orikaExpressionEvaluator, EnrichmentContext::currentIsoDateTime))
+
+            //new hello world strategy added
+            .put(HELLO_WORLD, new HelloWorldEnrichmentStrategy())
+            .build();
+}
+Example Config Usage
+enrichment-target: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel.TestEnrichmentObject
+enrichments: [
+  {
+    destination: "myStringProperty",
+    enrichment-type: hello-world
+  }
+]
+Registering Custom Spring Converters
+The Spring Expression Language (SpEL) provides the ability to specify custom Converters for mapping between two different object types. This is particularly useful when the target object is of a different type and the property names also differ.
+See Details:
+docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/core/convert/converter/Converter.html
+The example below demonstrates injecting the DynamicConversionService and registering any required custom converters.
+These converters are applied during transformations when a default conversion is not applicable.
+public class SupplementaryDataUBSConverter implements Converter<SupplementaryDataUBS, SupplementaryData1> {
+
+    public static final String SUPPLEMENTARY_DATA_NAME_2 = "supl2";
+
+    @Override
+    public SupplementaryData1 convert(SupplementaryDataUBS supplementaryDataUBS) {
+        SupplementaryData1 supplementaryData1 = new SupplementaryData1();
+        supplementaryData1.setPlcAndNm(supplementaryDataUBS.getSplmtryDataNm());
+        supplementaryData1.setEnvlp(SupplementaryDataEnvelope1.builder().any(supplementaryDataUBS.getEnvlp().getAny()).build());
+        if (SUPPLEMENTARY_DATA_NAME_2.equals(supplementaryData1.getPlcAndNm())) {
+            if (((Document) supplementaryData1.getEnvlp().getAny()).getBkNtry() == null) {
+                ((Document) supplementaryData1.getEnvlp().getAny()).setBkNtry(Document.BkNtry.builder().build());
+            }
+            if (((Document) supplementaryData1.getEnvlp().getAny()).getSrcInf() == null) {
+                ((Document) supplementaryData1.getEnvlp().getAny()).setSrcInf(Document.SrcInf.builder().build());
+            }
+        }
+        return supplementaryData1;
+    }
+
+}
+
+@Configuration
+public class MyMappingTransformationServiceConfig {
+
+    @Autowired
+    void initTypeConverters(DynamicConversionService conversionService) {
+        //register any custom converters
+        conversionService.addConverter(new SupplementaryDataUBSConverter());
+    }
+}
+Custom Expression Functions
+Applying Custom Expression Functions
+An EvaluationContext is provided to the internal SpelExpressionParser during transformations.
+This library provides a customized version of the StandardEvaluationContext where utility functions are registered for use within a transformation configuration.
+public class OrikaEvaluationContext extends StandardEvaluationContext {
+
+    @SneakyThrows
+    public OrikaEvaluationContext() {
+        this.registerFunction("isBlank", StringUtils.class.getMethod("isBlank", CharSequence.class));
+        this.registerFunction("isNotBlank", StringUtils.class.getMethod("isNotBlank", CharSequence.class));
+        this.registerFunction("isNull", Objects.class.getMethod("isNull", Object.class));
+        this.registerFunction("isNotNull", Objects.class.getMethod("nonNull", Object.class));
+    }
+}
+The example below shows how you can apply the new custom functions to your conditions.
+source-class: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel.TestSourceObject
+destination-class: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel.TestTargetObject
+implicit-mapping: false
+bidirectional-mapping: true
+mappings = [
+  {
+    source: name
+    destination: myname
+    conditions: {
+      a-to-b: [
+        "#isNotNull(a.name)"
+      ]
+    }
+  },
+  {
+    source: address
+    destination: myaddress
+    conditions: {
+      a-to-b: [
+         "#isNotBlank(a.myaddress)"
+      ]
+    }
+  }
+]
+Register New Custom Expression Functions
+If you require new utility functions, the simplest method is to inject the StandardEvaluationContext and invoke
+the registerFunction method. An example of this is demonstrated below:
+@SpringBootTest(classes = {
+        //core transformation config
+        OrikaTransformationServiceFactoryConfig.class,
+
+        //Config object required
+        MyMappingTransformationServiceITest.DefaultAppConfig.class,
+
+        //include specific mapping spring config
+        MyMappingTransformationServiceConfig.class
+}
+)
+class MyMappingTransformationServiceITest {
+
+    @Autowired
+    private TransformationService myTransformationService;
+
+    @SneakyThrows
+    @Autowired
+    void initFunctions(StandardEvaluationContext evaluationContext) {
+
+        //register a new function to produce a random UUID
+        evaluationContext.registerFunction("randomUUID", UUID.class.getMethod("randomUUID"));
+    }
+}
+The example below shows how you can apply the new
+randomUUID()
+function in an enrichment.
+enrichment-target: com.ubs.ipf.payments.common.execution.enrichment.orika.testmodel.TestEnrichmentObject
+enrichments: [
+  {
+    destination: "myStringProperty",
+    enrichment-type: enrichment-function,
+    function: "#randomUUID()"
+  }
+]
+Applying Additional Contextual information
+The
+ThreadLocalContext
+can be used to set some context prior to performing a transformation.
+This context is made available to the mapping or enrichment configuration and can therefore be very useful for having
+conditions based on data separate from the transformation or enrichment object itself.
+Typical usage might look like:
+try {
+        ThreadLocalContext.setContext(new MyContext());
+        TargetObject mapped = transformationService.map(sourceObject, TargetObject.class);
+  }
+  finally {
+        ThreadLocalContext.clearContext();
+  }
+The context is available using
+#context()
+, as shown in the mapping configuration example below:
+mappings = [
+     {
+        source: name
+        destination: myname
+        conditions: {
+            a-to-b: [
+             "#context().stringProperty == 'context-value'"
+            ]
+        }
+     }
+]
+Code Generation and use
+Bank Filtering

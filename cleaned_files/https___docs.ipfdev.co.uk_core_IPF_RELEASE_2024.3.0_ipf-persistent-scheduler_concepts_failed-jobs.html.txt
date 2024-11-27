@@ -1,0 +1,55 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-persistent-scheduler/concepts/failed-jobs.html ===
+Failed Jobs
+A failed job is defined as a job that matches the following criteria:
+It has missed its regular execution slot with its specification unchanged, OR;
+It was scheduled to be in the past
+Its specification was updated in a way to stop any further execution
+The Failed Jobs Processor
+When the system starts, it schedules an internal job to find other failed scheduled jobs.
+This job behaves like any other scheduled job, but has a special task of identifying other jobs that have failed
+according to the above criteria, and processes them (see below for details).
+The frequency of execution is configurable, and it can be set using the following properties file:
+package com.iconsolutions.ipf.core.platform.scheduler.persistent.job;
+
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+@Data
+@ConfigurationProperties(prefix = "ipf.persistent.scheduler.process-failed-jobs")
+public class ProcessFailedJobsProperties {
+    private Boolean active;
+    private String cronExpression;
+}
+active
+: a flag to set if the job is active or not
+cronExpression
+: a cron expression to describe the frequency the job will run. For help with building a cron
+expression, use an online cron expression builder such as
+this one
+.
+The example below sets it to run once a day at 0:15:59:
+ipf.persistent.scheduler.process-failed-jobs {
+  active = true
+  cron-expression = "59 15 0 */1 ? *"
+}
+Being notified of failed jobs
+When configuring a
+JobSpecification
+, it is possible to be notified of failures for that specific job by specifying
+the failure identifier and command:
+JobSpecificationDto.builder()
+    .jobRequestor(JOB_REQUESTOR)
+    .triggerCommand(TEST_COMMAND)
+    .schedulingSpecification(cronExpression)
+    .failureIdentifier(failureIdentifier)
+(1)
+.failureCommand(failureCommand)
+(2)
+.build();
+If this job has failed since the last checkpoint, then the relevant SchedulingHelper will be notified of this. Note that the
+SchedulingHelper
+will need to have the
+supports
+method updated to support the failure command too.
+Calendars
+Job Specification and Status

@@ -1,0 +1,26 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/features/bulking.html ===
+Bulk File Creation
+The Bulker is part of the core functionality of IPF. It provides a persistent store that processing flows are able to submit components to, over a given period of time. Using a pre-configured trigger, the Bulker will stop accepting new components and write all the components it has to a structured file.
+Within the SEPA CT CSM, the Bulker is configured to accept Credit Transfer Transactions and write these to one of many pacs.008 messages (each for a given Direct/Indirect Participant and settlement date). At the end of each LAC, a trigger will be configured to close all the open pacs.008 messages, update their headers and add them to an ICF. Once the ICF is written to file, a notification will be sent to the configured destination to inform downstream systems that the ICF is ready for delivery to the EBA scheme. New Bulks will be opened automatically when the full Bulks close, so that there is no down-time or disruption to the service.
+The Bulker is configured to hold Bulks and create batch files for all the outbound messages and files:
+ICF - pacs.004, pacs.008, camt.029, camt.056
+Multi Level Bulking
+In order to group individual payments into the correct pacs.008 messages to pass scheme validation, the Bulker is configured to use multi-level bulking, auto-generated, re-occurring Bulks.
+Each pacs.008 within the Bulker is a separate Bulk with all the functionality that comes with a Bulk (add components, remove components, query components etc). In order to use the Multi Level Bulking functionality, however, these bulks are not configured to stream to a File when finalised. A Multi-level bulk is linked as a "Child" to a "Parent Bulk" (ie the ICF file), this means that when the Parent is ready to be streamed to a File, the whole of the Child will be included as a single component within it. An ICF file will end up containing multiple pacs.008 that have all been built separately from common transactions.
+The pacs.008 Bulks are configured to use the auto-generation functionality. It is not possible to pre-define every possible pacs.008 that could be needed and have a Bulk for them, ready in the Bulker waiting to be filled.  When a request is made to put a transaction into a pacs.008 bulk, if the appropriate bulk is not present it will be automatically generated using the defined parameters. Subsequent transactions to the given pacs.008 will be added as per any normal Bulk.
+ICF files are needed for each LAC and can be predefined; as a re-occurring Bulk. This means each time an ICF Bulk is closed a new Bulk is automatically created to the same specification and ready to accept notifications as soon as a new Child pacs.008 is created.
+Multi-level bulking is also used for pacs.004, camt.029 and camt.056
+The combination of auto-generation and re-occurring functionality gives seamless availability, thus ensuring no transactions are missed.
+Limiting Size Of Produced Bulk File
+STEP2 scheme has a constraint regarding size of the file it can process.
+In order to fulfill this requirement, when new ICF/IQF bulk is produced, a task to periodically check its size is scheduled.
+This task will check the current size of ICF bulk and all its child bulks (pacs.008, pacs.004...), and it will trigger closing of that bulk when size reaches configured maximum file size.
+Since this check is performed periodically, and bulker is continuously receiving transactions, there is no guarantee that the Bulk will be closed as soon as the value reaches maximum file size.
+Because of that, maximum file size should be set to a value lower than actual maximum file size allowed by the scheme.
+Limiting Number of Produced Bulk Files
+STEP2 scheme has a constraint regarding the number of produced bulks you can produce in any LAC window.
+For production environments this is 500 files per LAC and this scheme pack currently sets this to 500 by default. If you want to override this value for test you can update the following property
+ipf.csm.sepa-ct.lac.file-limit-per-lac
+. If the fle limit is exceeded for the current LAC window then any new files will be scheduled for production in the next available LAC window.
+Correlation Store
+File Debulking

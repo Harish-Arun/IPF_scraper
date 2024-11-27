@@ -1,0 +1,550 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/features/validations.html ===
+Validation
+Validation is a large part of the ISO20022 Message model. There are numerous, increasing levels of "validity" that a
+message may be attributed to. Different validation level checks are often performed by different software components.
+ISO20022 Validation Levels
+The below table showcases the exact Message Validity enumeration as specified by the ISO20022 Meta Model, we have also
+included further qualifying notes and describe which IPF software component would be involved at confirming each
+Validation Level.
+Validation level
+ISO20022 description
+IPF implementation
+Related IPF component
+NO_VALIDATION
+The message instance is not validated.
+Something that is not Syntax Valid cannot be assumed to be parseable, failure is thrown at the deserialisation layer.
+XMLMapper
+or
+JsonMapper
+SYNTAX_VALID
+The message instance has its syntax validated.
+Something Syntax valid simple means the message has been successfully deserialised into a Java representation.
+XMLMapper
+or
+JsonMapper
+SCHEMA_VALID
+The message instance is Syntax Valid plus validated against the Syntax Message Scheme.
+This is XSD Schema Validation
+Message Component Validator
+MESSAGE_VALID
+The message instance is Schema Valid plus validated against the Message Rules.
+This is the application of the ISO20022 Constraints against Message Components and Datatypes
+Message Component Validator
+RULE_VALID
+The message instance is Message Valid plus validated against the Business Rules.
+This is the application of additional Bank Rules / application Rules.
+Message Component Validator
+MARKET_PRACTICE_VALID
+The message instance is Message Valid plus validated against the Market Practices.
+This is the application of additional Market Scheme specific rules
+CSM Service
+BUSINESS_PROCESS_VALID
+The message instance is Message Valid plus validated against the Message Choreography.
+This is whether the message is valid within the context of it’s intended exchange. For example a randomly received
+orphan pacs.002 may "technically" be market valid, but it is not "valid" in the absence of an originating message)
+Process Flow
+and
+CSM Service
+COMPLETELY_VALID
+The message instance is Message Valid plus validated against all
+Rules and Market Practices.
+-
+Process Flow
+As described above, SYNTAX_VALID check is often performed at the point of deserialisation of an external message,
+especially with an application that uses a static typed language such as Java to model the Message Abstraction. If we
+have been able to deserialise the message into our Java model, then it is SYNTAX_VALID, we then look at the next 3 Validation
+Levels which all relate to the validity of the content within the Message in isolation.
+The
+IPF ISO20022 Message Model
+provided a validation class
+MessageComponentValidator
+which provides the ability
+to validate a given Message Definition, or Message Component at any, or all of these levels.
+Message Component Validator
+The
+Message Component Validator
+class provides the ability to validate a given Message Definition (or individual
+Message Component) object. It supports validation for
+SCHEMA_VALID
+,
+MESSAGE_VALID
+and
+RULE_VALID
+. The validations are configurable and reported independently, so that the user has full
+control over which validations need to be performed at given time.
+Schema Rules
+and
+Message Rules
+are implemented as
+JSR303 Annotations
+on the Message Component Java classes. The
+Message Component Validator
+delegates to a
+Hibernate Validator
+implementation for execution of these rules.
+Validation Levels
+Often you may only want to perform
+SCHEMA_VALID
+in the receipt of the external message, and postpone
+the
+MESSAGE_VALID
+until a later stage in processing, where the message content may have been enriched.
+The
+Message Component Validator
+is specifically designed to support these scenarios.
+Schema Rules
+This is often referred to as
+"validating a message against a Schema"
+, specifically the
+XSD
+associated with the
+Message Definition. This validation often includes, but is not limited to:
+Range checks
+Nullability
+Pattern restrictions
+Modality
+Cardinality
+Enumeration
+Exclusivity
+Within the IPF ISO20022 Message Model implementation, the validations defined by the
+XSD
+schemas are wholly
+implemented on the Message Model java classed as
+JSR303 Bean Validation
+Annotations. There are no
+XSDs
+provided for Message Definitions as part of the IPF ISO20022 Message Model. It is not
+needed to validate the Message Definitions provided by this model against the ISO20022 XSDs, nor is it possible due to
+the
+Normalised Types
+and removal of namespacing.
+Validation should be exclusively performed using the
+Message Component Validator
+.
+JSR303 Validator Groups
+The
+Schema Rules
+are implemented as
+JSR303
+Annotations under the
+default
+group. This means any attempt therefore to
+validate a Message Component directly against a Hibernate Validator (or other implementation) will validate the object
+against the appropriate
+Schema Rules
+.
+This is similar, though slightly "
+stricter
+" scoping than the default set of JSR303 Annotations commonly attached by
+XJC
+generated models. The default annotations provided by XJC do
+NOT
+honour some Schema Validations such as
+Choice Components
+and exclusivity - this was historically left to the XSD validation process, externally to
+JSR303 Bean Validators
+If you have existing usage of Bean Validators, you may notice that the default validation of the Message Components is
+stricter
+than before.
+Including Schema Rules for Validation
+To include Schema Rules as part of the validation scope for a validation request, the
+ValidationOptions
+parameter needs
+to be configured to require
+Schema Rules
+We construct a
+ValidationOptions
+object that enables Schema Rule validation, this can be done explicitly as
+demonstrated here or by using one of the common profiles detailed below in
+Common ValidationOptions
+.
+Defining the ValidationOptions
+// Only enable Schema Rule Validation
+ValidationOptions onlyValidateSchemaRules = ValidationOptions.builder()
+        .applySchemaValidation(true)
+        .applyBusinessRuleValidation(true)
+        .applyMessageRuleValidation(false)
+        .build();
+Validating a message object
+// This will fail Schema Validation as GroupHeader and PaymentInstruction elements are not present
+CustomerCreditTransferInitiationV09 ccti = CustomerCreditTransferInitiationV09.builder().build();
+
+MessageComponentValidator validator = ISO20022MessageModel.getInstance().validator();
+ValidationResult<CustomerCreditTransferInitiationV09> result = validator.validate(ccti, onlyValidateSchemaRules);
+Verifying the result
+The
+ValidationResult
+response object contains seperate enumerated levels that indicate the result of Schema Rule,
+Message Rule and Business Rule, either VALID, INVALID, or NOT_APPLIED, if a rule set was not requested.
+The response also contains seperate lists of each Violation type, and an aggregated list of all violations for
+convenience.
+So was it valid?
+The
+MessageComponentValidator
+provides granular responses detailing the input message is valid for different levels.
+Whilst the result does provide a result.isValid() property, this needs to be carefully considered in the context of the
+requested
+ValidationOptions
+configuration.
+It is the applications responsibility to have knowledge and context over whether a certain achieved validation level is sufficient for a given point of invocation.
+The Violations returned in this example show that Message instance was invalid due to 2 seperate
+Schema Violations (nullability violation for Group Header and Payment Instruction)
+ValidationResult.ValidationLevelResult schemaValid = result.getSchemaValid(); // INVALID
+
+Violation<CustomerCreditTransferInitiationV09> grpHdrViolation = result.getSchemaViolations().get(0);
+String name1 = grpHdrViolation.getName(); // {javax.validation.constraints.NotNull.message}
+String message1 = grpHdrViolation.getMessage(); // "must not be null"
+String properyPath1 = grpHdrViolation.getPropertyPath(); // "grpHdr"
+ValidationType type1 = grpHdrViolation.getType(); // SCHEMA_RULE
+ConstraintViolation<CustomerCreditTransferInitiationV09> jsrViolation1 = grpHdrViolation.getJsr303ConstraintViolation() ; // Original Validation details
+
+Violation<CustomerCreditTransferInitiationV09> pmtInfViolation = result.getSchemaViolations().get(1);
+String name2 = pmtInfViolation.getName(); // {javax.validation.constraints.NotNull.message}
+String message2 = pmtInfViolation.getMessage(); // "must not be null"
+String properyPath2 = pmtInfViolation.getPropertyPath(); // "pmtInf"
+ValidationType type2 = pmtInfViolation.getType(); // SCHEMA_RULE
+ConstraintViolation<CustomerCreditTransferInitiationV09> jsrViolation2 = grpHdrViolation.getJsr303ConstraintViolation() ; // Original Validation details
+Message Rules
+Message Rules are the most interesting part of the ISO20022 Message Model validations. They are formal, logical rules
+defined against individual Message Definitions or Message Components. However, they are not codified in the traditional
+XDSs
+since the rules often cannot be fully articulated in XSD in the same way as a Schema Rule. For example, conditional presence across nested
+child elements.
+These rules are defined within the underlying ISO20022
+Meta-Model
+and
+E-Repository
+, where they are referred to as
+Constraints
+, they were only
+exposed through the
+Message Definition Report
+supporting documentation, until now.
+In the IPF ISO20022 Message Model these rules are implemented as JSR303 "trigger" Annotations, a Message Rule Cache, and
+dedicated interfaces that need to be implemented for every
+Message Rule
+Overview
+The below diagram shows a high level overview of the various classes involved in defining a Message Rule implementation.
+For a given Message Rule, for example "Identification Or Proxy Presence Rule", we generated 3 classes.
+An Interface specifically for the Rule, which extends an Icon
+Constraint
+interface, These rules are then manually
+implemented by the IPF engineering team for a given Message Definition and provided as part of the Message-Model package.
+A
+Jsr303 Annotation
+that decorates the associated
+Message Component
+, in this example
+CashAccount41
+.
+A
+ConstraintValidator
+class, that implements the Javax
+ConstraintValidator
+contract for the aforementioned
+JSR303 Annotation
+The
+ConstraintValidator
+implementation delegates the actual execution of the rule to an implementation of the
+generated
+Constraint
+(1). The
+ConstraintValidator
+implementation attempts to resolve a runtime implementation of the
+rule by searching within a
+MessageRuleCache
+instance for a registered implementation. The
+ConstraintValidator
+implementation can be instructed by the
+MessageComponentValidator’s
+ValidationOptions
+to either
+fail
+or
+skip
+if a implementation cannot be resolved from the Message Rule Cache at runtime.
+The decoupling of the runtime
+Message Rule
+implementations from the
+JSR303
+"Triggers" provides the ability for rapid
+roll-out of new Message Definitions, gradual adoption and implementation of Message Rules, and also the abilty
+to update and change Message Rule implementation without the need for major release of the Message Model.
+Registering a Message Rule
+Which Message Rule are implemented?
+Implementations of the Message Rules for all the supported Message Definitions will be provided as part of the
+IPF ISO20022 Message Model, though this may be incrementally released and is not yet complete.
+Whilst the
+Message Rules
+are implemented as part of the provided
+ISO20022 Message Model
+, we document the process
+here for completion, and as a reference in case new or alternate Message Rules need to be implemented at the project
+level.
+Firstly we identify a
+Message Rule
+to be implemented, in this example we will use a rule that applies to a Cash Account
+Message Component where at least either the account identification information or proxy information should be provided.
+These rules can be seen by the presence of the
+associated JSR303
+Annotation
+on the Message Component itself.
+Note how
+CashAccount41
+has an
+@IdentificationOrProxyPresenceRule
+to be enforced
+...
+@IdentificationOrProxyPresenceRule(groups = MessageRule.class)
+public class CashAccount41 implements Serializable {
+    ...
+}
+To find the associated Constraint that needs implementing, to be triggered when this Message Component is validatated,
+simply look in the parent package for an
+Interface
+of the same name as the
+Annotation
+com.iconsolutions.iso20022.message.components.cash_account.cash_account41.jsr303.IdentificationOrProxyPresenceRule
+vs
+com.iconsolutions.iso20022.message.components.cash_account.cash_account41.IdentificationOrProxyPresenceRule
+Below is the
+IdentificationOrProxyPresenceRule
+Constraint
+that we need to implement.
+Many of the
+Constraints
+are documented with a pseudo formal description of the requirement. This can be crucial to highlighting suitable test
+scenarios for these rules to be validated against.
+package com.iconsolutions.iso20022.message.components.cash_account.cash_account41;
+
+/*Generated by MPS */
+
+import com.iconsolutions.iso20022.message.meta.validation.Constraint;
+
+public interface IdentificationOrProxyPresenceRule extends Constraint<CashAccount41> {
+
+
+  /**
+   * Identification must be present or proxy must be present.
+   *
+   * <pre>
+   *
+   * <RuleDefinition>
+   *     <SimpleRule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="SimpleRule">
+   *         <mustBe>
+   *             <connector>OR</connector>
+   *             <BooleanRule xsi:type="Presence">
+   *                 <leftOperand>/Identification</leftOperand>
+   *             </BooleanRule>
+   *             <BooleanRule xsi:type="Presence">
+   *                 <leftOperand>/Proxy</leftOperand>
+   *             </BooleanRule>
+   *         </mustBe>
+   *     </SimpleRule>
+   * </RuleDefinition>
+   *
+   * </pre>
+   */
+  boolean isValid(CashAccount41 cashAccount41);
+}
+We can then write a concrete implementation of this Rule, for example.
+Implementation of a Message Rule
+package com.iconsolutions.iso20022.message.components.cash_account.cash_account41;
+
+public class IdentificationOrProxyPresenceRuleImpl implements IdentificationOrProxyPresenceRule {
+
+    @Override
+    public boolean isValid(CashAccount41 cashAccount41) {
+        return cashAccount41.getId() != null || cashAccount41.getPrxy() != null;
+    }
+}
+These rules will then be independently unit tested as part of the production of the IPF ISO20022 Message Model
+Automatic Message Rule Registration
+The
+MessageComponentValidator
+is configured by default to eagerly populate the
+MessageRuleCache
+with implementation
+of the Constraints. It does this using
+Reflection
+(scanning the classpath for the candidate implementors of the
+Constraint
+Interfaces) at the point of the
+ISO20022MessageModel
+being initialised
+candidates.
+It has logic to detect duplicated candidates, and will also log info messages during startup if not all the rules have
+been implemented.
+As such, so long as the
+ISO20022MessageModel
+instance uses the default initialisation, and therefore and uses
+ScanningRuleCacheInitializer
+, the implementations should be automatically picked up and applied.
+Validating Against Message Rules
+We construct a
+ValidationOptions
+object that enables
+Message Rule
+validation, this can be done explicitly as
+demonstrated here or by using one of the common profiles
+Configuring Validation Options
+ValidationOptions onlyMessageRules = ValidationOptions.builder()
+              .applyMessageRuleValidation(true)
+              .failIfMessageRulesHaveNotBeenImplemented(true)
+              .applyBusinessRuleValidation(false)
+              .applySchemaValidation(false)
+              .build();
+Next we validate the
+CashAccount41
+Message Component
+Validating a Message
+CashAccount41 cashAccount41 = CashAccount41.builder().build();
+ValidationResult<CashAccount41> result = validator.validate(cashAccount41, onlyMessageRules);
+We then inspet the validation response and confirm that this Message is ot valid sine it violates the aforementioned
+Message Rule (amoungst several others)
+Verifying the Result
+List<Violation<CashAccount41>> messageRuleViolations = result.getMessageRuleViolations();
+Violation<CashAccount41> violation = messageRuleViolations.get(0);
+
+String name = violation.getName(); // "IdentificationOrProxyPresenceRule"
+String message1 = violation.getMessage(); // "IdentificationOrProxyPresenceRule"
+String properyPath = violation.getPropertyPath(); // ""
+ValidationType type = violation.getType(); // MESSAGE_RULE
+ConstraintViolation<CashAccount41> jsrViolation1 = violation.getJsr303ConstraintViolation() ; // Original Validation details
+If any Message Rules have not been implemented they will be provided as part of the response through the below method.
+Unimplemented Message Rules
+List<Violation<CashAccount41>> unmplementedMessageRules = result.getUnimplementedMessageRules();
+Business Rules
+Business rules are additional application level rules which may be applied to the ISO20022 Messages for
+a specific business implementation. These rules are project specific, and could be things such as:
+Limit check to enforce a total transaction amount cap
+BIC / IBAN exclusion
+Restricting of certain currency of Clearing Code for a given payment type.
+Ensuring that proprietary identifiers adhere t a custom pattern
+Implementing a Business Rule
+Business Rules, conversely to Schema Rules or Message Rules, are not invoked through
+JSR303 Annotations
+, since these rules
+are defined as part of the implementing project and registered against the target type
+To register a Business Rule, first implement the business rule for the exact type. This type should be the
+exact
+type
+would be requested to be validated.
+Business Rule target classes
+Business Rules are evaluated against the exact request type ONLY, they are
+not
+cascaded to child classes in the same way
+as Message Rules or Schema Rules.
+Until this enhancement is made, it is recommended to use the top level
+Message Definition
+class as the target for each
+Business Rule
+Below we create a new Business Rule, implementing the
+BusinessRule<T>
+interface, which requires the implementation
+of a single method to perform the validation. Multiple Violations may be returned from a single rule, each with their
+own details. The
+BusinessRule
+interfaces contains helper methods such as
+singleViolation()
+to construct the
+Violations.
+Defining A Business Rule
+BusinessRule<CustomerCreditTransferInitiationV09> msgIdMustStartWithApple = new BusinessRule<>() {
+    @Override
+    public List<Violation<CustomerCreditTransferInitiationV09>> apply(CustomerCreditTransferInitiationV09 message) {
+        if (!message.getGrpHdr().getMsgId().startsWith("Apple"))
+            return singleViolation("MsgIdStartsWithApple", "grpHdr.MsgId", "Message ID should start with 'Apple'");
+        else {
+            return new ArrayList<>();
+        }
+    }
+};
+Once a Business Rule has been defined, it needs to be registered with the
+MessageComponentValidator
+through it’s
+BusinessRuleAccess
+dependency.
+Registering A Business Rule
+MessageComponentValidator validator = ISO20022MessageModel.getInstance().validator();
+BusinessRuleAccess businessRuleAccess = validator.getBusinessRuleAccess();
+businessRuleAccess.registerBusinessRule(CustomerCreditTransferInitiationV09.class, msgIdMustStartWithApple);
+Validating against Business Rules
+To include Business Rule as part of the validation scope for a validation request, the ValidationOptions parameter needs
+to be configured to require Business Rules
+We construct a
+ValidationOptions
+object that enables BusinessRule validation, this can be done explicitly as
+demonstrated here or by using one of the common profiles described in
+Common Rule Configurations
+.
+Configuring Validation Options
+ValidationOptions onlyValidateBusinessRules = ValidationOptions.builder()
+              .applyBusinessRuleValidation(true)
+              .applyMessageRuleValidation(false)
+              .applySchemaValidation(false)
+              .build();
+Validating a Message
+CustomerCreditTransferInitiationV09 ccti = CustomerCreditTransferInitiationV09.builder()
+        .grpHdr(GroupHeader85.builder()
+                .msgId("Orange-s2ud2gs423d22").build())
+        .build();
+
+ValidationResult<CustomerCreditTransferInitiationV09> result = validator.validate(ccti, onlyValidateBusinessRules);
+Verifying the Result
+ValidationResult.ValidationLevelResult businessRulesValid = result.getBusinessRulesValid();// INVALID
+
+Violation<CustomerCreditTransferInitiationV09> violation = result.getBusinessRuleViolations().get(0);
+
+String name = violation.getName(); // MsgIdStartsWithApple
+String message = violation.getMessage(); // "Message ID should start with 'Apple'"
+String properyPath = violation.getPropertyPath(); // "grpHdr.MsgId"
+ValidationType type = violation.getType(); // BUSINESS_RULE
+Common ValidationOption Configurations
+It is often cumbersome to manually define
+ValidationOptions
+instance every time. Some preconfigured instances have
+been provided as static members of the ValidationOptions Class which can be used more conveniently, for example the below
+invocations peforms only Schema validation, omitting Message Rules and Business Rules.
+ValidationResult<CustomerCreditTransferInitiationV09> result = validator.validate(ccti, ValidationOptions.schemaValid());
+Below is a table describing the provided configurations, their impact and expected usage.
+Default Behaviour
+If no ValidationOptions argument is provided to the validator, is uses
+ruleValidLoose()
+.
+This is the highest level of validation that can be performed by the
+Message Component Validator
+, but won’t fail if
+any of the Message Rules have not yet implemented.
+Config
+Description
+Include Scheme Rules
+Include Message Rules
+Include Business Rules
+Fail If Message Rules are not implemented
+schemaValid()
+Only performs Schema validation
+Y
+N
+N
+N
+messageValid()
+Additionally, performs validation against Message Rules
+Y
+Y
+N
+Y
+ruleValid()
+Additionally, performs validation against Business Rules
+Y
+Y
+Y
+Y
+ruleValidLoose()
+As ruleValid(), but will not fail if not all Message Rules have been implemented.
+Y
+Y
+Y
+N
+Fluent API
+Json serialisation

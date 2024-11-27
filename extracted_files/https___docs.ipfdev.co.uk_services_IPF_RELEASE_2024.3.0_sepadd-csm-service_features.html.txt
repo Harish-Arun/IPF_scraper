@@ -1,0 +1,16 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/features.html ===
+Features
+Within the SEPA DD STEP2 CSM the following features are used:
+Request Processing
+Validations
+Business Day Calculation
+Correlation Store
+Bulk File Creation
+File Debulking
+Scheduling
+Extension Points
+Message Generator
+Core Configuration
+Notifications
+Multi Level Bulking
+Request Processing

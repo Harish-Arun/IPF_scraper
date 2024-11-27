@@ -1,0 +1,86 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability-data-ingestion/file-ingestion-local-directory.html ===
+Ingestion from Local File
+Overview
+File ingestion from a local source provides a reliable method for processing files that are always available.
+Configuration Options
+The default root path for ingesting local files is
+/import/
+.
+Depending on the specific file to be ingested, an appropriate suffix is added to this path.
+A complete list of ingestion directories can be found
+here
+.
+If a file is ingested from an incorrect folder, it will be moved to the
+archive
+directory, and a "Processing Skipped" event will be raised.
+If a corrupted file is ingested, the file will be skipped and moved to the
+failed
+directory.
+A "Processing Failed" event will also be triggered.
+Configuration Overriding
+By default, the configuration works seamlessly.
+However, users have the option to override the
+file-ingestion
+settings if needed.
+Example of data ingestion configuration:
+default-file-ingestion {
+        # path which should be overriden
+        files-directory = "/import"
+        initial-delay = 5s
+        interval = 30s
+      }
+Example of an overridden default value:
+ipf.csm-reachability.default-file-ingestion.files-directory = /import/overriden-path
+Deprecating directory mapping from MongoDB
+directory-mapping
+collection
+From csm-reachability-data-ingestion:3.17.0 version and above directory mapping from MongoDB
+directory-mapping
+collection will be deprecated and moved to the
+ipf.file-ingestion.directory-mapping
+HOCON configuration that will be used for directory mappings.
+From now on, its not allowed having disabled file ingester and mapped directoryId for disabled ingester.
+Migration steps
+Backup all data from Mongo
+directory-mapping
+collection.
+For each custom ingester ensure adding related Mongo document data from
+directory-mappings
+collection to ingesters' .conf file.
+Hocon example:
+# added directory mapping in case of participant-file-handling module usage
+ipf.file-ingestion.directory-mappings += {
+  "directory-id": "TIPS",
+(1)
+"job-name": "TIPS Participant"
+(2)
+}
+
+ipf.file-ingestion.directory-mappings += {
+  "directory-id": "RT1",
+  "job-name": "RT1 Participant"
+}
+
+ipf.file-ingestion.directory-mappings += {
+  "directory-id": "STEP2 SCT",
+  "job-name": "STEP2 SCT Participant"
+}
+
+ipf.file-ingestion.directory-mappings += {
+  "directory-id": "SIC",
+  "job-name": "SIC Participant"
+}
+1. directoryID and 2. jobName has to match directoryID for document in Mongo
+directory-mapping
+collection.
+This is example for participant-file-handling module, make sure to do the same mappings for other custom ingesters.
+Restart application and check if there is no warnings in log with message
+Missing required HOCON configuration: ipf.file-ingestion.directory-mappings.
+Make sure that log doesnt contain warnings like:
+Mongo directory-mappings documents value doesnt exist in Hocon configuration.
+Mismatch found for Mongo directory-mappings documents value and Hocon configuration.
+Delete Mongo
+directory-mapping
+collection if previous steps are fullfiled.
+File Ingestion
+Ingestion from S3 Bucket

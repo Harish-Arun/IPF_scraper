@@ -1,0 +1,7 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.validate%20scheme%20rules.Handle%20Validate%20Scheme%20Rules.html ===
+Handle Validate Scheme Rules.story
+Scenario: Handling validation of scheme rules
+When
+the i12Payment Servicei12  sends a Validate Scheme Rules Request
+Then
+the i12Payment Servicei12  receives a Validate Scheme Rules Response

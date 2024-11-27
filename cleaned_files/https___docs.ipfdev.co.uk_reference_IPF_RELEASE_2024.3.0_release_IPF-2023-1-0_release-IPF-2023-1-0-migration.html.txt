@@ -1,0 +1,41 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2023-1-0/release-IPF-2023-1-0-migration.html ===
+Migration Steps for IPF-2023.1.0
+Version Updates
+To migrate from 2022.3.4 please perform the following steps:
+Update your BOM version to the new release version 2023.1.0
+<parent>
+    <groupId>com.iconsolutions.ipf</groupId>
+    <artifactId>ipf-release-core-bom</artifactId>
+    <version>2023.1.0</version>
+</parent>
+Update all the flo versions within the domain folders to 1.36.74. Namely, in "docs", "domain", "external-libraries", "mps", "sampleapp" and "test" modules, update to look like:
+<parent>
+    <groupId>com.iconsolutions.ipf.core.flow</groupId>
+    <artifactId>flo-starter-<modulename></artifactId>
+    <version>1.36.74</version>
+    <relativePath></relativePath>
+</parent>
+Run a maven build to pull down all the latest dependencies.
+Code Updates
+Scheduling
+This release provides two implementations of the scheduler, whereas previously when using the akka based scheduler it was defined like this:
+.withSchedulerAdapter(new AkkaSchedulerAdapter(new SchedulerConfig(actorSystem.settings().config()), new AkkaSchedulerHandler(actorSystem)))
+You now simply need to use the provided adapter that is available to inject via the dependency selected as follows:
+@Bean
+public void initDomain(SchedulerPort schedulerPort) {
+    ...
+    .withSchedulerAdapter(schedulerPort)
+    ...
+}
+If using the Akka based scheduler in the previous releases you now need to update the dependency as this has been moved to a new module, previously it was defined as:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.platform</groupId>
+    <artifactId>ipf-scheduler</artifactId>
+</dependency>
+Now it should be defined as:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.platform</groupId>
+    <artifactId>ipf-flo-scheduler-akka</artifactId>
+</dependency>
+IPF-2023.1.0 - Release Notes
+IPF-2023.1.0.1 - Fix Release Notes

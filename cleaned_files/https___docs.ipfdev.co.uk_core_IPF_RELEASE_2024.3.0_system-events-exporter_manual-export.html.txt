@@ -1,0 +1,35 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/system-events-exporter/manual-export.html ===
+Manually exporting events via a SendConnector
+Here we are using
+Connectors
+to subscribe to a set
+of events, convert them to a proprietary format, then send them over some transport:
+var connector = new SendConnector.Builder<IPFSystemEvent<?>, String>("eventSendConnector")
+        .withTargetTypeConverter(evt -> String.format("{'eventName': '%s', 'createdAt':'%s'}", evt.getName(), evt.getCreatedAt().toString()))
+        .withTransportMessageConverter(TransportMessage::new)
+        .withConnectorTransport(connectorTransport)
+        .build();
+
+eventBus.subscribe(new EventProcessor() {
+    @Override
+    public Predicate<IPFSystemEvent<?>> predicate() {
+        return evt -> evt.getLevel() == EventLevel.ERROR;
+    }
+
+    @Override
+    public void notify(IPFSystemEvent<?> event) {
+        connector.send(event.getMessageAssociation(), event);
+    }
+});
+We first create the connector with:
+A way to convert the event to a target type (
+withTargetTypeConverter
+) - in this case an example JSON payload
+A way to convert the target type into a message to send over transport (
+withTransportMessageConverter
+)
+A
+ConnectorTransport
+- JMS, Kafka and HTTP are supported, but you can write your own too
+IPF System Event Exporter Spring Boot starter packs
+System Event Catalogue

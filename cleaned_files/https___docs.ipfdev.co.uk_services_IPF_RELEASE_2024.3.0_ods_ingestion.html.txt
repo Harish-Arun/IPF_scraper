@@ -1,0 +1,82 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/ingestion.html ===
+Ingestion Service
+ODS consumes
+IPF Processing Data
+from Kafka, transforms it into the ODS data model, and persists to the database.
+Data related to a payment arrives with a processing context composed of
+unitOfWorkId
+- groups all the data for a single payment/unit of work
+associationId
+- identifies the flow from which the data originated
+clientRequestId
+- the original client request id for the payment/unit of work
+processingEntity
+- groups payments under different entities
+The general high-level flow for IPF processing data to persisted ODS data is:
+UnitOfWork
+A single UnitOfWork is persisted to the database for each unitOfWorkId that is processed by IPF, this serves as meta-data for a given unitOfWork.
+Process Flow Event timestamps are persisted into the UnitOfWork objects, and are used to identify the start and end of a unitOfWork lifecycle.
+Summary
+Some of the persisted ODS data is published to a payment summary actor, which applies the data in turn to create/update a persisted summary view.
+The data is mapped into summary fields, as described in the
+Summary Mapping
+page.
+Supported Data Types
+The supported data types for data belonging to a payment is broken down into four categories, mds, pds, process, and custom.
+MDS Objects
+MDS objects are those that originate from ISO 20022 objects - for example a pain.001 instruction contains a group header, one or more instructions, and within each instruction, one or more credit transfer transactions.
+Each is considered a distinct MDS object, that belongs to the original payment or unit of work.
+When a pain.001 is received by an IPF processing flow, it is broken into parts, and all those parts are published to ODS in a single message.
+PDS Objects
+PDS objects are either IPF defined types, e.g. Csm, or JourneyType, or they are client defined custom types.
+A unit of work can have only a single PDS object by name, and tracks different versions of that object with a sequence number.
+The greatest sequence number of all versions of a specific PDS object, is considered the "latest" version of that object.
+Duplicate PDS objects, where the name and sequence number are the same for a given unit of work, are ignored.
+Process Objects
+Process objects are those that originate around the processing of a payment, for example a process object is produced for each message exchanged with another system by the IPF processing flow.
+Process objects are assigned a unique identifier by default, which is composed of the "primary association" and a randomly generated uuid.
+This unique ID is used by ODS to determine if process objects have been seen before.
+For example, if an object is published more than once, or is consumed more than once, then only a single instance will exist in the database provided the received objects have the same unique ID.
+Custom Objects
+Custom objects are no longer ingested by ODS, but attachments are still supported and stored in the custom objects collection.
+Custom objects represent data belonging to a payment that isnt an ISO 20022 MDS object, or a process object.
+It is likely that this object will contain customer-specific payment related data.
+Custom data objects are usually key/value pairs.
+Views
+Views are either updated as data is received (payment summaries), or they are an aggregation of data that already exists (payment details).
+Versioning
+ODS maintains backwards compatibility with the schema version of IPF Processing Data produced by IPF. The following table outlines the versions.
+Version
+Compatibility
+1
+Supported but deprecated
+2
+Supported
+Bulk Writes
+ODS Ingestion utilises bulk write commands when inserting documents into the database. The number of documents being inserted in a single command is dependent upon the number of Data Envelopes supplied by IPF Processing Data Ingress to ODS Ingestions
+BatchedIpfProcessingDataHandler
+implementation.
+For optimal Ingestion performance, you may need to tune the Ingress configuration. See the Ingress
+tuning batch configuration
+documentation for more details.
+Metrics can be enabled to monitor the number of documents being inserted per database command, these should be used alongside the Ingress metrics to tune ODS Ingestion performance. These can be enabled by configuring
+ods.metrics.enabled = true
+.
+When enabled, the following metrics will be emitted:
+Metric name
+Possible tags
+description
+ipf_ods_persistence_writes
+type  "MDS", "PDS", "PROCESS", "UNIT_OF_WORK", "SUMMARY"
+op  "insert", "update"
+A
+summary metric
+that records the number of documents being written in a single insert command.
+ipf_ods_persistence_duplicate_key_errors
+type  "MDS", "PDS", "PROCESS", "UNIT_OF_WORK", "SUMMARY"
+A
+counter metric
+designed to track the occurrence of duplicate key exceptions during document insertion.
+In the context of the MDS, PDS, and Process collections, these exceptions are disregarded, considering their append-only nature. However, any such exceptions for the UnitOfWork and Summary collections trigger appropriate document updates
+V2 Migration Guide
+Summary Mapping

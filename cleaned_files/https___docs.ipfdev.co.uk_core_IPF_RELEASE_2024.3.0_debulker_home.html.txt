@@ -1,0 +1,10 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/home.html ===
+IPF Debulker
+The IPF Debulker provides the ability to process large files which contains multiple messages and  transactions, potentially between multiple debtors and creditors. The Debulker takes the responsibility for receiving a structured file and breaking it into individual components. It allows large (bulked) files to be processed by IPF without the need to load it into memory. It does not perform activities which modifies the incoming data (e.g. enrichment, validation). Thus, it is a technical enablement feature to support large, multi-transaction files.
+Once the file is split, those components can then be processed by individual IPF flows, meaning we can split a PAIN001 or PACS008 into individual credit transfer instruction components and process each separately. The Debulker itself does not provide those processing flows, but we do provide guides and 'how to' sections as examples or starters.
+Explore the concepts, features and guides:
+Concepts
+Features
+Getting started
+List of System Events
+Concepts

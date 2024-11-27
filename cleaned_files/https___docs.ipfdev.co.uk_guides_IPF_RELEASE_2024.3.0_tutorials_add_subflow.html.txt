@@ -1,0 +1,161 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/tutorials/add_subflow.html ===
+DSL 9 - Using Subflows
+Getting Started
+The tutorial step uses the "add_version" solution of the project as its starting point.
+If at anytime you want to see the solution to this step, this can be found on the "add_subflow" solution!
+What is a Subflow?
+A "
+Subflow
+" is a reusable section of a flow. It effectively has all the same features as a flow but is not expected to be standalone but instead is included inside of another flow.
+A subflow can therefore be :
+Used within many different flows.
+Used multiple times within the same flow.
+An often seen example of a subflow is a sanctions check. It may be that many different flows all use a sanctions check or indeed that a sanctions check may be needed at different parts of the flow (for example following a resumption on delay).
+For this section, well use the sanctions example to integrate a subflow into our flow.
+Our sanctions subflow, will need to perform the following actions:
+When the subflow begins we make a request to a sanctions system.
+Then the sanctions system can either return:
+Passed - all is good, flow can proceed.
+Wait
+Then on the wait condition, we should wait until the sanction systems sends us one of three further messages:
+Passed
+Blocked
+Failed
+DSL Set Up
+Adding the Sanctions Domain
+Before we start looking at the subflow itself, we first need to add an external domain that is capable of supporting our flow. So lets go ahead and do that.
+Firstly, well create a new external domain for our sanctions sytem. This is just like we did in  (
+New
+v2Flo
+External Domain
+) except that the response needs to use an extra capability weve not fully discussed before. So lets start by adding the basics:
+A name of "Sanctions Domain"
+A description of "A sample sanctions system"
+Add a request with details:
+A name of "Check Sanctions"
+A description of "Sample sanctions call"
+Add the customer credit transfer to business data
+Now we consider the responses.  There are a number of different ways we could model the required responses using combinations of response codes and reason codes like we did in the fraud system. Here however, we will do it by modelling multiple responses to our single sanctions request.
+The first response is the "passed" scenario, well call this a "no hit" scenario. For this we just add a simple response like we have before:
+A name of "Sanctions No Hit"
+A description of "The sanctions check has passed"
+All other fields well leave as the default.
+The second response is the one when the initial check does not immediately pass and we are asked to wait. Youll call this a "hit" scenario.
+The key difference between the "hit" and "no hit" scenarios are that:
+in the no-hit scenario it completes the request - i.e. were not expecting any further information from the sanctions system.
+in the hit scenario it does not complete the request, were still expecting a final result of our sanctions call.
+So this time, for our hit scenario we need to set our "Completing" flag to false to tell the system that we will expect subsequent messages from the sanctions system in response to the initial request.
+Lets set this response up:
+A name of "Sanctions Hit"
+A description of "The sanctions system is checking the outcome"
+The completing flag unchecked
+All other fields well leave as the default.
+Finally we also need the result response when the sanctions system eventually sends us a response. Youll call this the "Final Sanctions Response".  So lets add this:
+A name of "Sanctions Final Response"
+A description of "The final result from the sanctions system"
+For the response codes well need to create a new response code library for our "Sanctions Final Response Codes". This is just as in DSL 4 Using an External Domain. In our case well have three response codes: False Hit, Block, Reject.
+All other fields well leave as the default.
+Once weve put all this together our sanctions system definition should look like:
+And for reference our new "Sanctions Final Response Codes" will look like:
+Note that we can simply add our response codes to the existing library that we used for our account validation codes.
+Thats our sanctions system all set up and ready to use.
+Adding the Subflow
+Now that we have our sanctions domain set up, lets go and create our subflow. We do this by right clicking on our model and selecting
+New
+v2Flo
+Subflow
+.
+This should create a new subflow page:
+The first thing to note is how similar this is to the flow page. Thats because it is effectively a specialised type of flow! So using this page should feel very familiar.
+Lets setup our new subflow, well start by giving our sanctions flow a name of "Sanctions Subflow" and a description of "An example subflow for sanctions".
+The next thing to consider is our states we are going to need. From the requirements we can see that there are three states we will need:
+A "Checking Sanctions" state for when we make the initial request to sanctions and are awaiting a response.
+An "Awaiting Final Result" state for when we have received a wait notification from sanctions and are awaiting the final response.
+A "Complete" state for when we have successfully completely a sanctions check.
+A "Rejected" state for when the sanctions check has failed.
+A "Blocked" state for when the sanctions check has resulted in a blocked notification.
+Go ahead and set these up now. Consider what values you will need for the terminal flag and global state on each of these states and when complete the solution is below:
+Its really important within a subflow to get the terminal states correct. Thats because those are the states that the subflow will be able to report back to the parent flow. So here we have "Complete", "Rejected" and "Blocked" as terminal states. Thats because the "Checking Sanctions" and "Awaiting Final Result" states are intermediary states during the subflow processing. We can further emphasize that by the setting of the "PENDING" global state.
+Now lets carry on down our subflow and the next thing to consider is the events. Again going back to requirements we can see that we will need 4 events:
+"Sanctions Passed" for a successful sanctions check
+"Sanctions Rejected" for a failed sanctions check
+"Sanctions Blocked" for a blocked sanctions check
+"Sanctions Hit" for an wait notification.
+Note here there are many different event names we could use. Weve chosen to use the same event "Sanctions Passed" for both the direct and indirect (via wait) passing of the sanctions check. We could just have easily created two events to uniquely identify each.
+Lets add these Event Definitions now and we should see:
+Continuing on down our subflow our next section to consider is the Input Behaviour.  Here we have to consider each of our three different responses from the sanctions system and how we want to handle them. Try to do this yourself and the solution is below:
+Next up, on initiation we need to call the sanctions system. So well need a new state "Checking Sanctions" and an initiation behaviour that moves us to the "Checking Sanctions" state and calls our sanctions system. Try that now and the solution is below:
+Finally we need to handle our event behaviour. See if you can work it out, and then the solution is below:
+The one interesting point to note here is how weve handled line 4 in the event behaviour. It would have been just as correct to have two lines here, one for the "Checking Sanctions" current state and one for the "Awaiting Final Result" current state. But weve chosen here to use the ability of having multiple states defined in the current state. This is simply a shorthand way to avoid repeating the same logic multiple times if the outcome is no different.
+Weve now completed all our sections of the flow, but if we look there is still an error showing on the "Perform Action" of the initiation behaviour. Lets investigate this by validating the flow (ALT + ENTER then validate flow). It tells us:
+Its telling us that the subflow doesnt have access to a customer credit transfer and hence it cant make the call out to the sanctions system. In our case, our customer credit transfer belongs to the parent flow. So to provide it down to the subflow we need to add it to the initiation data, lets do that and we should now see:
+And our error has been resolved. As normal before completing lets have a look at our graph (Tools > Open Flow Viewer) to find:
+Thats our subflow all setup and ready to use, so the next question is how do we apply this to our parent flow. Lets go back to it, well update only in our latest V2 version:
+Were going to add our subflow in as a new step after our account validation. Currently we have:
+To slide in the extra step, we want the validating account to call our subflow (not run the fraud check decision) and then run the fraud check on successfully passing sanctions instead.
+If you remember back to
+DSL 5 - Using a decision
+, we introduced the concept of a pseudo state and in that case the specific type of a "Decision State". Here we want to use a different type of state - a "Subflow State". Lets start by adding it after we received the "Account Validation Passed" result.
+So instead of moving to the "Run Fraud Check" decision, lets create our "Subflow State".
+To do this we first need to delete the existing decision state and then select "Create Subflow State".
+Youll enter the name as "In Sanctions".
+Then in the "Perform Action" box well delete the existing call to Fraud and then select "Call Subflow" and then choose the "Sanctions Subflow". Once done we should look like:
+If you inspect the error now well see:
+So here we can see that the flow needs us to define how to handle the fact that the subflow has reached those Complete, Rejected or Blocked states. Why only those 3? Because those are the ones we specified as terminal with the sanctions subflow.
+Lets setup our handling of the subflow terminating as "Event Behaviour" in the main V2 flow. To do this we start by adding a new Event Behaviour with current state of "In Sanctions". Then in the "For Event" we select "Subflow Completion" and then well start by selecting "Complete".
+In our case on receipt of complete from the sanctions flow well need to create our "Run Fraud Check" decision and fire the fraud check decision as we had previously (
+note - until this is done "Run Fraud Check" shows as an 'Unresolved Reference'
+):
+Now lets do the same to handle the outcome from Rejected and Blocked, for now well just send both to rejected.
+Again, note here how weve used the "Any Of" capability to minimise the entry.
+Finally, lets look at how this has impacted our flow diagram (Tools > Open FlowViewer):
+Here we can see that our subflow call has been represented by box. The box contain all of the subflow logic to minimise the complexity of the graph. However, if you look at the top of the graph theres a new option "Expand Subflow". Lets click this and apply to see:
+And in this view we can see the subflow being expanded out so we can see the inner workings of the flow.
+Thats all our DSL setup done. Now lets move onto the implementation side.
+Java Implementation
+Defining the Adapter
+Lets switch to Intellij to work with the java side.
+Firstly, lets rebuild our project so that we can generate our new flow. To do this open a new terminal and run:
+mvn clean install
+There is nothing special about the subflow itself from a generation viewpoint, the changes we have to consider are simply that we have defined a new External Domain (Sanctions Domain) that we now have to implement. Youll again here choose to just use the sample apps implementation as we did in
+DSL 4 - Using an external domain
+, so try and add that now and solution is below when ready:
+@Bean
+public IpftutorialmodelDomain init(ActorSystem actorSystem, SchedulerPort schedulerAdapter) {
+    // All adapters should be added to the domain model
+    return new IpftutorialmodelDomain.Builder(actorSystem)
+             .withTutorialDomainFunctionLibraryAdapter(input -> CompletableFuture.completedStage(new DuplicateCheckResponseInput.Builder(input.getId(), AcceptOrRejectCodes.Accepted).build()))
+             .withAccountingSystemActionAdapter(new SampleAccountingSystemActionAdapter())
+             .withFraudSystemActionAdapter(new FraudSystemActionAdapter())
+             .withDecisionLibraryAdapter(input ->
+                    input.getCustomerCreditTransfer().getCdtTrfTxInf().get(0).getIntrBkSttlmAmt().getValue().compareTo(BigDecimal.TEN)>0 ?
+                            RunFraudCheckDecisionOutcomes.FRAUDREQUIRED : RunFraudCheckDecisionOutcomes.SKIPFRAUD)
+             .withIpftutorialflowV1AggregateFunctionAdapter(input -> new ExtractCreditorAccountForFlowIpftutorialflowV1AggregateFunctionOutput(input.getCustomerCreditTransfer().getCdtTrfTxInf().get(0).getCdtrAcct()))
+             .withIpftutorialflowV2AggregateFunctionAdapter(input -> new ExtractCreditorAccountForFlowIpftutorialflowV2AggregateFunctionOutput(input.getCustomerCreditTransfer().getCdtTrfTxInf().get(0).getCdtrAcct()))
+             .withSchedulerAdapter(schedulerAdapter)
+             .withCSMServiceActionAdapter(new SampleCSMServiceActionAdapter())
+             .withSanctionsDomainActionAdapter(new SampleSanctionsDomainActionAdapter())
+             .build();
+}
+Here we have added into our config the addition of the sanctions system specification.
+Checking our Solution
+As normal lets now check out solution works. Start up the application as previously (instructions are available in
+Reviewing the initial application
+if you need a refresher!)
+For payments, well just fire in a standard one:
+curl -X POST localhost:8080/submit | jq
+Then as normal, if we now bring up the payment in the
+Developer GUI
+and bring up the flow graph (
+search by unit of work id, click view, click view graph
+) and we should see:
+And we can see that our subflow has been expanded out to be part of the main running flow which has completed successfully. If we look at the events instead (
+click domain events
+):
+We should note that the event name is the combination of both the prefix we provided in our pseudo state together with the actual name of the event in the subflow. This is important to realise as it is this capability that allows us to use our subflow in multiple places across our flow.  You can try this yourself if you want by adding a second sanctions subflow call into the flow!
+Conclusions
+In this section weve learnt how to create a subflow and invoke it from within our flow.
+Having considered subflows and how to use them, lets now turn our attention to other flows and how to call one flow from another in:
+DSL 10 - Calling other flows
+DSL 8 - Versioning
+DSL 10 - Calling other flows

@@ -1,0 +1,88 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/tutorials/running_payment_init_sim.html ===
+UTILS2 - Payment Initiation Simulator
+This document covers how to use the ipf-developer-app. There are two recommended approaches for the tutorial, both docker and non-docker. Lets look at these:
+Using the Application Through Docker
+Below provides a simple docker file entry for the developer application:
+payment-initiation-simulator-kafka:
+    image: registry.ipf.iconsolutions.com/sample-systems-payment-initiation-simulator-kafka:2.0.101
+    container_name: payment-initiation-simulator-kafka
+    ports:
+      - "8082:55555"
+    volumes:
+      - ./config/payment-initiation-simulator-kafka:/payment-initiation-simulator-kafka/conf
+    user: "${UID:-1000}:${GID:-1000}"
+    depends_on:
+      - kafka
+In addition, the application will need configuration which is placed in the "application.conf" file within a config directory relative to the above docker entry. The conf file contains:
+common-kafka-client-settings {
+  bootstrap.servers = "kafka:9092"
+}
+
+connector {
+default-receive-connector {
+manual-start: true
+}
+
+  default-send-connector {
+    manual-start = false
+    call-timeout = 30s
+    queue-size = 50
+    max-concurrent-offers = 500
+    resiliency-settings {
+      minimum-number-of-calls = 1
+      max-attempts = 1
+      reset-timeout = 1s
+      initial-retry-wait-duration = 1s
+      backoff-multiplier = 2
+    }
+  }
+
+  validator-error-handler-dispatcher {
+    type = Dispatcher
+    executor = "thread-pool-executor"
+    thread-pool-executor {
+      fixed-pool-size = 4
+    }
+  }
+}
+
+akka.kafka {
+producer {
+kafka-clients = ${common-kafka-client-settings}
+}
+consumer {
+kafka-clients = ${common-kafka-client-settings}
+}
+}
+When executed the ipf-developer-app will listen for data on port 8082. This port will also be exposed to the host machine. The logs will be exported to logs/ipf-developer.app-log relative to the docker file.
+Using the Application Without Docker
+Prerequisites
+To run this simulator requires:
+A Java 17 runtime
+A Kafka environment that either has:
+Auto topic creation enabled
+Topics created for
+PAYMENT_INITIATION_REQUEST
+and
+PAYMENT_INITIATION_RESPONSE
+Configuration Options
+Property
+Description
+Default Value
+common-kafka-client-settings.bootstrap.servers
+Defines the server bootstrap settings for kafka.
+localhost:9092
+server.port
+Defines the port the application will run on
+8082
+Download
+The payment initiation simulator is available here:
+nexus.ipf.iconsolutions.com/repository/ipf-releases/com/iconsolutions/ipf/sample/samplesystems/payment-initiation-simulator-kafka/2.0.101/payment-initiation-simulator-kafka-2.0.101-runnable.jar
+Running
+Once downloaded, place it into this directory and run:
+java -cp "payment-initiation-simulator-kafka-2.0.101-runnable.jar:config" -D"loader.main"="com.iconsolutions.samplesystems.paymentinitiation.simulator.PaymentInitiationSimulatorKafkaApplication" "org.springframework.boot.loader.launch.PropertiesLauncher"
+The application will then start and be available from:
+localhost:55555/index.html
+Note that on Windows, the colon in the run command should be replaced by a semicolon.
+Sanctions Simulator
+Fraud Simulator

@@ -1,0 +1,34 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/client-processing-kafka.html ===
+Client Processing Kafka
+This implementation consists of:
+A
+SendConnector
+implementation which serializes
+InitiateComponentProcessingCommand
+as json and sends it to kafka. Root configuration path for this connector is
+ipf-debulker.client-processing
+.
+A ReceiveConnector which consumes
+CompleteComponentProcessingCommand
+and passes it to
+ComponentProcessingCompletionPort
+.
+Configuration
+Config
+Type
+Comment
+Default
+ipf.debulker.client-processing.connector.kafka.producer.topic
+String
+The topic to which
+InitiateComponentProcessingCommand
+will be sent.
+CLIENT_PROCESSING_REQUEST
+ipf.debulker.client-processing.connector.kafka.consumer.topic
+String
+The topic from which
+CompleteComponentProcessingCommand
+will be consumed.
+CLIENT_PROCESSING_RESPONSE
+Client Processing
+File Archiver

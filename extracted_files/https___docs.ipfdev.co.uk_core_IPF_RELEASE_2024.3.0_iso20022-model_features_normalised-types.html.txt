@@ -1,0 +1,91 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/features/normalised-types.html ===
+Normalised Types
+As detailed in the
+ISO20022 Concepts
+page. ISO20022 Message Definitions are composed of
+Message Components
+, these components may be re-used across multiple Message Definitions.
+In previous implementation of ISO20022 Messages, such as implementation generated from XSDs, it is common to duplicate
+these
+Message Component
+representations within the scope / for each Message Definition. This works well for native XML
+serialisation for JAXB, but it introduces a lot of class duplication for each message.
+For the
+IPF ISO20022 Message Model
+, we generate directly from the ISO20022 E-repository, bypassing the XSDs and we have
+made the decision to
+NOT
+duplicate the types per Message Definition, instead we generate a single representation for
+each MessageComponent, aligning more purely the exact ISO20022 Message Model
+Packaging
+Message Model
+The ISO20022 Message model consists of all the message related types.
+com.iconsolutions.iso20022.message
+Message Definitions
+Message definitions require a seperate subpackage to differentiate
+com.iconsolutions.iso20022
+.message.
+definitions
+.
+<business_area>.<msg_functionality>.<MessageDefinition>
+For example the pain.001.001.08 Message Definition:
+com.iconsolutions.iso20022.message.definitions.payments_initiation.pain001.CustomerCreditTransferInitiationV09
+Message Components
+Message Components are group by their respective Business Component domain.
+They are not grouped with Message Definitions since many Message Definitions may share the same components.
+com.iconsolutions.iso20022
+.message.
+components
+.
+<business_component_trace_name>.<message_component_name>.MessageComponent
+For example, the GroupHeader85 complex type used by Pain.001.001.09:
+com.iconsolutions.iso20022.message.components.payment.group_header_85.GroupHeader85
+Message components that are not business related are consolidated to a "technical" package
+com.iconsolutions.iso20022
+.message.
+components
+.
+technical
+.
+<MessageComponent>
+For example, the
+ControlData1
+type used by Camt.056.001.08 (and others):
+com.iconsolutions.iso20022.message.components.technical.ControlData1
+Consequences
+There are a few notable consequences of using normalised types, the first is the being able to trace the usage of
+a given Message Component to its message definitions, and the latter related to serialisation and Validation
+Tracing The Usage of a Message Component to a Message Definition
+Given a
+Message Component
+may be reference by a "parent" Message Component, it would be arduous to traverse these links
+if we want to know which Message Definition uses a given Message Component. To prevent this provide generated
+Descriptor
+of each
+Message Definition
+alongside the
+Message Definition
+class itself,
+which holds references to each Message Component and Message Rule.
+These classes are not used by any production code, but there presence ensures that if a developer evaluates a "find usages"
+on a given
+Message Component
+they will be able to see the exact
+Message Definitions
+that reference it.
+Deserialising to JAXB
+In order to serialise and deserialise messages using the normalises types within this model, you must use the provided
+XMLMapper
+. This is due to restrictions around namespace, JAXB and packaging and is discussed in greater detail within
+XML Serialisation
+It is not advisable to attempt serialisation with JAXB directly.
+XSD Validation
+In a similar sentiment to the above, the normalised types cannot be validated against a traditional ISO20022 XSD
+schema, validation is archived through the
+MessageComponentValidator
+which is well-equipped to perform all manner
+of validations. See
+Validation
+for more information.
+Features
+Fluent API

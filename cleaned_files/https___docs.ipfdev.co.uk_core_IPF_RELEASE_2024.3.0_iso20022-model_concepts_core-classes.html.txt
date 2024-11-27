@@ -1,0 +1,52 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/concepts/core-classes.html ===
+Core Classes
+Overview
+Below is a simplified view of the various core classes relating to the IPF ISO2002 Message model
+The main highlights being the following classes
+Class
+Description
+ISO20022MessageModel
+This is the main access point for working with instances of Message Definitions. It is a configurable singleton.
+JsonMapper
+This handles JSON Serialisation and Deserialisation
+XMLMapper
+This handles XML Serialisation and Deserialisation
+MessageComponentValidator
+This validates Message Definitions or Message Components, it can perform Schema
+Validation, Message Rule and Business Rule Validation
+MessageDefinitionSpec
+This is generated metadata for each generated Message Definition. It is used to provide the ISO20022MessageModel with
+additional context for each MessageDefinition (such as namespace). The ISO20022MessageModel may then use this extra
+information to initialise its components, such as the XMLMapper.
+ISO20022MessageModel
+This is the main entry point, it is a configurable singleton and is provided with context/metadata from the generated MessageDefinitions during instantiation, this context can then be used to bootsrap the underlying supporting components.
+The
+ISO20022MessageModel
+contains an overloaded
+ISO20022MessageModel.init()
+method as well as a traditional
+ISO20022MessageModel.getInstance()
+The
+init()
+call does a singleton check in the same manner as
+getInstance()
+, however we differentiate with the intention that
+init()
+can accept configuration arguments, and we expect this to happen only once within an application.
+The expect behaviour is a single
+init()
+at application startup, and then usage of
+getInstance()
+thereafter.
+Repeated
+init()
+calls will return the original instance an log an error
+Calling
+getInstance()
+without previously initialising through
+init()
+will result in a Runtime Exception.
+API change likely
+This approach of init() vs getInstance() will likely be changed into a single callable method.
+ISO20022 Concepts
+Features

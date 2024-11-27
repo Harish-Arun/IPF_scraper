@@ -1,0 +1,372 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/features/transport-reference.html ===
+Transport Reference
+This page details all the interfaces going into and out of the CSM service. It has been split into two parts.
+Each part describes message queues and topics where the data flows:
+Part 1 - from the payment/recall/direct debit service to CSM service
+Part 2 - from the CSM service to the payment/recall/direct debit service
+Part 1: Payment/Recall Service to CSM service
+ID
+Name
+ISO20022 payload
+Description
+JMS Queue Default Value
+Kafka Topic Default Value
+JMS Queue Config Key
+Kafka topic key (see note)
+1-1
+Clear and settle request
+pacs.008
+Payment service indicates that it wants to send a credit transfer to the CSM
+clearandsettle.debtor.to.csm.queue
+CLEARANDSETTLE_DEBTOR_TO_CSM
+csm.jms.clear-and-settle.debtor-to-csm.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.debtor-to-csm
+1-2
+Scheme rules request (Debtor)
+pacs.008
+Validate a credit transfer before sending to a CSM, will mark as DEBTOR unless user specifies a flowType in supportingContext.  Note.  can handle all types of validation.
+clearandsettle.debtor.to.csm.queue
+CLEARANDSETTLE_DEBTOR_TO_CSM
+csm.jms.clear-and-settle.debtor-to-csm.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.debtor-to-csm
+1-3
+Send status request
+pacs.028
+Payment service indicates that it wants to send a status inquiry request to the CSM
+clearandsettle.debtor.to.csm.queue
+CLEARANDSETTLE_DEBTOR_TO_CSM
+csm.jms.clear-and-settle.debtor-to-csm.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.debtor-to-csm
+1-4
+Creditor payment activation request (request to pay)
+pain.013
+Payment service indicates that it wants to send a request-to-pay request to the CSM
+clearandsettle.debtor.to.csm.queue
+CLEARANDSETTLE_DEBTOR_TO_CSM
+csm.jms.clear-and-settle.debtor-to-csm.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.debtor-to-csm
+1-5
+Debtor payment activation response (request to pay response)
+pain.014
+Payment service indicates that it wants to send a request-to-pay response to the CSM
+clearandsettle.debtor.to.csm.queue
+CLEARANDSETTLE_DEBTOR_TO_CSM
+csm.jms.clear-and-settle.debtor-to-csm.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.debtor-to-csm
+1-6
+Receive payment response
+pacs.002
+Response to
+2-4
+clearandsettle.creditor.to.csm.queue
+CLEARANDSETTLE_CREDITOR_TO_CSM
+csm.jms.clear-and-settle.creditor-to-csm.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.creditor-to-csm
+1-7
+Receive return response
+pacs.002
+Response to
+2-7
+rrr.from.debtor.queue
+RRR_DEBTOR_TO_CSM
+csm.jms.rrr.debtor-to-csm.queue
+csm.kafka.[consumer|producer].topics.rrr.debtor-to-csm
+1-8
+Receive Status Request Response
+pacs.002
+Response to
+2-15
+clearandsettle.creditor.to.csm.queue
+CLEARANDSETTLE_CREDITOR_TO_CSM
+csm.jms.clear-and-settle.creditor-to-csm.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.creditor-to-csm
+1-9
+RRR Debtor messages to CSM
+camt.056, pacs.028, pacs.002
+Recall service indicates that it wants to send a Recall request or Recall Enquiry Request to the CSM
+rrr.debtor.to.csm.queue
+RRR_DEBTOR_TO_CSM
+csm.jms.rrr.debtor-to-csm.queue
+csm.kafka.[consumer|producer].topics.rrr.debtor-to-csm
+1-10
+RRR Creditor messages to CSM
+pacs.004, camt.029, pacs.002
+Recall service responds to previously received Recall request with either positive or negative answer
+rrr.creditor.to.csm.queue
+RRR_CREDITOR_TO_CSM
+csm.jms.rrr.creditor-to-csm.queue
+csm.kafka.[consumer|producer].topics.rrr.creditor-to-csm
+1-11
+Scheme rules request (Creditor)
+pacs.008
+Validate a credit transfer before sending to a CSM, will mark as CREDITOR unless user specifies a flowType in supportingContext.  Note.  can handle all types of validation.
+clearandsettle.creditor.to.csm.queue
+CLEARANDSETTLE_CREDITOR_TO_CSM
+csm.jms.clear-and-settle.creditor-to-csm.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.creditor-to-csm
+1-13
+Scheme rules request
+pacs.008
+Validate a credit transfer before sending to a CSM
+clearandsettle.debtor.to.csm.queue
+CLEARANDSETTLE_VALIDATION_TO_CSM
+csm.jms.clear-and-settle.debtor-to-csm.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.debtor-to-csm
+1-14
+Send status request from creditor service
+pacs.028
+Creditor service indicates that it wants to send a status request to the CSM
+clearandsettle.creditor.to.csm.queue
+CLEARANDSETTLE_CREDITOR_TO_CSM
+csm.jms.clear-and-settle.creditor-to-csm.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.creditor-to-csm
+1-15
+Collect and settle request
+pacs.003
+Payment service indicates that it wants to send a direct debit request to the CSM
+collectandsettle.creditor.to.csm.queue
+COLLECTANDSETTLE_CREDITOR_TO_CSM
+csm.jms.collect-and-settle.creditor-to-csm.queue
+csm.kafka.[consumer|producer].topics.collect-and-settle.creditor-to-csm
+1-16
+Direct debit scheme rules request
+pacs.003
+Validate a direct debit before sending to a CSM, will mark as CREDITOR unless user specifies a flowType in supportingContext.
+collectandsettle.creditor.to.csm.queue
+COLLECTANDSETTLE_CREDITOR_TO_CSM
+csm.jms.collect-and-settle.creditor-to-csm.queue
+csm.kafka.[consumer|producer].topics.collect-and-settle.creditor-to-csm
+Part 2: CSM Service to Payment/Recall Service
+ID
+Name
+ISO20022 payload
+Description
+JMS Queue Default Value
+Kafka Topic Default Value
+JMS Queue Config Key
+Kafka topic key (see note)
+2-1
+Clear and settle response
+pacs.002
+Response to
+1-1
+clearandsettle.csm.to.debtor.queue
+CLEARANDSETTLE_CSM_TO_DEBTOR
+csm.jms.clear-and-settle.csm-to-debtor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-debtor
+2-2
+Validate against scheme rules response (Debtor)
+(N/A)
+Response to
+1-2
+clearandsettle.csm.to.debtor.queue
+CLEARANDSETTLE_CSM_TO_DEBTOR
+csm.jms.clear-and-settle.csm-to-debtor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-debtor
+2-3
+Technical response
+(N/A)
+Technical acknowledgement of message send from CSM to CSM Service to Payment Service
+clearandsettle.technical.response.queue
+CLEARANDSETTLE_TECHNICAL_RESPONSE
+csm.jms.clear-and-settle.technical-response.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.technical-response
+2-4
+Receive payment request
+pacs.008
+The CSM Service wants the Payment Service to handle this creditor credit transfer request
+clearandsettle.csm.to.creditor.queue
+CLEARANDSETTLE_CSM_TO_CREDITOR
+csm.jms.clear-and-settle.csm-to-creditor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-creditor
+2-5
+Receive payment settled request
+pacs.002
+Usually known as a pacs.002 confirmation, initiated by
+2-4
+, sent to the payment service in a creditor role after successful settlement
+clearandsettle.csm.to.creditor.queue
+CLEARANDSETTLE_CSM_TO_CREDITOR
+csm.jms.clear-and-settle.csm-to-creditor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-creditor
+2-6
+Receive payment timeout
+pacs.002
+A special variant of
+2-5
+which can be configured if the Payment Service wishes to receive payment timeouts separately
+to regular traffic to prioritise reception of pacs.008 traffic over rejected pacs.002 traffic
+clearandsettle.csm.to.creditor.queue
+CLEARANDSETTLE_CSM_TO_CREDITOR
+csm.jms.clear-and-settle.csm-to-creditor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-creditor
+2-7
+Receive return request
+pacs.004
+The CSM has sent a payment return to the payment service
+clearandsettle.csm.to.debtor.queue
+CLEARANDSETTLE_CSM_TO_DEBTOR
+csm.jms.clear-and-settle.csm-to-debtor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-debtor
+2-8
+Receive payment status inquiry request
+pacs.028
+The CSM has sent a payment status inquiry to the payment service
+clearandsettle.csm.to.debtor.queue
+CLEARANDSETTLE_CSM_TO_DEBTOR
+csm.jms.clear-and-settle.csm-to-debtor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-debtor
+2-9
+Status request response
+pacs.002
+Response to
+1-3
+clearandsettle.csm.to.creditor.queue
+CLEARANDSETTLE_CSM_TO_CREDITOR
+csm.jms.clear-and-settle.csm-to-creditor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-creditor
+2-10
+Debtor request to pay request
+pain.014
+Response to
+1-5
+clearandsettle.csm.to.creditor.queue
+CLEARANDSETTLE_CSM_TO_CREDITOR
+csm.jms.clear-and-settle.csm-to-creditor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-creditor
+2-11
+Creditor request to pay response
+pain.014
+Response to
+1-4
+clearandsettle.csm.to.debtor.queue
+CLEARANDSETTLE_CSM_TO_DEBTOR
+csm.jms.clear-and-settle.csm-to-debtor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-debtor
+2-12
+Liquidity position notification
+camt.052
+Liquidity position notification forwarded to the Payment Service
+csm.notifications.queue
+CSM_NOTIFICATIONS
+csm.jms.notifications.queue
+csm.kafka.[consumer|producer].topics.notifications
+2-13
+Liquidity adjustment notification
+camt.054
+Liquidity adjustment notification forwarded to the Payment Service
+csm.notifications.queue
+CSM_NOTIFICATIONS
+csm.jms.notifications.queue
+csm.kafka.[consumer|producer].topics.notifications
+2-14
+Participant unavailable notification
+admi.004
+Participant unavailable notification forwarded to the Payment Service
+csm.notifications.queue
+CSM_NOTIFICATIONS
+csm.jms.notifications.queue
+csm.kafka.[consumer|producer].topics.notifications
+2-15
+Receive Status Request
+pacs.028
+CSM has sent a status inquiry message to the payment service
+clearandsettle.csm.to.creditor.queue
+CLEARANDSETTLE_CSM_TO_CREDITOR
+csm.jms.clear-and-settle.csm-to-creditor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-creditor
+2-16
+All messages from CSM to RRR Debtor (respond to a recall)
+pacs.004, camt.029, pacs.002
+CSM Service sends a response to previously issued recall request on which it can be responded either positively (pacs.004) or negatively (camt.029).
+rrr.csm.to.debtor.queue
+RRR_CSM_TO_DEBTOR
+csm.jms.rrr.csm-to-debtor.queue
+csm.kafka.[consumer|producer].topics.rrr.csm-to-debtor
+2-17
+All messages from CSM to RRR Creditor
+camt.056, pacs.028, pacs.002, pacs.004
+CSM Service sends recall request or recall enquiry request for previously processed transaction.
+rrr.csm.to.creditor.queue
+RRR_CSM_TO_CREDITOR
+csm.jms.rrr.csm-to-creditor.queue
+csm.kafka.[consumer|producer].topics.rrr.csm-to-creditor
+2-18
+Validate against scheme rules response (Creditor)
+(N/A)
+Response to
+1-2
+clearandsettle.csm.to.creditor.queue
+CLEARANDSETTLE_CSM_TO_CREDITOR
+csm.jms.clear-and-settle.csm-to-creditor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-creditor
+2-19
+Validate against scheme rules response (Debtor)
+(N/A)
+Response to
+1-2
+clearandsettle.csm.to.debtor.queue
+CLEARANDSETTLE_CSM_TO_DEBTOR
+csm.jms.clear-and-settle.csm-to-debtor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-debtor
+2-20
+Status request response
+pacs.002
+Response to
+1-14
+clearandsettle.csm.to.creditor.queue
+CLEARANDSETTLE_CSM_TO_CREDITOR
+csm.jms.clear-and-settle.csm-to-creditor.queue
+csm.kafka.[consumer|producer].topics.clear-and-settle.csm-to-creditor
+2-21
+Collect and settle response
+pacs.003
+Response to
+1-15
+collectandsettle.csm.to.creditor.queue
+COLLECTANDSETTLE_CSM_TO_CREDITOR
+csm.jms.collect-and-settle.csm-to-creditor.queue
+csm.kafka.[consumer|producer].topics.collect-and-settle.csm-to-creditor
+2-22
+Technical response
+(N/A)
+Technical acknowledgement of direct debit message sent from CSM to CSM Service to Payment Service
+collectandsettle.technical.response.queue
+COLLECTANDSETTLE_TECHNICAL_RESPONSE
+csm.jms.collect-and-settle.technical-response.queue
+csm.kafka.[consumer|producer].topics.collect-and-settle.technical-response
+2-23
+Validate against direct debit scheme rules response
+(N/A)
+Response to
+1-16
+collectandsettle.csm.to.creditor.queue
+COLLECTANDSETTLE_CSM_TO_CREDITOR
+csm.jms.collect-and-settle.csm-to-creditor.queue
+csm.kafka.[consumer|producer].topics.collect-and-settle.csm-to-creditor
+Note about Kafka configuration keys
+Unlike JMS, Kafka configuration is directional, which is why configuration keys have been specified like this:
+csm.kafka.
+[consumer|producer]
+.topics.clear-and-settle.creditor-to-csm
+When overriding the topic configuration, be sure to set the right property for the right service depending on the
+direction of the message. Use the following table to determine the right prefix to use:
+Message kind
+Kafka config prefix for Payment/R service
+Kafka config prefix for CSM service
+Payment Service to CSM service (Part 1)
+csm.kafka.
+producer
+.topics
+csm.kafka.
+consumer
+.topics
+CSM service to Payment Service (Part 2)
+csm.kafka.
+consumer
+.topics
+csm.kafka.
+producer
+.topics
+Features
+Validations

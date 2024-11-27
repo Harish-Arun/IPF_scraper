@@ -1,0 +1,95 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/database-settings/database-settings-indexes.html ===
+Indexes
+Core Indexes
+Comma separated values indicate a composite index
+Collection
+Index
+Name
+journal
+eventPayloads.tags
+_id, loSeq
+persistenceId, loSeq, hiSeq
+journal_tag_index_other
+low_sequence_sort
+akka_persistence_high_low_seq_journal_index
+snapshot
+persistenceId, sequenceNumber, timestamp
+Application Indexes
+All indexes defined below are single field indexes
+Collection
+Index
+directory-mapping
+directoryID
+settings-participant
+payload.csmAgentId
+payload.csmParticipantIdentifier
+status
+source
+settings-iban-plus
+payload.isoCountryCode
+payload.ibanIsoCountryCode
+payload.ibanNationalId
+status
+settings-iban-structure
+payload.ibanCountryCode
+status
+settings-exclusion-list
+payload.ibanCountryCode
+payload.ibanNationalId
+status
+settings-party-entity
+payload.entityIdentifiers.identifier
+payload.entityIdentifiers.identifierType
+payload.entityIdentifiers.identifierSubType
+payload.entityAddress.country
+payload.entityDataSource
+status
+source
+settings-bicdir2018
+payload.bicCode
+payload.branchCode
+status
+source
+settings-processing-entity
+processingEntity
+payload.entityIdentifiers.identifier
+payload.entityIdentifiers.identifierType
+payload.entityAddress.country
+status
+settings-agent-settings
+processingEntity
+payload.agentUniqueId
+payload.agentIdentifiers.identifier
+payload.agentIdentifiers.identifierType
+payload.agentIdentifiers.identifierSubType
+payload.agentAddress.country
+status
+settings-agent-clearing-settings
+processingEntity
+payload.agentUniqueId
+status
+settings-agent-settlement-settings
+processingEntity
+payload.agentUniqueId
+payload.transferCurrencies
+payload.transferDirection
+status
+settings-cs-agent-selection-settings
+processingEntity
+payload.transferCurrencies
+payload.paymentType
+payload.serviceLevel
+payload.csmAgentSelectionOptions.clearingSettlementMethod
+payload.selectionId
+status
+settings-generic-processing-settings
+processingEntity
+payload.settingCategory
+payload.categoryProcessingSettings.accountCurrency
+payload.categoryProcessingSettings.accountType
+payload.categoryProcessingSettings.transferCurrencies.currency
+payload.categoryProcessingSettings.partyIdentifierType
+payload.categoryProcessingSettings.partyIdentifierSubType
+status
+Database Settings
+Cosmos DB settings

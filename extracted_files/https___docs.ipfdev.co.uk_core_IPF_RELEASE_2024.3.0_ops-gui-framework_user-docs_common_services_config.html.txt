@@ -1,0 +1,7 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/common/services/config.html ===
+Config
+The config service gets the search config from the
+ops-gui-service
+by sending a http get request to './config'.
+The config file contains the autocomplete values for some of the dropdowns and input fields and is used across the app.
+Here you can see an example of the autocomplete reason codes and currencies in the payment search page.

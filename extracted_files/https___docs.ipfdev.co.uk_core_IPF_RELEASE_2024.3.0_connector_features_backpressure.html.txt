@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/features/backpressure.html ===
+Backpressure
+By virtue of using the Akka Streams library, the connectors are built to be reactive, i.e. demand-based.
+This means we benefit from backpressure and are able to deal with heavy loads without a large performance hit, or systems crashing due to over-consumption of resources (provided the system is tuned correctly).
+Akka Streams are composed of three main components which, together, form a runnable graph.
+These are sources, sinks and flows.
+Sources are producers (emit messages), sinks are consumers (receive messages) and flows are a combination of both (transform messages).
+Consumers are able to signal demand for more messages, which is beneficial as this way consumers don’t get inundated with messages.
+Using backpressure this way is most effective when messages are written to some intermediate data storage, i.e. event store, db, kafka topic or jms queue as this way peaks in message production won’t affect the downstream consumers.
+In some situations (e.g. HTTP transports), backpressure can cause requests to be rejected under heavy load as messages have nowhere to go if the consumers cannot process them fast enough.
+Though this situation is the same with or without backpressure.
+Features
+Message Throttling

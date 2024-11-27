@@ -1,0 +1,242 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/csm-participant/stet-routing-tables-mapping.html ===
+STET Agreement Exports File Mapping
+File Types Supported
+File Name
+File Types Supported
+File Formats Supported
+File Naming Conventions
+STET Agreement Export File
+FULL
+XML
+agreements
+_AGGR2EU_NN_YYYYMMDD_NNNNNN
+AWS S3 Ingestion identifies this file when the file name starts with "agreements".
+The client implementations should not modify the files names provided by industry sources and ingest the files as received.
+Mapping Definitions
+Below table provides the mapping as performed from STET Agreements Exports file into CSM Participants.
+STET Agreement Exports File Property (Source)
+CSM Participant Property (Destination)
+Comment
+exchangeServiceId
+csmAgentId
+csmAgentId is concatenation of CONSTANT
+STET
+, exchangeServiceId, messageTypeCode
+messageTypeCode
+csmAgentId
+csmAgentId is concatenation of CONSTANT
+STET
+, exchangeServiceId, messageTypeCode
+directParticipantPrincipalIdentifier
+csmParticipantIdentifier
+participantPrincipalIdentifier = directParticipantPrincipalIdentifier
+participantType
+if
+participantPrincipalIdentifier
+=
+directParticipantPrincipalIdentifier
+true then
+DIRECT
+else
+INDIRECT
+Example Mapping
+Source Record from Industry file
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<agreementExport>
+    <metaData>
+        <referentialVersion>35</referentialVersion>
+        <agreementName>Belgian Instant Payment agreement</agreementName>
+        <schemaVersion>0.7</schemaVersion>
+        <creationDate>2020-05-14</creationDate>
+        <targetUseDate>2020-05-20</targetUseDate>
+        <environment>REF</environment>
+    </metaData>
+    <agreementDescription>
+        <agreementId>IPBE</agreementId>
+        <agreementName>Belgian Instant Payment agreement</agreementName>
+        <shortLabel>BE IP agreement</shortLabel>
+        <description>Belgian Instant Payment agreement Description</description>
+        <salience>4</salience>
+        <currency>EUR</currency>
+        <exchangeService>
+            <exchangeServiceId>SCTINST</exchangeServiceId>
+            <shortLabel>SCT Inst</shortLabel>
+            <longLabel>SEPA INSTANT CREDIT TRANSFERT</longLabel>
+            <vatSubmitted>false</vatSubmitted>
+            <operatingCSM>STET-IP</operatingCSM>
+            <messageTypes>
+                <messageTypeCode>DR</messageTypeCode>
+                <shortLabel>IP DR</shortLabel>
+                <longLabel>Instant Payment Delivery Report</longLabel>
+                <accountableNature>true</accountableNature>
+                <rMessage>false</rMessage>
+                <transactionFormatVersion>
+                    <format>pacs.002.001</format>
+                    <version>03</version>
+                </transactionFormatVersion>
+            </messageTypes>
+            <messageTypes>
+                <messageTypeCode>DS02</messageTypeCode>
+                <shortLabel>IP DS-02</shortLabel>
+                <longLabel>Instant Payment DS-02</longLabel>
+                <accountableNature>false</accountableNature>
+                <rMessage>false</rMessage>
+                <transactionFormatVersion>
+                    <format>pacs.008.001</format>
+                    <version>02</version>
+                </transactionFormatVersion>
+            </messageTypes>
+            <messageTypes>
+                <messageTypeCode>DS03C</messageTypeCode>
+                <shortLabel>IP DS-03C confirmation</shortLabel>
+                <longLabel>Instant Payment DS-03 confirmation</longLabel>
+                <accountableNature>true</accountableNature>
+                <rMessage>false</rMessage>
+                <transactionFormatVersion>
+                    <format>pacs.002.001</format>
+                    <version>03</version>
+                </transactionFormatVersion>
+            </messageTypes>
+            <messageTypes>
+                <messageTypeCode>DS03R</messageTypeCode>
+                <shortLabel>IP DS-03R reject</shortLabel>
+                <longLabel>Instant Payment DS-03 reject</longLabel>
+                <accountableNature>false</accountableNature>
+                <rMessage>false</rMessage>
+                <transactionFormatVersion>
+                    <format>pacs.002.001</format>
+                    <version>03</version>
+                </transactionFormatVersion>
+            </messageTypes>
+            <messageTypes>
+                <messageTypeCode>DS05</messageTypeCode>
+                <shortLabel>IP DS-05 recall</shortLabel>
+                <longLabel>Instant Payment DS-05 recall request</longLabel>
+                <accountableNature>false</accountableNature>
+                <rMessage>true</rMessage>
+                <transactionFormatVersion>
+                    <format>camt.056.001</format>
+                    <version>01</version>
+                </transactionFormatVersion>
+            </messageTypes>
+            <messageTypes>
+                <messageTypeCode>DS07</messageTypeCode>
+                <shortLabel>IP DS-07 Investigation payment</shortLabel>
+                <longLabel>Instant Payment DS-07 Investigation payment</longLabel>
+                <accountableNature>false</accountableNature>
+                <rMessage>true</rMessage>
+                <transactionFormatVersion>
+                    <format>pacs.028.001</format>
+                    <version>01</version>
+                </transactionFormatVersion>
+            </messageTypes>
+            <messageTypes>
+                <messageTypeCode>DS08</messageTypeCode>
+                <shortLabel>IP DS-08 Recall RRO</shortLabel>
+                <longLabel>Instant Payment DS-08 Recall RRO</longLabel>
+                <accountableNature>false</accountableNature>
+                <rMessage>true</rMessage>
+                <transactionFormatVersion>
+                    <format>camt.056.001</format>
+                    <version>01</version>
+                </transactionFormatVersion>
+            </messageTypes>
+            <messageTypes>
+                <messageTypeCode>DS6C</messageTypeCode>
+                <shortLabel>IP DS-06C positive answer</shortLabel>
+                <longLabel>Instant Payment DS-06 positive answer</longLabel>
+                <accountableNature>true</accountableNature>
+                <rMessage>true</rMessage>
+                <transactionFormatVersion>
+                    <format>pacs.004.001</format>
+                    <version>02</version>
+                </transactionFormatVersion>
+            </messageTypes>
+            <messageTypes>
+                <messageTypeCode>DS6R</messageTypeCode>
+                <shortLabel>IP DS-06R negative answer</shortLabel>
+                <longLabel>Instant Payment DS-06 negative answer</longLabel>
+                <accountableNature>false</accountableNature>
+                <rMessage>true</rMessage>
+                <transactionFormatVersion>
+                    <format>camt.029.001</format>
+                    <version>03</version>
+                </transactionFormatVersion>
+            </messageTypes>
+            <messageTypes>
+                <messageTypeCode>DS7R</messageTypeCode>
+                <shortLabel>IP DS-07R Investigation recall</shortLabel>
+                <longLabel>Instant Payment DS-07R Investigation recall</longLabel>
+                <accountableNature>false</accountableNature>
+                <rMessage>true</rMessage>
+                <transactionFormatVersion>
+                    <format>pacs.028.001</format>
+                    <version>01</version>
+                </transactionFormatVersion>
+            </messageTypes>
+            <messageTypes>
+                <messageTypeCode>DS9C</messageTypeCode>
+                <shortLabel>IP DS-09C positive answer Recall RRO</shortLabel>
+                <longLabel>Instant Payment DS-09C positive answer recall RRO</longLabel>
+                <accountableNature>true</accountableNature>
+                <rMessage>true</rMessage>
+                <transactionFormatVersion>
+                    <format>pacs.004.001</format>
+                    <version>02</version>
+                </transactionFormatVersion>
+            </messageTypes>
+            <messageTypes>
+                <messageTypeCode>DS9R</messageTypeCode>
+                <shortLabel>IP DS-09R negative answer recall RRO</shortLabel>
+                <longLabel>Instant Payment DS-09R negative answer recall RRO</longLabel>
+                <accountableNature>false</accountableNature>
+                <rMessage>true</rMessage>
+                <transactionFormatVersion>
+                    <format>camt.029.001</format>
+                    <version>03</version>
+                </transactionFormatVersion>
+            </messageTypes>
+        </exchangeService>
+        <rejectCause>
+            <rejectCode>IBE04</rejectCode>
+            <codeISO>FF01</codeISO>
+        </rejectCause>
+        <rejectCause>
+            <rejectCode>TX45</rejectCode>
+            <codeISO>FF01</codeISO>
+        </rejectCause>
+    </agreementDescription>
+    <detailedRoutings>
+        <exchangeServiceId>SCTINST</exchangeServiceId>
+        <messageTypeCode>DS02</messageTypeCode>
+        <directParticipantPrincipalIdentifier>NBBEBEB04P1</directParticipantPrincipalIdentifier>
+        <participantPrincipalIdentifier>IPDTBEB04P1</participantPrincipalIdentifier>
+        <exchangeManagerPrincipalIdentifier>IPDTBEB04P1</exchangeManagerPrincipalIdentifier>
+        <sepacomFlag>false</sepacomFlag>
+        <subscriptionType>R</subscriptionType>
+        <participantIdentifier>
+            <type>BIC</type>
+            <code>IPDTBEB04P1</code>
+        </participantIdentifier>
+    </detailedRoutings>
+</agreementExport>
+Destination Record - CSM Participant
+{
+  "csmAgentId": null,
+  "csmParticipantIdentifier": "IPDTBEB04P1",
+  "participantName": null,
+  "domicileAddress": null,
+  "participantCity": null,
+  "postalCode": null,
+  "postalAddress": null,
+  "participantCountry": null,
+  "activeFromDate": "2020-05-20T00:00:00Z",
+  "activeToDate": null,
+  "participantType": null,
+  "participantsLimits": null,
+  "sicSpecificFields": null,
+  "routingBIC": null,
+  "paymentTypeAllowedList": null
+}
+SIX Bank Master 3.0 Mapping
+Party Entity Directory

@@ -1,0 +1,114 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/credit-transfer-api/schema/ReceivePaymentSettledResponse.html ===
+Json Schema for ReceivePaymentSettledResponse
+Json Schema:
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Receive Payment Settled Response",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "responseId" : {
+      "type" : "string"
+    },
+    "requestId" : {
+      "type" : "string"
+    },
+    "processingContext" : {
+      "$ref" : "#/definitions/ProcessingContext"
+    },
+    "version" : {
+      "$ref" : "#/definitions/Version"
+    },
+    "createdAt" : { },
+    "ipfId" : {
+      "type" : "string"
+    },
+    "responseCode" : {
+      "type" : "string"
+    },
+    "status" : {
+      "type" : "string",
+      "enum" : [ "SUCCESS", "REJECT", "FAILURE", "PENDING" ]
+    },
+    "customBusinessData" : {
+      "$ref" : "#/definitions/SupportingContext"
+    },
+    "schemeName" : {
+      "type" : "string"
+    }
+  },
+  "definitions" : {
+    "ProcessingContext" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "associationId" : {
+          "type" : "string"
+        },
+        "checkpoint" : {
+          "type" : "string"
+        },
+        "unitOfWorkId" : {
+          "type" : "string"
+        },
+        "clientRequestId" : {
+          "type" : "string"
+        },
+        "processingEntity" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Version" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "major" : {
+          "type" : "integer"
+        },
+        "minor" : {
+          "type" : "integer"
+        },
+        "patch" : {
+          "type" : "integer"
+        }
+      }
+    },
+    "SupportingContext" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "headers" : {
+          "$ref" : "#/definitions/SupportingHeader"
+        },
+        "metaData" : {
+          "$ref" : "#/definitions/SupportingMetaData"
+        }
+      }
+    },
+    "SupportingHeader" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "values" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "SupportingMetaData" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "values" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "string"
+          }
+        }
+      }
+    }
+  }
+}

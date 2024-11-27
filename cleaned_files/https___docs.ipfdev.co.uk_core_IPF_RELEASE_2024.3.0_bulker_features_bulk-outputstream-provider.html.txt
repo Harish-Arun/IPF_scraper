@@ -1,0 +1,24 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/features/bulk-outputstream-provider.html ===
+Bulk Output Stream Provider
+A
+BulkOutputStreamProvider
+is a pluggable component whose purpose is to provide an OutputStream of a file in the file system in order to write the bulk in it.
+Implementations
+Local File OutputStream provider
+S3 OutputStream Provider
+Maven Dependencies
+To use the Local Output Stream Provider the following dependency must be provided
+<dependency>
+    <groupId>com.iconsolutions.ipf.bulk</groupId>
+    <artifactId>ipf-bulker-output-stream-local</artifactId>
+</dependency>
+To use the S3 Output Stream Provider the following dependency must be provided
+<dependency>
+    <groupId>com.iconsolutions.ipf.bulk</groupId>
+    <artifactId>ipf-bulker-output-stream-s3</artifactId>
+</dependency>
+If both dependencies are added only one should be enabled at a time, and they can be toggled on/off with the following properties:
+ipf.bulker.outputstream.local.enabled
+ipf.bulker.outputstream.s3.enabled
+Joiner
+S3 Bulk Outputstream Provider

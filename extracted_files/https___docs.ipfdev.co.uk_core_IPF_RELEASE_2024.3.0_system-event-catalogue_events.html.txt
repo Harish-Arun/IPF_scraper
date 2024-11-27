@@ -1,0 +1,886 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/system-event-catalogue/events.html ===
+System Event Catalogue
+This page documents all system events that can be raised within IPF. It does not include custom events defined elsewhere,
+such as inside customer implementations. Payload schemas are documented as
+JSON Schema draft 4
+.
+Use a tool such as
+this one
+for a visual representation of the payload
+schemas.
+All events contain some basic top-level information, and a payload. The top-level information is represented as
+members of the
+IPFSystemEvent
+type, and their payloads are documented below.
+The schema for the top-level
+IPFSystemEvent
+type is as follows:
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "IPF System Event",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "name" : {
+      "type" : "string"
+    },
+    "level" : {
+      "type" : "string",
+      "enum" : [ "DEBUG", "INFO", "WARN", "ERROR" ]
+    },
+    "createdAt" : { },
+    "version" : {
+      "$ref" : "#/definitions/EventVersion"
+    },
+    "type" : {
+      "type" : "string",
+      "enum" : [ "TECHNICAL", "FUNCTIONAL" ]
+    },
+    "processingContext" : {
+      "$ref" : "#/definitions/ProcessingContext"
+    },
+    "source" : {
+      "type" : "string"
+    },
+    "metadata" : {
+      "type" : "object",
+      "additionalProperties" : {
+        "type" : "string"
+      }
+    },
+    "payload" : {
+      "$ref" : "#/definitions/Object"
+    }
+  },
+  "definitions" : {
+    "EventVersion" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "major" : {
+          "type" : "integer"
+        },
+        "minor" : {
+          "type" : "integer"
+        },
+        "patch" : {
+          "type" : "integer"
+        }
+      },
+      "required" : [ "major", "minor", "patch" ]
+    },
+    "ProcessingContext" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "associationId" : {
+          "type" : "string"
+        },
+        "checkpoint" : {
+          "type" : "string"
+        },
+        "unitOfWorkId" : {
+          "type" : "string"
+        },
+        "clientRequestId" : {
+          "type" : "string"
+        },
+        "processingEntity" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Object" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : { }
+    }
+  }
+}
+Core System Events
+Name
+Description
+Type
+Level
+Payload schema
+ActionInvoked
+Raised when the IPF domain invokes an action on an external system
+FUNCTIONAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "action" : {
+      "type" : "string"
+    },
+    "behaviour" : {
+      "type" : "string"
+    }
+  }
+}
+ActionRetriesExhausted
+Raised when the configured number of ActionRetryEvents have been attempted with no resolution
+FUNCTIONAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "action" : {
+      "type" : "string"
+    },
+    "behaviour" : {
+      "type" : "string"
+    }
+  }
+}
+ActionTimeout
+Raised when an action invoked by IPF has not received a reply within a configured timeout
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "action" : {
+      "type" : "string"
+    },
+    "behaviour" : {
+      "type" : "string"
+    }
+  }
+}
+ApplicationReady
+Raised when a node first starts
+TECHNICAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "time" : { },
+    "timeSinceApplicationStarted" : { },
+    "applicationContextName" : {
+      "type" : "string"
+    },
+    "runningConnectors" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
+    }
+  }
+}
+ApplicationShuttingDown
+Raised when a node receives a signal to shut down (but not when killed)
+TECHNICAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Application Shutting Down Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "startTime" : { },
+    "shutdownTime" : { },
+    "applicationContextName" : {
+      "type" : "string"
+    }
+  }
+}
+ApplicationStarted
+Raised when a node first starts
+TECHNICAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Application Started Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "startTime" : { },
+    "timeTaken" : { },
+    "applicationContextName" : {
+      "type" : "string"
+    },
+    "runtimeLibraries" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
+    }
+  }
+}
+ApplicationValidationFailure
+Raised when a node first starts
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Application Validation Failure Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errors" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      }
+    },
+    "applicationContextName" : {
+      "type" : "string"
+    }
+  }
+}
+AuthenticationFailed
+Published when authentication fails
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorCode" : {
+      "type" : "string"
+    },
+    "tokenIdentifier" : {
+      "type" : "string"
+    },
+    "exceptionMessage" : {
+      "type" : "string"
+    }
+  }
+}
+CircuitBreakerStateChanged
+Published when the circuit breaker transitions state
+TECHNICAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    },
+    "fromState" : {
+      "type" : "string"
+    },
+    "toState" : {
+      "type" : "string"
+    }
+  }
+}
+ClusterStatusUpdate
+Raised when the Akka cluster state is changed
+TECHNICAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Cluster Status Update Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "actorSystemName" : {
+      "type" : "string"
+    },
+    "member" : {
+      "$ref" : "#/definitions/Member"
+    },
+    "state" : {
+      "type" : "string"
+    }
+  },
+  "definitions" : {
+    "Member" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "roles" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      }
+    }
+  }
+}
+CommandReceived
+Raised when IPF receives a command as a response to an action, or an initiating command from an external system
+FUNCTIONAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "command" : {
+      "type" : "string"
+    },
+    "behaviour" : {
+      "type" : "string"
+    },
+    "state" : {
+      "type" : "string"
+    }
+  }
+}
+CorrelationFound
+Published when a Correlation is found by CorrelationId
+TECHNICAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    },
+    "creationDate" : { },
+    "correlationId" : {
+      "type" : "string"
+    }
+  }
+}
+CorrelationNotFound
+Published when an CorrelationId cannot be matched with a UnitOfWorkId
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    }
+  }
+}
+CorrelationSaved
+Published when an Correlation mapping is saved
+TECHNICAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    }
+  }
+}
+DomainEventPersisted
+Raised when a Domain Event has been successfully persisted
+FUNCTIONAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Current Event Context",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "eventName" : {
+      "type" : "string"
+    },
+    "eventSource" : {
+      "type" : "string"
+    },
+    "aggregateId" : {
+      "type" : "string"
+    },
+    "aggregateCreatedAt" : { },
+    "resultingAggregateStatus" : {
+      "type" : "string"
+    },
+    "potentiallyFinal" : {
+      "type" : "boolean"
+    },
+    "behaviour" : {
+      "type" : "string"
+    }
+  },
+  "required" : [ "potentiallyFinal" ]
+}
+FlowFinished
+Raised when a transaction has reached a terminal (final) state
+FUNCTIONAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "behaviour" : {
+      "type" : "string"
+    },
+    "state" : {
+      "type" : "string"
+    },
+    "reasonCode" : {
+      "type" : "string"
+    }
+  }
+}
+FlowStarted
+Raised when an IPF flow receives an initial command
+FUNCTIONAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "behaviour" : {
+      "type" : "string"
+    },
+    "callingFlowId" : {
+      "type" : "string"
+    }
+  }
+}
+InboundMessageFailed
+Event published when any aspect of the message receive process fails (mapping, receiver function,etc.) - contains the exception that was raised
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    },
+    "exception" : {
+      "type" : "string"
+    },
+    "headers" : {
+      "type" : "object",
+      "additionalProperties" : {
+        "$ref" : "#/definitions/Object"
+      }
+    }
+  },
+  "definitions" : {
+    "Object" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : { }
+    }
+  }
+}
+JournalFailedToDeserialiseEvent
+Raised when the journal fails to deserialise an event from the event store
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "stringRepresentation" : {
+      "type" : "string"
+    },
+    "exceptionMessage" : {
+      "type" : "string"
+    }
+  }
+}
+JournalFailedToSerialiseEvent
+Raised when the journal fails to serialise an event from the event store
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "failedObject" : {
+      "$ref" : "#/definitions/Object"
+    },
+    "exceptionMessage" : {
+      "type" : "string"
+    }
+  },
+  "definitions" : {
+    "Object" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : { }
+    }
+  }
+}
+MessageReceived
+Published when a message is received by a ReceiveConnector
+TECHNICAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    }
+  }
+}
+MessageSent
+Published when a message is sent by a SendConnector
+TECHNICAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    }
+  }
+}
+OutboundMessageFailed
+Published when any error relating to sending of messages is raised (mapping, enqueue, etc.)
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    },
+    "exception" : {
+      "type" : "string"
+    },
+    "message" : {
+      "type" : "string"
+    }
+  }
+}
+OutboundMessageValidationFailed
+Published in case of outgoing message validation failure
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    },
+    "reasonCode" : {
+      "type" : "string"
+    },
+    "description" : {
+      "type" : "string"
+    }
+  }
+}
+PersistenceAvailable
+Raised when the persistence layer is available for read or write
+TECHNICAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "mode" : {
+      "type" : "string",
+      "enum" : [ "READ", "WRITE" ]
+    },
+    "clusterId" : {
+      "$ref" : "#/definitions/ClusterId"
+    }
+  },
+  "definitions" : {
+    "ClusterId" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "value" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}
+PersistenceUnavailable
+Raised when the persistence plugin is unable to read from the journal
+TECHNICAL
+WARN
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "mode" : {
+      "type" : "string",
+      "enum" : [ "READ", "WRITE" ]
+    },
+    "clusterId" : {
+      "$ref" : "#/definitions/ClusterId"
+    }
+  },
+  "definitions" : {
+    "ClusterId" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "value" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}
+RequestReplyCompleted
+Published when a request reply is completed by a RequestReplySendConnector
+TECHNICAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    },
+    "duration" : { }
+  }
+}
+StateTimeout
+Raised when an IPF flow stays in a specific state for longer than configured
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "state" : {
+      "type" : "string"
+    },
+    "behaviour" : {
+      "type" : "string"
+    }
+  }
+}
+StateTransition
+Raised when an IPF flow moves from one state to another (as a result of receiving a response for example)
+FUNCTIONAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "previousState" : {
+      "type" : "string"
+    },
+    "newState" : {
+      "type" : "string"
+    },
+    "behaviour" : {
+      "type" : "string"
+    }
+  }
+}
+TopicUnavailable
+Published when a ConnectorTransport cannot find its kafka topic
+TECHNICAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    },
+    "topicName" : {
+      "type" : "string"
+    }
+  }
+}
+TransportAvailable
+Published when a ConnectorTransport advises it is available
+TECHNICAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    }
+  }
+}
+TransportShutdownInitiated
+Published when a transport has been instructed to stop.
+TECHNICAL
+WARN
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    },
+    "reason" : {
+      "type" : "string"
+    },
+    "description" : {
+      "type" : "string"
+    }
+  }
+}
+TransportStopped
+Published when a transport is stopped
+TECHNICAL
+WARN
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    },
+    "reason" : {
+      "type" : "string"
+    },
+    "description" : {
+      "type" : "string"
+    }
+  }
+}
+TransportUnavailable
+Published when a ConnectorTransport advises it is unavailable
+TECHNICAL
+WARN
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "connectorName" : {
+      "type" : "string"
+    },
+    "connectorTransportName" : {
+      "type" : "string"
+    }
+  }
+}
+UnexpectedCommandReceived
+Raised when the IPF domain receives a command that cannot be handled in the current state of the aggregate
+FUNCTIONAL
+INFO
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "originalCommandId" : {
+      "type" : "string"
+    },
+    "behaviour" : {
+      "type" : "string"
+    },
+    "aggregateStatus" : {
+      "type" : "string"
+    }
+  }
+}
+Concepts
+How to guides

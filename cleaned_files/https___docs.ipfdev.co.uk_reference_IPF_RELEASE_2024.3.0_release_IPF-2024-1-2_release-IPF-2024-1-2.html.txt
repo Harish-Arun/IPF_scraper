@@ -1,0 +1,39 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-1-2/release-IPF-2024-1-2.html ===
+Release Notes for IPF-2024.1.2
+This page details everything required to get going on IPF Release 2024.1.2 made available on 6th June 2024.
+There is not a 2024.1.1 release and this release (2024.1.2) is the first hotfix release for 2024.1.0
+Change Spotlight
+Fix Spotlight
+Fixed issue where, in some rare cases, generation of flow event handlers fails when building the domain.
+Release Details
+Binaries
+The core binaries are available from
+IPF-Releases
+.
+Lightbend Telemetry (formerly known as "Cinnamon") binaries are available from
+IPF Lightbend
+.
+Akka/Alpakka binaries from 2.9.x onwards are no longer on Maven Central and are available from the Akka Library
+Repository:
+<repository>
+  <id>akka-repository</id>
+  <name>Akka library repository</name>
+  <url>https://repo.akka.io/maven</url>
+</repository>
+Archetype
+The latest version of the Archetype is
+5.0.9
+Developer App
+The latest version of the Developer App is
+2.1.2
+2024.1.2 Jar/Pom list
+The Jars and Poms for 2024.1.2 and the associated versions are listed here:
+2024-1-2-artifacts.xlsx
+Archetype
+The latest version of the Archetype is
+4.0.2
+Developer App
+The latest version of the Developer App is
+1.14.6
+Migration Steps for IPF-2024.1.0
+Migration Steps for IPF-2024.1.2

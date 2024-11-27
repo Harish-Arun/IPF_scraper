@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo/guides/memory.html ===
+How do I increase the memory of the MPS build?
+Depending on how complex your MPS flow is there could be the chance that you would get an
+OutOfMemoryError
+exception when building your flow through Maven. This would largely be due to fact that we generate BDD tests that have a test scenario per transitional state.
+To increase the memory during the build and generation phase you can alter the "
+generation max heap size in mb
+"
+MPS Settings
+in the build script in as seen in the following screenshot:
+You also need to alter the heap size in the build.xml file of the root mps maven module as follows:
+Using the generated code
+Supply missing data for an action

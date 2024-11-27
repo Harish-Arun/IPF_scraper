@@ -1,0 +1,107 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/recalls-returns-roi-api/schema.html ===
+Recalls Returns ROI API
+Summary
+Description
+This API is used to request a refund of a payment engine and a CSM Service.
+Integration Pattern
+Asynchronous
+Reply Method
+Separate request/response queues/topics
+Integration Method
+JMS, Kafka
+Message Format
+JSON
+Message Model
+ISO20022
+Security
+TLS 1.2
+Resiliency Strategies
+Circuit Breaker, Backpressure, Automatic Retries
+Models
+ExecuteNegativeAnswer
+Version:
+camt.029.001.09
+Details:
+View the json schema
+ExecutePositiveAnswer
+Version:
+pacs.004.001.09
+Details:
+View the json schema
+ExecuteRecallEnquiryRequest
+Version:
+pacs.028.001.03
+Details:
+View the json schema
+ExecuteRecallEnquiryResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+ExecuteRecallRequest
+Version:
+camt.056.001.08
+Details:
+View the json schema
+NotifyNegativeAnswer
+Version:
+camt.029.001.09
+Details:
+View the json schema
+NotifyPositiveAnswer
+Version:
+pacs.004.001.09
+Details:
+View the json schema
+NotifyRecallEnquiryRequest
+Version:
+pacs.028.001.03
+Details:
+View the json schema
+NotifyRecallRequest
+Version:
+camt.056.001.08
+Details:
+View the json schema
+NotifyRecallResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+ReceiveNegativeAnswer
+Version:
+camt.029.001.09
+Details:
+View the json schema
+ReceivePositiveAnswer
+Version:
+pacs.004.001.09
+Details:
+View the json schema
+ReceivePositiveAnswerResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+ReceiveRecallEnquiryRequest
+Version:
+pacs.028.001.03
+Details:
+View the json schema
+ReceiveRecallRequest
+Version:
+camt.056.001.08
+Details:
+View the json schema
+ReceiveRecallResponse
+Version:
+admi.007.001.01
+Details:
+View the json schema
+TechnicalResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+CSM Recalls Returns ROI API
+Credit Transfer API

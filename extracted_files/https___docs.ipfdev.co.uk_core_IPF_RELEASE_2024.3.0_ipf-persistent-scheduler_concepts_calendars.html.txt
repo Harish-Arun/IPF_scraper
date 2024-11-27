@@ -1,0 +1,70 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-persistent-scheduler/concepts/calendars.html ===
+Calendars
+A Calendar is a mechanism that is used for excluding blocks of time regardless of the time specification
+that was supplied. For example, if a job is set to run once a day, it is possible to augment this specification with a
+calendar to say that it should only run once a day on weekdays, for example. More information is available
+here
+.
+If a calendar is not provided as part of the
+JobSpecification
+, then the default calendar is used.
+To define a default calendar, the configuration file has to contain
+ipf.persistent-scheduler.quartz.calendars.default
+and
+ipf.persistent-scheduler.quartz.calendars
+as in example below.
+If no default calendar is configured, then the scheduler will not use calendars and the cron expression will be honoured
+without exclusions.
+ipf.persistent-scheduler.quartz.calendars.default = "DefaultCalendar"
+
+ipf.persistent-scheduler {
+  quartz {
+    calendars {
+      DefaultCalendar {
+        type = Annual
+        description = "Default calendar"
+        exclude-dates = ["12-25", "01-01"]
+      }
+    }
+  }
+}
+Calendar Types
+Quartz calendars can be of the following types:
+Calendar type name
+Description
+Example
+Daily
+Exclude blocks of time from a day with a timezone. Use
+UTC
+or the list of timezones
+here
+.
+exclude {
+    start-time = "03:00"
+    end-time = "05:00"
+}
+timezone = UTC
+Monthly
+Exclude days from a month
+exclude-days = [1, 3, 5, 7]
+Weekly
+Exclude days of the week from a week.  Days are 1-indexed and start on Sunday, i.e. Sunday = 1, Monday = 2, etc.
+exclude-days = [1, 7] //will exclude the weekend
+Cron
+Exclude by a custom cron expression
+exclude-expression = * * 0-7,18-23 ? * *
+Holiday
+Exclude explicit dates (useful for
+moveable feasts
+like Easter or UK bank holidays) in ISO 8601
+yyyy-MM-dd
+format
+exclude-dates = ["2024-03-31", "2025-04-20"] //excludes Easter 2024 and 2025
+Annual
+Exclude calendar dates from each year in
+MM-DD
+format
+exclude-dates = ["01-01", "25-12"] //excludes New Year’s Day and Christmas Day every year
+A job can only use one calendar.
+The Action Helper
+Failed Jobs

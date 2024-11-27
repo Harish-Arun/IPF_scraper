@@ -1,0 +1,247 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-3-0/release-IPF-2024-3-0-migration.html ===
+Migration Steps for IPF-2024.3.0
+Migration Steps for Flow Generation
+Response and Reason codes
+Reason and Response code enums are now generated ONLY in the model that they are used within.  This will lead to two potential changes:
+The existing core definitions of the 'AcceptOrReject' response codes and 'ISOReasonCodes' reason codes are now provided as standard implementations. This means that the packaging of these classes is now fixed and not model dependent. Hence any use of these classes will require the import declaration to change to:
+com.iconsolutions.ipf.core.flow.domain.input.AcceptOrRejectCodes
+com.iconsolutions.ipf.core.flow.domain.input.ISOReasonCodes
+If using multi-model solutions, ensure that only the copy generated in the original model is referenced within the code.  Similar to the above this may require changing the import packaging.
+Importing Other Models
+Previously when importing other models into a DSL based solution this was achieved by adding a block into the 'mps' module such as:
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-dependency-plugin</artifactId>
+    <version>3.1.2</version>
+    <executions>
+        <execution>
+            <id>unpack-ipf-business-functions-plugin</id>
+            <phase>initialize</phase>
+            <goals>
+                <goal>unpack</goal>
+            </goals>
+            <configuration>
+                <artifactItems>
+                    <artifactItem>
+                        <groupId>__groupid of target mps model goes here__</groupId>
+                        <artifactId>__solution name of mps model goes here__</artifactId>
+                        <version>${icon-business-functions-aggregator.version}</version>
+                        <type>zip</type>
+                        <overWrite>true</overWrite>
+                        <outputDirectory>${plugin_home}</outputDirectory>
+                    </artifactItem>
+                </artifactItems>
+            </configuration>
+        </execution>
+Now the key change is that the artifactId fields is now populated with the constant 'mps' (the name of the module itself) rather than being the solution name of the project.
+Note that this change is ONLY applicable once the downstream solution being referenced has been upgraded to 2024.3.0 and is not dependent on the version of the consuming project.
+Flow Migration
+Once updated to 2024.3.0, please run any migrations that you are prompted to perform when opening the project.
+Migration Steps for Connectors
+Resiliency Settings
+withResiliencySettings(ResiliencySettings resiliencySettings)
+has been deprecated and has been replaced with
+Function<ResiliencySettings, ResiliencySettings> resiliencySettingsCustomiser
+the purpose of this is to make resiliency config available for connector operations api.
+Before
+.withResiliencySettings(ResiliencySettings.builder()
+                        .withMinimumNumberOfCalls(1)
+                        .withMaxAttempts(3)
+                        .withRetryOnSendResultWhen(s -> {
+                        .withRetryOnSendResultWhen(outcome -> {
+                            // will retry only in state 1
+                            var response = ((DeliveryOutcome) s).getResponse();
+                            var response = ((DeliveryOutcome) outcome).getResponse();
+                            return FAILURE_REPLY_STRING.equals(response.getReceivedMessage().getMessage().getPayload());
+                        })
+                        .build())
+Now the resiliency config should be passed back to the customiser. For example:
+.withResiliencySettingsCustomiser(settings -> settings.toBuilder()
+                        .withMinimumNumberOfCalls(1)
+                        .withMaxAttempts(3)
+                        .withRetryOnSendResultWhen(s -> {
+                        .withResiliencyConfig(settings.getResiliencyConfig())
+                        .withRetryOnSendResultWhen(outcome -> {
+                            // will retry only in state 1
+                            var response = ((DeliveryOutcome) s).getResponse();
+                            var response = ((DeliveryOutcome) outcome).getResponse();
+                            return FAILURE_REPLY_STRING.equals(response.getReceivedMessage().getMessage().getPayload());
+                        })
+                        .build())
+The resiliency config will automatically be created and passed as the settings argument for use elsewhere
+Local Directory Connectors and transport
+FileHealthCheckConfig
+configuration can now be specified per individual file transport. This can be achieved by using
+LocalDirectoryConnectorTransport.builder()
+and either:
+including
+fileCheckConfig
+configuration block in the main file transport config file, or
+directly providing custom root path to
+FileHealthCheckSettings create(ClassicActorSystemProvider actorSystem, String configRootPath)
+and including it into the builder by calling
+.withFileHealthCheckSettings(FileHealthCheckSettings settings)
+method on the builder
+LocalDirectoryConnectorTransport(ActorSystem actorSystem,
+String name,
+FileIngestionConfiguration fileIngestionConfiguration)
+is deprecated, and it will be removed in the next release. Please use
+LocalDirectoryConnectorTransport.builder()
+instead
+LocalDirectoryTransportConfiguration(String configRootPath, Config config)
+is deprecated, and it will be removed in the next release. Please use
+LocalDirectoryTransportConfiguration(ClassicActorSystemProvider actorSystem, String configRootPath)
+instead
+static FileHealthCheckSettings createDefault(Config config)
+is deprecated, and it will be removed in the next release. Please use
+static FileHealthCheckSettings create(ClassicActorSystemProvider actorSystem, String configRootPath)
+instead
+withTransportConfiguration
+method on
+LocalDirectoryConnectorTransport.Builder
+is marked as deprecated and scheduled for removal
+LocalDirectoryConnectorTransport
+will now filter out files that are currently being processed from its polls, enabling
+interval
+to be safely set to durations shorter than expected processing times  seconds instead of hours.
+Deprecating directory mapping from MongoDB
+directory-mapping
+collection
+Directory mapping from MongoDB
+directory-mapping
+collection will be deprecated and moved to the
+ipf.file-ingestion.directory-mapping
+HOCON configuration that will be used for directory mappings.
+From now on, its not allowed to have a file ingester without and appropriate
+directoryId
+in
+directory-mappings
+.
+Migration steps
+Backup all data from Mongo
+directory-mapping
+collection.
+For each custom ingester ensure adding related Mongo document data from
+directory-mappings
+collection to ingesters' .conf file.
+Restart application and check if there is no warnings in log with message
+Missing required HOCON configuration: ipf.file-ingestion.directory-mappings.
+Make sure that log doesnt contain warnings like:
+Mongo directory-mappings documents value doesnt exist in Hocon configuration.
+Mismatch found for Mongo directory-mappings documents value and Hocon configuration.
+Delete Mongo
+directory-mapping
+collection if previous steps are fullfiled.
+Http Connectors and transports
+HttpConnectorTransport<T>.Builder
+should use only the name, actor system and config root path when building transports.
+Use
+<T> Builder<T> builder(String name, ClassicActorSystemProvider actorSystem, String configRootPath)
+.
+HttpReceiveConnectorTransportFactory
+is deprecated and will be removed, so use
+HttpReceiveConnectorTransport.Builder
+instead.
+withTransportConfiguration
+method on
+HttpConnectorTransport<T>.Builder
+and
+HttpReceiveConnectorTransport.Builder
+is marked as deprecated and scheduled for removal
+Use
+status-codes-treated-as-errors
+to define status codes that are errors and cant be ignored. These status codes will be use while building treatErrorResponseAsFailureWhen predicates.
+Use
+<REQ_D, REQ_T, REP_D, REP_T> Builder<REQ_D, REQ_T, REP_D, REP_T> builder(String name, String configRootPath, ClassicActorSystemProvider actorSystem)
+when building Request-Reply Send connectors.
+JMS Connectors and transports
+JMS Connector Transport builder should use only name, actor system, config root path and connection factory.
+JmsConnectorTransportFactory
+is deprecated and will be removed, so use
+JmsConnectorTransport.Builder
+instead.
+JmsReceiveConnectorTransportFactory
+is deprecated and will be removed, so use
+JmsReceiveConnectorTransport.Builder
+instead.
+withTransportConfiguration
+method on
+JmsAckReceiveConnectorTransport.Builder
+,
+JmsConnectorTransport.Builder
+and
+JmsReceiveConnectorTransport.Builder
+is marked as deprecated and scheduled for removal
+Kafka Connectors and transports
+When building String-String Kafka transports,
+KafkaConnectorTransport
+,
+KafkaReceiveConnectorTransport
+and
+KafkaAckReceiveConnectorTransport
+, use stringBuilder and provide only name, actor system and config root path.
+Migration Steps for Icon Akka Plugins
+Akka Discovery MongoDB
+akka.discovery.akka-mongodb.uri
+,
+akka.discovery.akka-mongodb.set-ssl-context
+and
+akka.discovery.akka-mongodb.ssl-context
+will now default to their
+ipf.mongodb
+counterparts (
+ipf.mongodb.url
+,
+ipf.mongodb.set-ssl-context
+and
+ipf.mongodb.ssl-context
+, respectively) and no longer have to be manually set if the counterparts are provided.
+Akka Lease MongoDB
+akka.coordination.lease.mongodb.url
+,
+akka.coordination.lease.mongodb.set-ssl-context
+and
+akka.coordination.lease.mongodb.ssl-context
+will now default to their
+ipf.mongodb
+counterparts (
+ipf.mongodb.url
+,
+ipf.mongodb.set-ssl-context
+and
+ipf.mongodb.ssl-context
+, respectively) and no longer have to be manually set if the counterparts are provided.
+Akka Persistence MongoDB
+iconsolutions.akka.persistence.mongodb.read-concern
+has been removed, use
+readConcernLevel
+option in the connection string to set the read concern.
+iconsolutions.akka.persistence.mongodb.url
+,
+iconsolutions.akka.persistence.mongodb.set-ssl-context
+and
+iconsolutions.akka.persistence.mongodb.ssl-context
+will now default to their
+ipf.mongodb
+counterparts (
+ipf.mongodb.url
+,
+ipf.mongodb.set-ssl-context
+and
+ipf.mongodb.ssl-context
+, respectively) and no longer have to be manually set if the counterparts are provided.
+Migration Steps for IPF Processing Data Version 2
+All core IPF applications are able to consume data from both the V2 and V1 IPF Processing Data model. By default, all IPF Processing Data Egress plugins will export data using the V2 data model. If you have any custom applications that consume from IPF Processing Data, the following steps should be taken.
+Set Egress Applications to use V1
+Your consuming applications cannot handle the V2 data model, therefore for now you should continue to export using the V1 data model. For all applications that utilise the IPF Processing Data Egress plugins, configure
+ipf.processing-data.egress.schema-version = 1
+to continue to produce data using the V1 data model.
+Update consuming applications
+Update each application that consumes from IPF Processing Data so that they can handle both the V2 and V1 data model. For more information, see the
+consume IPF Processing Data
+guide.
+Set Egress Applications to use V2
+Once all your consuming applications are able to handle both the V2 and V1 data model, you can safely update your producers to export messages using the V2 data model. This can be done by configuring
+ipf.processing-data.egress.schema-version = 2
+ODS & GUI - Changes & Fixes
+IPF-2024.2.0 - Release Notes

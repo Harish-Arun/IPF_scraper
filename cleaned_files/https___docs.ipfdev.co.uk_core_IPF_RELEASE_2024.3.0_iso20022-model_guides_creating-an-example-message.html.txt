@@ -1,0 +1,19 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/guides/creating-an-example-message.html ===
+Creating an Example Message
+Create an example message using the ISO20022 Message Model can be done simply using the Object builders detailed in
+Fluent API
+.
+There is a roadmap item recorded in
+Future Enhancements
+for included pre-build example message
+utilities for each
+Message Definition
+. Until then example message will need to be generated as part of the implementing
+project.
+Common patterns would be leveraging
+Jeasy Random
+or
+Instancio
+.
+Migrating from the legacy IPF Payment Model
+Validating an Example Message

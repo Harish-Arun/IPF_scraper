@@ -1,0 +1,152 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/getting-started/connector-operations.html ===
+Connector Operations Quickstart
+This page provides details on how to get started with the connector operations API.
+OperableConnector Interface
+Before getting started, ensure the connectors you want to operate implement the
+OperableConnector
+interface.
+Without this, the API cannot perform operations on them.
+public interface OperableConnector {
+
+    /**
+     * Retrieve name of the connector.
+     */
+    String getName();
+
+    /**
+     * Starts the connector.
+     */
+    void start();
+
+    /**
+     * Starts the connector's health check procedure.
+     */
+    void startHealthCheck();
+
+    ConnectorHealth getHealth();
+
+    /**
+     * Shuts down the connector.
+     *
+     * @param reason the reason for shutdown
+     */
+    CompletionStage<Void> shutdown(ShutdownReason reason);
+
+    /**
+     * Returns the connectors running status
+     */
+    boolean isRunning();
+
+    /**
+     * Returns the connector's configuration.
+     */
+    ConnectorConfig getConfig();
+
+    /**
+     * Returns all the connector's transports.
+     */
+    List<? extends OperableConnectorTransport> getTransports();
+
+    /**
+     * Abstraction of a connector's configuration.
+     */
+    interface ConnectorConfig {
+
+        String getConfigRoot();
+    }
+}
+Getting Started
+To register the controller simply include the following maven dependency.
+Spring autoconfiguration will do the rest
+(
+Note: for client built applications, the version will come from the BOM for the release you are using
+).
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.connector</groupId>
+    <artifactId>connector-operations-api</artifactId>
+</dependency>
+Auditing
+This section goes over how to set up audit logging on connector operator endpoints.
+Prerequisites
+Auditing requests to the connector operations API assumes that the Spring security context has been configured and only authenticated users can make requests to protected resources.
+Without an authenticated user it is difficult to audit who made the request.
+Reactive Web Setup
+Auditing is implemented with the Spring framework’s reactive web stack.
+An auditing filter stage can be added as part of request handling by implementing the
+WebFilter
+interface and annotating it with
+@Component
+.
+An example of this is shown below.
+@Slf4j
+@Component
+public class AuditLogFilter implements WebFilter {
+
+    private final ServerWebExchangeMatcher matcher;
+
+    public AuditLogFilter() {
+        webExchangeMatcher = ServerWebExchangeMatchers.pathMatchers("/connectors/**");
+(1)
+}
+
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        ServerHttpRequest request = exchange.getRequest();
+        return webExchangeMatcher.matches(exchange)
+                .filter(ServerWebExchangeMatcher.MatchResult::isMatch)
+                .flatMap(m -> exchange.getPrincipal()
+                    .doOnNext(principal -> logPrincipal(request, principal)))
+(2)
+.then(chain.filter(exchange));
+    }
+
+    private void logPrincipal(ServerHttpRequest request, Principal principal) {
+(3)
+log.info("{} {} principal.name: {}",
+            request.getMethod(),
+            request.getPath(),
+            principal.getName());
+    }
+}
+1
+The web exchange filter allows us to only log on specific endpoints.
+2
+The principal will only be logged if it is set on the exchange, otherwise nothing will happen.
+3
+The logging can be customized, in this example it logs the request method and path with the principal’s name.
+Blocking Web Setup
+Traditional blocking web servers need to be configured differently.
+Fortunately this is also quite simple as Spring has implemented a Filter that can be used for logging requests.
+This can also be configured to only work on specific endpoints if required.
+The code snippet below shows how this can be set up by registering a couple of beans in a configuration class.
+@Configuration
+public class AuditLogConfig {
+    @Bean
+    public FilterRegistrationBean<AbstractRequestLoggingFilter>
+(1)
+loggingFilterRegistration(AbstractRequestLoggingFilter requestLoggingFilter) {
+        var registration = new FilterRegistrationBean<>(requestLoggingFilter);
+        registration.addUrlPatterns("/connectors/*");
+        return registration;
+    }
+
+    @Bean
+    public AbstractRequestLoggingFilter requestLoggingFilter() {
+(2)
+CommonsRequestLoggingFilter loggingFilter = new CommonsRequestLoggingFilter();
+        loggingFilter.setIncludeClientInfo(true);
+        loggingFilter.setIncludeQueryString(true);
+        loggingFilter.setIncludePayload(true);
+        loggingFilter.setMaxPayloadLength(64000);
+        return loggingFilter;
+    }
+}
+1
+The filter registration bean can be configured to only log requests matching the provided url patterns.
+2
+Here, the logging filter is configured.
+A custom implementation of the
+AbstractRequestLoggingFilter
+could be used instead if more control over the behaviour is required.
+Getting Started
+Receiving Connector Quickstart

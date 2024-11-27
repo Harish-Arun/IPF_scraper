@@ -1,0 +1,38 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/concepts/scenarios/stories.failure%20credit%20transfer.Handle%20Invalid%20Receive%20Payment%20Request.html ===
+Handle Invalid Receive Payment Request.story
+Scenario: Handling of invalid payment request from SIC5 where currency doesnt exist
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseMeta(java.lang.String)
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseLegacy(java.lang.String)
+When
+the i12CSMi12  sends a Customer Credit Transfer with values:
+| FIToFICstmrCdtTrf.grpHdr.msgId | NOT_SET |
+Then
+i12Payment Servicei12  receives a System Event using predicate:
+| level | ERROR                  |
+| name  | InvalidMessageReceived |
+| type  | FUNCTIONAL             |
+Then
+i12Payment Servicei12  receives a System Event using predicate:
+| level | ERROR                |
+| name  | InboundMessageFailed |
+| type  | TECHNICAL            |
+Then
+the i12Payment Servicei12  receives a Dead Letter Message using predicate:
+| error.receivedMessage.message.targetMessage                                                                                          | NOT_SET |
+| error.receivedMessage.message.transportMessage.payload.contains(#CustomerCreditTransfer.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.TxId) | true      |
+Then
+the i12Payment Servicei12  receives a System Event using predicate:
+| level | ERROR                   |
+| name  | MessageSentToDeadletter |
+| type  | TECHNICAL               |
+And
+i12CSMi12  receives a Payment Status Report using predicate:
+| FIToFIPmtStsRpt.txInf*And*Sts[0].txSts                    | RJCT     |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].stsRsnInf[0].rsn.cd      | FF01     |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].orgnlGrpInf.orgnlMsgNmId | pacs.008 |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].clrSysRef                | NOK002   |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()

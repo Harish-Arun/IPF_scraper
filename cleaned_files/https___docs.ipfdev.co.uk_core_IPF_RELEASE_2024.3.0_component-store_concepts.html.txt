@@ -1,0 +1,4 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/component-store/concepts.html ===
+Concepts
+File Component Store
+Features

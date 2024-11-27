@@ -1,0 +1,439 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/installation/guidelines.html ===
+Kubernetes Deployment Guidelines
+The following guide will provision both Ingestion and Inquiry service components, each with 3 nodes.
+Create Namespace
+Create Service Account
+Create ODS-Ingestion Manifests
+Create ODS-Inquiry Manifests
+Create Namespace
+kubectl create namespace ipf
+Create Service Account
+Create a
+serviceAccount.yaml
+file and copy the following admin service account manifest. This allows for underlying IPF Pods to use the Kubernetes API to bootstrap the underlying Akka cluster.
+Service Account
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ipf
+  namespace: ipf
+Role
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ipf
+  namespace: ipf
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "watch", "list"]
+Role Binding
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: ipf
+  namespace: ipf
+subjects:
+  - kind: ServiceAccount
+    name: ipf-ods
+    namespace: ipf
+roleRef:
+  kind: Role
+  name: ipf
+  apiGroup: rbac.authorization.k8s.io
+The
+serviceAccount.yaml
+creates a Kubernetes role, ServiceAccount and binds this role to the serviceAccount.
+Create the service account using kubectl
+kubectl apply -f serviceAccount.yaml
+Create ODS-Ingestion Manifests
+Create
+ods-ingestion.yaml
+manifests using the following contents:
+Ingestion Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ods-ingestion
+spec:
+  serviceName: ods-ingestion
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ods-ingestion
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/"
+        prometheus.io/port: "9001"
+      labels:
+        app: ods-ingestion
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - ods-ingestion
+              topologyKey: kubernetes.io/hostname
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: ipf
+      containers:
+        - name: ods-ingestion
+          image: registry.ipf.iconsolutions.com/ods-ingestion-app:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: akka-management
+              containerPort: 8558
+            - name: akka-artery
+              containerPort: 55001
+            - name: actuator
+              containerPort: 8080
+          env:
+            - name: IPF_JAVA_ARGS
+              value: "-XX:+UseContainerSupport -XX:-PreferContainerQuotaForCPUCount"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: AKKA_CLUSTER_BOOTSTRAP_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['app']
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              memory: 2Gi
+              cpu: 500m
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health/alive
+              port: akka-management
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /actuator/health
+              port: actuator
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          volumeMounts:
+            - name: config-volume
+              mountPath: /ods-ingestion-app/conf
+            - name: keystore
+              mountPath: /keystore
+      volumes:
+        - name: config-volume
+          configMap:
+            name: ods-ingestion-cm
+        - name: keystore
+          secret:
+            secretName: keystore
+Ingestion Configmap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ods-ingestion-cm
+data:
+  logback.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+
+      <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <encoder>
+          <pattern>[%date{ISO8601}] [%level] [%logger] [%marker] [%thread] - %msg MDC: {%mdc}%n</pattern>
+        </encoder>
+      </appender>
+
+      <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>8192</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="CONSOLE" />
+      </appender>
+
+      <logger name="akka.cluster" level="INFO" />
+
+      <root level="INFO">
+        <appender-ref ref="ASYNC"/>
+      </root>
+
+    </configuration>
+
+  application.conf: |
+    kafka_bootstrap_servers = "<< KAFKA_BOOTSTRAP_SERVERS >>"
+    ipf {
+      mongodb.url = "<< DATABASE_URL >>"
+      processing-data.ingress {
+        kafka {
+          consumer {
+            topic = "<< IPF_DATA_EGRESS_TOPIC_NAME >>"
+            kafka-clients = ${common-kafka-client-settings} {
+            group.id="ods-group-id"
+          }
+        }
+      }
+    }
+    ods {
+      persistence {
+        indexing.enabled = false
+        summary {
+          retry {
+            initial-timeout = 5s
+            backoff-factor = 1
+            max-attempts = 10
+          }
+          writer.buffering {
+            enabled = true
+            buffering-interval = 10ms
+            buffer-size = 500
+          }
+        }
+      }
+    }
+    common-kafka-client-settings {
+      bootstrap.servers = ${kafka_bootstrap_servers}
+      security.protocol = SSL
+      ssl {
+        protocol = SSL
+        keystore {
+          location = /keystore/kafka-client-keystore.p12
+          password = password
+        }
+        truststore {
+          location = /keystore/kafka-client-truststore.p12
+          password = password
+        }
+      }
+    }
+
+    akka {
+      kafka {
+        consumer {
+          kafka-clients = ${common-kafka-client-settings}
+          kafka-clients {
+            auto.offset.reset = earliest
+          }
+        }
+      }
+      cluster {
+        seed-nodes             = []
+        downing-provider-class = "akka.cluster.sbr.SplitBrainResolverProvider"
+      }
+
+      remote.artery {
+        enabled            = on
+        transport          = tcp
+        canonical.hostname = ${POD_IP}
+      }
+
+      discovery {
+        kubernetes-api {
+          pod-label-selector = "app=%s"
+        }
+      }
+
+      management {
+        # available from Akka management >= 1.0.0
+        health-checks {
+          readiness-path  = "health/ready"
+          liveness-path   = "health/alive"
+        }
+        http.hostname                 = ${POD_IP}
+        cluster.bootstrap {
+          contact-point-discovery {
+            discovery-method          = kubernetes-api
+            service-name              = ${AKKA_CLUSTER_BOOTSTRAP_SERVICE_NAME}
+            required-contact-point-nr = ${ipf.service.required-contact-point-nr}
+            required-contact-point-nr = ${?REQUIRED_CONTACT_POINT_NR}
+          }
+        }
+      }
+    }
+Ingestion Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ods-ingestion
+spec:
+  selector:
+    app: ods-ingestion
+  ports:
+    - protocol: TCP
+      port: 9001
+      targetPort: 9001
+      name: akka-metrics
+    - protocol: TCP
+      port: 8558
+      targetPort: 8558
+      name: akka-management
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      name: actuator
+Ingestion Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: ods-ingestion-ingress
+spec:
+  rules:
+    - host: ods-ingestion.<< DOMAIN_NAME >>
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: ods-ingestion
+                port:
+                  number: 8080
+  tls:
+    - hosts:
+        - ods-ingestion.<< DOMAIN_NAME >>
+      secretName: ods-ingestion-cert
+Create ODS-Inquiry Manifests
+Create
+ods-inquiry.yaml
+manifests using the following contents:
+Inquiry Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ods-inquiry
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ods-inquiry
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/actuator/prometheus"
+      labels:
+        app: ods-inquiry
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      serviceAccountName: ipf
+      containers:
+        - name: ods-inquiry
+          image: registry.ipf.iconsolutions.com/ods-inquiry-app:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: server-port
+              containerPort: 8080
+          env:
+            - name: IPF_JAVA_ARGS
+              value: "-XX:+UseContainerSupport -XX:-PreferContainerQuotaForCPUCount"
+          resources:
+            limits:
+              memory: 2Gi
+            requests:
+              memory: 2Gi
+              cpu: 500m
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /actuator/health
+              port: server-port
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /actuator/health
+              port: server-port
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 2
+            successThreshold: 1
+            timeoutSeconds: 1
+          volumeMounts:
+            - name: config-volume
+              mountPath: /ods-inquiry-app/conf
+      volumes:
+        - name: config-volume
+          configMap:
+            name: ods-inquiry-cm
+Inquiry Configmap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ods-ingestion-cm
+data:
+  application.conf: |
+    ipf.mongodb.url = "<< DATABASE_URL >>"
+    ods {
+      persistence.indexing.enabled = false
+      security.oauth.enabled = false
+    }
+Inquiry Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: ods-inquiry
+spec:
+  selector:
+    app: ods-inquiry
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      name: server-port
+Inquiry Ingress
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  name: ods-inquiry-ingress
+spec:
+  rules:
+    - host: ods-inquiry.<< DOMAIN_NAME >>
+      http:
+        paths:
+          - pathType: Prefix
+            path: /
+            backend:
+              service:
+                name: ods-inquiry
+                port:
+                  number: 8080
+  tls:
+    - hosts:
+        - ods-inquiry.<< DOMAIN_NAME >>
+      secretName: ods-inquiry-cert
+System Requirements
+Persistence

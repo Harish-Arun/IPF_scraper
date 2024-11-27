@@ -1,0 +1,40 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/gui-modules/user-docs/audit.html ===
+Audit
+Introduction
+The audit page tracks the actions that are performed by users when interacting with the GUI.
+Parameter
+Description
+Created
+Data and time of the event
+Action
+This shows the action the user has done
+UserID
+The Identity of the user who has taken the action
+Client IP
+The IP of the system from where the action has been carried out
+ID
+A unique ID assigned to the audit event
+Processing entity
+The entity on which the actions have been carried out
+To see the audit records for another entity, change it using the dropdown in the nav bar.
+Payload
+On clicking the  button, a screen will pop up to show the fields modified in XML format
+The actions being audited are either determined by the ICON UI screen or can be extended by the implementation.
+Getting Started
+To begin using the library simply run
+npm i @iconsolutions/audit
+in whatever angular app you need to use the library in.
+You will need to add the following to the app routing module:
+{
+    path: 'audit',
+    canActivate: [roleGuard],
+    data: { roles: ['ROLE_AUDIT'] },
+    loadChildren: () => import('@iconsolutions/audit').then((m) => m.AuditModule)
+}
+Dependencies
+Peer Dependencies
+Icon Solutions
+Icons own library for use of commonly used components.
+"@iconsolutions/common"
+GUI Modules
+Cluster Health

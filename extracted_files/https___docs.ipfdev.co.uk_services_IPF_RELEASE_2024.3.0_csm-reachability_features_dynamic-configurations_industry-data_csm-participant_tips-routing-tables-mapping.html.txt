@@ -1,0 +1,87 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/csm-participant/tips-routing-tables-mapping.html ===
+TIPS SEPA Inst Directory Mapping
+File Types Supported
+File Name
+File Types Supported
+File Formats Supported
+File Naming Conventions
+TIPS Directory
+FULL
+XML
+TIPS
+XXXTTTTYYYYMMDD
+TTTT is the type, i.e. FULL for the full version and DLTA for the delta version. XXX is the currency related to the records included in the directory;
+YYYYMMDD specifies the year, month and day as of which the TIPS Directory is valid. AWS S3 Ingestion identifies this file when the file name starts with "TIPS".
+The client implementations should not modify the files names provided by industry sources and ingest the files as received. Only FULL file supported.
+Mapping Definitions
+TIPS SEPA Inst Directory Mapping (Direct and Indirect)
+Below table provides the mapping as performed from TIPS Directory file into CSM Participants.
+TIPS Directory Property (Source)
+CSM Participant Property (Destination)
+Comment
+-
+csmAgentId
+Constant value: TIPS
+Party BIC
+csmParticipantIdentifier
+User BIC
+routingBIC
+Type of Change
+-
+Operation performed as per value. (A)dded, (M)odified, (D)elete and (U)nchanged
+Institution Name
+participantName
+Participation Type
+participantType
+Value 01 indicates Direct Participant and value 02 indicates Reachable Party
+Valid From
+activeFromDate
+Valid To
+activeToDate
+Maximum IP_Amount
+participantsLimits
+Example Mapping
+Source Record from Industry file
+<File fileId = "TIPSEURFULL20230821" xmlns="urn:TIPS:TIPSDirectory" >
+    AFPNDEB2XXXAFONE PAIEMENT                                                                                           BPCEFRPPXXXBPCEFRPPXXXU2021070599991231010000000000100000.00
+    PBNKDEFFTIPDEUTSCHE BANK AG-POSTBANK BRANCH (FORMERLY DEUTSCHE POSTBANK AG)                                         DEUTDEFFXXXDEUTDEFFXXXU2021102599991231020999999999999999999
+</File>
+Destination Record - CSM Participant
+{
+  "_id": "DynamicSettings|participant-TIPS-PBNKDEFFTIP",
+  "payload": {
+    "csmAgentId": "TIPS",
+    "csmParticipantIdentifier": "PBNKDEFFTIP",
+    "participantName": "DEUTSCHE BANK AG-POSTBANK BRANCH",
+    "routingBIC": "DEUTDEFFXXX",
+    "participantCountry": "DE",
+    "activeFromDate": {
+      "$date": "2008-01-28T00:00:00.000Z"
+    },
+    "participantType": "DIRECT"
+  },
+  "version": 1,
+  "status": "ACTIVE",
+  "processingEntity": "UNKNOWN",
+  "_class": "com.iconsolutions.ipf.dynamicsettings.repository.ParticipantSettings"
+}
+{
+  "_id": "DynamicSettings|participant-TIPS-AFPNDEB2XXX",
+  "payload": {
+    "csmAgentId": "TIPS",
+    "csmParticipantIdentifier": "AFPNDEB2XXX",
+    "participantName": "AFONE PAIEMENT",
+    "routingBIC": "BPCEFRPPXXX",
+    "participantCountry": "DE",
+    "activeFromDate": {
+      "$date": "2008-01-28T00:00:00.000Z"
+    },
+    "participantType": "INDIRECT"
+  },
+  "version": 1,
+  "status": "ACTIVE",
+  "processingEntity": "UNKNOWN",
+  "_class": "com.iconsolutions.ipf.dynamicsettings.repository.ParticipantSettings"
+}
+EBA STEP2 Routing Tables - Mapping
+SIX Bank Master 3.0 Mapping

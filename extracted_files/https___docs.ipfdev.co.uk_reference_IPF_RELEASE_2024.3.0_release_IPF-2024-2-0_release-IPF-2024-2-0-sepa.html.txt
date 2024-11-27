@@ -1,0 +1,27 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-2-0/release-IPF-2024-2-0-sepa.html ===
+SEPA CT CSM - Changes & Fixes
+This page covers the SEPA CT CSM changes and fixes provided in release IPF-2024.2.0.
+SEPA CT CSM
+Breaking change
+- Since the locations for bulker and debulker files and archived files has been changed this may impact any file paths you may have changed from the default.
+These will need to be moved to the correct locations in the sepa configurations for ipf.bulker and ipf.debulker. For more information on this change please see
+IPF-2024.2.0 Bulker & Debulker - Changes & Fixes
+New
+File count limits per LAC window introduced, configurable by
+ipf.csm.sepa-ct.lac.file-limit-per-lac
+By default, produced bulk files are limited to 500 per LAC window
+External outbound inquiry connectors to accept Pacs.027 and Pacs.087 Inquiry messages in XML format.
+Messages from scheme that fail validations will be sent to the client via the sepact-notifications-api
+pacs.008 and pacs.004 from scheme now checked to see if they are duplicates
+Postal addresses of Creditor and Debtor in pacs.008 from the scheme checked to make sure they are either structured of unstructured, not both.
+Changed
+Default output location for IQF files is now /tmp/iqf-files.
+Dev Docs updated to include âHow toâ guide for adding code to the Extension points (âFrom Schemeâ and âTo Schemeâ)
+Inbound processing is now a single flow (flow and domain events have been renamed)
+CGS-EOD cutoff time extension now specified by property
+ipf.csm.sepa-ct.lac.opening-extension.extension-in-minutes
+Fixed
+NullPointerException when failing to emit MDS during processing files from the scheme
+Transaction processing complete notification sent based on correlations for outbound flows (instead of components)
+ODS & GUI - Changes & Fixes
+Migration Steps for IPF-2024.2.0

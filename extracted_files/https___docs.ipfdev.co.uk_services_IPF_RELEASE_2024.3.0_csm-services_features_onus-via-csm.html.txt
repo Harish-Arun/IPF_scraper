@@ -1,0 +1,33 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/features/onus-via-csm.html ===
+On-us via CSM determination
+If implementing On-us via the scheme, it is possible to override the functionality for determining whether a payment counts as on-us or not.
+By default the debtor agent BIC is compared with that of the creditor agent.
+If this functionality is insufficient, for example because:
+The CSM service client is talking to multiple CSM service implementations
+On-us determination is more complex (e.g. check against a known list of "our" BICs)
+The target CSM(s) don’t use BICs, or comparison should be done against more fields
+To use the default functionality, the following interface implementation is defined by default in the CSM Service client library:
+@Override
+    public boolean isCreditTransferOnUs(FIToFICustomerCreditTransferV08 fi2fi) {
+        return Try.of(() ->
+                        fi2fi.getCdtTrfTxInf().get(0).getDbtrAgt().getFinInstnId().getBICFI()
+                                .equals(fi2fi.getCdtTrfTxInf().get(0).getCdtrAgt().getFinInstnId().getBICFI()))
+                .getOrElse(this::failedToDetermine);
+    }
+
+    @Override
+    public boolean isStatusRequestOnUs(FIToFIPaymentStatusRequestV03 fi2fi) {
+        return Try.of(() -> fi2fi.getTxInf().get(0).getOrgnlTxRef().getDbtrAgt().getFinInstnId().getBICFI()
+                        .equals(fi2fi.getTxInf().get(0).getOrgnlTxRef().getCdtrAgt().getFinInstnId().getBICFI()))
+                .getOrElse(this::failedToDetermine);
+    }
+And the bean is defined, for example:
+@Bean
+    @ConditionalOnMissingBean
+    public OnUsDeterminer onUsDeterminer() {
+        return new DefaultOnUsDeterminer();
+    }
+If wishing to override this functionality to implement a different on-us determination functionality, implement OnUsDeterminer interface and create a bean with the same name and signature, to instruct the CSM Service client library to do something else when determining on-us transactions.
+Note that if not implementing on-us via the CSM, there is no need to disable any on-us functionality.
+Validations
+Character Replacement

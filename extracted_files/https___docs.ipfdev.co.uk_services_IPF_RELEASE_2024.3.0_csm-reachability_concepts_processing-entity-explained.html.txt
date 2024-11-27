@@ -1,0 +1,19 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/concepts/processing-entity-explained.html ===
+Processing Entity Explained
+A 'Processing Entity' is an entity within the Business set up of the Financial Institution that is using IPF for processing of Payments. The Financial institutions that are using IPF are referred to as 'Client Implementations' in the documentation from this point on.
+Processing entity is an entity that holds its own ledger and can hold independent settlement relationships with external entities / parties.
+The Processing Entity set up can vary across different client implementations based on the ledger set up.
+1. Processing Entity Levels
+These can be any one of but not limited to following:
+Country Level - Processing Entities defined for each country of operation of the client business. Each country unit has its own ledger and can hold settlement relationship with external entities happen at country level.
+Brand Level - Processing Entities defined for each brand within wider banking group of the client implementation. Each brand holds its own ledger and can hold settlement relationships with external entities.
+Legal Entity Level - Processing Entities defined for each legal entity within a banking group (same or different High Street brands). Each legal entity holds its own ledger and can hold settlement relationships with external entities.
+When IPF is processing a payment, it is doing so for a processing entity where the ledger of the processing entity is used. The metadata on the payment is specific to the processing entity and the processing entity is present on the metadata on payments across different parts of IPF implementation.
+It is for client implementations to consider at what levels the processing entities are defined for the IPF implementations.
+It is possible for an IPF implementation to have multiple processing entities defined. This provides the client implementations a way to use IPF for processing of payments for respective processing entity independently. It is important to note that a payment within wider banking group of the client implementation can span across different processing entities and each leg of payment processing will be associated with a specific processing entity (outbound from or inbound to the processing entity).
+Based on the debtor and creditor on the payment, the payments are generally categorised as one of below when it comes to CSM Reachability processing:
+Intra Entity -  A payment where both the debtor and creditor hold an account with the same processing entity and the payment does not need to be settled with an external entity (within or outside of wider banking group).
+Intra Group - A payment where the debtor and creditor hold account with different processing entities within the wider banking group. The payment will need settlement between the two entities involved on the payment.
+Extra Group - A payment where the debtor and creditor hold account with two different banking groups. The payment will need to be settled between the two entities either through a 'Clearing and Settlement' mechanism. This can be through a direct settlement relationship between the two entities or through a 'Clearing House' that facilitates clearing and settlement of participant entities.
+CSM Reachability
+CSM Reachability Explained

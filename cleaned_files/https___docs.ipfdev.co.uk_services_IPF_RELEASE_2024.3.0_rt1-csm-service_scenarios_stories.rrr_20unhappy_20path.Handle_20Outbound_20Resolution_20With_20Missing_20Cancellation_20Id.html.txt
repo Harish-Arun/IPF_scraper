@@ -1,0 +1,15 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20unhappy%20path.Handle%20Outbound%20Resolution%20With%20Missing%20Cancellation%20Id.html ===
+Handle Outbound Resolution With Missing Cancellation Id.story
+Scenario: Handle outbound resolution
+When
+the i12Recall Servicei12  sends a Send Negative Answer To CSM Request with values:
+| customBusinessData                                                    | supportingContext(notCancellationId,whatever) |
+| payload.content.cxlDtls[0].txInf*And*Sts[0].cxlStsRsnInf[0].addtlInf[0] | xyz987                                            |
+Then
+i12the CSMi12  receives a Resolution Of Investigation with values:
+| rsltnOfInvstgtn.cxlDtls.txInf*And*Sts.cxlStsRsnInf.addtlInves[0] | xyz987 |
+And
+i12IPFi12  receives a Send Negative Answer To CSM Response with values:
+| payload.content.txInf*And*Sts[0].orgnlTxId    | #SendNegativeAnswerToCSMRequest.payload.content.cxlDtls[0].txInf*And*Sts[0].cxlStsId |
+| payload.content.orgnlGrpInf*And*Sts[0].grpSts | ACCP                                                                               |
+| status                                      | SUCCESS                                                                            |

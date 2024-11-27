@@ -1,0 +1,48 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/splitter.html ===
+Splitter
+A
+Splitter
+is a pluggable component whose purpose is to take a stream of data (typically a large file); and publish a stream of events containing smaller chunks (components).
+To define how to split the data, a tree-like data structure (component hierarchy) is passed in as an input.
+Concrete implementations are expected to know the format of the streamed data, i.e. xml, json, csv, etc.. This is required, since the method of splitting out the components is dependent on the way the data is structured.
+Since the debulker allows multiple splitters, the
+Splitter
+is expected to return a name that uniquely identifies it.
+Interface
+The
+Splitter
+interface is defined as follows.
+public interface Splitter {
+    String getName();
+(1)
+Flux<DebulkComponent> split(InputStream stream, ComponentHierarchy hierarchy);
+(2)
+}
+1
+getName
+is used to uniquely identify the implementation.
+2
+split
+takes an
+InputStream
+and
+ComponentHierarchy
+and returns a
+Publisher
+emitting
+Components
+.
+Memory Efficiency
+Splitter implementations are responsible for limiting the amount of memory consumed during processing.
+As such, it is strongly recommended
+not
+to attempt streaming all the data into memory before parsing and splitting into constituent components.
+Instead, only as much of the data should be held in memory at any given time, providing optimal memory efficiency.
+Implementations are also recommended to provide mechanisms to limit the maximum amount of memory a given splitter may consume.
+Implementations
+As with other IPF libraries, default implementations for the most common use-cases are already provided.
+Links to the documentation for each implementation are listed below.
+XML Splitter
+JSON Splitter
+Schema Validation
+JSON Splitter

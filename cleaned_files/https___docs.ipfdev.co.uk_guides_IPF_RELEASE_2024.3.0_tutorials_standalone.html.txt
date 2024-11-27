@@ -1,0 +1,51 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/tutorials/standalone.html ===
+How to Run Stand-Alone IPF Applications
+IPF applications are all created with 2 maven profiles:
+container
+- Generates docker containers
+runnable
+- Generates a runnable jar to run as a standalone application
+This document focuses on how to run IPF applications as standalone applications using the runnable jars generated from the
+runnable
+profile.
+Where to Download Runnable Jars
+All the applications that IPF produce get pushed to
+ipf-releases
+in Nexus. The runnable jars will be available as an artifact with a suffix of
+runnable
+in the Nexus repository for each version of the application you need. For example if you want to fetch the ODS ingestion runnable jar for version 2.1.2 you would find it at this link:
+nexus.ipf.iconsolutions.com/repository/ipf-releases/com/iconsolutions/ipf/ods/ods-ingestion-app/2.1.2/ods-ingestion-app-2.1.2-runnable.jar
+How to Generate Runnable Jars
+When building an IPF application using the scaffolder projects both the
+container
+and
+runnable
+will be generated in the pom.xml.
+If you want to generate the runnable you will need to invoke the
+runnable
+profile as follows:
+mvn clean install -P runnable
+How to Run Runnable Jars
+All IPF runnable jars are produced as Spring Boot applications. To run an IPF application, taking the ODS ingestion jar above as an example, you would execute the following:
+java -cp ods-ingestion-app-2.1.2-runnable.jar:config -Dconfig.override_with_env_vars=true -Dloader.main=com.iconsolutions.ipf.ods.OdsIngestionApplication org.springframework.boot.loader.launch.PropertiesLauncher
+If using windows we need to replace the first
+:
+with a
+;
+- for example,
+ods-ingestion-app-2.1.2-runnable.jar;config
+If you are overriding any of the default configuration for the applications then, in this example, the configuration file for the application, application.conf, would live in the config folder as defined by
+:config
+. We then leverage the Spring Boot
+PropertiesLauncher
+to load the properties into the application.
+Adding Connector Metrics to Runnable Jars
+Currently, our docker images are already instrumented with the cinnamon agent jar for connector metrics reporting. This was not possible when producing the runnable jar as we are not in control of the deployment, which is up to the client. More information on connector metrics is available
+here
+.
+To enable cinnamon metrics on runnable jars you would need to download the correct version of the cinnamon jar. The correct version to download will be in the BOM under the property
+cinnamon.version
+. The jar will also be inside the runnable jar itself and can be extracted from the jar. Add the javaagent when running the java program as follows:
+java -javaagent:/lib/cinnamon-agent-2.19.3.jar -cp ods-ingestion-app-2.1.2-runnable.jar:config -Dconfig.override_with_env_vars=true -Dloader.main=com.iconsolutions.ipf.ods.OdsIngestionApplication org.springframework.boot.loader.launch.PropertiesLauncher
+Reviewing the Initial Application
+DSL 1 - Introducing Icons DSL

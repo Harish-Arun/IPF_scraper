@@ -1,0 +1,31 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/system-events/guides/logeventsbytype.html ===
+Logging all events of a specific type
+Here we don’t override the default
+predicate
+method and so will receive all events whose type is FlowStarted, or a
+subclass thereof.
+eventBus.subscribe(EventTwo.class, event -> log.info("Received a FlowStarted event: {}", event));
+A note on generic type vs raw usage
+Raw type usage of an event processor will default to the IPFSystemEvent "catch all" supertype, if one elects to only process a given event class (and its subclasses) this type information then is honoured in the eventProcessor handling methods.
+eventBus.subscribe(EventOne.class, new EventProcessor<>() {
+            @Override
+            public void notify(EventOne event) {
+                log.info("{}", event);
+            }
+
+            @Override
+            public Predicate<EventOne> predicate() {
+                return event -> event.getVersion().getMajor() < 3;
+            }
+        });
+Combined with the default methods provided this results in a very convenient API for delegating methods, for example:
+eventBus.subscribe(EventOne.class, this::processEventOne);
+    }
+
+    private void processEventOne(EventOne eventOneEvent){}
+Subscribing to - then logging - all
+WARN
+and
+ERROR
+events
+IPF System Event Exporter Spring Boot starter packs

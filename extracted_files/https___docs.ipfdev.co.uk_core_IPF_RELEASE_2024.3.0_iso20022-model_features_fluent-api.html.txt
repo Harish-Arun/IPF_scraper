@@ -1,0 +1,19 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/features/fluent-api.html ===
+Fluent API
+The Java POJO representations of the
+Message Definition
+and
+Message Components
+and decorated with Lombok annotations for
+Data and Builder. This means that the types can be leverage with Bean based frameworks easily, but also developers can
+use the provided Builder companion classes to manually construct new instances in a Fluent manner.
+Lombok Annotations
+Builder
+CashAccount41 cashAccount41 = CashAccount41.builder()
+             .tp(CashAccountType2Choice.builder()
+                     .cd("cd")
+                     .prtry("prty")
+                     .build())
+             .build();
+Normalised Types
+Validation

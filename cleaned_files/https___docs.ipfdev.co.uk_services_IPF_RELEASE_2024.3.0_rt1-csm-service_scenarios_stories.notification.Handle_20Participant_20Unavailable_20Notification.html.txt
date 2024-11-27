@@ -1,0 +1,17 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.notification.Handle%20Participant%20Unavailable%20Notification.html ===
+Handle Participant Unavailable Notification.story
+Scenario: Handling of participant unavailable notification
+When
+the i12CSMi12  sends a Participant Unavailable
+Then
+i12the IPFi12  receives a Participant Unavailable Notification  using predicate:
+| requestId                     | participant-unavailable              |
+| version.major                 | 1                                    |
+| version.minor                 | 0                                    |
+| version.patch                 | 0                                    |
+| payload.content.csm           | RT1                                  |
+| payload.content.participantId | IPSTFRPP                             |
+| payload.content.rawMessage    | prettyPrint(#ParticipantUnavailable) |
+| payload.version.major         | 1                                    |
+| payload.version.minor         | 0                                    |
+| payload.version.patch         | 0                                    |

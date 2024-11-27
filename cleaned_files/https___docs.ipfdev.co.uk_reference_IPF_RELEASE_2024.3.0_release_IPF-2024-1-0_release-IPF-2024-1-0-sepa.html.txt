@@ -1,0 +1,33 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-1-0/release-IPF-2024-1-0-sepa.html ===
+SEPA CT CSM - Changes & Fixes
+This page covers the SEPA CT CSM changes and fixes provided in release IPF-2024.1.0.
+SEPA CT CSM
+New
+Complete camt.027 processing
+Complete camt.087 processing
+Complete pacs.028 processing
+EOD generation of pacs.002 when no response from scheme
+Identification and highlighting of Group Header errors in CVF response
+Integration with DeadletterAppenders
+Extension points for Inbound and outbound files
+Camt.056 PCF Processing
+Integration with ODS
+Properties added under
+ipf.csm.sepa-ct.extension-point
+to allow clients to optionally call an extension point during message processing
+Added
+ipf.csm.sepa-ct.processing-entity.pacs008-duplicate-message-check-period
+to set duplicate validation period for Pacs.008
+Changed
+camt.029 processing includes IQF use
+Enhanced maintainability, resilience and error reporting
+Configurable EOD trigger time
+Updating duplicate validator to include idempotency key
+Improved Documentation
+Replaced country codes JSON file with hocon config
+Removed
+Dependency on mps-domain project in business day calculator as its not used
+In the new release, Bulker now passivates bulks after 2 minutes by default. It has been identified that there are some issues when rehydrating actors after passivation has occurred. This will be fixed in the next release. To mitigate this in the current release, it is recommended to increase the bulker passivation timeout to a larger value than what you would expect the bulk to close. For Example, if the largest bulk window is 4 hours, it is recommended to set the value below to at least this value or even higher in your application.conf file:
+ipf.bulker.aggregate.actor-idle-timeout = 5h
+ODS & GUI - Changes & Fixes
+Migration Steps for IPF-2024.1.0

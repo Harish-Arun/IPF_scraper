@@ -1,0 +1,15 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/businessmetrics/resiliency.html ===
+Resiliency
+The IPF Metrics Processor may need to fetch additional data from ODS for a particular payment. This is likely to occur upon application restart where only a subset of the data needed to determine if a payment has finished is consumed by the IPF Metrics Processor; therefore no metrics can be emitted. In this scenario, the IPF Metrics Processor fetches data from ODS to attempt to "finish" the payment and emit the subsequent metrics.
+Caveats
+The IPF Metrics Processor does not utilise its own persistent data store, therefore there are a small number of instances where payment metrics cannot be produced.
+ODS cannot provide enough data to "finish" payment
+There is a small possibility that when called upon, ODS has not yet consumed all the necessary payment data to determine that a payment has finished. In this case, no metrics for this payment can be emitted and a warning is logged upon the expiration of the payment from the in memory cache.
+Receive additional payment data after emitting metric and expiring from cache
+There is a possibility that metrics can be emitted multiple times for a single payment. This will only occur in the following situation:
+Payment data has been consumed by the metrics processor and metrics have been emitted
+The payment is expired from the metrics processor in memory cache (default expiration is 10 minutes)
+Additional data is consumed for that particular payment. The metrics processor will consider this additional data to be a completely new payment and will emit a duplicate metric
+The likeliness for this to occur is quite low, there would need to be a long delay between a payment being finished and more data being consumed for that payment.
+Prometheus
+Getting Started

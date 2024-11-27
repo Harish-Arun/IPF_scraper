@@ -1,0 +1,45 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/message-logger/features/kafka-messagelogger.html ===
+Kafka MessageLogger
+Before deciding to use a specific logger, it’s worth considering where the message and other data logging fits into your overall strategy. For example if you are using ODS, you should use the MessageLogger implementations provided by
+IPF Processing Data
+, specifically see
+Processing Data egress
+.
+Message-logger-impl provides a Kafka implementation of MessageLogger, and its specific logMessage implementation is using a SendConnector to send the messageLogEntry to a Kafka topic:
+public void logMessage(final MessageLogEntry messageLogEntry) {
+    sendConnector.send(messageLogEntry.getProcessingContext(), messageLogEntry)
+            .thenAccept(outcome -> {
+                var deliveryReport = outcome.getDeliveryReport();
+                if (deliveryReport.isFailure()) {
+                    log.error("Failed to deliver: {}. Delivery report: {}", messageLogEntry, deliveryReport);
+                }
+            })
+            .exceptionally(e -> {
+                log.error("Failed to deliver: {}.", messageLogEntry, e);
+                return null;
+            })
+    ;
+}
+This uses the IPF core MessageLogEntry.
+The default configuration for this logs messages to a topic called MESSAGE_LOG, but this can be changed via the ipf.conf, defaults shown below:
+Unresolved include directive in modules/message-logger/pages/features/kafka-messagelogger.adoc - include::example$ipf.conf[]
+Dependencies
+A starter is provided which will wire in both Kafka and Mongo loggers
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.messagelogger</groupId>
+    <artifactId>message-logger-starter</artifactId>
+</dependency>
+Alternatively you can bring in the specific Kafka dependency only:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.messagelogger</groupId>
+    <artifactId>message-logger-kafka</artifactId>
+</dependency>
+Configuration
+To configure the
+MessageLogger
+implementation you wish to use you will need to set the following in your application
+configuration file:
+message.logger.type=kafka
+message.logger.enabled=true
+Features
+Mongo MessageLogger

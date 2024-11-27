@@ -1,0 +1,12 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/concepts/scheme-packs/sp-intro.html ===
+Scheme Packs Introduction
+1	Scheme Packs in context
+The IPF orchestration framework offers the ability to define payment flows to match customers' precise requirements for payment orchestration.
+A flow can be defined for a specific payment type, or as a more generic flow with decisions and branch points to cater for the different requirements of specific payment types in sub-flows within a single governing flow.
+Orchestration involves a combination of various functions including business validation and decisions;  method of payment selection; CSM agent determination; reachability checks & routing;  FX handling; automatic payment enrichment;  operator intervention for approvals, repair etc; calls to sanctions, fraud, accounts, reservation / booking and other external (to IPF) services.
+Once payment orchestration is complete the manner of payment execution will have been determined and the transaction may be handed off to an IPF Scheme Pack aka CSM Module / CSM Service.  Alternatively, clients may use their own scheme packs or similar services.
+As payment schemes may be implemented by multiple CSMs (for instance SEPA Credit Transfer Instant scheme is implemented by a number of CSMs such as TIPS &  RT1) we actually provide CSM specific implementations of payment schemes - so there is a Scheme Pack for RT1 and a separate one for TIPS.
+This enables us to ensure that the specific CSM rules, validations & mappings are used in each Scheme Pack.
+The interface between client solutions & scheme packs is via the IPF canonical format (a standardised ISO model), which enables clients to use a single interface format to interact with all IPF provided scheme packs.
+Rolling Upgrade Deployments with IPF SDK
+What is a Scheme Pack and what is Included in it?

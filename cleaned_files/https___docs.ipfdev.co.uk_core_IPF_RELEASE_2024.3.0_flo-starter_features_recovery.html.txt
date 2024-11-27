@@ -1,0 +1,77 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/features/recovery.html ===
+Automated Retries
+Recovery of the 'client implementation' can take shape in one of two ways;
+Action retries - retry action after if transactions state has not changed in X seconds
+Action revivals - retry action on newly started cluster shard, and using an exponential backoff starting with the initial duration of X seconds any transactions in a non-terminal state will be retried.
+Action Retries
+Action retries are used to prevent transactions remaining stuck in a state, by issuing retries if an action does not change state within an acceptable (configurable) duration.
+Retries are only cancelled for a
+completing
+request/response. For more information please see the
+Requests
+section of
+Concepts
+.
+Interaction with Action timeouts
+For action timeouts see
+Scheduling
+.
+Timeouts would usually result in a new state (Terminal) and therefore would not be subjected to retrying.
+When timeouts cause a new state (non-terminal) then a retry would be attempted on the ActionTimeout if it remains stuck in its state.
+Action Retry Configuration
+The configuration utilises the configuration policy of the ipf-scheduler (see
+Scheduling
+for configuration and action timeouts).
+There are 3 configuration items necessary for action retries;
+initial-retry-interval - the initial duration between retries, subsequent retries multiplied by a backoff factor of 2, i.e. if duration is 1 then 1,2,4,8.
+max-retries - the maximum number of retries to attempt, i.e. [initial] + [max-retries].  0 retries will effectively turn this functionality off.
+jitter-factor - The percentage of randomness to use when retrying actions, default is 0.2.
+For all Actions
+application.conf
+Any.Any.Any.timeout-duration=10s
+Any.Any.Any.initial-retry-interval=3s
+Any.Any.Any.max-retries=2
+Any.Any.Any.jitter-factor=0.2
+For Specific Action
+application.conf
+Any.Any.Any.timeout-duration=10s
+Flow1.State1.Action1.initial-retry-interval=3s
+Flow1.State1.Action1.max-retries=2
+Using the above configuration would create the following effect for Action1;
+The following assumes ActionTimeout will lead to a terminal state, or at least a change of state.
+Time (t+seconds)
+State
+Action
+0
+State1
+Action1
+3
+State1
+ActionRetry (Action1)
+6
+State1
+ActionRetry (Action1)
+10
+Timeout (or whatever state ActionTimeout causes)
+ActionTimeout
+Action Revival
+Action revival is designed to recover transactions on a failed node.  They differ from Action retries in the fact that they only fire when the cluster is started or re-started, a scenario not covered by the Action retries.
+Revival will utilise action retries and continue from any retry attempt history, i.e. if a behaviour had already attempted 1 of say the configured 2 attempts then only 1 retry will be attempted.
+The revival process will not attempt to recover a transaction in INITIAL or any terminal states.  This was to protect the system from attempting to recover on all newly started shards.
+The revival process will not attempt revival if the state has changed before the actionRevivalOffset (see configuration) has complete, as the transaction will no longer be deemed stuck.
+Action revival is based upon Akka recovery signals this means that a recovery of state will occur when any of the following happen;
+An Event Sourced Behaviour (ESB) is initialised for the first time
+An ESB is revived after having been passivated (happens automatically after 120s by default)
+An ESB was killed by an exception
+An ESB is rebalanced and therefore restarted on another node
+Action Revival Configuration
+There are 2 important configurations required to activate revival;
+remember-entities - an Akka configuration item which causes Akka to automatically restart shards upon a shard restart.
+see akka docs
+action-recovery-delay - an offset configured as duration which is imposed upon the system to allow any actions to change state before sending additional requests.  An offset of 0 will turn this functionality off.
+application.conf
+akka.cluster.sharding.remember-entities = on
+application.properties
+ipf.behaviour.config.action-recovery-delay=3s
+Flow Scheduling
+Monitoring and Observability

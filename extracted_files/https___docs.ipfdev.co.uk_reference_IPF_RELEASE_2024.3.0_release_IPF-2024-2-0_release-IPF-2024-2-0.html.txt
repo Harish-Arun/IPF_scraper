@@ -1,0 +1,67 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-2-0/release-IPF-2024-2-0.html ===
+Release Notes for IPF-2024.2.0
+This page details everything required to get going on IPF Release 2024.2.0 made available on
+21st August 2024
+.
+Change Spotlight
+Changes to MPS Build scripts are required.  If you are using buildscripts in your project please ensure you follow the appropriate instructions
+here
+Archetype has now been replaced by
+ipf-project-scaffolder
+The latest version of the scoffolder is
+1.0.3.1
+Instructions on how to use the scaffolder to create new projects are
+here
+All external MPS language dependencies are now captured in a single project, providing less future change to client code.
+IPF Usage Report Endpoint added
+actuator/ipflicense
+, this report may periodically be requested by IPF Support
+Fix Spotlight
+Fixed issue where receive connector transport message ack not sent if an unexpected exception thrown during handling of a received message that cannot be parsed - (
+PAY-10957
+).
+Release Details
+Binaries
+The core binaries are available from
+IPF-Releases
+.
+Lightbend Telemetry (formerly known as "Cinnamon") binaries are available from
+IPF Lightbend
+.
+Akka/Alpakka binaries from 2.9.x onwards are no longer on Maven Central and are available from the Akka Library
+Repository which
+Icon mirror
+.
+To enable the new mirror, add the following to your settings.xml in the
+<repositories>
+section:
+<repository>
+  <id>akka-repository</id>
+  <name>Akka library repository</name>
+  <url>https://nexus.ipf.iconsolutions.com/repository/akka-repository</url>
+</repository>
+Some MPS dependencies are also mirrored by Icon and can be found by adding the following repository to the same section:
+<repository>
+  <id>icon-thirdparty</id>
+  <name>IPF icon-thirdparty repository</name>
+  <url>https://nexus.ipf.iconsolutions.com/repository/icon-thirdparty</url>
+</repository>
+Add the following to your
+<servers>
+section for each new repository:
+<server>
+  <id>Reposity_name_here</id>
+  <username>xxxx</username>
+  <password>xxxx</password>
+</server>
+Where
+xxxx
+is the username and password repectively provided to you by Icon.
+Developer App
+The latest version of the Developer App is
+2.3.8
+2024.2.0 Jar/Pom list
+The Jars and Poms for 2024.2 and the associated versions are listed here:
+2024-2-artifacts.xlsx
+Migration Steps for IPF-2024.3.0
+Core - Improvements, Changes & Fixes

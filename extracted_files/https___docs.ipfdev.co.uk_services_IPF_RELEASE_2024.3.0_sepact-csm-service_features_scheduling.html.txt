@@ -1,0 +1,7 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/features/scheduling.html ===
+Scheduling
+The SEPA CSM uses the IPF Scheduler that is part of the Core product. At the point of a new ICF Bulk being created it will automatically look-up the current LAC it is running in and find out when that LAC will close. A job is scheduled to trigger the closing of the ICF at an appropriate time before the end of the LAC. The size of the time buffer between the LAC closing and the trigger to finalise the current ICF is configurable per implementation of the SEPA CSM.
+The SEPA CT scheme uses an inferred settlement model for its Credit Transfers. If a Failure to settle notification has not been received by the end of the Target Settlement Day, it can be assumed that the Credit Transfer was a success. The SEPA CSM will therefore schedule a "Settlement Complete" notification (pacs.002 with status "ACCP") to be sent back to the client payment flows at the end of the Target Settlement day.
+If a failure notification is received, this notification is updated to reflect this (status "RJCT"). The time at which this notification is sent after the end of the Settlement Day is configurable per SEPA CT STEP2 CSM implementation.
+File Debulking
+End of Day Processing

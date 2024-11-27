@@ -1,0 +1,333 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/dynamic-settings/features/settings-model.html ===
+Settings Model
+This section describes the Dynamic settings flow and its attributes.
+Flows
+Dynamic Settings
+Flow Properties
+Flow Name:
+Dynamic Settings
+Version:
+0
+Description:
+This is a placeholder for the flow solution.
+Global State Set:
+Default Global States
+Flow Graph
+States
+Name
+Description
+Global State
+Is Terminal
+Inactive Approval Pending
+Approval Pending for Setting currently inactive
+none
+No
+Active
+Active Setting state
+none
+No
+Active Approval Pending
+Approval pending state for active setting after update
+none
+No
+Delete Approval Pending
+Delete Approval Pending for setting deletion
+none
+No
+Terminal State
+State added because it’s required to have terminal state
+none
+Yes
+Events
+Name
+Description
+Business Data
+Flow Initiated
+The flow has been successfully started.
+Provisional Setting
+Requires Approval
+Approval Received
+Raised after setting approved
+Active Setting
+Provisional Setting
+Requires Approval
+Approval Rejected
+Emited after approval rejected
+Provisional Setting
+Requires Approval
+Setting Deactivated
+Setting moved to Inactive state
+Active Setting
+Requires Approval
+Setting Created
+Setting has been created
+Active Setting
+Requires Approval
+Setting Created Needs Approval
+Setting has been created but needs approval
+Provisional Setting
+Requires Approval
+Setting Updated
+Setting has been updated
+Provisional Setting
+Active Setting
+Setting Updated Requires Approval
+Update requested requires approval
+Provisional Setting
+Setting Deactivated Requires Approval
+Deactivation request requires approval
+Active Setting
+Functions
+No aggregate functions defined.
+Input Behaviour
+Input
+Response Code
+Event Selection
+Initiate Dynamic Settings
+none
+Flow Initiated
+Update Setting
+none
+Decision
+:
+Needs Approval
+On
+On*YES*raise
+Setting Updated Requires Approval
+On*NO*raise
+Setting Updated
+Approval Response
+Accepted
+Approval Received
+Approval Response
+Rejected
+Approval Rejected
+Deactivate Setting
+none
+Decision
+:
+Needs Approval
+On
+On*YES*raise
+Setting Deactivated Requires Approval
+On*NO*raise
+Setting Deactivated
+Create Setting
+none
+Decision
+:
+Needs Approval
+On
+On*NO*raise
+Setting Created
+On*YES*raise
+Setting Created Needs Approval
+Event Behaviour
+Given State
+Criteria
+Events
+New State
+Perform Actions
+Initial
+On
+Flow Initiated
+Inactive Approval Pending
+Initial
+On
+Setting Created
+Active
+Initial
+On
+Setting Created Needs Approval
+Inactive Approval Pending
+Call Request
+:
+Approve Setting
+Inactive Approval Pending
+On
+Approval Received
+Active
+Inactive Approval Pending
+On
+Approval Rejected
+Initial
+Active
+On
+Setting Updated Requires Approval
+Active Approval Pending
+Call Request
+:
+Approve Setting
+Active
+On
+Setting Updated
+Active
+Active Approval Pending
+On
+Approval Received
+Active
+Active Approval Pending
+On
+Approval Rejected
+Active
+Delete Approval Pending
+On
+Approval Rejected
+Active
+Delete Approval Pending
+On
+Approval Received
+Initial
+Active
+On
+Setting Deactivated
+Initial
+Active
+On
+Setting Deactivated Requires Approval
+Delete Approval Pending
+Call Request
+:
+Approve Setting
+Terminal State
+On
+Setting Deactivated
+Terminal State
+Initial
+On
+Setting Updated
+Active
+Initial
+On
+Setting Updated Requires Approval
+Inactive Approval Pending
+Call Request
+:
+Approve Setting
+Flow BDD
+DynamicSettings-Aborted.story
+Meta:
+
+Narrative:
+Dynamic Settings
+This is a placeholder for the flow solution.
+Paths ending in state: Aborted
+DynamicSettings-TerminalState.story
+Meta:
+
+Narrative:
+Dynamic Settings
+This is a placeholder for the flow solution.
+Paths ending in state: Terminal State
+External Domains
+Settings
+Settings workflow domain
+Requests
+No requests defined.
+Notifications
+No notifications defined.
+Instructions
+Name
+Description
+Business Data
+Deactivate Setting
+deactivate
+Provisional Setting
+Active Setting
+Requires Approval
+Update Setting
+Update setting
+Active Setting
+Provisional Setting
+Requires Approval
+Create Setting
+Initial command
+Provisional Setting
+Active Setting
+Requires Approval
+Approver
+This domain is used to handle the approval process
+Requests
+Name
+Description
+Business Data
+Response
+Approve Setting
+Submit this setting for approval
+Active Setting
+Provisional Setting
+Name:
+Approval Response
+Description:
+description
+Business Data:
+Active Setting
+Provisional Setting
+Requires Approval
+ResponseCodes:
+AcceptOrReject
+ReasonCodes:
+none
+Completing:
+Yes
+Notifications
+No notifications defined.
+Instructions
+No instructions defined.
+Initiation
+A system generation domain representation of this domain to allow initiate from external sources.
+Requests
+No requests defined.
+Notifications
+No notifications defined.
+Instructions
+Name
+Description
+Business Data
+Initiate Dynamic Settings
+Flow Initiation
+Provisional Setting
+Requires Approval
+Supporting Libraries
+Business Data Libraries
+Business Data Library
+Business Data Library for Dynamic Processing Settings
+Name
+Description
+Data Type
+Data Category
+Active Setting
+Currently Active Setting
+com.iconsolutions.ipf.dynamicsettings.domain.Setting
+Provisional Setting
+Setting to be approved
+com.iconsolutions.ipf.dynamicsettings.domain.Setting
+Requires Approval
+Requires Approval
+java.lang.Boolean
+Common Event Libraries
+No event libraries have been defined
+Decision Libraries
+Decision Library
+No description provided.
+Name
+Description
+Business Data
+Outcomes
+Needs Approval
+Does this action need approval
+Requires Approval
+YES
+NO
+Domain Function Libraries
+No domain functions have been defined.
+Response Code Libraries
+No response codes have been defined.
+Reason Code Libraries
+No reason codes have been defined.
+Placeholder Libraries
+No placeholders have been defined.
+Global States
+No global states have been defined.
+Features
+Data Ingestion System Events

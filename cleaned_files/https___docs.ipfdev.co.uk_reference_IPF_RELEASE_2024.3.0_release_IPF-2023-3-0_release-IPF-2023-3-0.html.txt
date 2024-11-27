@@ -1,0 +1,96 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2023-3-0/release-IPF-2023-3-0.html ===
+Release Notes for IPF-2023.3.0
+This page details everything required to get going on IPF Release 2023.3.0 made available on 31st October 2023.
+Details
+Binaries
+The core binaries are available from
+IPF-Releases
+.
+The Lightbend Telemetry (formerly known as "Cinnamon") binaries are available from
+IPF Lightbend
+.
+Archetype
+The latest version of the Archetype is 2.0.0
+Developer App
+The latest version of the Developer App is 1.0.75
+Features and Changes
+Heres whats new and changed in 2023.3.0
+Fix Spotlight
+Fix to stop caching the Kafka Producers
+Action Revival now caters for chained timeout state transitions
+Breaking change: DateTime fields in the icon ISO20022 model can support ISO8061 compatible date formats as described by the xs:dateTime complex type details
+The ISO20022 model now generates to use the IsoDateTime instead of OffsetDateTime
+Any projects which use those generated models will be broken if they try to access timestamps expecting OffsetDateTime
+AOMs are now available as runnable jars, as well as Docker images
+Null field values are no longer persisted into the journal or snapshot collections
+Breaking Changes
+Java 17
+Java 17 Migration to take place in May 2024.
+From release V2024.1 (May 2024), IPF will be using Java 17/Spring 6/Spring Boot 3 for all IPF components. IPF will no longer be compatible with Java 11, and you will need to use Java 17 at design, build and run time.
+New IPF Data Model
+It is strongly recommended to migrate to the new model (introduced in the previous release), we will be deprecating and removing the old types in subsequent releases.
+Details can be found in the docs area in IPF Portal
+Human Task Manager
+HTM should give timely feedback to consumer when status has changed
+HTM 500s if processing context is malformed or contains null
+HTM register task due date should not be mandatory
+HTM register task due date should not be mandatory
+Task Details does not contain Execution Operator Notes
+Details can be found in the IPF Developer Docs -
+Human Task Manager
+Bulk HTM
+Enable HTM for Bulk Task execution
+Bulk Task Read side Processor
+HTM - Configurable Event Processors number
+HTM Bulk configurable limit
+API - Bulk Execute (Single End Point)
+Bulk Task Processor - back end asynchronous service
+YAML changes - For Bulk Execute Request and Bulk Allocate Request services from GUI
+YAML changes - For Bulk Execute Request service from GUI (Single End Point)
+Create New Bulk Task Aggregate
+API - Bulk Allocate - Receive request
+API - Bulk Execute - Receive request
+Create synergizing API
+Bank Filtering
+A new implementation that allows configuration of filtering rules using Dynamic processing settings and the client flows to enquire the rules for the payments being processed to get highest priority rule that matches through exposed API
+Cache Query interface
+Configurable Process Settings structure for BIC and currency filters
+Bank exclusion - Populate the cache data model
+Filter Identification based on BIC, Country Code or Currency Code
+Filter Date Restrictions and Multiple filter hits
+Implement bank exclusion API
+Bank exclusion logic
+GUI Improvements
+Adoption of new IPF Business Data Model
+Created configurable summary page for ods-search module
+Improved the reliability of user roles and user processing entity management
+Fixed external messages not being associated to flows correctly
+A user can now see supporting data alongside the payload
+Fixed flow graphs taking up too much space on smaller screens
+Documentation improvements
+Only show processing entity for users selected processing entity
+Update payload box to contain relevant metadata
+Update Global status and event status to be red on failure
+Finished HTM for IPF core and developed initial UBS HTM features
+Details page execution history
+ODS
+New Data Model Continuation
+Implemented message rules, allowing validation of ISO MDS types.
+Implemented standard product technical PDS types representing data points determined during IPF processing, e.g. Csm, JourneyType, etc.
+Custom Summary Mappings
+Summaries are projections/views of a unit of work and are the result of extracting fields from data produced by IPF processing. These mappings from the source IPF processing data to the summary were predefined by ODS and could not be changed.
+This epic allows clients to define their own summary mappings, both from ISO MDS types, and client-specific PDS types, and provides a simple code-based method of implementing and testing custom summary mappings.
+Checkpoints
+Enables a full end-to-end view of a single unit of work, where all the data produced for the unit of work includes a "checkpoint" to the thing before it, providing a causal relationship for all unit of work data.
+From the checkpoints we can determine that an incoming message triggered an event, which triggered an action, which triggered an outgoing message.
+Summary indicates terminal/failure status
+IPF now produces process flow definitions that indicate the terminal/failure status of global statuses, and ODS now stores these.
+When ODS receives an event for a unit of work, it resolves the terminal/failure status from the relevant process flow definition and updates the summary when the new global state is failure = true and/or terminal = true.
+These additional summary fields are presented in the ODS Inquiry API.
+SEPA CT CSM Pack
+The SEPA CSM has been enhanced to handle pacs.008 messages from clients that contain multiple Credit Transfer Transactions as well as responding with "Fully Accepted" pacs.002 messages as a result of processing the end-of-day RSF file.
+The Validation API has been updated to include Interbank Settlement Date checks
+The Debulker can now be configured to perform xml validation against an XSD prior to full processing and splitting. Files can now also be delivered from an S3 source address
+SEPA CSM Pack handles inbound pacs.008 messages (received from the CSM).
+Migration Steps for IPF-2023.4.1
+Migration Steps for IPF-2023.3.0

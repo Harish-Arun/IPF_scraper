@@ -1,0 +1,201 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/features/tx-cache.html ===
+Transaction Caching
+IPF is an event-sourced application and as a result the read ("query") side is eventually consistent.
+This means that for cases where we need to look into the application’s very recent history, it might not be representative to look into the read side, as it may not yet have caught up with all events that have taken place on the write side.
+As a result, users have the ability to implement a transaction cache, using the supplied transaction cache service.
+It can be used to satisfy business requirements such as:
+Functional duplicate checks
+Technical duplicate checks
+Populating the Transaction Cache
+The transaction cache requires some assembly,
+but it’s not that complicated to get started!
+Here’s what you need to do:
+1. Add the dependency
+If using the Icon BOM, add the following dependency to your
+-app
+module:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.platform</groupId>
+    <artifactId>ipf-transaction-cache</artifactId>
+</dependency>
+2. Identify the transaction types to persist
+You must identify what you wish to persist into the cache.
+The
+PersistentTransactionCacheService
+has a generic type
+T
+which you can use to insert any sort of MongoDB persist-able POJO.
+In our example we want to persist this payment object:
+public static class Payment {
+        private final String from;
+        private final String to;
+        private final BigDecimal amount;
+        private final LocalDate paymentDate;
+    }
+3. Select business data that’s important
+We need to implement an "ID extractor" to determine which fields are important when determining if we’ve seen this transaction before.
+Some examples might be:
+Amount
+End-to-end ID
+From Identifier
+To Identifier
+Unstructured data
+This is implemented as a
+Function<T, List<String>>
+.
+This gives the service a way to extract the relevant fields and hash them together to efficiently attempt to look them up later.
+Here’s an example of how to initialise the transaction cache service:
+var transactionCacheService = new PersistentTransactionCacheService<>(
+                payment -> List.of(payment.getFrom(), payment.getTo(), payment.getAmount().toString())
+                , repo, repositoryRetryProvider);
+The first argument consists of the list of fields (which
+must be protected against nulls!
+) which form part of the hash.
+The particular implementation of cache service we have selected here is MongoDB-based, so the second argument takes a repository for storing cache entries.
+Different implementations may have different signatures depending on their requirements.
+4. Create an entry type enum
+The cache can potentially contain different types of transactions.
+For that reason we need to be able to enumerate the different types.
+This is represented by the
+TransactionCacheEntryType
+interface.
+Here’s its definition:
+public interface TransactionCacheEntryType {
+    String getName();
+}
+We can see that it’s really just a way to be able to differentiate between different types of transactions being cached.
+We need this because some transaction flows can share the same root message type (think incoming and outgoing messages of the same type e.g. pacs.008).
+Here’s an example implementation of a
+TransactionCacheEntryType
+:
+public enum ExampleTransactionCacheEntryType implements TransactionCacheEntryType {
+        TYPE_ONE,
+        TYPE_TWO;
+
+        @Override
+        public String getName() {
+            return name();
+        }
+    }
+This is an enum which implements the
+TransactionCacheEntryType
+interface and can support two different types of cache entries:
+TYPE_ONE
+and
+TYPE_TWO
+.
+We can then use the service to persist our types to persist.
+5. Wrap and save
+We can now call the transaction cache service to save our
+Payment
+with its type like this:
+var payment = new Payment("Me", "You", new BigDecimal("4.20"), LocalDate.now());
+
+       var saveFuture = transactionCacheService.saveToCache(TYPE_ONE, payment, "messageId");
+To prevent saving two entries for the same physical message (e.g. in case of a retry or revival), we call
+saveToCache
+method with a messageId parameter.
+MessageId should be a unique identifier for content we are storing in the cache and would typically be the persistenceId in a flow.
+The messageId is
+not
+referring to the msgId in an Iso20022 message
+A new entry will not be saved if an entry with the same hash and messageId already exists in the cache for the given type, instead it will return the existing record.
+Checking the Transaction Cache
+The cache service has the following method for retrieving data from the cache:
+CompletionStage<List<TransactionCacheEntry<T>>> findInCache(TransactionCacheEntryType type, T content);
+It needs the type of entry you wish to find, followed by the
+T
+type you wish to check to see if it’s a functional duplicate.
+It returns a future containing a list of matching cache entries.
+You may wish to inspect their
+creationDate
+to check for functional duplicates within some window of time.
+Implementation Considerations
+Purging (TTL)
+For the MongoDB implementation, consider using a
+MongoDB TTL index
+on the
+creationDate
+field to expire entries.
+An index for searching by hash is created by default, but you may wish to add a TTL index to expire (delete) entries after a specific period of time if they are no longer required.
+The creation of default indexes can be disabled with:
+ipf.transaction-cache.mongodb.create-indexes=false
+Indexes can be disabled globally with:
+ipf.mongodb.create-indexes=false
+To disable indexing globally but retain it for the transaction cache, apply the following, retaining the order:
+ipf.mongodb.create-indexes=false
+ipf.transaction-cache.mongodb.create-indexes=true
+Commit Quorum
+The
+commit quorum
+can similarly be controlled with:
+ipf.transaction-cache.mongodb.commit-quorum=1
+Or overridden globally with:
+ipf.mongodb.commit-quorum=1
+Purging (TransactionCachePurgingScheduler)
+For the MongoDB implementation, there is also the option to schedule a repeating job to delete all entries of a specific type and age using the TransactionCachePurgingScheduler.
+The TransactionCachePurgingScheduler is available within the Transaction Cache module and no additional dependencies need to be added.
+1. Provide your configuration:
+your.purging.config.path{
+  transaction-cache-entry-type = "TYPE_ONE"
+  retain-from-time =  "17:00:00"
+  retain-from-offset = "1 day"
+  scheduling-specification =  "0 0 17 ? * *"
+}
+transaction-cache-entry-type
+: Must match the string provided by your TransactionCacheEntryType’s getName() method.
+retain-from-time
+: The time on the day of running the purging you want to retain entries from.
+retain-from-offset
+: Provide a duration that will be subtracted from the retain-from-time. Must be a
+hocon duration
+. Use 0 days if no offsetting from the retain-from-time is needed.
+scheduling-specification
+: A string representing a cron expression of when to run the purging job. For help with building a cron expression, use an online cron expression builder such as
+this one
+The example job above will be run at 5pm every day (
+"0 0 17 ? * *"
+) and will remove all
+TYPE_ONE
+entries from your transaction cache that are older than 5pm the day before the job was run (
+"17:00:00"
+minus the offset of
+"1 day"
+). E.g. if run at 17:00 on 23rd April 2024, entries older than 17:00 22nd April 2024 would be purged.
+Be careful on the relationship between your scheduling specification and your retain from time. It’s possible for the job to be run prior to your retention time.
+Running a purging job could result in a very large number of qualifying entries being deleted at once. This large workload may cause performance issues. Consider scheduling jobs for off hours/quiet periods to reduce this risk.
+2. Create a bean
+Define a bean for the TransactionCachePurgingScheduler within a relevant Spring configuration or autoconfiguration class.
+@Configuration
+public class TransactionCachePurgingConfig {
+
+    @Bean
+    public TransactionCachePurgingScheduler<Payment> transactionCachePurgingScheduler(
+            TransactionCacheService<Payment> transactionCacheService,
+            SchedulingModuleInterface schedulingModule,
+            Clock clock,
+            Config config) {
+        return new TransactionCachePurgingScheduler<>(
+                transactionCacheService,
+                schedulingModule,
+                clock,
+                config.getConfig("your.purging.config.path"));
+    }
+}
+Substitute
+<Payment>
+for the class name relevant to your transaction cache.
+Purging approach to use
+The purging approach you will want to use will depend on your use case. The differences between the approaches and recommendation to their use is summarised in the below table.
+Type
+Action
+Recommended usage
+TTL
+Purges all data from the collection based on its age in the collection
+Purging all data at a specific age where you have no requirement to be selective
+TransactionCachePurgingScheduler
+Purges data by type and age (at a specified time)
+Purging datasets at different frequencies
+& controlling when the purge happens
+Application Configuration
+Application Health Indicators

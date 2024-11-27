@@ -1,0 +1,160 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/getting-started/deployments/deployments.html ===
+Deployments
+Bank filtering with DPS (Dynamic Processing Settings) Setting Management can be integrated to a Payment flow (client application) using
+Client Port
+with one of the next options:
+Embedded Library
+with
+DPS Setting Management Embedded (Option 1)
+DPS Setting Management Standalone (Option 1a) *not supported yet
+Standalone Deployment
+with
+DPS Setting Management Embedded (Option 2)
+DPS Setting Management Standalone (Option 2a) *not supported yet
+At the moment, first suboptions (options 1 and 2 in the diagram) are fully supported, while second suboptions (options 1a and 2a in the diagram) are supported via shared database not via connectors. Documentation will describe how it should work via connectors which will be implemented soon.
+Embedded Library
+This option provides each IPF flow the ability to embed Bank filtering library, which means Bank filtering service and cache implementation are included in the flow. The flow can invoke filtering directly.
+DPS Setting Management Embedded (Option 1)
+This option integrates DPS Setting Management into a payment flow. Dynamic settings DB can be shared across all IPF flows which embed Bank filtering library.
+Dependencies needed on client side are:
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-client-direct</artifactId>
+    <version>${bank-filtering-api.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-starter-service-direct</artifactId>
+    <version>${bank-filtering.version}</version>
+</dependency>
+DPS Setting Management Standalone (Option 1a) *not supported yet
+This option offers only Bank filtering integration into a Payment flow. DPS Setting Management is deployed as standalone application. Bank filtering reads settings from DPS via connector.
+Dependencies needed on client side are:
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-client-direct</artifactId>
+    <version>${bank-filtering-api.version}</version>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-starter-service-connector</artifactId>
+    <version>${bank-filtering.version}</version>
+</dependency>
+Dependencies needed on Bank filtering DPS Setting Management side is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-starter-setting-management</artifactId>
+    <version>${bank-filtering.version}</version>
+</dependency>
+Standalone Deployment
+This option provides each IPF flow the ability to invoke external Bank filtering standalone application. In this case Bank filtering service is deployed as standalone application. The flow can invoke filtering via provided connector.
+DPS Setting Management Embedded (Option 2)
+This option integrates DPS Setting Management into a Bank filtering standalone application.
+Dependencies needed on client side is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-client-connector</artifactId>
+    <version>${bank-filtering-api.version}</version>
+</dependency>
+Dependencies needed on Bank filtering service side is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-starter-service-direct</artifactId>
+    <version>${bank-filtering.version}</version>
+</dependency>
+DPS Setting Management Standalone (Option 2a) *not supported yet
+This option offers all applications to be deployed independently. DPS Setting Management is deployed as standalone application too. Bank filtering reads settings from DPS via connector.
+Dependencies needed on client side is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-client-connector</artifactId>
+    <version>${bank-filtering-api.version}</version>
+</dependency>
+Dependencies needed on Bank filtering service side is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-starter-service-connector</artifactId>
+    <version>${bank-filtering.version}</version>
+</dependency>
+Dependencies needed on Bank filtering DPS Setting Management side is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-starter-setting-management</artifactId>
+    <version>${bank-filtering.version}</version>
+</dependency>
+Dependency And Starters Diagram
+This diagram shows complete list of main dependencies and starters and how they can be used on client and server side:
+Bank Filtering Request Example
+Since there are different versions of Bank filtering API, please check
+Bank Filtering Service API
+V1 Request/Response example (only BIC supported):
+Request example:
+curl --location 'http://localhost:8080/bankfiltering/bic' \
+--header 'Content-Type: application/json' \
+--data '{
+    "processingEntity": 1,
+    "csmAgentID": "SIC"
+    ,"debtor": "BNPAMCM1"
+    ,"creditor": "BNPAMCMC"
+    ,"currency": "CRC"
+}'
+Response example:
+{
+  "debtorSeverity": 7,
+  "creditorSeverity": 7,
+  "currencySeverity": 5
+}
+V2 Request/Response example:
+Request example:
+curl -X 'POST' \
+  'http://localhost:8080/api/v2/bankfiltering/check-payment-risk' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "processingEntity": "ULSBGB2B",
+  "csmAgentID": "SIC",
+  "debtor": {
+    "bic": "string",
+    "ncc": {
+      "value": "string",
+      "country": "AD"
+    }
+  },
+  "creditor": {
+    "bic": "string",
+    "ncc": {
+      "value": "string",
+      "country": "AD"
+    }
+  },
+  "currency": "USD"
+}'
+Response example:
+{
+  "debtorRisk": {
+    "highestRiskSeverity": 10,
+    "matchingRules": {
+      "ruleIds": [
+        "string"
+      ]
+    }
+  },
+  "creditorRisk": {
+    "highestRiskSeverity": 9,
+    "matchingRules": {
+      "ruleIds": [
+        "string"
+      ]
+    }
+  },
+  "currencyRisk": {
+    "highestRiskSeverity": 8,
+    "matchingRules": {
+      "ruleIds": [
+        "string"
+      ]
+    }
+  }
+}
+Rule
+Configurations

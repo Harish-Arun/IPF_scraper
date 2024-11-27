@@ -1,0 +1,46 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-meta/guides/analysing-an-emf-repo.html ===
+Analysing an EMF repo
+To navigate a raw ISO20022 EMF repository programmatically in Java, take inspiration from the various unit tests within the emf-loader repository.
+For example the ListMessageDefinitionIdentifiersTest below. This searched through all the Message Definition Identifier concepts and prints them.
+package com.iconsolutions.iso20022.analysis;
+
+import iso20022.*;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.emf.ecore.EObject;
+import org.junit.jupiter.api.Test;
+
+import java.lang.String;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * This runner list the message definitions contains with the original repo
+ */
+@Slf4j
+public class ListMessageDefinitionIdentifiersTest extends AdhocAnalysis {
+
+    @Test
+    protected void analyse() throws Exception {
+        List<EObject> allObjects = getObjectsFromRepo(E_REPO_ORIGINAL);
+        List<MessageSet> messageSets = allOf(MessageSet.class, allObjects);
+        List<MessageDefinition> definitions = allOf(MessageDefinition.class, allObjects);
+
+
+        List<String> out= new ArrayList<>();
+        definitions.forEach(def -> {
+            List<MessageSet> msForDef = messageSets.stream().filter(set -> set.getMessageDefinition().contains(def)).collect(Collectors.toList());
+
+            Set<String> setTitles = msForDef.stream().map(ms -> ms.getName().split(" -")[0]).collect(Collectors.toSet());
+            out.add(def.getMessageDefinitionIdentifier().getBusinessArea() + "."
+                    + def.getMessageDefinitionIdentifier().getMessageFunctionality() + "."
+                    + def.getMessageDefinitionIdentifier().getFlavour() + "."
+                    + def.getMessageDefinitionIdentifier().getVersion() + " : "
+                    + Arrays.toString(setTitles.toArray()));
+        });
+
+        out.sort(Comparator.naturalOrder());
+        out.forEach(log::debug);
+    }
+}
+How-to Guides
+ODS Data Model

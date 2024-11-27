@@ -1,0 +1,14 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/industry-data.html ===
+Industry Data
+Industry Data
+Industry data is the reference data that is provided by Industry sources and is common across all processing entities.
+Industry data is provided by the industry providers and IPF clients should subscribe to the data to be able to load these into relevant data structures.
+Industry data is loaded into IPF data structures using file ingestion applications which in turn use DPS Setting Management APIs to maintain dynamic configuration records created through industry data sources.
+Industry data is supported on below dynamic configurations:
+CSM Participants
+Party Entity Directory
+IBAN Plus Directory (IBAN Plus, IBAN Structure, IBAN Exclusion List)
+Bic Dir 2018
+The industry data can also be defined as client specific implementation where a custom membership definitions are required. These usually need a client specific implementations to be done when client teams have identified a need to upload a bespoke reference data into IPF data structures. The mapping from client specific sources need to be defined and implemented into IPF standard data structures for the look-ups to work.
+CS Agent Selection Settings
+File Ingestion

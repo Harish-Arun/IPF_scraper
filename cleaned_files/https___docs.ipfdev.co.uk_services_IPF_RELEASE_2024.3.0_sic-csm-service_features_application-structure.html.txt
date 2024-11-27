@@ -1,0 +1,33 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/features/application-structure.html ===
+SIC CSM Application Structure
+How the application is organised
+This application is intended to act as a proxy between a flow and the SIC scheme.
+The application has 2 layers, the adapter layer which is responsible for mapping and routing the canonical copy of the ISO messages according to the schema rules. The application module is there to enable this repository to exist as an application, and to provide the relevant runtime dependencies.
+Module dependencies
+The following modules are present;
+sic-adapter - adapts messages and applies scheme rules whilst interacting with the scheme
+sic-application - responsible for pulling dependencies together and running this scheme pack as an application.
+sic-simulator - mimics the rules used by the real SIC5 scheme.
+sic-mapping - responsible for mapping canonical messages used in the flow to and from the Sic ISO equivalents.
+sic-model - responsible for converting the Sic scheme XSDs into POJOs, with relevant JAXB annotations.
+CSM Service
+The
+CSM Service
+module enables provides us with all the relevant interfaces and connectors to separate the sic-csm-service into its own application.
+It has 2 sides: the client and the server.
+The
+client side
+is used by the flow to add the relevant connectors and configuration to enable the flow to communicate with the SIC csm service.
+The server side is used by this application (sic-csm-service) to add the service connectors, allowing us to communicate with the flow over the relevant transport.
+CSM Service Interactions
+CSM service
+The
+CSM Service Starter
+comes with its own configuration which should be understood.
+Message sanitization
+This project makes use of csm-character-replacement, for message sanitization.
+Please look at the
+Character Replacement
+documentation for further information.
+Features
+SIC Validations

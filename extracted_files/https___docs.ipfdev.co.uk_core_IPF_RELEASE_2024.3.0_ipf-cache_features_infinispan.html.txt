@@ -1,0 +1,454 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-cache/features/infinispan.html ===
+InfiniSpan
+Introduction
+Infinispan
+is an in-memory key/value data store that ships with a more robust set of features than other tools of the same niche.
+It provides a flexible, in-memory data stores that you can configure to suit use cases such as:
+Boosting application performance with high-speed local caches.
+Optimising databases by decreasing the volume of write operations.
+Providing resiliency and durability for consistent data across clusters.
+Support Channels
+Infinispan support comes in two forms,
+stackoverflow
+is the first place to look for possible solutions. Failing that, there is a bespoke ZULIP chat channel setup which will put you in direct contact with Infinispan guru’s
+Infinispan Zulip
+.
+Infinispan Configuration
+The
+CacheManager
+is the foundation of the majority of features that we’ll use. It acts as a container for all declared caches, controlling their lifecycle, and is responsible for the global configuration.
+Infinispan ships with a really easy way to build the
+CacheManager
+:
+@Bean
+    InfinispanCacheProvider infinispanCacheProvider(final Marshaller marshaller) {
+        var configuration = kubernetesStack
+                ? buildClusteredConfigurationForKubernetes(marshaller)
+                : buildDefaultClusteredConfiguration(marshaller);
+        var cacheManager = new DefaultCacheManager(configuration);
+        return new InfinispanCacheProvider(cacheManager, settings);
+    }
+
+    private GlobalConfiguration buildClusteredConfigurationForKubernetes(Marshaller marshaller) {
+        return GlobalConfigurationBuilder.defaultClusteredBuilder()
+                .cacheManagerName(cacheManagerName)
+                .transport()
+                .addProperty("stack", "kubernetes")
+                .addProperty("configurationFile", "default-configs/default-jgroups-kubernetes.xml")
+                .initialClusterSize(initialClusterSize)
+                .initialClusterTimeout(initialClusterTimeout.getSeconds(), TimeUnit.SECONDS)
+                .serialization()
+                .marshaller(marshaller)
+                .build();
+    }
+
+    private GlobalConfiguration buildDefaultClusteredConfiguration(Marshaller marshaller) {
+        return GlobalConfigurationBuilder.defaultClusteredBuilder()
+                .cacheManagerName(cacheManagerName)
+                .transport()
+                .initialClusterSize(initialClusterSize)
+                .initialClusterTimeout(initialClusterTimeout.getSeconds(), TimeUnit.SECONDS)
+                .serialization()
+                .marshaller(marshaller)
+                .build();
+    }
+A cache is defined by a name and a configuration. The necessary configuration can be built using the class
+ConfigurationBuilder
+, already available in our classpath.
+The
+ConfigurationBuilder
+is provided with the following method:
+private Cache<Object, Object> buildInfinispanCache(final String name, final InfinispanCacheSetting infinispanCacheSetting) {
+        log.info("Cache {} specified timeout of {} min, max of {}", name, infinispanCacheSetting.getTimeout(),
+                infinispanCacheSetting.getMaxSize());
+
+        var configBuilder = new ConfigurationBuilder();
+        var cacheMode = CacheMode.valueOf(infinispanCacheSetting.getCacheMode());
+
+        configBuilder.clustering()
+                .cacheMode(cacheMode)
+                .encoding().mediaType("application/json")
+                .memory()
+                .maxCount(infinispanCacheSetting.getMaxSize())
+                .whenFull(EvictionStrategy.REMOVE)
+                .expiration()
+                .lifespan(infinispanCacheSetting.getTimeout().toMillis(), TimeUnit.MILLISECONDS);
+
+        if (isRemote(cacheMode)) {
+            configBuilder.clustering()
+                    .stateTransfer().fetchInMemoryState(infinispanCacheSetting.getFetchInMemoryState())
+                    .awaitInitialTransfer(infinispanCacheSetting.getAwaitInitialStateTransfer())
+                    .timeout(infinispanCacheSetting.getStateTransferTimeout().toMillis());
+        }
+
+        if (cacheMeterRegister.metricsEnabled()) {
+            configBuilder.statistics().enable();
+        }
+
+        final Cache<Object, Object> cache = cacheManager.administration().withFlags(CacheContainerAdmin.AdminFlag.VOLATILE)
+                .getOrCreateCache(name, configBuilder.build());
+
+        if (cacheMeterRegister.metricsEnabled()) {
+            cacheMeterRegister.bind(cache);
+        }
+
+        setCacheLevelLogging(cache, name, cacheMode, infinispanCacheSetting);
+        setClusterLevelLogging(cacheMode, infinispanCacheSetting);
+        return cache;
+    }
+
+    private void setCacheLevelLogging(final Cache<Object, Object> cache, final String cacheName, final CacheMode cacheMode,
+                                      final InfinispanCacheSetting infinispanCacheSetting) {
+
+        if (isRemote(cacheMode) && infinispanCacheSetting.getClusterLogging()) {
+            cache.addListener(new ClusterCacheLoggingListener(cacheName));
+        }
+        if (infinispanCacheSetting.getLocalLogging()) {
+            cache.addListener(new LocalCacheLoggingListener(cacheName));
+        }
+    }
+
+    private void setClusterLevelLogging(final CacheMode cacheMode, final InfinispanCacheSetting infinispanCacheSetting) {
+
+        if (isRemote(cacheMode) && isLoggingEnabled(infinispanCacheSetting)) {
+            cacheManager.addListener(new ClusterLoggingListener());
+        }
+    }
+
+    private boolean isLoggingEnabled(final InfinispanCacheSetting infinispanCacheSetting) {
+        return infinispanCacheSetting.getClusterLogging() || infinispanCacheSetting.getLocalLogging();
+    }
+
+    private boolean isRemote(final CacheMode cacheMode) {
+        return cacheMode.isDistributed() || cacheMode.isReplicated();
+    }
+All the documentation on how to configure an Infinispan cache is available
+here
+.
+All the beans mentioned above we get for free when adding the maven dependency mentioned before.
+However, the Infinispan cache requires the following configuration values for each cache that is provided;
+ipf.caching.infinispan.settings."${cache_name}".cache-mode=[CacheMode]
+ipf.caching.infinispan.settings."${cache_name}".timeout=[Duration]
+ipf.caching.infinispan.settings."${cache_name}".max-count=[Long]
+ipf.caching.infinispan.settings."${cache_name}".cluster-logging=[Boolean]
+ipf.caching.infinispan.settings."${cache_name}".local-logging=[Boolean]
+cache_name
+- name of the cache being used
+cache-mode
+- Infinispan cache managers can create and control multiple caches that use different modes. For example, you can use the same cache manager for local caches, distributed caches, and caches with invalidation mode.
+timeout
+- duration cache will remain in memory active before being evicted.
+max-count
+- specify the total number of entries that caches can contain before Infinispan performs eviction
+cluster-logging
+- instantiates a ClusterCacheLoggingListener
+local-logging
+- instantiates a LocalCacheLoggingListener
+An Example:
+ipf.caching.infinispan.settings.cache1.cache-mode=REPL_ASYNC
+ipf.caching.infinispan.settings.cache1.timeout=15m
+ipf.caching.infinispan.settings.cache1.max-count=15000
+ipf.caching.infinispan.settings.payment-data.cluster-logging=true
+ipf.caching.infinispan.settings.payment-data.local-logging=true
+cache-mode
+- can be set to one of following:
+LOCAL - Data is not replicated
+REPL_ASYNC - Data replicated asynchronously
+REPL_SYNC - Data replicated synchronously
+DIST_SYNC
+DIST_ASYNC
+In case the cache mode is
+distributed
+or
+replicated
+, the following additional configuration is required:
+ipf.caching.infinispan.settings."${cache_name}".fetch-in-memory-state=[Boolean]
+ipf.caching.infinispan.settings."${cache_name}".await-initial-state-transfer=[Boolean]
+ipf.caching.infinispan.settings."${cache_name}".state-transfer-timeout=[Duration]
+ipf.caching.infinispan.settings."${cache_name}".global-state-persistence-location=[String]
+More detail on the fields:
+fetch-in-memory-state
+- If true, the cache will fetch data from the neighboring caches when it starts up, so the cache starts 'warm', although it will impact startup time. In distributed mode, state is transferred between running caches as well, as the ownership of keys changes (e.g. because a cache left the cluster). Disabling this setting means a key will sometimes have less than numOwner owners.
+await-initial-state-transfer
+- If true, this will cause the first call to method
+CacheManager.getCache()
+on the joiner node to block and wait until the joining is complete and the cache has finished receiving state from neighboring caches (if fetchInMemoryState is enabled). This option applies to distributed and replicated caches only and is enabled by default. Please note that setting this to false will make the cache object available immediately but any access to keys that should be available locally but are not yet transferred will actually cause a (transparent) remote access. While this will not have any impact on the logic of your application it might impact performance.
+state-transfer-timeout
+- This is the maximum amount of time - in milliseconds - to wait for state from neighboring caches, before throwing an exception and aborting startup.
+global-state-persistence-location
+- This is the location to persist the global state of nodes
+within a cluster, only relevant in kubernetes deployments. It has a default value of "java.io.tmpdir".
+If persistence is enabled for a cache, this value
+MUST
+always be the parent folder of the persistence data
+and index locations. This location
+MUST
+survive a restart, in kubernetes a PVC for example.
+An Example:
+ipf.caching.infinispan.settings.cache1.fetch-in-memory-state=true
+ipf.caching.infinispan.settings.cache1.await-initial-state-transfer=true
+ipf.caching.infinispan.settings.cache1.state-transfer-timeout=6m
+ipf.caching.infinispan.settings.cache1.global-state-persistence-location=/cache
+Infinispan Persistence
+If required, it is possible to use file storage to provide a persistent cache.  To use this feature, it is necessary to provide the following mandatory configurations:
+ipf.caching.infinispan.settings.cache1.persistence.enabled=true
+(1)
+ipf.caching.infinispan.settings.cache1.persistence.data-location=/cache/data
+(2)
+ipf.caching.infinispan.settings.cache1.persistence.index-location=/cache/index
+(3)
+1
+Here we enable the persistent features by setting the enabled flag to true, if unset or false persistent will remain unactivated.
+2
+Here we define the path to the folder in which we wish to store the data to back the cache.
+3
+Here we define the path to the folder in which to store the indexes for the cache.
+The values assigned to data and index locations. They are subdirectories of /cache which
+is the location assigned to
+global-state-persistence-location
+above. If this is not the case you will see errors in the log like the one below.
+ISPN000558: "The store location 'foo' is not a child of the global persistent location 'bar'"
+In addition, there are further optional configuration properties for persisted cache:
+ipf.caching.infinispan.settings.cache1.persistence.shared=
+(1)
+ipf.caching.infinispan.settings.cache1.persistence.preload=true
+(2)
+ipf.caching.infinispan.settings.cache1.persistence.purgeOnStartup=
+(3)
+ipf.caching.infinispan.settings.cache1.persistence.maxFileSize=16777216
+(4)
+ipf.caching.infinispan.settings.cache1.persistence.compactionThreshold=0.5
+(5)
+1
+This setting should be set to true when multiple cache instances share the same cache store (e.g., multiple nodes in a cluster using a JDBC-based CacheStore pointing to the same, shared database.) Setting this to true avoids multiple cache instances writing the same modification multiple times. If enabled, only the node where the modification originated will write to the cache store. If disabled, each individual cache reacts to a potential remote update by storing the data to the cache store.
+2
+If true, when the cache starts, data stored in the cache store will be pre-loaded into memory. This is particularly useful when data in the cache store will be needed immediately after startup and you want to avoid cache operations being delayed as a result of loading this data lazily. Can be used to provide a 'warm-cache' on startup, however there is a performance penalty as startup time is affected by this process.
+Defaulted to true
+3
+If true, purges this cache store when it starts up.
+4
+Max size of single file with entries, in bytes.
+Defaulted to 16777216
+5
+If amount of unused space in some data file gets above this threshold, the file is compacted - entries from that file are copied to a new file and the old file is deleted.
+Defaulted to 0.5
+maxFileSize and compactionThreshold are useful settings if modifying the same cache entry frequently, reduce the compaction threshold or reduce the max file size to cause more frequent compactions of the file store file.
+Typically an exception "Too many records for this key (short overflow)" is thrown to indicate that an adjustment of either of these settings is needed. This is particularly relevant in the case where there are are large amount sequential of updates (> 32,767) to a single cache key which has a small data set thus creating a situation where no compaction occurs. There is no real rule of thumb here aside from understanding that frequent compaction is a good thing.
+N.B.
+The above exception will result in the compactor crashing and a buildup of files on the file system so its worth spending time understanding the need. This is very much an avoidable problem.
+Never use filesystem-based cache stores on shared file systems, such as an NFS or Samba share, because they do not provide file locking capabilities and data corruption can occur.
+Infinispan Implementation
+We get the
+CacheFactory
+bean for free from
+ipf-cache-infinispan
+module and by enabling infinispan caching.
+@Bean(name = "infinispanCacheFactory")
+    CacheFactory<?, ?> infinispanCacheFactory(InfinispanCacheProvider infinispanCacheProvider, CacheLogger<Object, Object> cacheLogger) {
+        return new InfinispanCacheFactory(infinispanCacheProvider, cacheLogger);
+    }
+Then, you just need to use the
+CacheFactory
+to create either an
+AsyncCacheAdapter
+:
+@Bean(name = "paymentInfinispanDataCacheAdapter1")
+        AsyncCacheAdapter<Object, Object> paymentInfinispanDataCacheAdapter1(CacheFactory<Object, Object> infinispanCacheFactory) {
+            return infinispanCacheFactory.asyncCreateCacheAdapter("cache1");
+        }
+Infinispan Cache Embedded Cluster On Kubernetes
+In order to create a kubernetes based infinispan embedded cluster, you
+MUST
+enable kubernetes by setting the following property
+ipf.caching.infinispan.settings.cache1.kubernetes-stack=true
+this is important in order to ensure the correct
+CacheManager
+settings are in place.
+The majority of workloads deployed into kubernetes (the same logic will apply to openshift) are using a
+Deployment
+manifest. This approach is perfectly fine if the infinispan cache is not being persisted to local storage. If there is a requirement for persistence, the recommended approach is to use a
+StatefulSet
+. To be clear, this is not because Deployment workloads cannot have underlying persistence. Rather, it is because Statefulsets provision unique volumes per instance which is what would be required for a cache cluster. I pod of Deployments would, by contrast, share a single volume across the pod.
+An example Statefulset with a volume claim template section to configure persistence. Please note the
+inclusion of port definition 7800
+, this is mandatory in order to facilitate JGROUPS which is discussed after the example.
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ipf-cache-infinispan
+spec:
+  selector:
+    matchLabels:
+      app: ipf-cache-infinispan
+  serviceName: "ipf-cache-infinispan"
+  replicas: 3
+  minReadySeconds: 10
+  template:
+    metadata:
+      labels:
+        app: ipf-cache-infinispan
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: ipf-cache-infinispan
+        image: registry.k8s.io/ipf-cache-infinispan:0.1.0
+        env:
+          - name: IPF_JAVA_ARGS
+            value: "-Dconfig.override_with_env_vars=true -Djgroups.dns.query=ipf-cache-infinispan.mynamespace.svc.cluster.local"
+          - name:
+        ports:
+        - containerPort: 7800
+          name: dns-ping
+        - containerPort: 808
+          name: html
+        - containerPort: 5005
+          name: app
+        volumeMounts:
+        - name: ipf-cache-infinispan
+          mountPath: /tmp/data
+        - name: ipf-cache-infinispan
+          mountPath: /tmp/index
+  volumeClaimTemplates:
+  - metadata:
+      name: ipf-cache-infinispan
+    spec:
+      accessModes: [ "ReadWriteMany" ]
+      storageClassName: "my-storage-class"
+      resources:
+        requests:
+          storage: 10Gi
+Note the reference to a service called
+"ipf-cache"
+. In the context of infinispan it is important that the service is headless which means
+NO
+clusterIP will be allocated. The reason behind this relate back to the use of
+JGROUPS
+within infinispan and more specifically the JGROUPS cluster discovery protocol
+DNS_PING
+which is favoured for kubernetes environment cluster discovery.
+Note also the system property being passed into the environment variable "IPF_JAVA_ARGS". The system property
+jgroups.dns.query
+is documented as being an acceptable override for any default configuration provided to jGROUPS. The value assigned is the usual internal kubernetes dns assigned to a service in the format "myservicename.mynamespace.svc.cluster.local"
+an example headless service configuration for the Statefulset above is as follows,
+the port definition of 7800
+is a mandatory edition to all service definitions. This enabled JGROUPS. The inclusion of the additional setting
+publishNotReadyAddresses: true
+is also recommended. This enables JGROUPS to find additional cluster members and form the cache cluster in advance of the service being in a "ready" state.
+It is HIGHLY recommended that the JGROUPS kubernetes service is defined within its own manifest that manages  port 7800 ONLY. This is particularly pertinent when akka clusters are involved.
+apiVersion: v1
+kind: Service
+metadata:
+  name: ipf-cache-infinispan
+  labels:
+    app: ipf-cache-infinispan
+spec:
+  ports:
+    - name: jgroup
+      port: 7800
+      protocol: TCP
+      targetPort: 7800
+  clusterIP: None
+  publishNotReadyAddresses: true
+  selector:
+    app: ipf-cache-infinispan
+Infinispan Cluster Global State
+When setting
+kubernetes-stack=true
+, the global state of the
+CacheManager
+is then enabled in infinispan. The global state of a node is vital for any cache cluster. When a cluster node is gracefully stopped, the state of the node is persisted as the node comes down, as is evident in the logs by the following
+[INFO] [org.infinispan.CLUSTER] [] [SpringApplicationShutdownHook] - ISPN000080: Disconnecting JGroups channel `ISPN` MDC: {}
+[INFO] [org.infinispan.CONTAINER] [] [SpringApplicationShutdownHook] - ISPN000390: Persisted state, version=14.0.11.Final timestamp=2023-07-13T08:45:17.267058Z MDC: {}
+[DEBUG] [org.infinispan.manager.DefaultCacheManager] [] [SpringApplicationShutdownHook] - Stopped cache manager
+However, if a node is forcibly terminated for any reason and the above is not observed in the logs it is highly likely that the state of the node is corrupt. In this case, it is advised to purge the infinispan data for the failed node before starting it back up. This will allow the node to rejoin the cluster as a
+NEW NODE
+rather than trying to return as an existing node with a corrupt state. There is a ticket raised on Redhat here
+ISPN-14418
+about a possible automatic solution for release 15.
+If a nodes state is corrupt and then rejoins the cluster you are likely to see repeated errors across all nodes within the cluster that look similar to the following
+[ERROR] [org.infinispan.interceptors.impl.InvocationContextInterceptor] [] [timeout-thread--p4-t1] - ISPN000136: Error executing command RemoveCommand on Cache 'paxi001', writing keys [WrappedByteArray[\{\"\v\a\l\u\e\"\:\[\"\c\o\m\.\t\h\e\s\o\l\u\t\i\o\n\s\.\f\b\i\.\c\o\r\e\.\s\h\a\r\e\d\.\d\o\m\a\i\n\.\c\o\n\t\e\x\t\.\U\n\i\t... (114 bytes)]] MDC: {}
+org.infinispan.util.concurrent.TimeoutException: ISPN000476: Timed out waiting for responses for request 6284 from achme-archiving-service-2-15893 after 15 seconds
+	at org.infinispan.remoting.transport.impl.SingleTargetRequest.onTimeout(SingleTargetRequest.java:86)
+	at org.infinispan.remoting.transport.AbstractRequest.call(AbstractRequest.java:88)
+	at org.infinispan.remoting.transport.AbstractRequest.call(AbstractRequest.java:22)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+To prevent this situation from occurring, the recommendation is to implement a check in an initContainer to check for a dangling lock file.
+When a node is gracefully stopped, the lock file (\___globalState.lck file in the
+ipf.caching.infinispan.settings.cache1.global-state-persistence-location
+.) is removed on shutdown. A simple check for the existence of this file, failing if found, is enough to ensure that a node does not start up in a corrupt state. The following manifest snippets provide an example which additionally introduces a window for an intervention before failing the node startup if a dangling lock file is found. The script is provided to the initContainer via a configmap.
+[snip]
+      initContainers:
+        - name: preflight-checks
+          image: busybox
+          env:
+            - name: SLEEPTIME
+              valueFrom:
+                configMapKeyRef:
+                  name: ipf-test-service-cm
+                  key: preflightcheck.sleep
+          args:
+            - /bin/sh
+            - -ec
+            - /ipf-test-service-app/conf/preflightcheck.sh
+          volumeMounts:
+            - name: cache-disk
+              mountPath: /cache
+            - mountPath: /ipf-test-service-app/conf/preflightcheck.sh
+              name: config-volume
+              subPath: preflightcheck.sh
+[snip]
+      volumes:
+        - name: config-volume
+          configMap:
+            name: ipf-test-service-cm
+            defaultMode: 511
+[snip]
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ipf-test-service-cm
+data:
+  preflightcheck.sleep: 60
+  preflightcheck.sh: |
+    echo "Checking the global state of the cache"
+    LOCK=/cache/___global.lck
+    STATE=/cache/___global.state
+    RDSDOMAINDATA=/cache/rds-domain-data
+
+    if [ -f "$LOCK" ]; then
+        ls -latr /cache
+    cat <<EOF
+    ***ERROR***
+    File $LOCK exists, this would strongly suggest the pod was forcibly terminated.
+    The result is a dangling lock file and probable corruption of the local cache state,
+    it is not advisable to allow this pod to start without an intervention.
+    If the remainder of the cluster nodes are in a good state you may purge the persisted cache on this node.
+
+    The command to purge is as follows:
+    kubectl exec ${HOSTNAME} -c preflight-checks -- rm -rf ${LOCK} ${STATE} ${RDSDOMAINDATA}
+    Please be 100% sure before proceeding, this is a destructive process
+
+    To confirm the purge has worked you can run the following
+    kubectl exec ${HOSTNAME} -c preflight-checks -- ls -latr /cache
+
+    This container will remain up for ${SLEEPTIME} seconds after which it will exit 1 forcing the pod to restart
+    EOF
+        sleep $SLEEPTIME
+        exit 1
+    else
+        echo "Global cache state check completed successfully"
+    fi
+Infinispan Cache Metrics
+Infinispan cache has support for exposing cache metrics (e.g. hit count, miss count, put latency, get latency, etc).
+Metrics can be enabled/disabled by configuration parameter:
+ipf.caching.infinispan.enable-metrics=true
+The configuration parameter is defaulted to
+true
+.
+Cache metrics have dependency on Micrometer.
+Caffeine
+Getting Started

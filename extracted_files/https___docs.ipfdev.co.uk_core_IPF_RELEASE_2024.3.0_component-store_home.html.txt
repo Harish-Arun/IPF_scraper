@@ -1,0 +1,9 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/component-store/home.html ===
+Store
+A
+ComponentStore
+is a pluggable component providing a data storage for the payment components.
+Currently, there exist 2 different implementations of the data storage, one "InMemoryComponentStore" and the other, mongo based, "MongoComponentStore".
+MongoComponentStore
+List of System Events
+Concepts

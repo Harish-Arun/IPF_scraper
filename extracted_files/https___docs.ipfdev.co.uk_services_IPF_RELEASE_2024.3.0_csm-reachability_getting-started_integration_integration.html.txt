@@ -1,0 +1,8 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/integration/integration.html ===
+Integration
+CSM Reachability with Dynamic Processing Settings can be integrated to a Payment flow (client application) using standalone deployment.
+However, DPS Setting Management can be integrated into CSM reachability application or started as standalone application.
+Overview of DPS embedded into CSM Reachability application
+Overview of DPS deployed as standalone application
+Dynamic Configuration Management Guidelines
+CSM Reachability Setting Management API

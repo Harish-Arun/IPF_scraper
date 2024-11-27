@@ -1,0 +1,87 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/exclusion-list-directory.html ===
+Exclusion List Directory
+SwiftRef IBAN Plus Directory
+, loaded via local file ingesters and containing the following file types:
+Exclusion List, containing the list of IBAN national IDs that are not allowed in IBANs. Supports both
+FULL
+and
+DIFF
+imports in both
+XML
+and
+TXT
+.
+Exclusion list is used during IBAN deconstruction by IPF CSM Reachability Service.
+Bellow table provides information about File type supported and File format.
+File Types Supported
+File Name
+File Types Supported
+File Formats Supported
+File Naming Conventions
+Exclusion List
+FULL
+TXT, XML
+EXCLUSIONLIST_V1_FULL_YYYYMMDD
+Exclusion List
+DELTA
+TXT, XML
+EXCLUSIONLIST_V1_DELTA_YYYYMMDD
+AWS S3 Ingestion identifies this file when the file name starts with "EXCLUSIONLIST". The Full file is identified using the text FULL on the file name and the delta file is identified using the text DELTA.
+The client implementations should not modify the files names provided by industry sources and ingest the files as received.
+Exclusion List Data Structure
+Exclusion List property
+Description
+modificationFlag
+On the FULL file the value of MODIFICATION FLAG is always
+aAa (record to add)
+On the DELTA file the value of MODIFICATION FLAG  can be
+aAa (record to add)
+aMa (record to modify)
+aDa (record to delete)
+Source file records with a value of "D" will not be loaded.
+recordKey
+The unique key of the record in the file.
+ibanCountryCode
+ISO country code of the NATIONAL
+ibanNationalId
+The bank/branch code that, if included in an IBAN, would lead to an invalid IBAN. The IBAN NATIONAL ID has the country-specific length as specified in the IBANSTRUCTURE file.
+bicValid
+Valid BIC of the financial institution that holds/used to hold this NATIONAL ID
+Mapping Definitions
+Exclusion List V1 file to Exclusion List Directory mapping
+Exclusion List V1 property
+Exclusion List property
+Comment
+modification_flag
+modificationFlag
+On the FULL file is always "A", and for DELTA file it can be "A", "M", or "D"
+record_key
+recordKey
+country_code
+ibanCountryCode
+iban_national_id
+ibanNationalId
+bic
+bicValid
+Example Mapping
+Source Record from Industry file
+<?xml version="1.0" encoding="UTF-8"?>
+<dataexport product="exclusionlist_v1" filetype="full" filedate="20161021">
+    <exclusionlist_v1>
+        <modification_flag>A</modification_flag>
+        <record_key>EL000000HO94</record_key>
+        <country_code>AD</country_code>
+        <iban_national_id>00020097</iban_national_id>
+        <bic>CRDAADADXXX</bic>
+    </exclusionlist_v1>
+</dataexport>
+Destination Record Exclusion List
+{
+  "modificationFlag": "A",
+  "recordKey": "EL000000HO94",
+  "ibanCountryCode": "AD",
+  "ibanNationalId": "00020097",
+  "bicValid": "CRDAADADXXX"
+}
+IBAN Plus Directory
+IBAN Structure Directory

@@ -1,0 +1,328 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/notification-service/features/settings-query.html ===
+Payment Status Notification Settings Query
+In order to understand what is this
+Payment Notification Settings Query
+all about, we need to first understand these concepts of
+Dynamic Settings
+and
+Payment Status Notification Settings
+.
+Dynamic Processing Settings provides a platform to manage configurable settings and their lifecycle. The platform provides for defining, maintaining and exposing configurable settings that can be referenced from an external application such as IPF.
+For more details on dynamic settings please read
+Dynamic Settings Documentation
+In our case in particular, our dynamic settings will be for
+Payment Status Notification Settings
+.
+They are a list of settings (which are configurable) that will be used to set specific fields in the PAIN 002 document to be produced. For more information on what fields are expected to be configured and how they should be set, please read in more detail
+this chapter
+.
+The
+PaymentStatusNotificationSettingsQuery
+class is just an interface that will help us retrieve that configuration data for a specific event, based on the event name and the process flow name:
+public interface PaymentStatusNotificationSettingsQuery {
+    CompletionStage<SettingsDTO<PaymentStatusNotification>>  getPaymentStatusNotificationSettings(String eventName, String processFlowName);
+}
+We make use of SettingsDTO, from Dynamic Settings by adding the following maven dependency:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.dynamicsettings</groupId>
+    <artifactId>setting-domain</artifactId>
+</dependency>
+It expects to return a Settings DTO of
+Payment Status Notification
+, filtering by event name and process flow name.
+There are 3 types of Payment Status Notification Settings Query:
+Payment Status Notification Settings Connector Query
+Payment Status Notification Settings File Config Query
+Payment Status Notification Settings Mongo Query
+For more detail on each one of the three types of Query Settings please read the following chapters.
+Connector
+It is instantiated by setting the following property:
+setting-retrieval-method = connector
+And by defining the following configuration:
+settings-api {
+  http {
+    client {
+      host = "localhost"
+      endpoint-url = "/settings-objects/"
+      port = 8080
+    }
+  }
+}
+When the
+getPaymentStatusNotificationSettings
+method is called, a Setting Cache Key is instantiated for the given event name and process flow name.
+@Value
+@Builder
+@AllArgsConstructor
+public class SettingCacheKey {
+    String eventName;
+    String processFlowName;
+}
+Then it calls the
+settingsCacheAdapter
+(for more details on caching please read
+async cache adapter
+). There are two outcomes:
+There is something in the cache. The values gets serialised, completes and returns.
+There is nothing in the cache. It fetches the settings by making an HTTP call to the
+Request Reply Send Connector
+. It then adds it to the cache, completes and returns.
+The downside of this variant is that it needs another service to model the Settings.
+The
+Request Reply Send Connector
+, together with the Dynamic Settings API will support the API calls to the
+settings-object
+url.
+The application can be stateless, i.e. no Akka cluster setup is needed. The connector implementation will be calling an external service that hosts the dynamic settings workflow service.
+File Config
+It is instantiated by setting the following property:
+setting-retrieval-method = file
+The payment status notification list is instantiated with the following configuration (as an example):
+payment-status-notification.notification-settings = [
+  {
+    "domain-event" : "Scheme Rules Validated",
+    "process-flow": "DebtorCT",
+    "status" : "ACCC",
+    "proprietary" : "validated",
+    "transport" : "kafka",
+    "predicate" : null,
+    "endpoints" : [
+      {
+        "topic": "PAYMENT_STATUS_NOTIFICATION",
+        "predicate": "eventId == 1"
+      },
+      {
+        "topic": "PAYMENT_SECONDARY_TOPIC",
+        "predicate": "eventId == 2"
+      }
+    ]
+  }
+]
+When the
+getPaymentStatusNotificationSettings
+method is called, it checks the notificationSettings and filters based on the event name and process flow.
+Instantiates the list, completes and returns.
+The application can be stateless, i.e. no Akka cluster setup is needed. It loads everything up from HOCON on application startup. Its the simplest solution. Just needs to look up an in-memory structure.
+Mongo
+It is instantiated by setting the following property:
+setting-retrieval-method = mongo
+When the
+getPaymentStatusNotificationSettings
+method is called, a Setting Cache Key is instantiated, based on event name and process flow name.
+Then it calls the
+settingsCacheAdapter
+(for more details on caching please read
+async cache adapter
+). There are two outcomes:
+There is something in the cache. The values gets serialised, completes and returns.
+There is nothing in the cache. It fetches the settings by calling the Payment Status Notification Settings Repository,
+which is a Settings Repository
+that stores Payment Status Notification Settings. It then adds it to the cache, completes and returns.
+In order to use this variant, the Settings need to be included within the Notification Service by including the settings-management component and the following maven dependency:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.dynamicsettings</groupId>
+    <artifactId>dynamicsettings-query</artifactId>
+    <version>${dynamic-settings-workflow.version}</version>
+</dependency>
+It relies on dynamic settings workflow. Which means there is an active write side and a read side running within the Notification Service. The dynamic settings are always bundled into the app.
+Selecting the Settings Query
+Variant
+Pros
+Cons
+Connector
+- Ability to create, update, delete and get settings very easily
+- No need to restart so new settings can be applied. Relying on cache only
+- High complexity defining SendingConnector beans, connector transports, etc
+- Needs to connect to a separate dynamic settings service to retrieve the settings
+- Will most likely be the slowest fetcher, since it will have to do a network hop + wait for the target service to query the data
+File
+- Simplest version
+- Fastest
+- Need to add all configurations manually
+- It requires all service nodes to be restarted in order for any new settings to be applied
+Mongo
+- Standardised operations by using the ReactiveCrudRepository
+- It relies on dynamic settings workflow component. There is an active write side and a read side running within the Notification Service (same container)
+- Need to build a lot of "Querying by hand" when looking for specific records. Which are error-prone.
+Dependencies
+Currently, the Notification Service depends on
+Dynamic Settings
+.
+This is currently the case even if
+File Based Query
+is configured.
+Mongo
+The dynamic settings creates a collection on MongoDB with the following indexes:
+Index index = new Index()
+                .on(PaymentStatusNotificationMongoSettingRecordIndexInitialiser.LAST_EVENT_TIME, Sort.Direction.DESC)
+                .on(PAYLOAD_DOMAIN_EVENT, Sort.Direction.ASC)
+                .on(PAYLOAD_PROCESS_FLOW, Sort.Direction.DESC);
+The automatic creation of the indexes for the service can be disabled by applying the following to your application.conf:
+payment-status-notification.mongodb.create-indexes=false
+Or globally with:
+ipf.mongodb.create-indexes=false
+To disable indexing globally but to retain it for the service, apply the following, retaining the order:
+ipf.mongodb.create-indexes=false
+payment-status-notification.mongodb.create-indexes=true
+The
+commit quorum
+can similarly be controlled with:
+ipf.transaction-cache.mongodb.commit-quorum=1
+Or overridden globally with:
+ipf.mongodb.commit-quorum=1
+To set a different commit quorum globally to the Notification Service one, apply the following, retaining the order:
+payment-status-notification.mongodb.commit-quorum=1
+ipf.mongodb.commit-quorum=1
+Payment Status Notification
+The notification-service has a concept of a Payment Status Notification.
+These are settings used to populate a Payment Status Notification when a Process Flow Event (Domain event) is received. These settings are
+optional
+and if not configured, data from the DomainEvent will be used instead.
+Here is a table describing how data from
+PaymentStatusNotification
+is currently mapped into
+CustomerPaymentStatusReport
+fields:
+From
+To
+PaymentStatusNotification.status
+CustomerPaymentStatusReport.orgnlPmtInfAndSts[0].txInfAndSts[0].txSts
+PaymentStatusNotification.proprietary
+CustomerPaymentStatusReport.orgnlPmtInfAndSts[0].txInfAndSts[0].stsRsnInf[0].rsn.prtry
+PaymentStatusNotification.code
+CustomerPaymentStatusReport.orgnlPmtInfAndSts[0].txInfAndSts[0].stsRsnInf[0].rsn.cd
+PaymentStatusNotification.additionalInfo
+CustomerPaymentStatusReport.orgnlPmtInfAndSts[0].txInfAndSts[0].stsRsnInf[0].addtlInf
+For more details on
+PaymentStatusNotification
+settings please read
+Payment Status Notification Schema
+.
+If no
+PaymentStatusNotification
+is currently configured then the following fields will be populated from the Domain Event itself as follows:
+From
+To
+DomainEvent.originalReasonCode
+CustomerPaymentStatusReport.orgnlPmtInfAndSts[0].txInfAndSts[0].stsRsnInf[0].rsn.prtry
+DomainEvent.reasonCode
+CustomerPaymentStatusReport.orgnlPmtInfAndSts[0].txInfAndSts[0].stsRsnInf[0].rsn.cd
+DomainEvent.reasonText
+CustomerPaymentStatusReport.orgnlPmtInfAndSts[0].txInfAndSts[0].stsRsnInf[0].addtlInf[0]
+Payment Notification Settings Schema
+The following table identifies the fields that can be configured for a Payment Status Notification
+Field
+Type
+Mandatory
+Description
+Example
+domainEvent
+String
+Yes
+The name of the domain event, matching the
+Domain Event
+name received
+Scheme Rules Validated
+processFlow
+String
+Yes
+The name of the flow the event is meant to be for
+DebtorCT
+status
+String
+Yes
+The transaction status code to be mapped to when generating the
+Payment Status Notification
+ACCC
+transport
+String
+Yes
+The transport to be used when producing the
+Payment Status Notification
+. Currently, the only supported value is kafka
+kafka
+endpoints
+List<Endpoint>
+Yes
+The list of endpoints the
+Payment Status Notification
+will be sent to, for the domain event received, if the predicate is satisfied. In case the transport is kafka it will a list of topics and predicates
+[{"topic": "TOPIC_1", "predicate": "eventId == 1"}, {"topic": "TOPIC_2", "predicate": "eventId == 2"}]
+code
+String
+No
+The code to be mapped to when generating the
+Payment Status Notification
+TM01
+proprietary
+String
+No
+The proprietary to be mapped to when generating the
+Payment Status Notification
+PROPRIETARY_CODE
+additionalInfo
+List<String>
+No
+The additional info to be mapped to when generating the
+Payment Status Notification
+["additional info 1", "additional info 2"]
+predicate
+String
+No
+Predicate against a
+ProcessFlowEvent
+that must be adhered to for a
+Payment Status Notification
+. Supports
+SpEL
+based expressions including
+jsonPath
+.
+csm == 'SIC'
+csm == 'SIC' && #jsonPath(content, '$.status.originatingStatus') == 'Settling Cash'
+Examples
+Populated From Settings
+This is the
+PaymentStatusNotification
+configured in settings:
+{
+    "domain-event" : "Scheme Rules Validated",
+    "process-flow": "DebtorCT",
+    "status" : "ACCC",
+    "proprietary" : "validated",
+    "transport" : "kafka",
+    "endpoints" : ["PAYMENT_STATUS_NOTIFICATION"]
+  }
+This means that when a "Scheme Rules Validated" Domain Event is received for "DebtorCT" flow, a payment status notification will be produced to the PAYMENT_STATUS_NOTIFICATION kafka topic, with the following info:
+CustomerPaymentStatusReport.orgnlPmtInfAndSts[0].txInfAndSts[0].txSts
+ACCC
+CustomerPaymentStatusReport.orgnlPmtInfAndSts[0].txInfAndSts[0].stsRsnInf[0].rsn.prtry
+validated
+Populated From Domain Event
+This is the
+PaymentStatusNotification
+configured in settings:
+{
+    "domain-event" : "Scheme Rules Validated",
+    "process-flow": "DebtorCT",
+    "status" : "ACCC",
+    "transport" : "kafka",
+    "predicate" : "csm == 'SIC'",
+    "endpoints" : ["PAYMENT_STATUS_NOTIFICATION"]
+  }
+And this is the original
+DomainEvent
+received:
+{
+    "reasonCode": "AM13",
+    "reasonText" : "Amount is above the limit"
+  }
+This means that when a "Scheme Rules Validated" Domain Event is received for "DebtorCT" flow, a payment status notification will be produced to the PAYMENT_STATUS_NOTIFICATION kafka topic, with the following info:
+CustomerPaymentStatusReport.orgnlPmtInfAndSts[0].txInfAndSts[0].txSts
+ACCC
+CustomerPaymentStatusReport.orgnlPmtInfAndSts[0].txInfAndSts[0].stsRsnInf[0].rsn.cd
+AM13
+CustomerPaymentStatusReport.orgnlPmtInfAndSts[0].txInfAndSts[0].stsRsnInf[0].addtlInf[0]
+Amount is above the limit
+Processing Data Handler
+Notification Sender

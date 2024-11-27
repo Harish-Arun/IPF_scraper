@@ -1,0 +1,6 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/concepts.html ===
+Concepts
+ISO20022 Concepts
+Core Classes
+ISO20022 Model
+ISO20022 Concepts

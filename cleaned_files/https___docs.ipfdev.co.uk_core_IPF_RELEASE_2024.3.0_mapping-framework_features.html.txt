@@ -1,0 +1,19 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/mapping-framework/features.html ===
+Features
+The framework is designed to transform Java objects into other Java objects, taking the heavy-lifting away from developers
+so they can focus on more important tasks, including the conversion of messages between wire format and Java which is a prerequisite
+to the use of the framework.
+The framework offers the following features:
+Generate mapping configuration templates to fill in for each defined pair of Java classes we want to map
+Generate a Java POJO-to-POJO mapping and enrichment service from
+HOCON configuration files
+The framework is powered by
+Freemarker
+as a templating engine and by
+Orika
+as a mapping engine.
+See the
+getting started
+section to start defining your mappings and generating the transformation code.
+Concepts
+Getting Started

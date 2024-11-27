@@ -1,0 +1,42 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/persistence/mongo-offset.html ===
+Mongo Offset Data Model
+Collection List
+MongoOffset
+This collection tracks the latest journal entries that have been processed by an event processor for a given tag and eventProcessorId.
+Overview Diagram
+Below is a diagram showing the mongoOffset collection in its entirety:
+Collection Overview
+MongoOffset
+Fields
+Below are the fields for the mongoOffset collection:
+Field
+Description
+Example
+_id
+PK - We set this value at the application level to be a complex type referencing the tag and eventProcessorId
+{"tag" : "tag-0", "eventProcessorId" : "IpfProcessingDataEventProcessor"}
+offset
+Stores the latest offset value as a MongoDB ObjectID
+{"objectId" : "644a63481ddeb960823f6cac"}
+Example Record
+{
+    "_id" : {
+        "tag" : "tag-0",
+        "eventProcessorId" : "IpfProcessingDataEventProcessor"
+    },
+    "offset" : {
+        "objectId" : "644a63481ddeb960823f6cac",
+        "_class" : "com.iconsolutions.akka.persistence.mongodb.MongoDBReadJournal$ObjectIdOffset"
+    },
+    "_class" : "com.iconsolutions.ipf.core.platform.journal.mongo.MongoOffset"
+}
+Indexes
+Below are the indexes for the mongoOffset collection:
+Index Name
+Fields
+Description
+_id_
+_id (ascending)
+Complex type consisting of the tag and eventProcessorId
+Persistence
+Transaction Cache Data Model

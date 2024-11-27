@@ -1,0 +1,7 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/getting-started/integration/integration.html ===
+Integration
+The whole possible diagrams are showed in
+Deployments
+page.
+Configurations
+Client Library

@@ -1,0 +1,87 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ops-gui-service-ng/modules/cluster/cluster.html ===
+Cluster Management
+The Ops Service will provide cluster health information and Icon libraries versions used by the nodes of the upstreams
+services. There is no auto-discovery, we rely on the akka management API to retrieve information about nodes that are
+not part of the configuration.
+Configuration
+Systems to monitor
+The configuration for the cluster management modules includes a list of systems to monitor:
+ipf.business-operations.cluster-management.systems = [
+    {
+        name = "ODS Inquiry"
+        base-urls = [
+            "http://ods-inquiry-app:8080"
+        ],
+        akka-management = false,
+        actuator = {
+            protocol = "http",
+            port = "8080"
+        }
+    },
+]
+Name
+Description
+name
+Human readable identifier for the system
+base-urls
+List of one or more cluster node urls where the Akka Management API is available
+akka-management
+Whether the cluster is managed by Akka and Akka management is enabled. If
+false
+, its assumed that only the provided
+ URLs are part of the cluster, if
+true
+, the application will try to discover all the members using Akka.
+actuator.protocol
+Protocol to be used when using the spring boot actuator endpoints
+actuator.port
+Port number where spring actuator is listening, the host will be assumed to be the same as the one provided in the base
+ URL.
+Caching
+When fetching the cluster members and version information, the data returned is cached for a configurable period of time. See below for the default configuration (and see the IPF Cache docs for more details):
+#tag::caching[]
+ipf.caching.caffeine {
+  enabled = true
+  settings {
+    # Cache that holds the Akka cluster member returned by Akka Management
+    akka-cluster-members {
+      timeout = 5m
+      max-size = 20
+    }
+
+    # Cache that holds the health information for each node
+    # belonging to a monitored system's cluster
+    cluster-member-health {
+      timeout = 5m
+      max-size = 100
+    }
+
+    # Cache that holds the version information for each node
+    # belonging to a monitored system's cluster
+    cluster-member-versions {
+      timeout = 10m
+      max-size = 100
+    }
+  }
+}
+Retries
+When calling into the monitored systems, the data returned is cached for a configurable period of time. See below for the default configuration (and see the IPF Cache docs for more details):
+ipf.business-operations.cluster-management = {
+
+  # How long to wait for the response to return
+  call-timeout = 2s
+
+  # How many times to attempt a call to an endpoint
+  max-attempts = 1
+
+  # How many times to call out to an endpoint before opening the circuit breakers
+  minimum-number-of-calls = 100
+
+  # The initial backoff when doing retries
+  initial-retry-wait-duration = 1s
+
+  # Which HTTP statuse codes to not retry on
+  non-retryable-status-codes = [400, 404, 403]
+}
+Processing Settings
+Auditing

@@ -1,0 +1,11 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/concepts/explainers/training.html ===
+IPF Training
+Icon offer a few training courses that can be held face to face or via an online meeting. This page lists those courses.
+What is IPF
+A foundational lecture style course suitable for anyone who wants to know more about what IPF is. It assumes no prior knowledge of IPF and is particularly suited to Business Analysts and Solution Architects who will be working on IPF projects. The course covers the fundamental concepts behind IPF and also introduces each of the key IPF functions. It is highly recommended that people attending this course already know about how payments tend to be processed and have some understanding of ISO200222.
+Building IPF solutions with FloLang DSL and Java
+Intended for developers, this interactive classroom style course take attendees from no knowledge of how to define and implement flows using the FloLang DSL and Java to having a running flow implemented in their own development environment that uses all the key features of FloLang. Attendees must be experienced Java developers.
+Building IPF solutions with FloLang DSL
+Intended for Business Analysts, this interactive classroom style is effectively the above course without the Java elements. it takes attendees from no knowledge of how to define flows using the FloLang DSL to having a running flow implemented in their own sandbox environment that uses all the key features of FloLang. Attendees must have some knowledge about how payments tend to be processed and have some understanding of ISO20022.
+Introduction to State Machines in IPF
+How to Start Your First IPF Implementation Project

@@ -1,0 +1,12 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/features/filtering-behaviour.html ===
+Bank Filtering Behaviour
+Filtering Behaviour
+Below flow shows the filtering behaviour used by Bank Filtering Service.
+Different considerations given to different types of filtering done when a filtering request is received on the Service API
+Common Filtering
+Filtering By BIC
+Filtering by NCC
+Filtering By Currency
+When no rule matches any given criteria (debtor, creditor or currency), the severity value of '0' is returned. When an input parameter is not specified from (debtor, creditor or currency), then the severity of '0' is returned for it.
+Endpoint - Bank Filtering Check Payment Risk
+Common Filtering

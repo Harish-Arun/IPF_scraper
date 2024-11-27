@@ -1,0 +1,7 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/guides.html ===
+Guides
+Migrating from the legacy IPF Payment Model
+Creating an Example Message
+Validating an Example Message
+Getting Started
+Migrating from the legacy IPF Payment Model

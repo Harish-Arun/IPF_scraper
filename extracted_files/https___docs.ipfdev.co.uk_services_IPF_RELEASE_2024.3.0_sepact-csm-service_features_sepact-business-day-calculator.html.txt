@@ -1,0 +1,45 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/features/sepact-business-day-calculator.html ===
+Business Day Calculator
+This module provides a business day calculator excluding weekend days and known holiday such as:
+New years day
+May day
+Good Friday
+Easter Monday
+Christmas
+Boxing day
+It is also possible to provide a custom list of holidays by configuration.
+The Easter is calculated based on Gregorian algorithm.
+en.wikipedia.org/wiki/Computus
+(Anonymous Gregorian algorithm)
+*
+dzone.com/articles/algorithm-calculating-date
+The calculator retrieves a list of N local dates, starting from a provided date, and the next N business days.
+public List<LocalDate> getNextBusinessDays(LocalDateTime start, int noOfDays)
+Maven Dependency
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.sepact</groupId>
+    <artifactId>sepact-business-days-calculator</artifactId>
+</dependency>
+Business Days Calculator Configuration
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-ct.calendar.holidays
+List of String
+Can pass a list into this in the following format: ["2019-04-05", "04-05"]
+"2019-04-05"- Contains year, month, day. The holiday will be set for only the specified year
+"04-05" - Contains month and day without year. The holiday will be set for the year when the method is executed
+[]
+ipf.csm.sepa-ct.calendar.disable-known-holidays
+boolean
+By default, known holidays will be enabled. If disable = true, then they must be added to the list of holidays. These dates are
+1. New years day
+2. May day
+3. Good Friday
+4. Easter Monday
+5. Christmas
+6. Boxing day
+false
+Validation API
+Correlation Store

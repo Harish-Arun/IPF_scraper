@@ -1,0 +1,8 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/concepts.html ===
+Concepts
+Discover the key concepts that IPF Flo Starter provides
+Flo Starter Projects
+Understanding Passivation, Remembering Entities, and Schedulers
+Domain Operations
+Flo Starter
+Flo Starter Projects

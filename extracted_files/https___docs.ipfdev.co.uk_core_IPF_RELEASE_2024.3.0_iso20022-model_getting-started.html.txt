@@ -1,0 +1,28 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/getting-started.html ===
+Getting Started
+The Java representation of the ISO20022 message model for IPF is wholly found with the below maven artefact, this
+includes types, serialisers and validators etc. The version of the artefact is defined as part of the IPF Core Release
+BOM.
+<dependency>
+    <groupId>com.iconsolutions.iso20022.model</groupId>
+    <artifactId>message-model</artifactId>
+    <version>${icon-iso20022-model.version}</version>
+</dependency>
+Within this repository the key class is
+ISO20022MessageModel
+, which serves as a central access point for
+validation and serialisation, and registration point for associated rule implementations and supporting contexts.
+If you are in the process of migrating an old (pre Q2 2023 IPF Project) that uses the legacy model representation (and
+specifically need both models to co-exist) then utilities for conversion between models can be found in the below
+optional artifact.
+<dependency>
+    <groupId>com.iconsolutions.iso20022.model</groupId>
+    <artifactId>migration-pack</artifactId>
+    <version>${icon-iso20022-model.version}</version>
+</dependency>
+For a full breakdown of the differences between these models and how to migrate from one version to the latter please
+see the how-to guide:
+Migrating from the legacy IPF Payment Model
+.
+Future Enhancements
+How to guides…​

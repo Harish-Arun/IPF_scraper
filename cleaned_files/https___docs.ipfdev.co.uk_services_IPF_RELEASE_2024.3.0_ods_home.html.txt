@@ -1,0 +1,43 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/home.html ===
+IPF Operational Data Store - ODS
+Overview
+The purpose of the IPF Operational Data Store (ODS) is to give staff (mainly business operations and customer support) of the bank/PSP access to the payment data and related processing data to perform activities like tracking & tracing of payments, exception handling (e.g. generate cancellation request) as well as overall monitoring of payment processes. The IPF ODS gives insight in the end-to-end lifecycle of a payment, irrespectively the (payment/message) type or the channel via which it has been received. The end-to-end lifecycle of a payment can be the result of the execution of multiple processes, such as processing of customer credit transfer instruction (pain001, that results in a
+pacs008
+that is sent a CSM), the payment status update (as a response to the pacs008), a cancellation request (camt056) and the response to the cancellation request from the CSM. The data in the ODS may also be accessed by customers via one of the customer channels of the bank to inform after the status or view the details of a payment. It is also possible that the ODS is queried by other bank applications, for instance the application that generates account statements (camt.053) for customers and needs to enrich the bookings (which hold limited amount of data) with additional payment data to provide the customer with all relevant data it needs for its operations (e.g. reconciliation of accounts receivables).
+The ODS includes a set of APIs with which applications (such as IPF Operator GUI, but also non-IPF applications) can search for the relevant payment, the details of the payment, the processing logs as well as the messages that are exchanged with external systems/parties (in the concerning format).
+The data source of the IPF ODS are the processing events and messages that are stored by the IPF processing nodes during the processing of payments/transactions in the event store.
+To put the ODS a bit more in a business context below follows several examples of queries that operators need to be able to perform:
+An operator needs to be able to search for payment instructions (
+PmtInf
+of a pain.001) that have been issued by a customer on basis of one or more search criteria like instruction reference, end-to-end reference, transfer currency, transfer amount (range), submission date (range), delivery channel, payment type, debtor account, etc.
+An operator needs to be able to search for payment transactions (
+CdtTrfTxInf
+) that have been submitted by a customer, irrespectively the instruction in which they have been submitted, on basis of one or more search criteria like end-to-end reference, transfer currency, transfer amount (range), submission date (range), payment type, creditor account, etc. This is required as it may not always be known (e.g. by the originating customer) in what instruction a certain transactions has been submitted to the bank.
+An operator needs to be able to view for a specific transaction (
+CdtTrfTxInf
+) in what outbound message (
+GrpHdr
+of a pacs.008) it has been sent to an CSM. Therefor the concerning
+CdtTrfTxInf
+(object) that is received in the pain.001 message needs to be linked/associated with the
+GrpHdr
+of the pacs.008 in which the transaction is sent to the CSM.
+An operator needs to be able to view for a specific payment instruction (
+PmtInf
+) what payment status update(s) (can be multiple during the lifecycle of the payment instruction) have been sent to the originating customer (via one of the customer channels). Therefor the concerning
+CdtTrfTxInf
+(object) that is received in the pain.001 message needs to be linked/associated with the
+GrpHdr
+of the pacs.008 in which the transaction is sent to the CSM.
+An operator needs to be able to view for any MDS object that has been processed in IPF what the actions that have been performed for the concerning object during the processing in IPF.
+Licensing
+The ODS service is an Additional Optional Module (AOM) for which you require an additional license, please check your license agreement if in any doubt.
+Summary
+ODS provides a unified, and eventually consistent insight into the end-to-end lifecycle of a payment, which will be the result of execution of multiple processes, such as initiation, execution, clearing and settling, cancellation, and integration with other bank systems, such as fraud and sanctions checks.
+There are two deployable applications, ingestion, and inquiry, and they both share a data model - ingestion writes (mostly), and inquiry reads (mostly).
+Ingestion consumes
+IPF Processing Data
+, builds an ODS data model representation and persists the data in a way in which it can be queried. It also builds more complicated views from the raw ODS data model.
+Inquiry is an api that allows flexible querying of the ODS data model. It supports the IPF Operational GUI, and other bank systems that require information about payments.
+Services
+Concepts

@@ -1,0 +1,27 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-persistent-scheduler/features/metrics.html ===
+Scheduling Metrics
+This page discusses the metrics exposed by IPF’s Persistent Scheduler:
+Metric Reference
+Metric
+Type
+Description
+scheduling_registered_jobs_total
+Counter
+Total number of new scheduled jobs registered with the scheduling module. Each unique job ID counts only once irrespective of number of updates or number of re-hydrations
+scheduling_updated_jobs_total
+Counter
+Total number of updates to existing scheduled jobs. Each update to the same job ID increments the counter
+scheduling_cancelled_jobs_total
+Counter
+Total number of explicitly cancelled jobs
+scheduling_failed_jobs_total
+Counter
+Total number of failed jobs due to expiration
+scheduling_rehydrations_total
+Counter
+Total number of re-hydrations due to crash of scheduling module
+Enabling Persistent Scheduler Metrics
+Metrics are enabled by default and will be present alongside other IPF metrics for connectors, flows, etc. No extra work
+is required to enable Persistent Scheduler metrics.
+Features
+Getting Started

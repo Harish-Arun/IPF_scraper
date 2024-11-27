@@ -1,0 +1,61 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/message-logger/getting-started.html ===
+Getting Started
+Before deciding to use a specific logger it’s worth considering where the message and other data logging fits into your overall strategy, especially if implementing ODS. See
+Using ODS
+section below.
+Using Provided MessageLoggers
+Message-logger-impl provides two specific implementations of MessageLogger:
+Kafka MessageLogger
+Mongo MessageLogger
+Using ODS
+If you are using ODS, you should use the MessageLogger implementations provided by
+IPF Processing Data
+, specifically see
+Processing Data Egress
+for full details.
+The message logger module of Processing Data registers an instance of
+com.iconsolutions.instantpayments.logging.MessageLogger
+which will publish message logs to the configured transport.
+The logger supports at-most once delivery. The message logger is fire-and-forget, and message log entries can be buffered and egressed in a single
+DataEnvelope
+.
+If not using a Processing Data starter pom, you can use the plugin directly with
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-message-logger</artifactId>
+</dependency>
+Configuration
+Enabled by default when present as a dependency, but can be explicitly configured with:
+Property
+Values
+Default Value
+Description
+message.logger.type
+ipf-processing-data-egress
+or
+none
+ipf-processing-data-egress
+Enable or disable the message-logger plugin
+ipf.processing-data.egress.message-logger.buffered-exporter.enabled
+true
+or
+false
+true
+Buffers message log entries and sends them in a single
+DataEnvelope
+ipf.processing-data.egress.message-logger.buffered-exporter.send-buffer-size
+int
+such as
+100
+1000
+The number of message log entries to buffer before sending the
+DataEnvelope
+ipf.processing-data.egress.message-logger.buffered-exporter.send-buffer-timeout
+a duration such as
+1 second
+1 second
+The time to wait before sending the
+DataEnvelope
+when the buffer isn’t filled.
+Mongo MessageLogger
+IPF File Poller

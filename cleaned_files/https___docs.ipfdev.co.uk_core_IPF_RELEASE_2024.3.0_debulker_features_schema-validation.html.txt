@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/schema-validation.html ===
+Schema Validation
+This provides an optional setting to validate an incoming XML file against a Schema object generated from the relevant XSD files. In the event that schema validation fails, the file will not be debulked.
+Validation prior to debulking is only possible for XML files.
+Validation can be enabled for each
+Debulking Configuration
+by providing
+validate-before-debulk.schema-bean-name
+config path within the configuration. The value provided should match the Spring bean name that provides the relevant
+javax.xml.validation.Schema
+object to validate against. In the event that no bean name is provided, or the relevant bean is not configured/available, the debulker will fail to start.
+Duplicate check
+Splitter

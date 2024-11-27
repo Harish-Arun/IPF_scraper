@@ -1,0 +1,8 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/getting-started.html ===
+Getting Started
+Getting started guides for getting up and running with CSM Services
+These can be augmented with additional features provided by the CSM Services to fit the specific needs of a particular use case.
+Use the CSM Service Client Library
+Building a CSM Service implementation
+How to integrate with CSM Services
+Use the CSM Service Client Library

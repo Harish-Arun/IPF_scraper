@@ -1,0 +1,19 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/concepts/multi-level-bulking.html ===
+Multi Level Bulking
+The SEPA CT STEP2 scheme pack provides the necessary processing to take pacs.008 requests from client flows, containing customer credit transfers (CdtTrfTxInf), validate and process those individual CdtTrfTxInf into outbound files sent to the scheme. This means those CdtTrfTxInf need to be processed individually across the scheme pack but they must be brought together into aggregated bulks to be sent to the scheme. This means the scheme pack is taking responsibility for handling the aggregation of CdtTrfTxInf received across multiple pacs.008 messages received from a client implementation flow.
+The scheme pack contains logic to aggregate incoming pacs.008s (whether they contain one or many payments) into a shared pacs.008 on the basis of group header characteristics such as debtor agent, value date and potentially priority and other characteristics. All incoming transactions which share this set of characteristics would be placed into the same outgoing pacs.008.
+Important points to note:
+An incoming pacs.008 from the client bank can have its transactions split across multiple pacs.008 in the ICF file to be sent to the scheme.
+The outgoing pacs.008 will contain individual CdtTrfTxInf from one or more submitted pacs.008.
+The placing of CdtTrfTxInf into the outbound bulk pacs.008 is handled exclusively by the CSM.
+Multiple outbound pacs.008 bulks are themselves bulked into an outbound ICF bulk file.
+You can see from the above image that the pacs.008 are themselves bulked together within an ICF bulk. But also that the CdtTrfTxInf are bulked into pacs.008. Thus the IPF Bulker functionality being used within the CSM creates and handles these bulks of bulks.
+This form of multi-level bulking is used for the following messages in the ICF:
+pacs.008
+pacs.004
+camt.056
+camt.029
+Other message types are added to the ICF without being bulked with other submissions.
+Multi-level bulking is not used at all in the IQF.
+sepa Model
+Features

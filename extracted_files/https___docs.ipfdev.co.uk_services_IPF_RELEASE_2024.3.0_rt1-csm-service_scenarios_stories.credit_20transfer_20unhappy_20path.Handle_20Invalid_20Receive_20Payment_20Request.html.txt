@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.credit%20transfer%20unhappy%20path.Handle%20Invalid%20Receive%20Payment%20Request.html ===
+Handle Invalid Receive Payment Request.story
+Scenario: Handling of invalid payment request from RT1 where the currency doesn’t exist
+When
+the ï½CSMï½  sends a Invalid Customer Credit Transfer
+Then
+ï½Payment Serviceï½  receives a System Event using predicate:
+| level | ERROR                |
+| name  | InboundMessageFailed |
+| type  | TECHNICAL            |
+And
+ï½CSMï½  receives a Payment Status Report using predicate:
+| fIToFIPmtStsRpt.orgnlGrpInf*And*Sts.grpSts | RJCT |

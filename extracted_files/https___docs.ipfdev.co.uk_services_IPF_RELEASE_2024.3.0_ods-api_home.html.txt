@@ -1,0 +1,65 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods-api/home.html ===
+ODS API
+Overview
+The ODS APIs are API first, which means the API specifications are the definitive source code.
+Code is generated from these specifications where possible, e.g. the spring controller scaffolding, and the model types.
+This specification first approach will allow us to make use of
+OpenAPI tooling
+, not just for code generation, but for things like testing, mock server generation, and API discovery.
+Two APIs are defined,
+ODS Ingestion
+, and
+ODS Inquiry
+.
+These APIs are served by the ODS applications, which currently, and coincidentally, map one to one.
+The ODS Ingestion application supports only the ODS Ingestion API, and the ODS Inquiry application supports only the ODS Inquiry API.
+Project Structure
+This project is split into two main modules,
+ods-ingestion
+, and
+ods-inquiry
+, each with its own API specification, and each documented separately in the relevant sections.
+The initial intention was for this project to contain just the OpenAPI specifications, and generated model classes, but it has since grown to include the generated spring controller scaffolding, spring controller implementations, client code, validation, and test-support code.
+Some benefits of this approach are
+Confidence that the client code works correctly with the back-end spring code
+Faster feedback loop when developing new API features, or making changes to the client and/or the back-end code
+Things that change together are grouped together
+The spring controller implementation essentially forms part of the API, and changes that may be breaking are more likely to be identified here
+Code Generation
+This project makes use of code generation, specifically
+openapi-generator
+, to generate Java code from the OpenAPI specifications.
+Code generation for each API is documented separately, but generally follows a two-step process.
+Generate the model types (POJOs), and package with any non-generated code
+Generate the spring controller scaffolding, and package with the controller implementations
+Each step is typically within its own module, e.g. an api module containing the model types, and a spring module containing the controller code.
+OpenAPI Generator supports different generator back-ends.
+For Java code the
+spring
+generator is used, generating the model types, and the spring controller scaffolding.
+The
+openapi
+generator back-end is used to generate a single json specification for both Inquiry, and Ingestion.
+This means the source yaml specifications can be split into many smaller files to ease development, whilst still publishing a single specification file for downstream usage.
+Typescript code is generated from the single Inquiry specification for the Operational Dashboard.
+Making Changes
+This project is separate to the ODS project, and exists for the following reasons
+Distinguish between API and application changes.
+Identify breaking changes during development and code reviews
+Version the API independently of the application, which will change more frequently
+Icon is contractually obligated to support these APIs for 2 years, and changes must be backwards compatible.
+Although there is no agreed process for making breaking changes, this section has been put together as a starting point.
+Versioning
+Semantic Versioning is used for the API specifications, artefacts containing the code generated from the specifications, and other API related code, such as clients.
+The format is
+MAJOR.MINOR.PATCH
+.
+Backwards incompatible changes require a MAJOR version bump.
+Backwards compatible functionality changes require a MINOR version bump.
+Backwards compatible bug fixes require a PATCH version bump.
+Backwards Incompatible Changes
+The APIs must be supported for two years, therefore MAJOR versions bumps should happen very rarely.
+Consider introducing new endpoints and types to support a change in functionality, preserving the existing functionality.
+The existing functionality should probably be deprecated.
+Concepts
+Ingestion

@@ -1,0 +1,5 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/common/services/unique-id.html ===
+Unique Id
+The unique id service creates a unique id with a prefix.
+Example usage:
+const searchId = this.uniqueIdService.uniqueId('search-');

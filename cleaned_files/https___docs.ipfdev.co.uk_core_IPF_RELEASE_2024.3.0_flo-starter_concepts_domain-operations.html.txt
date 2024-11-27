@@ -1,0 +1,86 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/concepts/domain-operations.html ===
+Domain Operations
+This page lists the various operations that are available on the global domain level as static method calls.
+passivate
+: Unload a flow from memory
+This will stop a flow instance (even if its not reached a terminal state) to save some memory, if it is known that it has reached a long-running step, for example.
+Note that messages directed at this instance will still be delivered, but IPF will reload the events of that flow from the journal instead of having them already stored in memory.
+The call is:
+XxxDomain.passivate("MyBehaviour|some-id-23149082");
+Where
+Xxx
+is the name of the IPF solution containing the relevant flow, and
+MyBehaviour
+is the name of the flow itself.
+getAggregate
+: Get a flows aggregate (state)
+To retrieve the current state of a flow instance, you can call:
+XxxDomain.getAggregate("MyBehaviour|some-id-23149082");
+This will return a
+CompletionStage<Aggregate>
+which completes when the aggregate is returned.
+The
+Aggregate
+will be of the type
+MyBehaviourAggregate
+which will contain:
+The current status
+The last failure reason code(s)/description(s)
+All business data
+All events
+Do not use
+getAggregate
+as part of a flows processing (e.g. as part of an adapter implementation).
+This will slow processing down a considerable amount, especially when under load.
+getAggregate
+calls are serviced by the same
+EventSourcedBehaviour
+actor that is responsible for persisting events.
+Since this is a traditional actor, it can only service one request at a time.
+If the load is significant enough, the actor will be burdened by servicing
+getAggregate
+requests instead of receiving commands and persisting resultant events.
+If you find that you need to use
+getAggregate
+to get a piece of data as part of an adapter, define that piece of data as a Business Data Element in the External Domain instead.
+This will make it available to your adapter without needing to use
+getAggregate
+.
+getStatus
+: Get a flows status
+This operation is similar to that above, but will only return the current status.
+Also returns as a
+CompletionStage<AggregateStatus>
+.
+To retrieve the status:
+XxxDomain.getStatus("MyBehaviour|some-id-23149082");
+abort
+: Stop a flows execution
+This command takes a
+reason
+argument and:
+Sets the flows status to
+ABORTED
+Sets the resulting status to
+Aborted
+Publishes an
+AbortedEvent
+with the reason specified in the call
+Cancels all scheduled tasks related to this flow
+To abort a flow:
+XxxDomain.abort("MyBehaviour|some-id-23149082", "some special reason");
+Once a flow has been aborted, it cannot be resumed, even with the
+resume
+function below.
+resume
+: Continue a flows execution
+This operation will invoke the
+action revival
+process for a flow to attempt to move a transaction that appears to be stuck onto the next state.
+Note that this operation
+cannot resume aborted transactions
+.
+To resume a flow:
+XxxDomain.resume("MyBehaviour|some-id-23149082");
+Understanding Passivation, Remembering Entities, and Schedulers
+Features

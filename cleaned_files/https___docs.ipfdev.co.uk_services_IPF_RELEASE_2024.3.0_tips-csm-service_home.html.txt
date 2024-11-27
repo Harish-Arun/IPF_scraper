@@ -1,0 +1,22 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/tips-csm-service/home.html ===
+TIPS CSM Service
+TIPS is the
+TARGET Instant Payment Settlement
+The TIPS CSM Service was built with the
+CSM Service Base
+Concepts
+Customer Payment Process
+Instant Payment Transaction Missing/Delayed Beneficiary-side Answer
+Investigation
+Recall and Return Process
+Features
+Application Configuration
+Deployment
+Validations
+Validation API
+Getting Started
+System Events
+Licensing
+The TIPS CSM Service is an Additional Optional Module (AOM) for which you require an additional license, please check your license agreement if in any doubt.
+List of System Events
+Concepts

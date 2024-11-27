@@ -1,0 +1,68 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/releases.html ===
+Releases
+Release notes for recent IPF releases are found here. Please explore each release for detailed notes and links to other relevant sections within the documentation.
+IPF-2024.3.0
+IPF-2024.3.0 - Release Notes
+Core - Improvements, Changes & Fixes
+Optional Modules - Changes & Fixes
+Bulker & Debulker - Changes & Fixes
+CSM Reachability - Changes & Fixes
+Dynamic Processing Settings v2 - Changes & Fixes
+ODS & GUI - Changes & Fixes
+Migration Steps for IPF-2024.3.0
+IPF-2024.2.0
+IPF-2024.2.0 - Release Notes
+Core - Improvements, Changes & Fixes
+Optional Modules - Changes & Fixes
+Bulker & Debulker - Changes & Fixes
+CSM Reachability - Changes & Fixes
+ODS & GUI - Changes & Fixes
+SEPA CT CSM - Changes & Fixes
+Migration Steps for IPF-2024.2.0
+Fix Releases
+IPF-2024.2.1- Release Notes
+IPF-2024.1.0
+IPF-2024.1.0 - Release Notes
+Optional Modules - Changes & Fixes
+Bulker & Debulker - Changes & Fixes
+CSM Reachability - Changes & Fixes
+ODS & GUI - Changes & Fixes
+SEPA CT CSM - Changes & Fixes
+Migration Steps for IPF-2024.1.0
+Fix Releases
+IPF-2024.1.2 - Release Notes
+Migration Steps for IPF-2024.1.2
+IPF-2024.1.3 - Release Notes
+Migration Steps for IPF-2024.1.3
+IPF-2023.4.0
+IPF-2023.4.0 - Release Notes
+Migration Steps for IPF-2023.4.0
+Fix Releases
+IPF-2023.4.1 - Fix Release Notes
+Migration Steps for IPF-2023.4.1
+IPF-2023.3.0
+IPF-2023.3.0 - Release Notes
+Migration Steps for IPF-2023.3.0
+Fix Releases
+IPF-2023.3.0.1 - Fix Release Notes
+Migration Steps for IPF-2023.3.0.1
+IPF-2023.2.0
+IPF-2023.2.0 - Release Notes
+Migration Steps for IPF-2023.2.0
+Fix Releases
+IPF-2023.2.0.1 - Fix Release Notes
+Migration Steps for IPF-2023.2.0.1
+IPF-2023.2.0.2 - Fix Release Notes
+Migration Steps for IPF-2023.2.0.2
+IPF-2023.1.0
+IPF-2023.1.0 - Release Notes
+Migration Steps for IPF-2023.1.0
+Fix Releases
+IPF-2023.1.0.1 - Fix Release Notes
+Migration Steps for IPF-2023.1.0.1
+IPF-2023.1.0.3 - Fix Release Notes
+Migration Steps for IPF-2023.1.0.3
+IPF-2023.1.0.4 - Fix Release Notes
+Migration Steps for IPF-2023.1.0.4
+Reference
+IPF-2024.3.0 - Release Notes

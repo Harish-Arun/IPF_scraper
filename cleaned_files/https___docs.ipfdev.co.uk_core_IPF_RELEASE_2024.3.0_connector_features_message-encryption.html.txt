@@ -1,0 +1,127 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/features/message-encryption.html ===
+Message Encryption
+Sometimes messages require security above and beyond transport level security, such as SSL.
+For these cases connectors can be configured to encrypt or decrypt messages when sending or receiving messages, respectively.
+This places security at the application level
+in addition
+to any transport level security mechanisms that may be in place.
+Crypto Interface
+To add message encryption, an implementation of the Crypto interface must be supplied when building the connector.
+If no Crypto implementation is provided then this stage is skipped and the transport message is received as is.
+The interface is simple and consists of two methods, encrypt and decrypt.
+public interface Crypto {
+    /**
+     * @param plaintext        message to send
+     * @param cryptoProperties properties to define encryption
+     * @return encrypted message
+     */
+    String encrypt(String plaintext, CryptoProperties cryptoProperties);
+
+    /**
+     * @param payload          encrypted message received
+     * @param cryptoProperties properties to define encryption
+     * @return decrypted message
+     */
+    String decrypt(String payload, CryptoProperties cryptoProperties);
+}
+Crypto Configuration
+The connector library provides two implementations of the Crypto interface.
+These are:
+NoopCrypto
+This is a plaintext passthrough class which will log the data at DEBUG level.
+It is generally used for testing.
+NoopCrypto requires no configuration.
+SymmetricCrypto
+Requires a key for encryption and decryption which is then used by the encryption methods.
+It is assumed that the key password is the same as the keystore password.
+The SymmetricCrypto class requires some configuration in order to function.
+The following properties should be provided when building an instance of SymmetricCrypto.
+Key
+Description
+keystorePath
+The absolute path to the keystore
+keystoreType
+Keystore type such as PKCS12
+keystorePassword
+Password used for the keystore
+transformation
+Cipher transformation to be used, e.g. "AES/CBC/NoPadding" (
+See the Javadocs
+)
+Using the SymmetricCrypto builder we can instantiate an instance.
+SymmetricCrypto symmetricCrypto = SymmetricCrypto.builder()
+        .withKeystorePath(keystorePath)
+        .withKeystoreType("PKCS12")
+        .withKeystorePassword("keystore-password")
+        .withTransformation("AES/CBC/PKCS5Padding")
+        .build();
+Usage
+Both send and receive connectors have a crypto field, which allows the developer to provide a Crypto implementation, or not if it is not required.
+CryptoHeaders are required to ensure a key is passed and that encryption can be switched on or off at a message level.
+Send Connector Example
+Crypto crypto = getSymmetricCrypto();
+(1)
+SendConnector
+        .<ExampleType, ExampleType>builder(connectorName)
+        .withActorSystem(actorSystem)
+        .withConnectorTransport(connectorTransport)
+        .withSendTransportMessageConverter(messageConverter)
+        .withCorrelationIdExtractor(correlationIdExtractor)
+        .withCorrelationService(correlationService)
+        .withCrypto(crypto)
+(2)
+.build();
+1
+Gets a Crypto implementation (symmetric in this example)
+2
+Provides the Crypto implementation.
+Receive Connector Example
+1
+Instantiates the Crypto implementation (no-operation in this example)
+2
+Provides the Crypto implementation.
+Crypto Message Headers
+When using Crypto with connectors, messages need to be sent with require the following headers.
+If they are not provided then the defaults values will be used instead.
+Key
+Description
+Default
+keyAlias
+The key alias being used
+empty string
+encryptionScheme
+The encryption scheme in use.
+Can be set to
+NOPS
+to disable encryption
+AES
+The CryptoHeader enum is included in the API.
+public enum CryptoHeaders {
+    KEY_ID("keyAlias"),
+    SCHEME("encryptionScheme");
+
+    private final String headerName;
+
+    CryptoHeaders(String headerName) {
+        this.headerName = headerName;
+    }
+}
+Putting this all together we can create a method to instantiate the required message headers.
+private MessageHeaders messageHeaders() {
+    return new MessageHeaders()
+            .putHeader(CryptoHeaders.KEY_ID.getHeaderName(), "GWPAY01")
+            .putHeader(CryptoHeaders.SCHEME.getHeaderName(), "AES")
+            .putHeader("msgKey", "value1");
+}
+Then set them on the transport message, alongside the payload in the SendTransportMessageConverter functional interface that can be declared with using a lambda.
+private SendTransportMessageConverter<ExampleType> sendTransportMessageConverter() {
+    return payload -> new TransportMessage(
+            messageHeaders(),
+(1)
+serialisePayload(payload)
+    );
+}
+The SendTransportMessageConverter can be used when building a sending connector and all messages sent through it will have the CryptoHeaders set.
+This simple example demonstrates how to set the headers statically, however they can be set dynamically based off of the payload if this is required with minimal additional effort.
+Message Throttling
+Message Validation

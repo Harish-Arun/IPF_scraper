@@ -1,0 +1,97 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-3-0/release-IPF-2024-3-0-core.html ===
+Core - Improvements, Changes & Fixes
+This page covers core improvements, bug fixes, changes and fixes provided in release IPF-2024.3.0.
+Core improvements, bug fixes & changes
+New
+IPF Processing Data
+Version 2 of the IPF Processing Data model has been introduced. Specifications for both the V2 and V1 data models can be found
+here
+.
+The IPF Processing Data Egress plugins are set, by default, to export the V2 data model version. Only one version will be exported for any given application that uses the egress plugins. However, you can configure the plugins to use the V1 data model if necessary using
+ipf.processing-data.egress.schema-version = 1
+.
+IPF Processing Data Ingress plugins can consume both the V2 and V1 data model at the same time. The implementing application should provide a handler for the new data model. See the
+migration guide
+for further details
+Changed
+Connector
+:
+when an ActorSystem is not passed to a connector, an error message is logged instead of a warning message
+all Send/Receive connectors' builders use debug logging level when dependency is not provide and default one is used
+all Send/Receive connectors' builders use debug logging level when configuration parameter is not provide and default one is used
+all Send/Receive connectors' builders use the same logging message formatter
+Fixed
+dot-compiler
+maven plugin - updated dependency version to address the issue with flow builds on Windows (j2v8 engine fails to parse a file); the new version is absorbed in
+connector
+,
+flo-lang
+(used in tiles), and
+ipf-release-management
+Notification Service
+New
+Changed
+The
+AdditionalPaymentObjectHandler
+has been updated and no longer takes a parameter of type
+com.iconsolutions.ipf.processingdata.mds.MdsObjectContainer
+.There are two changes of note:
+The interface has been renamed to
+AdditionalMdsObjectContainer
+The first parameter of the
+handle
+method has been updated to accept a parameter of type
+com.iconsolutions.ipf.product.notification.api.model.MdsObjectWrapper
+Example of building a
+MdsObjectWrapper
+from a
+MdsObjectContainer
+:
+MdsObjectWrapper<?> toMdsObjectWrapper(final MdsObjectContainer<?> container) {
+    return new MdsObjectWrapper<>(container.getObjectType(), container.getObject());
+}
+Previous 2024.2 docs
+→
+Current docs
+Message Logs produced by the Notification Service app utilise the V2 IPF Processing Data Model. To remain on the V1 model set
+ipf.processing-data.egress.schema-version = 1
+.
+Human Task Manager
+New
+HTM will now publish all the new domain events to IPF Processing Data and to ODS by default.
+To disable events being sent, add
+ipf.journal.exporter.type = none
+to your
+application.conf
+In case you wish to export all of HTM domain events from the beginning of history, you can do so by adding
+event-processor.start-stream-from = EARLIEST
+to your
+application.conf
+.
+Please note that this option is only available if you are not using delegated event processors. For more details, see the
+HTM event processor docs
+Added HTM Task Purging feature to allow purging items from
+task
+and
+task-history
+collections.
+TTL Indexes are created by default for both MongoDB and Azure CosmosDB for MongoDB, and they are needed for purging.
+Please look at
+HTM Task Purging
+documentation for more details on how to configure HTM for supported DBs.
+Changed
+Global States (ACCEPTED, CANCELLED) removed from the Task Manager flow.
+This has been done in order to prevent ODS (Inquiry) marking a UnitOfWork as complete when actually it’s not.
+Bank Filtering
+New
+Added filtering by ncc for check payment risk endpoint
+Added filtering by currency for check payment risk endpoint
+Working Day Service
+Fix Spotlight
+Fixes to the calculation of settlement and execution date (
+PAY-11424
+)
+Changed
+Updated antora documentation for Working Days Service
+IPF-2024.3.0 - Release Notes
+Optional Modules - Changes & Fixes

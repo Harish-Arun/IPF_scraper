@@ -1,0 +1,698 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/features/hocon-spring-config.html ===
+Application Configuration
+A convention has been introduced for an IPF application start-up configuration.
+The aim was to provide a consistent and predictable approach to configuration, yet flexible enough for integration tests
+that utilise various Spring annotations to inject configuration dynamically.
+Config Hierarchy
+When preparing the application for deployment, the configuration hierarchy will be observed as long as these rules
+are followed:
+Only HOCON (.conf files) are used for application configuration
+Developers must populate the appropriate configuration file following this descending hierarchy of precedence:
+application-override.conf
+Where?
+Deployment config (i.e. k8s configmap) or on file-system mounted on [app-name]/conf to the container
+When to use?
+This is to be used in an emergency that cannot be fulfilled by the existing hierarchy
+application.conf
+Where?
+Deployment config (i.e. k8s configmap) or on file-system mounted on [app-name]/conf to the container
+When to use?
+Should contain environment specific configuration such as URLs or security config. If we had to deploy the same application
+to different environments, the differences in the
+application.conf
+should mostly consist of environment specific configuration.
+ipf-impl.conf
+Where?
+src/main/resources of IPF based applications
+When to use?
+As defaults for standing the application for local execution. Can also provide additional placeholders
+as overrides to be set by application.conf for common configuration across the modules. For example,
+ipf-impl.conf
+in
+sample-client provides overrides via an include file called
+endpoint-overrides.conf
+that override encryption config for
+every known endpoint.
+ipf.conf
+Where?
+src/main/resources of modules used by IPF based application
+When to use?
+Defining sensible defaults for applications that will use this module. Modules should not set the same
+configuration since they are at the same level. The problem is that it will not be predictable as to which config will
+"win". The exception is if += is used on lists (e.g.
+akka.cluster.roles
+). Placeholders should be avoided unless
+necessary or recommended by the underlying library. For example, Alpakka Kafka recommend using
+config inheritance
+to assign defaults
+for Kafka configuration.
+This can be seen as IPFs version of Akka’s reference.conf for the various modules.
+reference.conf
+Where?
+src/main/resources of modules used by IPF based application
+When to use?
+The purpose of reference.conf files is for libraries, like Akka, to define default values that are used
+if an application doesnât define a more specific value. Itâs also a good place to document the existence and meaning of
+the configuration properties. One library must not try to override properties in its own reference.conf for properties
+originally defined by another libraryâs reference.conf, because the effective value would be nondeterministic when
+loading the configuration.
+Further Overriding
+If configuration via the file hierarchy is not enough, further overriding is possible with environment variables and
+JVM properties.
+Environment Variables
+By setting the JVM property
+-Dconfig.override_with_env_vars=true
+(via
+IPF_JAVA_ARGS
+on IPF containers) it is possible to override any configuration value using environment variables even if an explicit substitution is not specified.
+The environment variable value will override any pre-existing value and also any value provided as Java property.
+With this option enabled only environment variables starting with CONFIG_FORCE_ are considered, and the name is mangled as follows:
+the prefix CONFIG_FORCE_ is stripped
+single underscore(_) is converted into a dot(.)
+double underscore(__) is converted into a dash(-)
+triple underscore(
+_
+) is converted into a single underscore(_)
+i.e. The environment variable CONFIG_FORCE_a_b
+c
+_d set the configuration key a.b-c_d
+This is only supported from
+com.typesafe:config:1.4.0
+onwards. If this does not work, it’s likely because your
+application is pulling in an older version as a transitive dependency.
+System Properties
+Any configuration value can be overridden as a Java
+-D
+property (again via
+IPF_JAVA_ARGS
+on IPF containers). These
+will override configuration properties set in the file hierarchy. However, environment variables set with CONFIG_FORCE_
+still take precedence.
+Lightbend HOCON + Config
+The process is powered by the combination of
+HOCON
+and
+the Lightbend
+Config
+library. While the Config library also supports YAML and
+.properties files, adopting only HOCON provides consistency and flexibility as it has additional capabilities over
+the other two file formats.
+Noteworthy are the block inheritance and substitution functionalities but also that Akka serves as the foundation to IPF.
+Many standard configuration options would be difficult or awkward to do such as defining seed node lists.
+The readability of HOCON makes it suitable as documentation as well as default configuration. In this way
+much effort is saved from writing additional support documentation when the default configuration can be commented on.
+There is also added impetus for developers to keep configuration tidy as it can be used as customer facing collateral.
+Implementation Detail
+The config hierarchy is used as fallback to Spring PropertySource, loaded before the application context is initialised.
+This is purposely to maintain the usage of the various Spring annotations that can be used to dynamically inject properties
+into integration tests. As we avoid using any Spring configuration mechanisms (e.g. application.* or Spring profiles)
+HOCON and the Config hierarchy should become the only source of configuration in actual deployments.
+This means that it is still possible to use Spring config when deployed. However, this is strongly discouraged to maintain
+consistency in configuring our expanding landscape of components.
+/**
+     * Combine the two configurations in Spring through the environment and HOCON through config.
+     * <p>
+     * .defaultOverrides() is required so when -Dconfig.override_with_env_vars=true you can set environment variables
+     * with CONFIG_FORCE_ to override any configuration.
+     *
+     * @param applicationContext Combined configuration from Spring and HOCON
+     */
+    @Override
+    public void initialize(ConfigurableApplicationContext applicationContext) {
+        ConfigurableEnvironment env = applicationContext.getEnvironment();
+
+        // Skip the Spring Cloud context and set the configuration of the main application context instead
+        if (!"bootstrap".equals(env.getProperty("spring.config.name")) && shouldInitialiseConfig(applicationContext)) {
+            env.getPropertySources().remove(COMBINED_CONFIG);
+
+            Config springConfig = new ConfigBuilder(env).buildHoconConfigFromEnvironment();
+            Config hoconConfig = parseWithFallback(getConfigFileHierarchy());
+
+            Config allConfig = ConfigFactory.defaultOverrides()
+                    .withFallback(springConfig)
+                    .withFallback(hoconConfig);
+
+            var additionalConfig = getAdditionalConfig(allConfig);
+            if (additionalConfig.isPresent()) {
+                allConfig = allConfig.withFallback(additionalConfig.get());
+            }
+
+            allConfig = allConfig.resolve();
+
+            PropertySource<?> allProperties = ConfigPropertySourceConverter.createPropertySource(COMBINED_CONFIG, allConfig);
+
+            env.getPropertySources().addFirst(allProperties);
+
+            Object singleton = applicationContext.getBeanFactory().getSingleton(DEFAULT_CONFIG);
+            if(singleton != null) {
+                ((DefaultListableBeanFactory)applicationContext.getBeanFactory()).destroySingleton(DEFAULT_CONFIG);
+            }
+            applicationContext.getBeanFactory().registerSingleton(DEFAULT_CONFIG, allConfig);
+        }
+    }
+Masking Sensitive Data in Logs
+Masking is done with our
+MaskPatternLayout
+class, which extends logback’s
+PatternLayout
+.
+Basically, we have replaced the default layouts with the new one in the
+DefaultLogbackConfigInitializer
+, which gets triggered after
+HoconConfigInitialiser
+.
+Hocon configuration needs to be initialized first since masking configuration exists there.
+Masking configuration contains two parts:
+masking.enabled
+- boolean value that says if the feature itself is enabled or not
+masking.mask-config-objects
+- that represents an array of objects. Each object contains reg-ex and strategy information for the value we want to mask
+We have introduced the following masking strategies:
+MASK_ALL
+- mask all characters
+MASK_FIRST_N_CHARS
+- mask first n characters
+MASK_LAST_N_CHARS
+- mask last n characters
+MASK_M_TO_N_CHARS
+- mask chars from position m to n
+NO_MASK_FIRST_N_CHARS
+- do not mask first n characters
+NO_MASK_LAST_N_CHARS
+- do not mask last n characters
+NO_MASK_M_TO_N_CHARS
+- do not mask chars from position m to n
+Here’s an example how masking configuration looks like:
+masking {
+  enabled = true
+  mask-config-objects = [
+    //objects matching json fields
+    {
+      pattern = "\"Nm\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"Id\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_FIRST_N_CHARS",
+        args = {
+            n = 3
+        }
+      }
+    },
+    {
+      pattern = "\"Dept\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "NO_MASK_M_TO_N_CHARS",
+        args = {
+            m = 3,
+            n = 5
+        }
+      }
+    }
+  ]
+}
+So as mentioned above, there is a regex for each value we want to mask. This will catch the whole line with the key/tag and the value,
+but only the group that represents the value is matched for masking.
+Here are some examples of masking xml tags, showing how each strategy should work:
+MASK_ALL -> <Dept>****</Dept>,
+MASK_FIRST_N_CHARS(3) -> <SubDept>***Dept</SubDept>,
+MASK_LAST_N_CHARS(2) -> <StrtNm>Strt**</StrtNm>,
+NO_MASK_FIRST_N_CHARS(4) -> <BldgNb>Bldg**</BldgNb>,
+NO_MASK_LAST_N_CHARS(2) -> <BldgNm>****Nm</BldgNm>.
+MASK_M_TO_N_CHARS(4,7) -> <TwnLctnNm>Twn****Nm</TwnLctnNm>,
+NO_MASK_M_TO_N_CHARS(5,7) -> <CtrySubDvsn>****Sub****</CtrySubDvsn>
+Already Defined Masking Objects
+mask-config-objects = [
+    //objects matching json fields
+    {
+      pattern = "\"Nm\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"Id\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"Dept\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"SubDept\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"StrtNm\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"BldgNb\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"BldgNm\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"Flr\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"PstBx\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"Room\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"PstCd\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"TwnNm\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"TwnLctnNm\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"DstrctNm\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"CtrySubDvsn\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"Ctry\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"Adrline\"\\s*:\\s*\\[\\s*\"([^\"]+)\\s*\\]\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"BirthDt\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"PrvcOfBirth\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"CityOfBirth\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"CtryOfRes\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"CtryOfBirth\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"NmPrfx\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"PhneNb\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"MobNb\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"FaxNb\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"TaxId\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"RegnId\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"EmailAdr\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"EmailPurp\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"JobTitl\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"Rspnsblty\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "\"Titl\"\\s*:\\s*\"([^\"]+)\"",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+
+    //objects matching xml tags
+    {
+      pattern = "<(?:\\w+:)?Nm>(.+)</(?:\\w+:)?Nm>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?Id>(.+)</(?:\\w+:)?Id>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?Dept>(.+)</(?:\\w+:)?Dept>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?SubDept>(.+)</(?:\\w+:)?SubDept>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?StrtNm>(.+)</(?:\\w+:)?StrtNm>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?BldgNb>(.+)</(?:\\w+:)?BldgNb>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?BldgNm>(.+)</(?:\\w+:)?BldgNm>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?Flr>(.+)</(?:\\w+:)?Flr>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?PstBx>(.+)</(?:\\w+:)?PstBx>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?Room>(.+)</(?:\\w+:)?Room>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?PstCd>(.+)</(?:\\w+:)?PstCd>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?TwnNm>(.+)</(?:\\w+:)?TwnNm>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?TwnLctnNm>(.+)</(?:\\w+:)?TwnLctnNm>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?DstrctNm>(.+)</(?:\\w+:)?DstrctNm>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?CtrySubDvsn>(.+)</(?:\\w+:)?CtrySubDvsn>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?Ctry>(.+)</(?:\\w+:)?Ctry>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?Adrline>(.+)</(?:\\w+:)?Adrline>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?BirthDt>(.+)</(?:\\w+:)?BirthDt>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?PrvcOfBirth>(.+)</(?:\\w+:)?PrvcOfBirth>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?CityOfBirth>(.+)</(?:\\w+:)?CityOfBirth>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?CtryOfRes>(.+)</(?:\\w+:)?CtryOfRes>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?CtryOfBirth>(.+)</(?:\\w+:)?CtryOfBirth>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?NmPrfx>(.+)</(?:\\w+:)?NmPrfx>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?PhneNb>(.+)</(?:\\w+:)?PhneNb>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?MobNb>(.+)</(?:\\w+:)?MobNb>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?FaxNb>(.+)</(?:\\w+:)?FaxNb>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?TaxId>(.+)</(?:\\w+:)?TaxId>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?RegnId>(.+)</(?:\\w+:)?RegnId>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?EmailAdr>(.+)</(?:\\w+:)?EmailAdr>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?EmailPurp>(.+)</(?:\\w+:)?EmailPurp>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?JobTitl>(.+)</(?:\\w+:)?JobTitl>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?Rspnsblty>(.+)</(?:\\w+:)?Rspnsblty>",
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    },
+    {
+      pattern = "<(?:\\w+:)?Titl>(.+)</(?:\\w+:)?Titl>"
+      strategy {
+        name = "MASK_ALL",
+        args = {}
+      }
+    }
+  ]
+This feature’s implementation depends on the logback library, in order for it to work, no other logger implementation can be used.
+Features
+Transaction Caching

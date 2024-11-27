@@ -1,0 +1,23 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/gui-modules/user-docs/version-info.html ===
+Version Information
+Introduction
+The version screen is a technical screen providing a list of the dependency versions running on each of the services.
+It is useful to identify what has been released on which node.
+The version of the services will only appear here if they have been configured in the dashboard configuration.
+Getting Started
+To begin using the library simply run
+npm i @iconsolutions/version-info
+in whatever angular app you need to use the library in.
+You will need to add the following to the app routing module:
+{
+    path: 'cluster-health',
+    loadChildren: () =>
+    import('@iconsolutions/cluster-health').then((m) => m.ClusterHealthModule)
+}
+Dependencies
+Peer Dependencies
+Icon Solutions
+Icons own library for use of commonly used components.
+"@iconsolutions/common"
+Bank Filtering
+GUI Framework

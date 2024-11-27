@@ -1,0 +1,122 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/getting-started.html ===
+Getting Started
+Configuration and Runtime
+The SEPA CT STEP2 CSM is essentially a stand alone application which can be run as a service much like any other IPF application deployment. So however you decide to run your IPF applications you can do the same thing for this CSM.
+Configuration
+Below you can see the bare minimum configuration required to get the service stood up and running. Note the key aspects around providing the MongoDB URL, the default Akka configuration and your Kafka URL.
+akka {
+  cluster.seed-nodes = ["akka://"${actor-system-name}"@0.0.0.0:"${akka.remote.artery.canonical.port}]
+  remote.artery {
+    canonical.port = 55001
+    canonical.hostname = 0.0.0.0
+    bind.hostname = 0.0.0.0
+    bind.port = 55001
+  }
+}
+ipf.mongodb.url = "mongodb://ipf-mongo:27017/sepact"
+
+ipf.csm.sepa-ct {
+  processing-entity {
+    valid-agent-bics = [
+      {
+        direct-participant-bic = "<BICFI>"
+        indirect-participant-bics = [
+          "<BICFI>"
+        ]
+      }
+    ]
+  }
+}
+
+common-kafka-client-settings {
+  bootstrap.servers = "kafka:9092"
+}
+
+akka.kafka {
+  producer {
+    kafka-clients = ${common-kafka-client-settings}
+  }
+  consumer {
+    kafka-clients = ${common-kafka-client-settings}
+  }
+}
+Client Specific Configuration
+You can of course provide client specific configuration for certain things within the service.
+A common thing you might consider making specific are the Kafka topic names (for example
+Debulker Kafka Configuration
+).
+Other configurations are available and described in the relevant feature doc section (
+Features
+).
+Running
+The following yml is an example for you to be able to stand up the service locally and contains configuration for dependent containers (Kafka, Zookeeper and MongoDB). You would need to select the appropriate section to "step2csm" to take as a start point for your deployment environment.
+version: "2.1"
+
+services:
+
+  ipf-mongo:
+    image: mongo:4.4.15
+    container_name: ipf-mongo
+    ports:
+      - "27018:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+
+  step2csm:
+    image: releases-registry.ipfdev.co.uk/sepact-csm-application-kafka:0.1.0
+    container_name: sepact-csm-application
+    ports:
+      - "8083:8080"
+      - "8561:8558"
+      - "5009:5005"
+      - "55003:55001"
+      - "9003:9001"
+      - "8087:8084"
+    volumes:
+      - /tmp/logs:/ipf/logs
+      - ./config/step2csm:/sepact-csm-application-kafka/conf
+    environment:
+      - IPF_JAVA_ARGS=-Dma.glasnost.orika.writeClassFiles=false -Dma.glasnost.orika.writeSourceFiles=false -Dconfig.override_with_env_vars=true
+    depends_on:
+      - ipf-mongo
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:8080/actuator/health" ]
+
+
+  zookeeper:
+    image: zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: wurstmeister/kafka:2.13-2.7.1
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "9099:9099"
+    environment:
+      - KAFKA_BROKER_ID=0
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=false
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LOG_RETENTION_MINUTES=10
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS=1
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=TEST:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_LISTENERS=PLAINTEXT://:9092,TEST://:9099
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,TEST://localhost:9099
+      - KAFKA_CREATE_TOPICS=IPF_PROCESSING_DATA:1:1,PMS_TO_PIS:1:1,PIS_TO_PMS:1:1,PIS_TO_PES:1:1,PRS_TO_IPF:1:1
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:latest
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      - KAFKA_BROKERCONNECT=kafka:9092
+    depends_on:
+      - kafka
+Error Handling
+List of System Events

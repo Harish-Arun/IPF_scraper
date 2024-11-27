@@ -1,0 +1,33 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/concepts/scenarios/stories.failure%20credit%20transfer.Handle%20Invalid%20Payment%20Status%20Report.html ===
+Handle Invalid Payment Status Report.story
+Scenario: Handling of invalid payment status request from SIC5 when msgId is unset
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseMeta(java.lang.String)
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseLegacy(java.lang.String)
+When
+ï½the Payment Serviceï½  sends a Clear
+And
+Settle Request
+Then
+ï½the CSMï½  receives a Customer Credit Transfer
+When
+the ï½CSMï½  sends a Payment Status Report with values:
+| FIToFIPmtStsRpt.grpHdr.msgId | NOT_SET |
+Then
+the ï½Payment Serviceï½  receives a System Event using predicate:
+| level | ERROR                |
+| name  | InboundMessageFailed |
+| type  | TECHNICAL            |
+Then
+the ï½Payment Serviceï½  receives a Dead Letter Message using predicate:
+| error.receivedMessage.message.targetMessage                                                                                    | NOT_SET |
+| error.receivedMessage.message.transportMessage.payload.contains(#PaymentStatusReport.FIToFIPmtStsRpt.TxInf*And*Sts[0].OrgnlTxId) | true      |
+Then
+the ï½Payment Serviceï½  receives a System Event using predicate:
+| level | ERROR                   |
+| name  | MessageSentToDeadletter |
+| type  | TECHNICAL               |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()

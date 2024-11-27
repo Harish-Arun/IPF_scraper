@@ -1,0 +1,92 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/ttl-purging-house-keeping-jobs.html ===
+TTL Purging Housekeeping jobs
+Overview
+Currently, we defined these housekeeping features that run every hour with initial delay of one minute:
+Feature that ensures all data expires on the same day (if unitOfWork took more than a day to finish)
+To enable it set
+configured
+sync-unit-of-works-expiry-date.enabled to true
+If a unitOfWork started two days ago and finished today, expiresAt field for unitOfWorks collection will have the value of today + the value defined in _ts_1 Time-To-Live index expireAfterSeconds, but it could happen that records stored in other collections such as pds, payments, customObjects, processes and summaries are stored two or one day before so their expiresAt field value would be equal to today - (two or one day) + _ts_1 value.
+This job would find such unitOfWorks and sync their
+expiresAt
+to have the same value across all collections.
+Feature that postpones expiry of unfinished unitOfWorks that are expiring soon.
+To enable it set
+configured
+postpone-expiry-of-unfinished-unit-of-works
+This job finds all unfinished unitOfWorks that should expire in 1 to n days and n is defined in
+configured
+expires-in-max-days
+and postpone to amount of days defined in
+configured
+document-ttl
+.
+This job updates
+expiresAt
+and
+ttl
+where
+ttl
+is used as a document level time-to-live value, and it is a way to override value from _ts_1 index if such index with and
+expireAfterSeconds
+index option is created.
+The same as the previous feature but it looks for unarchived instead of unfinished unitOfWorks.
+To enable it set
+configured
+postpone-expiry-of-unarchived-unit-of-works
+Feature that creates a report consisting of number of unitOfWorks that will expire tomorrow.
+To enable it set
+configured
+create-report-of-expiring-unit-of-works
+Default Configuration
+ods {
+  purging {
+    ttl-jobs {
+      document-ttl = 30D
+      expires-in-max-days = 10
+      postpone-expiry-of-unfinished-unit-of-works {
+        enabled = true
+      }
+      postpone-expiry-of-unarchived-unit-of-works {
+        enabled = true
+      }
+      sync-unit-of-works-expiry-date {
+        enabled = true
+      }
+      create-report-of-expiring-unit-of-works {
+        enabled = true
+      }
+    }
+  }
+}
+Purge Configuration overview
+Config Key
+Description
+ods.purging.ttl-jobs.postpone-expiry-of-unfinished-unit-of-works.enabled
+A flag to enable or disable this job. Either
+true
+or
+false
+ods.purging.ttl-jobs.postpone-expiry-of-unarchived-unit-of-works.enabled
+A flag to enable or disable this job. Either
+true
+or
+false
+ods.purging.ttl-jobs.sync-unit-of-works-expiry-date.enabled
+A flag to enable or disable this job. Either
+true
+or
+false
+ods.purging.ttl-jobs.create-report-of-expiring-unit-of-works
+A flag to enable or disable this job. Either
+true
+or
+false
+ods.purging.ttl-jobs.document-ttl
+Number in days to use for document level time-to-live value that is stored in
+ttl
+collections field limited to 365 days.
+ods.purging.ttl-jobs.expires-in-max-days
+Used within a job to postpone unfinished/unarchived unit of works that would expire soon. When filtering unfinished/unarchived unitOfWorks we filter only those that should expire in one to
+expires-in-max-days
+value.

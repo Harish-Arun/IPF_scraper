@@ -1,0 +1,140 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/features/validations.html ===
+Validations
+The purpose of this page is to summarise the additional usage validations performed by the RT1 scheme pack when processing a message.
+All messages undergo an XSD schema check to make sure that the fields are technically correct, but only certain fields have additional usage validations performed on them.  If an additional usage validation is not listed below then it is not validated by the scheme pack.
+Outbound (to scheme) messages have more validations performed than the Inbound (from scheme). This is in line with Icon’s rationale and prioritisation of making sure client constructed messages conform to all scheme rules and are not likely to be rejected. Messages from the scheme have, however, already been validated, so the priority for those is swift, safe processing through to the customer’s account.
+Inbound pacs.008
+The following validations are performed on an Inbound pacs.008, failures will result in a pacs.002 sent back to the scheme with the Return Code quoted below, and a system event to inform the Client.
+Field
+Validation Details
+Return Code
+All Fields
+Checks if the message is valid against the RT1 pacs.008 xsd
+FF01
+GrpHdr+NbOfTxs
+Check that it is equal to 1
+FF01
+GrpHdr+SttlmInf++ClrSys+++Prtry
+Check that it is equal to 'RT1' or 'TIPS'
+FF01
+GrpHdr+PmtTpInf++SvsLvl+++Cd
+Check that it is equal to 'SEPA'
+FF01
+GrpHdr+PmtTpInf++LclInstrm+++Cd
+Check that it is equal to 'INST'
+FF01
+GrpHdr+TtlIntrBkSttlmAmt
+Check that it is coherent with the value of the underlying transactions and the Currency is EUR
+B05
+CdtTrfTxInf+PmtId++TxId
+Technical Duplicate Check (same DbtrAgt, TxId and date within AccptncDtTm)
+AM05
+CdtTrfTxInf+AccptncDtTm
+The expected format is: YYYY-MMDDThh:mm:ss.mmm+hh:mm; or YYYY-MM-DDThh:mm:ss.mmmZ
+FF01
+CdtTrfTxInf+AccptncDtTm
+Date part of AcceptanceDateTime on the Creditor CT must be Equal to the system calendar date within IPF
+DT01
+CdtTrfTxInf+AccptncDtTm
+AcceptanceDateTime on the Creditor CT + the configured scheme timeout limit must be greater than the current timestamp + the configured time allowed to process a transaction within IPF (configurable by customer and per payment type)
+AB06
+CdtTrfTxInf+UltmtDbtr++Id+++OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed
+FF01
+CdtTrfTxInf+UltmtDbtr++Id+++PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed
+FF01
+CdtTrfTxInf+Dbtr++PstlAdr
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used
+FF01
+CdtTrfTxInf+Dbtr++PstlAdr+++AdrLine
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used
+FF01
+CdtTrfTxInf+Dbtr++Id+++OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed
+FF01
+CdtTrfTxInf+Dbtr++Id+++PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed
+FF01
+CdtTrfTxInf+CdtrAgt++FinInstnId+++BICFI
+Validated against IPF configuration to ensure that this BIC corresponds to a BIC that this instance of IPF has responsibility for
+RC01
+CdtTrfTxInf+Cdtr++PstlAdr
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used.
+FF01
+CdtTrfTxInf+Cdtr++PstlAdr+++AdrLine
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used
+FF01
+CdtTrfTxInf+Cdtr++Id+++OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed
+FF01
+CdtTrfTxInf+Cdtr++Id+++PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed
+FF01
+CdtTrfTxInf+UltmtCdtr++Id+++OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed.
+FF01
+CdtTrfTxInf+UltmtCdtr++Id+++PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed.
+FF01
+CdtTrfTxInf+RmtInf
+Either Unstructured or Structured may be present. If both components are included, the message will be rejected during the validation process.
+FF01
+Outbound pacs.008
+If any of the below validations fail then a Response is sent back to the client and a system event is raised.
+Field
+Validation Details
+Result of Failure
+All Fields
+Checks if the message is valid against the RT1 pacs.008 xsd
+System event raised with a description of the error
+GrpHdr+NbOfTxs
+Check that it is equal to 1
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and description "Group Header Number of Transactions does not equal 1"
+GrpHdr+IntrBkSttlmDt
+Check that it is either the current business date, one day prior or one day in the future (D-1, D or D+1)
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and description "Group Header Interbank Settlement Date is not in allowed range of D-1, D, D+1"
+GrpHdr+TtlIntrBkSttlmAmt
+Must be equal to the value of the underlying transaction
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and description "Interbank Settlement Amount between group header and transaction do not match"
+CdtTrfTxInf+PmtId++TxId
+Technical Duplicate Check (same DbtrAgt, TxId and date within AccptncDtTm)
+ERROR level system event raised with name 'OutboundMessageFailed' and description "Duplicate Transaction"
+CdtTrfTxInf+UltmtDbtr++Id+++OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.UltmtDbtr.Id.OrgId"
+CdtTrfTxInf+UltmtDbtr++Id+++PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.UltmtDbtr.Id.PrvtId"
+CdtTrfTxInf+Dbtr++PstlAdr
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used
+ERROR level system event raised with name  'SchemeRuleValidationFailed' and description "CdtTrfTxinf.Dbtr.PstlAdr - Structured Address must include a minimum of Town Name and Country Code"
+CdtTrfTxInf+Dbtr++PstlAdr+++AdrLine
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used
+ERROR level system event raised with name  'SchemeRuleValidationFailed' and description "CdtTrfTxinf.Dbtr.PstlAdr.AdrLine - Unstructured address can only be combined with country code - no other structured address fields can be used"
+CdtTrfTxInf+Dbtr++Id+++OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.Dbtr.Id.OrgId"
+CdtTrfTxInf+Dbtr++Id+++PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.Dbtr.Id.PrvtId"
+CdtTrfTxInf+Cdtr++PstlAdr
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used.
+ERROR level system event raised with name  'SchemeRuleValidationFailed' and description "CdtTrfTxInf.Cdtr.PstlAdr - Structured Address must include a minimum of Town Name and Country Code"
+CdtTrfTxInf+Cdtr++PstlAdr+++AdrLine
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used
+ERROR level system event raised with name  'SchemeRuleValidationFailed' and description "CdtTrfTxInf.Cdtr.PstlAdr.AdrLine - Unstructured address can only be combined with country code - no other structured address fields can be used"
+CdtTrfTxInf+Cdtr++Id+++OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.Cdtr.Id.OrgId"
+CdtTrfTxInf+Cdtr++Id+++PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.Cdtr.Id.PrvtId"
+CdtTrfTxInf+UltmtCdtr++Id+++OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed.
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.UltmtCdtr.Id.OrgId"
+CdtTrfTxInf+UltmtCdtr++Id+++PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed.
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.UltmtCdtr.Id.PrvtId"
+RT1 CSM Service Application Structure
+RT1 CSM Service Configuration

@@ -1,0 +1,26 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2023-4-1/release-IPF-2023-4-1.html ===
+Release Notes for IPF-2023.4.1
+This page details everything required to get going on IPF Release 2023.4.1 made available on 25th February 2024.
+Details
+Binaries
+The core binaries are available from
+IPF-Releases
+.
+The Lightbend Telemetry (formerly known as "Cinnamon") binaries are available from
+IPF Lightbend
+.
+Archetype
+The latest version of the Archetype is
+4.0.2
+Developer App
+The latest version of the Developer App is
+1.14.6
+Features and Changes
+Heres whats new and changed in 2023.4.1
+Fix Spotlight
+Restructured Aggregate Functions in the DSL, which now reference Mapping Functions introduced in 2023.4.0
+Fixed issue where MPS compilation would fail with a "code too large" error during generation of the
+YourFlowNameActionRevivalProcessor
+class when the number of performed actions in the flow exceeded a threshold value.
+Migration Steps for IPF-2023.4.0
+Migration Steps for IPF-2023.4.1

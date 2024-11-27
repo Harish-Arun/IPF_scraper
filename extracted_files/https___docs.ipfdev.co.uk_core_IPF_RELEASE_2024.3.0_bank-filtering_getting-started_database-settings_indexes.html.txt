@@ -1,0 +1,26 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/getting-started/database-settings/indexes.html ===
+Indexes
+Core Indexes
+Comma separated values indicate a composite index
+Collection
+Index
+Name
+journal
+eventPayloads.tags
+_id, loSeq
+persistenceId, loSeq, hiSeq
+journal_tag_index_other
+low_sequence_sort
+akka_persistence_high_low_seq_journal_index
+snapshot
+persistenceId, sequenceNumber, timestamp
+Application Indexes
+All indexes defined below are single field indexes
+Collection
+Index
+settings-bank-filtering
+processingEntity
+status
+payload.ruleId
+Database settings
+Cache

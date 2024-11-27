@@ -1,0 +1,223 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/features/service-configuration.html ===
+RT1 CSM Service Configuration
+Below are all the relevant properties for the RT1 CSM Service
+Please see
+Character Replacement
+configuration details
+The following properties should also be configured
+Key
+Description
+Default Value
+ipf.processing-data.egress.enabled
+Produce processing data events
+true
+message.logger.type
+Where to output message log messages. e.g.
+mongo
+,
+kafka
+,
+ipf-processing-data-egress
+ipf-processing-data-egress
+Property Grouping: rt1
+Key
+Description
+Default Value
+rt1.send-outcome.enabled
+Should RT1 CSM service listen for send-outcome queue? (Default false)
+ true - it listens and this will be translated to technical response which will be sent to the clients of RT1 CSM Service
+ false - it doesnt listen for send outcomes. However, RT1 CSM Service will generate appropriate technical response as soon as the message is sent out
+false
+rt1.receive.am05-ignore.duration
+Ignore window. See above.
+"PT5S"
+rt1.our-bu-id
+Our BU id
+"cn=icslgbl1,ou=pilot,ou=eba_ips,o=88324,dc=sianet,dc=sia,dc=eu"
+rt1.rule.allowed-bics.dbtragt
+Used to check if debtor agent is allowed or not.It is also used to create an appropriate pacs002 message. Depending on the configured BICs, the RT1 CSM Service can tell if this pacs002 is inbound or outbound.
+[
+    {
+        "bic" : "ICONGBA0"
+    }
+,
+    {
+        "bic" : "ICONGBB0"
+    }
+,
+    {
+        "bic" : "ICONGBC0"
+    }
+,
+    {
+        "bic" : "ICONGBD0"
+    }
+,
+    {
+        "bic" : "ICONGBE0"
+    }
+,
+    {
+        "bic" : "ICONGBA1"
+    }
+,
+    {
+        "bic" : "ICSLGBL1XXX"
+    }
+
+]
+rt1.receive.am05-ignore.enabled
+If AM05 ignore is enabled, this means that if we get rejection AM05 within configured time ignore window, then the pacs002 reject AM05 message will be logged and ignored. A payment service will never get this message. However, if we get rejection outside of the ignore window, the message will be passed to a payment service for processing where the transaction would usually go in Rejection status. Relevant tickets: PAY-568 and IPA-6346.
+false
+rt1.local-instrument-cd
+Local Instrument Code
+"INST"
+rt1.slow-receivepayment-request.queue
+When the transaction is received it is checked if the time of received message (ReceivePaymentRequest.createdAt) + rt1.receive.timeout.duration is less than now . If it is then the payment has timed out and it will be sent to this slow receive payment queue.
+"CsmSlowReceivePaymentRequestQueue"
+rt1.rule.allowed-bics.cdtragt
+Used to check if creditor agent is allowed or not.
+[
+    {
+        "bic" : "ICONGBA0"
+    }
+,
+    {
+        "bic" : "ICONGBB0"
+    }
+,
+    {
+        "bic" : "ICONGBC0"
+    }
+,
+    {
+        "bic" : "ICONGBD0"
+    }
+,
+    {
+        "bic" : "ICONGBE0"
+    }
+,
+    {
+        "bic" : "ICONGBA1"
+    }
+,
+    {
+        "bic" : "ICSLGBL1XXX"
+    }
+
+]
+rt1.receive.timeout.duration
+What is the time window allowed for the received payment to be processed. Usually, it is expressed in seconds.
+"5s"
+ipf.csm.rt1.pacs008.map-instd-agt-from-config-enabled
+Whether to map bics from the incoming
+ClearAndSettleRequest
+(when set to false), or from the config (see
+ipf.csm.rt1.pacs008.instd-agt-id
+and
+ipf.csm.rt1.pacs008.instg-agt-id
+).
+false
+ipf.csm.rt1.pacs004.map-instd-agt-from-config-enabled
+Whether to map bics from the incoming
+SendPositiveAnswerToCSMRequest
+(when set to false), or from the config (see
+ipf.csm.rt1.pacs004.instd-agt-id
+and
+ipf.csm.rt1.pacs004.instg-agt-id
+).
+false
+ipf.csm.rt1.pacs008.instg-agt-id
+Instructing Agent BIC
+"ICSLGBL1"
+rt1.rule.amount-limit.activated
+Is the amount limit active or not
+true
+rt1.rule.amount-limit.value
+Transactions below this limit will be sent to RT1, while all the others will be rejected on RT1 CSM Service.
+100000
+rt1.send-outcome.queue
+Is it send outcome enabled or not? If it is, then the appropriate receive connector will start listening to send outcome messages on this queue.
+"SendOutcomeReceiveQueue"
+rt1.receive.queue
+This queue is used for receiving ISO20022 XML messages from RT1 CSM
+"SctiReceiveQueue"
+rt1.receive.timeout.enabled
+Is processing of slow payments enabled or not
+false
+ipf.csm.rt1.pacs008.instd-agt-id
+Instructed Agent BIC
+"IPSTFRPP"
+rt1.csm-bu-id
+CSM BU id
+"cn=ipstfrpp,ou=pilot,ou=eba_ips,o=89077,dc=sianet,dc=sia,dc=eu"
+rt1.recall-request.positive-payment-status-report.delay
+After configured period of time RT1 CSM Service will auto generate positive pacs002 for sent camt056.
+"10s"
+rt1.send.queue
+This queue is used to send ISO20022 XML messages from RT1 CSM Service to RT1 CSM
+SctiSendQueue
+rt1.broker-type
+The type of broker the RT1 CSM Service will be using to talk to RT1. Options are:
+artemis
+: Apache ActiveMQ Artemis (default)
+ibmmq
+: IBM MQ
+artemis
+rt1.broker-url
+If using the
+artemis
+broker type (default), the Artemis broker URL. Ignored if not using
+artemis
+.
+rt1.ibmmq.brokers
+If using the
+ibmmq
+broker type, specify a list of IBM MQ queue managers to connect to. Ignored if not using
+ibmmq
+.
+Additional settings that can be configured:
+{
+  cache-consumers = true
+  cache-producers = true
+  session-cache-size = 100
+  host = "localhost"
+  port = 1414
+  queue-manager = "QM1"
+  channel = "MY.CHANNEL"
+  compression-header = ["SYSTEM"] //optional
+  compression-message = ["ZLIBHIGH", "ZLIBFAST", "RLE"] //optional
+  target-client = "1" //optional
+  ssl-enabled = true
+  ssl {
+    truststore-path = "src/test/resources/client.p12"
+    truststore-password = "client"
+    truststore-type = "PKCS12"
+    keystore-path = "src/test/resources/client.p12"
+    keystore-password = "client"
+    keystore-type = "PKCS12"
+    cipher-suite = "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256" //optional
+    ssl-peer-name = "CN=ibmmq.example.com*" //optional
+  }
+}
+[
+  {
+    host = "localhost"
+    port = 1414
+    queue-manager = "QM1"
+    channel = "DEV.APP.SVRCONN"
+    target-client = 1
+  }
+]
+Configuration customisation
+RT1 service provides some default configuration that can be overridden. One of those is a Clock providing access to the current instant, date and time using a time-zone which is used to verify dates on schemas.
+The default provided implementation uses system UTC:
+@Bean
+    @ConditionalOnMissingBean
+    Clock rt1Clock() {
+        return Clock.systemUTC();
+    }
+This bean can be overridden by client implementation to use different time zone.
+Validations
+CSM Events

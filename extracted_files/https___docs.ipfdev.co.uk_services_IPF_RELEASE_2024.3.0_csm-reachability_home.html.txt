@@ -1,0 +1,29 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/home.html ===
+CSM Reachability
+As part of the IPF core offering is CSM reachability, providing a suite of features that enable IPF client implementations determine reachability of a Creditor Party via one or more "Clearing and Settlement Mechanisms".
+Refer to "Concepts" section to understand the concepts behind Reachability and what it means from Payments processing and orchestration point of view.
+1. IPF -  CSM Reachability Overview
+CSM Reachability Service on IPF uses an IPF design pattern known as "Dynamic Processing Settings" to manage the dynamic configurations used for Reachability checks purposes. These are explained more in the Concepts section.
+The CSM Reachability service provides below features to enable Reachability Checks. These are documented at length in the documentation that follows.
+Validate if the payment can be cleared and settled within the Processing Entity itself (Intra Entity Transfer).
+Validate Reachability of a CounterParty through a given external CSM Agent.
+Select a CSM Agent from a preferred list of CSM Agents based on payments specific criteria and a client defined Selection Order.
+Alongside the reachability features, the service provides below supporting features that can be used during processing of inbound or outbound payments:
+Get details of 'Processing Entity' and associated Generic Processing Settings.
+Get the Clearing And Settlement Settings of an external 'Agent' which processing entity holds a settlement relationship.
+Look up party details to retrieve additional identifiers the parties are known by and address details.
+Deconstruct an IBAN to get the BIC and associated IBAN National Id.
+Validate a BIC against SWIFTRef Bic Directory 2018
+Refer to CSM Reachability Operations within Features section to know more about supported operations.
+2 . CSM Reachability Contextual Diagram
+3 . How to use this documentation?
+The documentation is split across different sections:
+Concepts
+: This section provides an overview of the concepts that should be understood before using CSM Reachability Service.
+Features
+: This section provides an overview and specification of the features provided by CSM Reachability Service.
+Getting Started
+: This section provides practical steps on getting started to use the CSM Reachability Service and the features it provides.
+It is recommended that the sections are read in provided order to get a comprehensive understanding of the Service and its features.
+SWIFT AGI Gateway
+Processing Entity Explained

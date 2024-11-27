@@ -1,0 +1,82 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/credit-transfer-api/schema.html ===
+Credit Transfer API
+Overview
+The Credit Transfer API is called during the payment execution flow when processing and managing credit transfers between a payment engine and a CSM Service. The following data models are supported within this API:
+ExecutePaymentRequest
+ExecutePaymentResponse
+ReceivePaymentRequest
+ReceivePaymentResponse
+ReceivePaymentTimeout
+ReceivePaymetSettledRequest
+ReceivePaymentSettledResponse
+ReceivePaymentStatusInquiryRequest
+ReceivePaymentStatusInquiryResponse
+TechnicalResponse
+Summary
+Integration Pattern
+Asynchronous
+Reply Method
+Separate request/response queues/topics
+Integration Method
+JMS, Kafka
+Message Format
+JSON
+Message Model
+ISO20022
+Security
+TLS 1.2
+Resiliency Strategies
+Circuit Breaker, Backpressure, Automatic Retries
+Models
+ExecutePaymentRequest
+Version:
+pacs.008.001.08
+Details:
+View the json schema
+ExecutePaymentResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+ReceivePaymentRequest
+Version:
+pacs.008.001.08
+Details:
+View the json schema
+ReceivePaymentResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+ReceivePaymentSettledRequest
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+ReceivePaymentSettledResponse
+Version:
+N/A
+Details:
+View the json schema
+ReceivePaymentStatusInquiryRequest
+Version:
+pacs.028.001.03
+Details:
+View the json schema
+ReceivePaymentStatusInquiryResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+ReceivePaymentTimeout
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+TechnicalResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+Recalls Returns ROI API
+Clear and Settle API

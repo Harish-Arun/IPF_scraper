@@ -1,0 +1,18 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/processing-data/processing-data.html ===
+Processing Data
+Processing Data are the dynamic configurations that are specific to the client implementations. Processing data needs to be defined and configured by the client implementation teams using the DPS setting management APIs provided against each data structure. It should also be possible to configure and maintain some aspects of Processing data using IPF GUI.
+Processing data is specific to each Processing Entity in general where multiple processing entities are configured.
+Processing data includes below.
+Processing Entity
+Generic Processing Settings
+Agent Settings
+Agent Settlement Settings
+Agent Clearing Settings
+CS Agent Selection Settings
+Please refer
+CSM Reachability Logical Data Model
+and
+Entity Relation Diagram
+to understand how different dynamic configurations are related to each other.
+Entity Relation Diagram
+Processing Entity

@@ -1,0 +1,48 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/getting-started.html ===
+Getting Started
+CSM Reachability Service and Data Configuration
+To start using CSM-Reachability we need to define few steps.
+Choose deployment pattern
+First, you need to define which deployment pattern you want to use, for more info about it, please visit
+Deployments
+We recommend taking the approach with CSM application stand alone and DPS embedded with CSM. This means you will have to deploy a springboot application (which you have to define and create), which uses the modules listed.
+Configure settings
+After that, you should go to Configuration part and see what is difference between static and dynamic configuration and what you need to define for both of them. Also, you can see what is necessary to put in
+pom.xml
+and
+.conf
+files and which parts are mandatory.
+Static Configuration
+Dynamic Configuration
+In the Dynamic Configuration section you can see examples of how to create settings, please refer to
+getting-started/dynamic-configuration-set-up/dynamic-configurations-set-up-guide.adoc#_2_set_up_using_dps_setting_management_apis
+.
+Also, this is an example of
+ConfigMap Manifest
+file in which you can see whole
+.config
+example
+getting-started/deployments/overview.adoc#_kubernetes
+Client implementation to call CSM Reachability APIs
+Define ports, adapters and connectors
+The work required to call the CSM APIs from your IPF application/flow is covered on this page:
+Client Library
+This covers the Maven dependencies which should be added to your project and you can see an example of defining the Client Port, Client Adapter (as the implementation of Port interface) and examples of defining connectors.
+For all those connectors you should use
+Static Configuration
+, this covers all default settings for each connector but each of them can be overridden as per your requirements.
+API Specifications
+There are 2 types of API specifications:
+CSM Reachability Setting Management API
+for
+DPS Settings
+and
+CSM Reachability Service API
+for
+CSM Reachability
+part.
+For the list of available APIS please refer to
+CSM Reachability Setting Management API
+CSM Reachability Service API
+Settlement Agents
+Database Settings

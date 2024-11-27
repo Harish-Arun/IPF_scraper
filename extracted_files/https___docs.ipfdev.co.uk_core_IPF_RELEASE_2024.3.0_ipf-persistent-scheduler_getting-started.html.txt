@@ -1,0 +1,6 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-persistent-scheduler/getting-started.html ===
+Getting Started
+Getting started guides for starting with the IPF Persistent Scheduler.
+Scheduling Your First Job
+Scheduling Metrics
+Scheduling Your First Job

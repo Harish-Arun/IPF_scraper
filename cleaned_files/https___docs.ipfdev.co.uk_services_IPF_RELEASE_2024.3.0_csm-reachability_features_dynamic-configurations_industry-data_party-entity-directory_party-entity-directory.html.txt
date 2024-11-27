@@ -1,0 +1,56 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/dynamic-configurations/industry-data/party-entity-directory/party-entity-directory.html ===
+Party Entity Directory
+Party Entity Directory is a dynamic configuration that can be used to look up Party Entities to retrieve the party entity details like identifiers and address details.
+The data returned from party entity look up can be used by client implementations for payment enrichment purposes. The directory is also used during reachability check to look up identifiers used by CSM Agents for participation when the input request does not provide required identifier type.
+Party Entity Directory supports ingestion from Industry referenec data to enable entity look ups.
+IPF supports below industry file ingestion into Party Entity Directory:
+In future more data sources can be supported on Party Entity Directory if need is identified through client requirements.
+If required, client implementations can also define and implement custom ingestion into Party Entity Directory.
+Sr. No.
+Industry Data File
+Industry Source
+File Format
+File Type (Full / Delta)
+1
+Bank Directory Plus
+SWIFTRef
+XML
+Full
+2
+SIX Bank Master 3.0
+SIX
+XML
+Full
+Party Entity Directory Data Structure
+Similar to CSM Participants, Party Entity Directory is a generic dynamic configuration that is loaded through different industry sources in a generic way, irrespective of the format of source industry files.
+Below are the properties supported on Party Entity Directory.
+Party Entity Directory property
+Description
+entityUniqueId
+A unique Id by which the entity will be known. The Id will be unique across the data source.
+entityDataSource
+Specifies the source of the data, which can be a certain reference data source, such as 'Bank_Directory_Plus' or 'Bank_Master'.
+entityType
+Type of the Party Entity. Possible values are 'Bank' or 'Branch'. This is for information purposes only and not used during processing.
+entityName
+Name of Party entity.
+entityAddress
+Address of Party entity. The address fields on Party Entity Directory records follow ISO20022 complliant address structure.
+entityEmail
+Email of Party Entity. Supports special characters.
+entityPhoneNumber
+Phone number of Party Entity. Supports special characters
+entityIdentifiers
+A list of identifiers associated with the entity. The Identifier types supported are BIC, NCC (National Clearing Code) and LEI.
+Refer to below page to know more about payment identifiers used on IPF CSM Reachability Service.
+Party Identifiers Explained
+Important points to note about Party Entity Directory:
+All the BICs provided by the industry data sources are loaded as ACCOUNT_ISSUING_BIC on party entity directory.
+The National Ids provided by industry data sources are loaded as NCCs and sub-type definitions are loaded as per the industry data source. Where available, the sub-type information aligned with ISO20022 aligned 'External Clearing Codes' is also loaded.
+Party Entity Directory is not meant to be used for checking membership to schemes or participation to CSM Agents. For this purpose, CSM Participant dynamic configuration is used.
+Party Entity Directory Mappings
+Party Entity Directory mapping supports two types of ingestion files:
+Bank Directory Plus to Party Entity Directory mapping
+Bank Master to Party Entity Directory mapping
+STET Agreement Exports File Mapping
+Bank Master to Party Entity Directory mapping

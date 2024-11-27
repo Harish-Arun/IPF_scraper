@@ -1,0 +1,19 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/working-days-service/home.html ===
+Working Days Service
+The Working Days Service is a module which provides:
+Calendar management for defining non-working days
+Date calculation and validation for execution and settlement dates
+You can read more about the validation and calculation of valid dates, using both an annual calendar and a holiday calendar, in the following sections:
+Concepts
+Features
+Get Next Execution Date
+Get Next Settlement Date
+Validating Execution Date
+Validating Settlement Date
+Getting Started
+Deployment & Configuration
+APIs
+Working Days Service
+Working Days Service Setting Management API
+Building Custom Docker Image
+Concepts

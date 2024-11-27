@@ -1,0 +1,125 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/features/sepadd-csm-core.html ===
+Core Configuration
+SEPA DD CSM Core configuration options and explanations.
+Submission Windows Configuration
+This config defines when the Scheme specified Submission Windows is closing and identifies the latest point in time up to which files will be accepted by the scheme.
+The cut-off values for this configuration are aligned to the timings provided by the scheme and can be changed if the scheme times change.
+It is recommended that these are not changed without having specific confirmation from the scheme as unintended change could cause the cycle times to be mis-aligned between the IPF implementation and the scheme, causing unwanted rejections / liquidity positions.
+The standard values are populated for the STEP2 DD CSM Service implementation, however, it is recommended that the client implementation teams compare the standard values against those specified by the scheme at the point of implementation and update the values if required.
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-dd.lac.holiday-calendar
+String
+This should correspond to the
+calendarId
+used to define the non-working days in the
+Working Days Service
+target2
+ipf.csm.sepa-dd.lac.timezone
+String
+Time zone for DD Submission Windows
+CET
+ipf.csm.sepa-dd.lac.sending-cutoffs
+Array
+Array of objects describing DD Submission Windows. For each object, time represents the time buffer time ahead of Submission Windows Sending cut-off at which the file level bulk will be finalized.  A day offset equal to 1 indicates the Submission Windows sending cut-off time which is the first for a given day.
+[
+{
+id = 1
+time = "16:05"
+day-offset = 0
+},
+{
+id = 2
+time = "18:00"
+day-offset = 0
+},
+{
+id = 3
+time = "20:00"
+day-offset = 0
+},
+{
+id = 4
+time = "22:00"
+day-offset = 0
+},
+{
+id = 5
+time = "07:00"
+day-offset = 1
+},
+{
+id = 6
+time = "09:00"
+day-offset = 0
+},
+{
+id = 7
+time = "11:00"
+day-offset = 0
+}
+]
+ipf.csm.sepa-dd.lac.message-acceptance-buffer
+String
+Buffer time ahead of the settlement cutoff to allow for processing
+20m
+ipf.csm.sepa-dd.lac.validation-cutoff
+String
+Transactions received before this time on a given date will be processed on the following business day (D+1)
+15:30
+ipf.csm.sepa-dd.settlement-lead-days.FIToFICustomerDirectDebitV08
+String
+Number of days between execution and settlement this is used by the
+Working Days Service
+during settlement/execution date calculations
+1
+Extra notes -  Submission Windows Sending Cut-off Buffer Time
+ipf.csm.sepa-dd.lac.sending-cutoffs
+Buffer time ahead of Submission Windows Sending cut-off (Refer Documentation) at which the file level bulk (e.g. IDF File) will be finalized to be sent to the scheme.
+This begins creation of the files to be sent to the scheme ahead of the Submission Windows Sending cut-offs and ensures that all the participants in the chain of events leading to the file being received by the scheme, have enough time to perform those steps.
+Examples of the steps that should happen between Submission Windows Sending Cut-Off Buffer and Submission Windows Sending Cut-Off are:
+Finalization of the bulks within IPF Bulker and generation of scheme files
+Streaming of the files to the scheme through client file system
+Validation of the files by the scheme in real time and generation of DVF responses
+This configuration is specific to IPF Bulker implementation designed to work with IPF STEP2 DD CSM Service.
+The client implementation teams should update the default value of the config to a value as per the volume and performance expectations from the IPF implementation.
+Bulk File Processing Configuration
+This configuration defines whether post-processing of the bulk file produced by the IPF Bulker should be performed.
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-dd.bulk-file-processing.validate
+Boolean
+If enabled, schema validation of the bulk file will be performed. If the validation fails, the bulk file will be deleted.
+false
+ipf.csm.sepa-dd.bulk-file-processing.archive
+Boolean
+If enabled, archiving of the bulk file will be performed. If schema validation is also enabled archiving will only be performed if validation passes.
+false
+Bulk Size Limits
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-dd.bulk-size.maximum-file-size
+Size in
+bytes
+Maximum size of the bulk, when size of the bulk reaches this value, bulk will be closed and data will be streamed to a file.
+480MB
+ipf.csm.sepa-dd.bulk-size.size-check-cron
+Cron Expression
+Cron expression for checking if the size of the bulk reached 'maximum-file-size'.Needs to be repeatable in order to periodically check the size of the bulk.
+"*/30 * * ? * *"
+ipf.csm.sepa-dd.bulk-size.maximum-number-of-minibulks-per-bulk
+Long
+Maximum number of ISO messages in an IDF bulk.
+500
+ipf.csm.sepa-dd.bulk-size.maximum-components-per-minibulk
+Long
+Maximum number of components per ISO message bulk.
+100000
+Message Generator
+Notifications

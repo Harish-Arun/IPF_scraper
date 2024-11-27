@@ -1,0 +1,7 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/message-logger/features.html ===
+Features
+Message-logger-impl provides two specific implementations of MessageLogger:
+Kafka MessageLogger
+Mongo MessageLogger
+Message Logger
+Kafka MessageLogger

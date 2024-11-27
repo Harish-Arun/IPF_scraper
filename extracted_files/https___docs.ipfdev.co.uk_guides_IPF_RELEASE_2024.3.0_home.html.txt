@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/home.html ===
+Guides
+IPF is richly featured and has lot of flexibility, giving you choice and control over its implementation. These guides provide a mix of conceptual understanding, best practice and practical guidance to design, build and test you IPF solution.
+Concepts
+Architecture
+Learn
+Tutorials
+Test
+Icon Test Framework
+IPF Test Framework
+IPF Simulators
+Platform
+Concepts

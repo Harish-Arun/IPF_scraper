@@ -1,0 +1,96 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/features/extension-points.html ===
+Extension Points
+SEPA DD STEP2 CSM Service provides two extension points to allow clients to call out to client specific processing at the message level. An extension point is provided for both 'From Scheme' and 'To Scheme' message processing. When enabled, a message is placed onto a queue or topic (JMS or Kafka are supported) and responses are processed from a response topic/queue. For additional details around topics/queues, please refer to the configuration section.
+Both 'From Scheme' and 'To Scheme' extension points can be configured to time out in the case of no response received. This will be treated as a
+REJECT
+response.
+From Scheme Extension Point
+The From Scheme Extension point is located at the message level when processing files from the scheme. After a file has been Debulked and the main SEPA CSM flow starts to process the components, each time a new message is accessed the Extension point will be invoked. A reference to the top most component of the message (i.e. Group Header) will be passed out to the configured client implementation. This component can be accessed directly from the component store, as well as any child components that sit below it. It is up to the client to perform any additional pre-processing they wish on these components (eg accounting, sanction checks, checksum or count validations) before the individual transactions are processed through the CSM and onto the waiting Client implemented flows.
+The Extension Point will wait for a response from the external code, this response will simply be an indication of Success or Failure. Performance and latency of the code executed during this stage is the responsibility of the Client, the SEPA CSM takes no responsibility or liability for any impact on its overall running.
+If the Extension points returns an indication that the processing was a success, the underlying components within the message will be processed by the CSM as normal.
+If the Extension points returns an indication that there was a failure, processing of the underlying components within the current message will be skipped. In addition to this, a system event of level
+ERROR
+is raised. It becomes the responsibility of the Client to handle the necessary processing for the skipped message (which remains accessible in the Component store).
+To Scheme Extension Point
+An To Scheme Extension point can be triggered during the production of the Bulk file. Once each mini-bulk has been finalised and the related message is ready to be added to the output file, the Extension point will be triggered. A reference to the final top most component of the message (ie Group Header) will be passed to the external third party code provided by the Client. From this reference the component itself and any underlying child components can be accessed and processing can be performed (ie Accounting). Processing executed by an extension point will have an impact on the performance of the CSM to produce the final output file, this should be taken into account when configuring buffer times between Bulks closing and the end of each LAC, so that files are delivered to the scheme within the intended LAC.
+Unlike 'From Scheme' Extension points, processing of the message is 'not' impacted if the extension point indicates that there was a failure. However, a system event of level
+ERROR
+is raised. The message in question will still be included in the file, it is clients responsibility to handle any necessary exception processing.
+Events
+For more information on events raised in the SEPA scheme pack:
+SEPA System Events
+API
+ExtensionPointRequest
+passes the message level raw content (e.g. pacs002s2 content) with Component Id and Component Marker - to optionally query the component store to retrieve more information about the message, e.g. count the number of child transactions. It also contains direction of the message that is being validated (TO_SCHEME or FROM_SCHEME)
+ExtensionPointResponse
+indicates success or failure of the processing.
+The Extension Point API Specification is available here:
+Extension Point API
+Client
+Extension Point Client documentation can be found
+here
+.
+Configuration
+Property Grouping: ipf.csm.sepa-dd.extension-point
+Key
+Description
+Default Value
+ipf.csm.sepa-dd.extension-point.timeout.send-to-scheme
+When timeout has elapsed then an event will be raised to indicate that the send to scheme extension point call has failed
+"5s"
+ipf.csm.sepa-dd.extension-point.enabled
+When enabled sendToScheme/receiveFromScheme payment messages will be forwarded for extension processing. A rejection response will prevent processing of transactions in the message
+false
+ipf.csm.sepa-dd.extension-point.timeout.receive-from-scheme
+When timeout has elapsed then an event will be raised to indicate that the receive from scheme extension point call has failed
+"5s"
+Property Grouping: ipf.csm.sepa-dd.extension-point.jms
+Key
+Description
+Default Value
+ipf.csm.sepa-dd.extension-point.jms.consumer-window-size
+0
+ipf.csm.sepa-dd.extension-point.jms.response.queue
+Queue to receive extension point responses
+"SEPA_EXTENSION_POINT_RESPONSE"
+ipf.csm.sepa-dd.extension-point.jms.request.queue
+Queue to send extension point requests
+"SEPA_EXTENSION_POINT_REQUEST"
+ipf.csm.sepa-dd.extension-point.jms.failover-timeout
+5000
+Property Grouping: ipf.csm.sepa-dd.extension-point.kafka
+Key
+Description
+Default Value
+ipf.csm.sepa-dd.extension-point.kafka.consumer.restart-settings.max-restarts
+5
+ipf.csm.sepa-dd.extension-point.kafka.consumer.restart-settings.random-factor
+0.25
+ipf.csm.sepa-dd.extension-point.kafka.consumer.restart-settings.min-backoff
+"1s"
+ipf.csm.sepa-dd.extension-point.kafka.producer.restart-settings.min-backoff
+"1s"
+ipf.csm.sepa-dd.extension-point.kafka.consumer.restart-settings.max-restarts-within
+"10m"
+ipf.csm.sepa-dd.extension-point.kafka.consumer.kafka-clients.group.id
+"csm-extension-point-group"
+ipf.csm.sepa-dd.extension-point.kafka.producer.topic
+Topic to send extension point requests
+"SEPA_EXTENSION_POINT_REQUEST"
+ipf.csm.sepa-dd.extension-point.kafka.producer.restart-settings.max-restarts-within
+"10m"
+ipf.csm.sepa-dd.extension-point.kafka.producer.restart-settings.max-restarts
+5
+ipf.csm.sepa-dd.extension-point.kafka.producer.restart-settings.max-backoff
+"5s"
+ipf.csm.sepa-dd.extension-point.kafka.consumer.topic
+Topic to receive extension point responses
+"SEPA_EXTENSION_POINT_RESPONSE"
+ipf.csm.sepa-dd.extension-point.kafka.producer.restart-settings.random-factor
+0.25
+ipf.csm.sepa-dd.extension-point.kafka.consumer.restart-settings.max-backoff
+"5s"
+ipf.csm.sepa-dd.extension-point.kafka.producer.kafka-clients.client.id
+"sepa-csm-extension-point-client"
+Scheduling
+Message Generator

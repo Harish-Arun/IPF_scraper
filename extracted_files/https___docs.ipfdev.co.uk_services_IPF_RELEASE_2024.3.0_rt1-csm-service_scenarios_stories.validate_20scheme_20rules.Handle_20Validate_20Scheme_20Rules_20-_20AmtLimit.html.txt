@@ -1,0 +1,22 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.validate%20scheme%20rules.Handle%20Validate%20Scheme%20Rules%20-%20AmtLimit.html ===
+Handle Validate Scheme Rules - AmtLimit.story
+Scenario: Handling validation of scheme rules invalid amount limit checked for Debtor direction
+When
+the ï½Payment Serviceï½  sends a Validate Scheme Rules Request with values:
+| getPayload().getContent().cdtTrfTxInf[0].intrBkSttlmAmt.value | 1500000.01                             |
+| customBusinessData                                            | supportingContext(flowType,DEBTOR) |
+Then
+ï½the Payment Serviceï½  receives a Validate Scheme Rules Response with values:
+| status                                | FAILURE                           |
+| getPayload().getContent().reasonCode  | AM02                              |
+| getPayload().getContent().description | Amount exceeds scheme limit       |
+| requestId                             | #ValidateSchemeRulesRequest.ipfId |
+Scenario: Handling validation of scheme rules invalid amount limit not checked for Creditor direction
+When
+the ï½Payment Serviceï½  sends a Validate Scheme Rules Request with values:
+| getPayload().getContent().cdtTrfTxInf[0].intrBkSttlmAmt.value | 1500000.01                               |
+| customBusinessData                                            | supportingContext(flowType,CREDITOR) |
+Then
+ï½the Payment Serviceï½  receives a Validate Scheme Rules Response with values:
+| status     | SUCCESS                           |
+| requestId  | #ValidateSchemeRulesRequest.ipfId |

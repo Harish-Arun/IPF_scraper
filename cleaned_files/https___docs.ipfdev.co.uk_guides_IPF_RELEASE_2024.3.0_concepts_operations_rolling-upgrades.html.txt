@@ -1,0 +1,160 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/concepts/operations/rolling-upgrades.html ===
+Rolling Upgrade Deployments with IPF SDK
+Introduction
+Rolling upgrade deployments are a crucial strategy for maintaining system availability during updates.
+To avoid downtime and ensure continuous availability, a rolling upgrade deployment updates a system incrementally a instance by instance or, in case of larger clusters, several instances at a time.
+To ensure rolling upgrades work correctly, all components of the new version of your orchestration service must be backward compatible with the old version.
+The IPF SDK
+uses many technologies
+, but crucially the key
+IPF Orchestration Framework
+is built on top of
+Akka
+, a powerful toolkit for building highly concurrent, distributed, and resilient message-driven applications, which provides robust support for rolling upgrades, particularly when using event-sourced actors for state persistence, as IPF does.
+This document caters to a technical audience and outlines the process and considerations for implementing rolling upgrade deployments of orchestration services built using the IPF SDK.
+Required Reading
+Before progressing further, make sure you have at least a basic knowledge of the following:
+IPF Logical Architecture
+IPF Orchestration Framework
+IPF DSL
+While not necessary for understanding the strategy, familiarity with the following may help with understanding the reasons behind some of the recommendations:
+Event Sourcing with Akka Persistence
+Akka Cluster Sharding
+Remembering Entities with Akka Cluster Sharding
+Rolling Upgrade Deployment Strategy
+An orchestration service built with the IPF SDK represents a stateful application that is deployed as a single Akka cluster.
+As a consequence, performing rolling upgrades on such a system requires a more complex strategy than would be the case with a typical HTTP microservice.
+The following steps outline the process for performing rolling upgrades of IPF orchestration services.
+Step 1: Prepare the New Version
+During a rolling upgrade, a rebalance of Akka shards will occur.
+Combined with Akka
+remembering entities
+being enabled, this will frequently cause instances of flows started on an old version of a service node to be restarted on a service node running the new version.
+In addition to the rebalancing of Akka shards, certain message transports (such as Kafka, Pulsar, AWS Kinesis, etc.) will also need to do partition reassignment as old consumer nodes are stopped and new ones are started.
+All the rebalancing work happening as part of a rolling upgrade may cause time-sensitive flows to time out, especially if the rolling upgrade is happening while the service is processing volumes close to its capacity.
+To avoid a large impact on processing, it is advisable to schedule your upgrades during the low volume periods typical for your service.
+Maintaining backward compatibility requires the following:
+Ensuring existing flow versions are unchanged a once released, a flow version should be considered immutable.
+Changing a flow without versioning introduces unpredictability a an in-flight flow initiated on the old version of the service may not be able to make any progress when rehydrated on the new version of the service due to various incompatibilities and would therefore be stuck in an infinite recovery-failure loop.
+If a flow needs to be updated a transitions changed, new states introduced, etc. a a new version of the flow should be created and changes should be made to that version.
+See
+Versioning Flows
+in the tutorial section for instructions on how to do this.
+Ensuring no active flow versions are removed from the new version of the service.
+Removing a flow version present in the old version of the service opens the door to orphaning of in-flight flows.
+IPF uses Akka Cluster roles to decide which nodes can host which flows.
+If by the time the rolling upgrade reaches the final node there are still some in-flight flows running the deleted version, the cluster will find itself in a state where no nodes will be capable of hosting the old flow version, causing the in-flight flow to be orphaned and forever stuck in an incomplete state.
+If the old version of your service had the capability of initiating a number of flows of a certain version, those flows must not be removed in the new version.
+Remove flows only when no in-flight instances of them are present and the old version has no way of initiating them.
+To determine whether a certain flow can be initiated, you have to inspect your flow routing rules (covered in the next point).
+Providing routing rules for the new flows and updating the rules for the old ones.
+As indicated in
+Versioning Flows
+, you have direct programmatic control over which version of a flow to initiate.
+By default, if no version is specified, the latest one is used.
+Depending on the level of confidence in the correctness of your new flow versions, you may decide to keep initiating the old versions until certain conditions are met a a customer with a feature flag initiates the flow, the initiation message contains a specific header, a static configuration predicate applies, etc.
+Maintaining compatibility with existing event schemas.
+The schemas are defined by the business data elements listed for the event in the DSL.
+Breaking an event schema will mean your in-flight flows will fail to be recovered on a rebalance, leaving them orphaned and unable to complete without a hotfix deployment.
+Even if a flow does not change an events business data elements, an unintentional change to a type used somewhere in the object graph could still occur, e.g. by updating a version of a common library.
+To ensure event schemas arent broken, you should create a test suite that verifies your schemas at build time.
+If for some unlikely reason you cannot avoid breaking an event schema, you can use the
+IPF domain event schema evolution support
+as a last resort.
+Ensuring external domain response consumers are backward compatible.
+The consumers that process responses from your external domains have to be able to send the proper inputs to both the old and the new versions of your flows.
+Failing to support the old versions in addition to the new ones will either cause the in-flight old version flows to time out or be orphaned in an inconsistent state.
+Avoiding breaking changes to the exposed APIs a if your service defines an API that other components integrate with, the API must remain backward compatible.
+Step 2: Update Configuration
+Update the deployment configuration to support rolling upgrades:
+Ensure Akka configuration has changed in compatible ways.
+Quite a few Akka configuration options a particularly related to clustering, e.g. Split Brain Resolver strategies, number of shards, etc. a require all nodes in the cluster to be configured with the same value in order to successfully form a cluster.
+If you need to change an Akka configuration value that requires consistency across the cluster, you will have to take down your whole cluster.
+Ensure IPF configuration has changed in compatible ways.
+Configuration related to action retries and timeouts is sensitive to flow version changes, see
+Versioning Flows
+for more details.
+You need to apply careful consideration when updating certain
+journal processor
+configurations as they can break rolling upgrade compatibility:
+Increasing the number of event partitions (see
+Partitioning Events
+for more details) may cause processing delays, especially if the journal processor is deployed as a separate application.
+In those scenarios, you have to ensure the journal processor configuration is updated and deployed before you start deploying your orchestration service.
+Using
+EVENT_STREAM_PER_TAG
+as your
+event-streaming-type
+in combination with initiating new flow versions before the rolling upgrade is complete will cause deserialisation errors and a depending on the error handling configuration of your journal processor a may even result in permanent data loss.
+Step 3: Deploy the New Version Incrementally
+Deploy the new version to a subset of nodes, ensuring the system remains operational:
+Start by updating a small number of nodes (e.g. 10% of the cluster).
+Gradually increase the percentage of updated nodes until the entire cluster is running the new version.
+Monitor the service for any issues in processing.
+The IPF SDK comes with a
+predefined set of monitoring tools
+and support for
+distributed tracing
+.
+Integrating them into your observability ecosystem would prove beneficial when troubleshooting issues.
+Depending on the routing rules, generate some traffic that initiates the new flow versions to ensure they are working correctly.
+Even if your CD pipeline involves a pre-prod environment that closely mirrors production, and you have performed extensive testing of your new flow versions in pre-prod, it may still be advisable to slowly ramp up the initiation of new flow versions right after deployment, especially if the flows are calling brand-new endpoints of external services.
+You can rely on the
+existing application metrics
+to track which versions of which flows are being initiated and completed.
+Step 4a: Complete the Upgrade
+Once all nodes have been updated and validated:
+Keep monitoring the system for any post-upgrade issues.
+At this point, any issues that are found are likely to be solved by your regular bugfix procedures.
+Feel free to remove any deprecated code and configurations related to the old version.
+This includes flow versions that are no longer active in your service a with all in-flight instances of the old flows completed in production and routing rules preventing them from being initiated again, they will no longer be needed in the next version of your service.
+On the other hand, if youre not worried about the size of your JAR files, theres no harm in keeping the old flows around, especially if you wish to allow yourself the capability to build journal processors that work against all the historical data in the journal.
+Document the upgrade process and any lessons learned for future reference.
+Step 4b: Rolling Back
+In the unlikely scenario that an issue with one of the new flow versions is discovered only when youve deployed to production, you may want to consider rolling back to the previous version.
+Here are some things you should consider before rolling back:
+All the in-flight instances of the new flow versions will be orphaned and stuck once you roll back.
+Even with Akka remembering entities enabled, there is nothing that can be done to allow the revival of those flows on the old orchestration service version since the code needed to execute them no longer exists.
+If the old versions of your flows are working correctly a i.e. the error is present only in the new flow versions a then just rolling back your routing rules to prevent the initiation of the new flows might suffice.
+Depending on how you configure your routing rules, this may or may not require a restart of all the nodes in the cluster.
+Rolling back routing rules wont leave any of the flows orphaned, but the underlying issue may still leave the flows stuck and some manual intervention may be required.
+Unlike doing a full service version rollback, rolling back the routing rules would allow you to craft ad-hoc utilities that programmatically
+abort
+any of the flows that are stuck, or at least
+passivate
+them.
+Using the
+Transaction Operations API
+is also an option for creating ad-hoc recovery scripts.
+Required Downtime
+While rolling upgrade deployment offers several advantages, such as minimal disruption and continuous availability, there are scenarios where it cannot be used effectively and downtime is necessary.
+Below are some circumstances that may prevent the use of rolling upgrades.
+Incompatible Database Changes
+When a new version of an application requires database changes that are not backward compatible, rolling upgrades can be problematic or even unachievable.
+While the IPF SDK promises to keep the database schemas backward compatible, some changes may be outside IPF SDKs control (e.g. Akka changing their internal representations) and some changes may prove necessary to meet non-functional goals (e.g. sharding or structuring collections differently to make certain queries more efficient).
+Dependency Upgrades
+If the new service version depends on an upgrade to a critical dependency that is not backward compatible, rolling upgrades might not be feasible.
+Examples include:
+Upgrading to a new version of a database or message queue that requires a simultaneous update of all client services.
+Introducing a new version of a framework or library that the old application version cannot integrate with a e.g. Akka version upgrade that breaks binary compatibility with the old version of the service, effectively preventing instances of the new version forming a cluster with the old one.
+Security Vulnerabilities
+If the new version addresses critical security vulnerabilities that must be patched immediately, a rolling upgrade may not be fast enough to mitigate the risk.
+In such cases a full deployment might be necessary to ensure all instances are updated simultaneously as delayed updates can expose the system to security threats.
+Conclusion
+Rolling upgrade deployments with the IPF SDK provide a robust and efficient strategy for maintaining system availability during updates.
+By leveraging the Akka toolkits capabilities for managing concurrent, distributed, and resilient applications, the IPF Orchestration Framework ensures smooth transitions between service versions.
+Key considerations for successful rolling upgrades include:
+Backward Compatibility
+: Ensure all components in the new service version are backward compatible to avoid disruptions in flow execution.
+Configuration Updates
+: Update Akka and IPF configurations carefully to maintain compatibility across the cluster.
+Incremental Deployment
+: Deploy the new version incrementally to monitor and address any arising issues without affecting overall service availability.
+Monitoring and Validation
+: Use the provided monitoring tools and distributed tracing to validate the new deployment and troubleshoot any issues.
+Handling Upgrades and Rollbacks
+: Prepare for both completion of upgrades and potential rollbacks by understanding the implications for in-flight flows and maintaining flexibility in routing rules.
+By following these guidelines, you can effectively manage rolling upgrades, ensuring minimal disruption and maintaining continuous service availability.
+Documenting the process and lessons learned will further aid in refining future deployments, contributing to the resilience and robustness of your orchestration services built with the IPF SDK.
+User Story Guide for IPF Solution Projects
+Scheme Packs Introduction

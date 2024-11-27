@@ -1,0 +1,127 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-2-0/release-IPF-2024-2-0-aom.html ===
+Optional Modules - Changes & Fixes
+This page covers the optional module changes and fixes provided in release IPF-2024.2.0.
+Scheme Packs
+New
+Added IPF gateway headers to TIPS message sent to scheme (configurable)
+Character replacer can replace parts of the message
+Changed
+The TIPS pacs.008 duplicate check now allows setting the inbound and outbound message duplicate check expire period
+and the cache entries purge.
+TIPS scheme pack to use the revised November 2024 schemas
+SIC5 scheme pack updated to use new IBAN Deconstruct response from CSM Reachability.
+ID generation in scheme packs to be as follows:
+UnitOfWorkId = UUID
+AssociationId = UUID (different to above UUID)
+ClientRequestID :
+    pacs.008 = TxID
+    camt.056 = Undrlyg.TxInf.CxlId
+    pacs.004 = TxInf.RtrId
+    camt.029 = CxlDtls.TxInfAndSts.CxlStsId
+Additional validation added to TIPS inbound/outbound pacs008 processing in scheme pack
+Total Interbank Settlement Amount
+Organisation Identification Party Subfields
+Private Identification Party Subfields
+Postal Address subfields
+Remittance Information Subfields
+Additional validation added to TIPS outbound pacs.004
+Only single transaction present
+OrgnlGrpInf occurs only once
+Total Returned Interbank Settlement
+Technical Duplicate Check
+Additional validation to outbound pacs.002
+OrgnlMsgNmId validation
+GrpSts/TxSts mutually exclusive
+StsRsnInf populated for negative pacs.002
+Additional validation to outbound pacs.028
+OrgnlMsgNmId is valid
+AccptDtTm mandatory
+Amount field mandatory
+Fixed
+TIPS Simulator not setting both group header amount and transaction amount when overridden
+SIC does not cancel pacs.028 when TM01 received
+Configuration changes:
+Added:
+tips.processing-entity.pacs008-duplicate-message-check-period
+to set pacs.008 message expire period for the
+inbound and outbound message duplicate check
+tips.processing-entity.pacs008-purging-cache
+to enable and set purging policy for duplicate checks cache entries
+Removed:
+tips.rule.outbound-bicfi
+- Clients who used this configuration in the TIPS service must assure that the BIC set
+for the removed configuration is in the list of approved debtor agent BIC specified in the
+tips.rule.allowed-bics.dbtragt
+configuration. This change align TIPS with other CSM packs.
+Changed:
+Default configuration has been added to fetch configuration values for
+ToScheme
+ClearAndSettleRequest
+and
+SendPositiveAnswerToCSMRequest
+, with the default value set to
+false
+. The extending schemas have been updated to utilize these configuration values while ensuring backward compatibility.
+CSM
+Config Value Supported
+Config Value Deprecated
+Tips
+ipf.csm.tips.pacs008.instg-agt-id
+,
+ipf.csm.tips.pacs008.instd-agt-id
+,
+ipf.csm.tips.pacs008.map-instd-agt-from-config-enabled
+tips.instg-agt-bic
+,
+tips.instd-agt-bic
+,
+tips.bics-from-config-enabled
+RT1
+ipf.csm.rt1.pacs008.instg-agt-id
+,
+ipf.csm.rt1.pacs008.instd-agt-id
+,
+ipf.csm.rt1.pacs008.map-instd-agt-from-config-enabled
+rt1.instg-agt-bic
+,
+rt1.instd-agt-bic
+,
+rt1.bics-from-config-enabled
+SIC
+ipf.csm.sic.pacs008.instg-agt-id
+,
+ipf.csm.sic.pacs008.instd-agt-id
+,
+ipf.csm.sic.pacs008.map-instd-agt-from-config-enabled
+T2
+ipf.csm.t2.pacs008.instg-agt-id
+,
+ipf.csm.t2.pacs008.instd-agt-id
+,
+ipf.csm.t2.pacs008.map-instd-agt-from-config-enabled
+t2.instg-agt-bic
+,
+t2.instd-agt-bic
+FedNow
+ipf.csm.fednow.pacs008.instg-agt-id
+,
+ipf.csm.fednow.pacs008.instd-agt-id
+,
+ipf.csm.fednow.pacs008.map-instd-agt-from-config-enabled
+IPF Metrics Processor
+Changed
+Metrics produced by the IPF Metrics Processor have been renamed to be prefixed with
+_ipf
+, but this is initially
+opt-in
+with
+the configuration property
+ipf.business-metrics-processor.opt-in-to-ipf-prefixed-metric-names = true
+.
+Configuration of metrics and labels now supports dot-notation. The configuration structure has changed slightly to accommodate this.
+Payment metrics are now labelled with the processing entity when it is known.
+Payment metrics are now labelled with the result of a creditor comparison, if one was performed during the payments lifecycle.
+Payment metrics are now labelled with the most recent error code.
+Introduced a payment waiting duration metric representing the time payments spend in waiting states.
+Core - Improvements, Changes & Fixes
+Bulker & Debulker - Changes & Fixes

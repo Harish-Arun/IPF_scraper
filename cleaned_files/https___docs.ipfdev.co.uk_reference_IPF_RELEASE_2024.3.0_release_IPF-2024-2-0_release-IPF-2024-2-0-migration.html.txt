@@ -1,0 +1,234 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-2-0/release-IPF-2024-2-0-migration.html ===
+Migration Steps for IPF-2024.2.0
+Migration Steps
+MPS
+All projects using MPS buildscripts will need to be updated.  To do this, open the build script in MPS by clicking on the appropriate file in the navigator:
+Then press
+Ctrl
++
+R
+and ensure the 'include stub and non-project models' selected.  Then enter 'icon dsl' in the drop down and select 'com.iconsolutions.dsl.dependencies'
+When prompted accept the import of the module.
+Repeat the process for 'com.iconsolutions.dsl.languages.
+Next in the dependencies section add a new line (press
+ENTER
+) and then select from the 'com.iconsolutions.dsl.dependencies' from the type ahead (press
+Ctrl
++
+Space
+).
+In the location section, use the type ahead (press
+Ctrl
++
+Space
+) to select '$plugin_home', then press
+/
+and then again select 'com.iconsolutions.dsl.dependencies' from the type ahead.
+Repeat the process for 'com.iconsolutions.dsl.languages'.  Then your dependencies should look like:
+Now, you should now see an error on your solution section for the build:
+To resolve, click on the underlined text and press
+Alt
++
+Enter
+to bring up the intentions popup and select 'Reload Modules From Disk'.
+That should resolve the error.  Finally, you need to regenerate the build script.  To do this, simply right click on the build solution in the navigator and select 'Rebuild Solution'.
+You should now be able to build your project through maven as normal.
+Update pacs.003 version
+The supported pacs.003 message type within the
+IPF ISO20022 Model
+has been upgraded from pacs.003.001.07 to pacs.003.001.08.
+If your IPF solution includes pacs.003 messages, you will need to make the following type changes:
+Version 7 Type
+Version 8 Type
+com.iconsolutions.iso20022.datatypes.AddressType2Code
+com.iconsolutions.iso20022.message.components.technical.address_type3_choice.AddressType3Choice
+com.iconsolutions.iso20022.message.components.direct_debit_mandate.amendment_information_details11.AmendmentInformationDetails11
+com.iconsolutions.iso20022.message.components.direct_debit_mandate.amendment_information_details13.AmendmentInformationDetails13
+com.iconsolutions.iso20022.message.components.organisation.branch_and_financial_institution_identification5.BranchAndFinancialInstitutionIdentification5
+com.iconsolutions.iso20022.message.components.organisation.branch_and_financial_institution_identification6.BranchAndFinancialInstitutionIdentification6
+com.iconsolutions.iso20022.message.components.organisation_identification.branch_data2.BranchData2
+com.iconsolutions.iso20022.message.components.organisation_identification.branch_data3BranchData3
+com.iconsolutions.iso20022.message.components.cash_account.cash_account24.CashAccount24
+com.iconsolutions.iso20022.message.components.cash_account.cash_account38.CashAccount38
+com.iconsolutions.iso20022.message.components.charges.charges2.Charges2
+com.iconsolutions.iso20022.message.components.charges.charges7.Charges7
+com.iconsolutions.iso20022.message.components.person_identification.contact_details2.ContactDetails2
+com.iconsolutions.iso20022.message.components.person_identification.contact4.Contact4
+com.iconsolutions.iso20022.message.components.person.date_and_place_of_birth.DateAndPlaceOfBirth
+com.iconsolutions.iso20022.message.components.person.date_and_place_of_birth1.DateAndPlaceOfBirth1
+com.iconsolutions.iso20022.message.components.date_time_period.date_period_details.DatePeriodDetails
+com.iconsolutions.iso20022.message.components.technical.date_period2.DatePeriod2
+com.iconsolutions.iso20022.message.components.direct_debit.direct_debit_transaction9.DirectDebitTransaction9
+com.iconsolutions.iso20022.message.components.direct_debit.direct_debit_transaction10.DirectDebitTransaction10
+com.iconsolutions.iso20022.message.components.direct_debit.direct_debit_transaction_information21.DirectDebitTransactionInformation21
+com.iconsolutions.iso20022.message.components.direct_debit.direct_debit_transaction_information24.DirectDebitTransactionInformation24
+com.iconsolutions.iso20022.message.components.organisation_identification.financial_institution_identification8.FinancialInstitutionIdentification8
+com.iconsolutions.iso20022.message.components.organisation_identification.financial_institution_identification18.FinancialInstitutionIdentification18
+com.iconsolutions.iso20022.message.definitions.payments_clearing_and_settlement.pacs003.FIToFICustomerDirectDebitV07
+com.iconsolutions.iso20022.message.definitions.payments_clearing_and_settlement.pacs003.FIToFICustomerDirectDebitV08
+com.iconsolutions.iso20022.message.components.garnishment.garnishment1.Garnishment1
+com.iconsolutions.iso20022.message.components.garnishment.garnishment3.Garnishment3
+com.iconsolutions.iso20022.message.components.payment.group_header50.GroupHeader50
+com.iconsolutions.iso20022.message.components.payment.group_header94GroupHeader94
+com.iconsolutions.iso20022.message.components.direct_debit_mandate.mandate_related_information11.MandateRelatedInformation11
+com.iconsolutions.iso20022.message.components.direct_debit_mandate.mandate_related_information14.MandateRelatedInformation14
+com.iconsolutions.iso20022.message.components.party_identification_information.name_and_address10.NameAndAddress10
+com.iconsolutions.iso20022.message.components.party_identification_information.name_and_address16.NameAndAddress16
+com.iconsolutions.iso20022.datatypes.NamePrefix1Code
+com.iconsolutions.iso20022.datatypes.NamePrefix2Code
+com.iconsolutions.iso20022.message.components.organisation_identification.organisation_identification8.OrganisationIdentification8
+com.iconsolutions.iso20022.message.components.organisation_identification.organisation_identification29. OrganisationIdentification29
+com.iconsolutions.iso20022.message.components.party_identification_information.party11_choice.Party11Choice
+com.iconsolutions.iso20022.message.components.party_identification_information.party38_choice.Party38Choice
+com.iconsolutions.iso20022.message.components.party_identification_information.party_identification43.PartyIdentification43
+com.iconsolutions.iso20022.message.components.party_identification_information.party_identification135.PartyIdentification135
+com.iconsolutions.iso20022.message.components.payment_identification.payment_identification3.PaymentIdentification3
+com.iconsolutions.iso20022.message.components.payment_identification.payment_identification7.PaymentIdentification7
+com.iconsolutions.iso20022.message.components.payment_processing.payment_type_information25.PaymentTypeInformation25
+com.iconsolutions.iso20022.message.components.payment_processing.payment_type_information27.PaymentTypeInformation27
+com.iconsolutions.iso20022.message.components.person_identification.person_identification5.PersonIdentification5
+com.iconsolutions.iso20022.message.components.person_identification.person_identification13.PersonIdentification13
+com.iconsolutions.iso20022.message.components.postal_address.postal_address6.PostalAddress6
+com.iconsolutions.iso20022.message.components.postal_address.postal_address24PostalAddress24
+com.iconsolutions.iso20022.message.components.document.remittance_information11.RemittanceInformation11
+com.iconsolutions.iso20022.message.components.document.remittance_information16.RemittanceInformation16
+com.iconsolutions.iso20022.message.components.contact_point.remittance_location4.RemittanceLocation4
+com.iconsolutions.iso20022.message.components.contact_point.remittance_location7.RemittanceLocation7
+com.iconsolutions.iso20022.message.components.contact_point.remittance_location_details1.RemittanceLocationDetails1
+com.iconsolutions.iso20022.message.components.contact_point.remittance_location_data1.RemittanceLocationData1
+com.iconsolutions.iso20022.message.components.cash_settlement.settlement_instruction2.SettlementInstruction2
+com.iconsolutions.iso20022.message.components.cash_settlement.settlement_instruction8.SettlementInstruction8
+com.iconsolutions.iso20022.message.components.document.structured_remittance_information13.StructuredRemittanceInformation13
+com.iconsolutions.iso20022.message.components.document.structured_remittance_information16.StructuredRemittanceInformation16
+com.iconsolutions.iso20022.message.components.tax.tax_amount1.TaxAmount1
+com.iconsolutions.iso20022.message.components.tax.tax_amount2.TaxAmount2
+com.iconsolutions.iso20022.message.components.tax.tax_information4.TaxInformation4
+com.iconsolutions.iso20022.message.components.tax.tax_information7.TaxInformation7
+com.iconsolutions.iso20022.message.components.tax_period.tax_period1.TaxPeriod1
+com.iconsolutions.iso20022.message.components.tax_period.tax_period2.TaxPeriod2
+com.iconsolutions.iso20022.message.components.tax_record.tax_record1.TaxRecord1
+com.iconsolutions.iso20022.message.components.tax_record.tax_record2.TaxRecord2
+com.iconsolutions.iso20022.message.components.tax.tax_record_details1.TaxRecordDetails1
+com.iconsolutions.iso20022.message.components.tax.tax_record_details2.TaxRecordDetails2
+When comparing the pacs.003.001.07 and pacs.008.001.08 XSDs, you will notice that a small number of fields have been added or removed. As a result, you may need to make changes to your code beyond the type changes above. For example, if you previously populated a field that is now removed.
+Migrating to
+EVENT_STREAM_PER_FLOW
+streams
+To support deploying new flow versions via rolling upgrades of your orchestration services, all the journal processors defined by the service have to be switched over to use
+EVENT_STREAM_PER_FLOW
+as their
+event-streaming-type
+.
+Before you can perform the configuration switch, however, you will need to scale down your service deployment to zero and run a migration similar to the one specified below.
+// all the unique flows in your service, as indicated by the
+// `ipf.behaviour.event-processor.flows` configuration property
+let flows = [
+    "moduleA.FlowAV1",
+    "moduleA.FlowAV2",
+    "moduleB.FlowBV5",
+    "moduleC.FlowBV10"
+]
+
+db.getCollection("mongoOffset")
+    .find({"_id.tag": /tag-.+/})
+    .forEach(doc => {
+        flows.forEach(flow => {
+            let flowTag = JSON.parse(JSON.stringify(doc));
+            flowTag.offset.objectId = doc.offset.objectId;
+            flowTag._id.tag = doc._id.tag.replace("tag", flow);
+
+            try {
+                db.getCollection("mongoOffset").insertOne(flowTag);
+            } catch (e) {
+                console.log(e)
+            }
+        });
+    });
+It is imperative that you list all the flows present in the current version of your orchestration service.
+Any flow that is missed will have all of its events reprocessed by the journal processor, which may cause duplicate notifications to be sent to the customers, incorrect metrics to appear on the dashboards or just cause a massive slowdown in processing of new domain events since the processor will be starting from the beginning of the journal.
+To get the correct list of active flows, you can run the following curl command against an instance of your orchestration service:
+curl your_service_host:port/actuator/info | jq | grep "ipf.behaviour.event-processor.flows"
+Alternatively, you can run the following test snippet from within the module that holds your services
+SpringBootApplication
+ the output will be the migration script that you need to execute against your database.
+import com.typesafe.config.ConfigFactory;
+import org.junit.jupiter.api.Test;
+import java.util.stream.Collectors;
+
+public class MigrationGenerator {
+
+    @Test
+    void generateMigration() {
+        var flowsAsJsArray = ConfigFactory.parseResources("ipf-impl.conf")
+                .withFallback(ConfigFactory.parseResources("ipf.conf"))
+                .withFallback(ConfigFactory.defaultReference())
+                .resolve()
+                .getStringList("ipf.behaviour.event-processor.flows")
+                .stream().distinct()
+                .map("\"%s\""::formatted)
+                .collect(Collectors.joining(",\n ", "let flows = [\n ", "\n]\n"));
+
+        var migrationScriptWithoutFlows = """
+                db.getCollection("mongoOffset")
+                    .find({"_id.tag": /tag-.+/})
+                    .forEach(doc => {
+                        flows.forEach(flow => {
+                            let flowTag = JSON.parse(JSON.stringify(doc));
+                            flowTag.offset.objectId = doc.offset.objectId;
+                            flowTag._id.tag = doc._id.tag.replace("tag", flow);
+                            try {
+                                db.getCollection("mongoOffset").insertOne(flowTag);
+                            } catch (e) {
+                                console.log(e)
+                            }
+                        });
+                    });
+                """;
+
+        System.out.println(flowsAsJsArray);
+        System.out.println(migrationScriptWithoutFlows);
+    }
+}
+Migrating to ODS Inquiry API V2
+Versions details and the complete V2 ODS Inquiry API migration guide can be found on the
+ODS API versioning overview
+page
+It is important to note that a config change
+MUST
+be applied if you are already using the V1 client connectors and do not want to immediately migrate to the V2 client connectors. Your configuration must be updated to override the client connector version configuration as follows:
+ods.inquiry.client.version=1
+This will ensure your current V1 client connectors remain enabled and a code change will not be required. See
+V1 Inquiry API client documentation
+for more information on the V1 client APIs that can be enabled.
+Migrating to the latest test framework
+There have been minor changes to the package structures in the test framework. 'ipf-test-fw-core' has now moved to 'ipf-test-fw-whitebox'.
+The test-fw-extensions-xxx have now been removed from the core package to ensure that unrequired extensions are not always loaded. As a consequence, test implementations that relied on these dependencies will now have to explicitly declare them. These are listed below and are usually required when using one of the provided message transporters:
+test-fw-extensions-http
+test-fw-extensions-kafka
+test-fw-extensions-jms
+Jackson serialisation behaviour change
+Please note that as a result of updating Jackson to 2.17.x (by updating Spring Boot 3.3.x), Jackson is now no longer
+serialising objects whose members are all null. For example, in IPF 2024.1 and older an object that looks like this:
+{
+    "myObject": {
+        "someKey": "someValue",
+        "someBlankParent": {}
+    }
+}
+Will now be serialised (and deserialised) like this:
+{
+    "myObject": {
+        "someKey": "someValue"
+    }
+}
+(i.e.
+someBlankParent
+is now totally absent instead of being an empty shell)
+This could present itself as a
+NullPointerException
+where null checks were assuming that there was an empty shell as a
+parent object, when one no longer exists. The solution is to add a null check to the parent object as well.
+Please note that no data is being lost since the objects not being serialised were empty to begin with. Any parent
+object containing at least one value will be serialised along with its data-bearing members.
+SEPA CT CSM - Changes & Fixes
+IPF-2024.2.1- Release Notes

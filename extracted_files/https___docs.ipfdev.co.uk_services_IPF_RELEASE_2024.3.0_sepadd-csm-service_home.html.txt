@@ -1,0 +1,24 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/home.html ===
+SEPA DD STEP 2 CSM Service
+Concepts
+SEPA DD STEP2 Flows
+sepadd Model
+Multi Level Bulking
+Features
+Request Processing
+Validations
+Business Day Calculation
+Correlation Store
+Bulk File Creation
+File Debulking
+Scheduling
+Extension Points
+Message Generator
+Core Configuration
+Notifications
+Getting Started
+List of System Events
+Licensing
+The SEPA DD CSM Service is an Additional Optional Module (AOM) for which you require an additional license, please check your license agreement if in any doubt.
+List of System Events
+Concepts

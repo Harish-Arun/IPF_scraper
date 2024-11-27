@@ -1,0 +1,113 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/tutorials/create_project.html ===
+BUILD1 - Creating a New Project
+Throughout the tutorials so far, we have taken the example IPF tutorial project and worked through our example based of that. The key point here however is that we started from a pre-existing IPF project that was all setup and ready to use. Now we consider the question - "How do we create a brand new IPF project?".
+For this we introduce the IPF Scaffolder.
+Introducing the Scaffolder
+The scaffolder is a java component that can be called via maven to bootstrap a brand-new project. It will create a new project structure that should be very familiar from the tutorial namely:
+A
+<project>-domain
+module that contains all the MPS setup. A brand-new flow is generated as part of this for you, the same one we saw in the initial solution of the tutorial!
+A
+<project>-e2e
+module that contains a basic testing setup for the project.
+An
+<project>-app
+module that contains a spring boot based starter project that is hooked into the application.
+This should be very familiar from the tutorials.
+Running the Scaffolder
+Lets run the scaffolder, to do so we run this command:
+mvn com.iconsolutions.ipf.build:ipf-project-scaffolder-maven:1.0.3:scaffold \
+-DipfVersion=2024.2.0 \
+-DincludeBusinessFunctions=n \
+-DincludeSampleSystems=n \
+-DincludeApplication=y \
+-DincludeE2E=n \
+-DuseBuildScripts=y \
+-DsolutionName=examplesolution \
+-DmodelName=examplemodel \
+-DgroupId=com.iconsolutions \
+-Dversion=0.0.1-SNAPSHOT \
+-DartifactId=example-project \
+-DoutputDir=/build/example-project
+There are a number of configurable properties here for us to review:
+Property Name
+Description
+Allowed Values
+Example
+ipfVersion
+The IPF version you wish to use
+2024.2.0
+includeBusinessFunctions
+This will by default add the dependencies to include the IPF business functions in your project
+y / n
+n
+includeSampleSystems
+This will by default add the dependencies to include the IPF sample system functions in your project
+y / n
+n
+includeApplication
+This will add a runnable spring boot application to your project
+y / n
+n
+includeE2E
+This will by default add the dependencies to include a docker environment setup to your application
+y / n
+n
+useBuildScripts
+If the application is intended to be used a a reusable component in a different solution, this should be set.
+y / n
+n
+solutionName
+The name of the MPS solution for your project.
+examplesolution
+modelName
+The name of the MPS model for your project.
+examplemodel
+groupId
+A standard maven groupId setting
+com.iconsolutions
+artifactId
+A standard maven artifactId setting
+example-project
+version
+A standard maven version setting
+0.0.1-SNAPSHOT
+outputDir
+The location the new project should be generated in (should be any empty directory)
+Any valid file path
+/build/example-project
+You must supply the target version of both the scaffolder (
+sacffolderVersion
+) and use the compatible IPF version (
+ipfVersion
+).
+The
+versions must be compatible
+, please check and replace the numbers based on
+IPFs release documentation
+and/or the details for your target environment!
+Once run, the scaffolder will go off and start generating the project for you, when its complete you be able to go the output path you specified and see the generated code:
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.243 s
+[INFO] Finished at: 2024-08-14T14:10:04+01:00
+[INFO] ------------------------------------------------------------------------
+a  /build cd example-project
+a  example-project ls -ltr
+total 20
+drwxrwxr-x 8 icon0377 icon0377 4096 Aug 14 14:10 example-project-domain
+drwxrwxr-x 3 icon0377 icon0377 4096 Aug 14 14:10 example-project-service
+drwxrwxr-x 3 icon0377 icon0377 4096 Aug 14 14:10 example-project-app
+-rw-rw-r-- 1 icon0377 icon0377 2404 Aug 14 14:10 Readme.md
+-rw-rw-r-- 1 icon0377 icon0377 2234 Aug 14 14:10 pom.xml
+Having generated our project, lets build it. Move to the base directory of the project and run:
+mvn clean install
+As with the main tutorial projects, this will generate all of our MPS code together with the docker images for the application itself. It will then run tests against the configured container environment to make sure everything is up and running ok. After a few minutes, we should get a successful build result.
+Thats it, weve successfully generated an IPF project and are ready to get going. The normal next step would be to open up the flow in MPS and start building it out. To do this we simply open the
+<project>-domain/mps
+folder in our MPS install.
+Conclusions
+In this section weve learnt how to create a brand-new project using the ipf scaffolder.
+RUN1 - Running your application on Kubernetes
+Sanctions Simulator

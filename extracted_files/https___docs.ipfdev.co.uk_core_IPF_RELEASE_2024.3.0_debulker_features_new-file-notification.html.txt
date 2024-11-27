@@ -1,0 +1,33 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/features/new-file-notification.html ===
+New File Notification
+The Debulker needs to be told when there is a file available for Debulking. A receive connector is available that consumes file notifications containing the location of the file and details about the file.
+Config
+Type
+Comment
+Default
+ipf.debulker.file-notification.transport
+String
+Property which defines which transport will be used.
+kafka
+ipf.debulker.file-notification.kafka.consumer.topics.file-request
+String
+The topic from which messages will be consumed.
+FILE_NOTIFICATION_REQUEST
+When the notification is received, the system will start to read the file
+Local Filesystem
+An implementation of
+FileReader
+for reading files from the local filesystem.
+Maven Dependency
+To use the
+LocalFileReader
+, the following dependency must be provided, with a version matching
+ipf-file-manager
+to ensure compatibility.
+<dependency>
+    <groupId>com.iconsolutions.ipf.filemanager</groupId>
+    <artifactId>ipf-file-manager-local</artifactId>
+    <version>${ipf-file-manager.version}</version>
+</dependency>
+Debulking Configuration
+Polling For New Files

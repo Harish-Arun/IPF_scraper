@@ -1,0 +1,27 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/home.html ===
+RT1 CSM Service
+RT1
+is a real-time gross settlement payment system for the execution of SEPA Instant Credit Transfers at a pan-European level
+The RT1 CSM Service was built utilising the
+CSM Service Base
+Concepts
+RT1 Scenarios
+RT1 Supported Flows
+Messages Handled by RT1-CSM-Service
+Features
+RT1 CSM Service Application Structure
+Validations
+RT1 CSM Service Configuration
+CSM Events
+Supported Transports
+RT1 CSM Service Customisation
+The CSM Service provides all the standard connectors and integrations, please refer to the
+CSM Service Documentation
+for more details.
+Licensing
+The RT1 CSM Service is an Additional Optional Module (AOM) for which you require an additional license, please check your license agreement if in any doubt.
+Supported Scenarios
+For all the scnarios supported by the RT1 CSM Service, please refer to the
+application BDDs
+Supported Transports
+Concepts

@@ -1,0 +1,86 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/guides/payment-scheduler.html ===
+Payment Scheduler
+The main goal is to manage automatic FDP (Future-Dated Payment) scheduling commands on demand (create, update, delete). Those commands are related to the scheduler itself, NOT payments, and they are based on MPS external Domain Functions. Furthermore, this concept is using the
+Persistent Scheduler
+in order to store it inside the database.
+The overall schema for doing those is represented here:
+Schedule Function
+This function serves the scheduler creation and in MPS, the request looks as follows:
+Name
+Description
+Business Data
+Responses
+Schedule Request
+Schedule FDP with the appropriate lead time to correctly trigger the credit transfer on the execution date.
+Scheduled time
+Name: Schedule Response
+Description: Response to request
+Business Data: none
+Response Codes: AcceptOrReject
+Reason Codes: <no reasonCodeSet>
+Completing: true
+Inside the MPS flow, this is a part where it happens:
+Now, lets look into the code. The first part is a generated MPS action port, which needs to be implemented:
+public interface PaymentSchedulerActionPort {
+
+  CompletionStage<Void> execute(ScheduleRequestAction scheduleRequest);
+
+}
+The implementation is a key part here:
+@Slf4j
+@AllArgsConstructor
+public class SamplePaymentSchedulerAdapter implements PaymentSchedulerActionPort {
+
+    SchedulingModuleInterface schedulingModuleInterface;
+
+    @Override
+    public CompletionStage<Void> execute(ScheduleRequestAction scheduleRequest) {
+        var cron = CronExpressionHelper.calendarToCron(scheduleRequest.getScheduledTime());
+        var jobSpecification = JobSpecificationDto.builder()
+                .jobSpecificationKey(new JobSpecificationKeyDto("DEBTOR_CT_JOB_ID"))
+                .schedulingSpecification(cron)
+                .jobRequestor(scheduleRequest.getId())
+                .triggerCommand(new PaymentSchedulerCommand(scheduleRequest.getId()))
+                .triggerIdentifier("triggerIdentifier")
+                .build();
+        return schedulingModuleInterface.scheduleJob(jobSpecification);
+    }
+}
+You can notice we have instantiated our command within triggerCommand parameter. That command is presented below:
+@Data
+@AllArgsConstructor
+public class PaymentSchedulerCommand implements SchedulingCommand {
+    private String id;
+}
+Looks pretty basic, as we can see, its just an ID parameter within it. It implements SchedulingCommand interface from shared-scheduling library. Speaking of that library, there is another interface that must be used in order to work:
+public interface SchedulingHelper {
+
+    CompletionStage<Void> execute(String id, final SchedulingCommand request);
+
+    boolean supports(SchedulingCommand request);
+}
+Our implementation is here:
+@Slf4j
+@RequiredArgsConstructor
+public class PaymentSchedulerHelper implements SchedulingHelper {
+
+    @Override
+    public CompletionStage<Void> execute(String s, SchedulingCommand schedulingCommand) {
+        PaymentSchedulerCommand paymentSchedulerCommand = (PaymentSchedulerCommand) schedulingCommand;
+        return CredittransferDomain.paymentScheduler()
+                .handle(new ScheduleResponseInput.Builder(paymentSchedulerCommand.getId(), AcceptOrRejectCodes.Accepted).build())
+                .thenAccept(it -> log.debug("Scheduled"));
+    }
+
+    @Override
+    public boolean supports(SchedulingCommand schedulingCommand) {
+        return schedulingCommand instanceof PaymentSchedulerCommand;
+    }
+}
+Last, but not least, we need to have a bean defined, that will return an instance of our implemented SchedulingHelper:
+@Bean
+public PaymentSchedulerHelper paymentSchedulerHelper() {
+    return new PaymentSchedulerHelper();
+}
+How to handle retries across non-completing requests
+Dynamic Log Level Configuration

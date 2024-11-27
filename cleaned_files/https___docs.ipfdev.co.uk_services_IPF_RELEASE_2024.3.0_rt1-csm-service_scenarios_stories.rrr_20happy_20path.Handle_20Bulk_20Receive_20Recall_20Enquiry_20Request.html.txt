@@ -1,0 +1,9 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20happy%20path.Handle%20Bulk%20Receive%20Recall%20Enquiry%20Request.html ===
+Handle Bulk Receive Recall Enquiry Request.story
+Scenario: Handling of receiving bulk recall enquiry request
+When
+the i12CSMi12  sends a bulk recall Payment Status Request
+Then
+the i12Recall Servicei12  receives a Receive Recall Enquiry Request
+Then
+the i12Recall Servicei12  receives a Receive Recall Enquiry Request

@@ -1,0 +1,173 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/akka-lease-mongodb/getting-started/set-up-lease.html ===
+Set up Akka Lease MongoDB
+This guide will help you use MongoDB as a discovery mechanism for bootstrapping an Akka cluster
+Step 0: Add dependency
+You will need to add this to pom.xml:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.discovery</groupId>
+    <artifactId>akka-lease-mongodb-plugin</artifactId>
+    <version>${akka-lease-mongodb-plugin.version}</version>
+</dependency>
+To find the latest version, you can use
+this Nexus query
+.
+Step 1: Use the Lease
+Creating a Lease programmatically
+See the
+official Akka docs
+for more details.
+LeaseProvider provider = LeaseProvider.get(system);
+Lease lease =  provider.getLease("<name of the lease>",
+            "akka.coordination.lease.mongodb",
+            "<owner name>");
+
+CompletionStage<Boolean> acquired = lease.acquire();
+boolean stillAcquired = lease.checkLease();
+CompletionStage<Boolean> released = lease.release();
+Using the lease with Akka Split Brain Resolver
+To use the MongoDB lease with the Split Brain Resolver, simply add the snippet below your configuration file (
+application.conf
+).
+For more information, see the
+official Akka docs
+.
+akka {
+  cluster {
+    downing-provider-class = "akka.cluster.sbr.SplitBrainResolverProvider"
+    split-brain-resolver {
+      active-strategy = "lease-majority"
+      lease-majority {
+        lease-implementation = "akka.coordination.lease.mongodb"
+      }
+    }
+  }
+}
+Using the Lease with Akka Cluster Singleton
+To use the MongoDB lease with the Akka Cluster Singleton, simply add the snippet below your configuration file (
+application.conf
+).
+For more information, see the
+official Akka docs
+.
+akka.cluster.singleton.use-lease = "akka.coordination.lease.mongodb"
+Using the Lease with Akka Cluster Sharding
+To use the MongoDB lease with the Akka Cluster Sharding, simply add the snippet below your configuration file (
+application.conf
+).
+For more information, see the
+official Akka docs
+.
+akka.cluster.sharding.use-lease = "akka.coordination.lease.mongodb"
+Appendix A: Default Configuration
+The table below describes the default configuration that ships with the library:
+Config key
+Description
+Default value
+akka.coordination.lease.mongodb.url
+The MongoDB URI to use to connect to the database.
+Set the value of this field if not using the plugin from within IPF or if not intending to use the same database as IPF.
+Honours the global
+ipf.mongodb.url
+property.
+ipf.mongodb.url
+if used within IPF, mongodb://localhost:27017/ipf` otherwise
+akka.coordination.lease.mongodb.collection
+The name of the collection that will hold lease data.
+akka-lease-mongodb
+akka.coordination.lease.mongodb.create-indexes
+Should
+akka-lease-mongodb
+create indexes for itself?
+Disable this if the database user is not granted the
+createIndex
+action.
+Honours the global IPF
+ipf.mongodb.create-indexes
+override.
+ipf.mongodb.create-indexes
+if set,
+true
+otherwise
+akka.coordination.lease.mongodb.commit-quorum
+The
+commit quorum
+to use when creating the index for Akka Lease MongoDB.
+Honours the global IPF
+ipf.mongodb.commit-quorum
+override.
+ipf.mongodb.commit-quorum
+if set,
+votingMembers
+otherwise
+akka.coordination.lease.mongodb.heartbeat-timeout
+The grace duration to allow acquired leases before another owner can acquire them.
+30s
+akka.coordination.lease.mongodb.heartbeat-interval
+The interval that a lease owner will use to refresh ownership of the lease.
+3s
+akka.coordination.lease.mongodb.operation-timeout
+The duration after which a lease operation (acquire, release) is considered a timeout.
+5s
+akka.coordination.lease.mongodb.set-ssl-context
+Whether to enable SSL support.
+Setting this to
+true
+will require setting some of the
+ssl-context
+settings below.
+Honours the global
+ipf.mongodb.set-ssl-context
+override.
+ipf.mongodb.set-ssl-context
+if set
+akka.coordination.lease.mongodb.ssl-context.key-store-type
+Type of the key store.
+Honours the global
+ipf.mongodb.ssl-context.key-store-type
+override.
+ipf.mongodb.ssl-context.key-store-type
+if set
+akka.coordination.lease.mongodb.ssl-context.key-store-location
+Path to the key store that holds the SSL certificate (typically a jks file).
+Honours the global
+ipf.mongodb.ssl-context.key-store-location
+override.
+ipf.mongodb.ssl-context.key-store-location
+if set
+akka.coordination.lease.mongodb.ssl-context.key-store-password
+Password used to access the key store.
+Honours the global
+ipf.mongodb.ssl-context.key-store-password
+override.
+ipf.mongodb.ssl-context.key-store-password
+if set
+akka.coordination.lease.mongodb.ssl-context.key-password
+Password used to access the key in the key store.
+Honours the global
+ipf.mongodb.ssl-context.key-password
+override.
+ipf.mongodb.ssl-context.key-password
+if set
+akka.coordination.lease.mongodb.ssl-context.trust-store-type
+Type of the trust store.
+Honours the global
+ipf.mongodb.ssl-context.trust-store-type
+override.
+ipf.mongodb.ssl-context.trust-store-type
+if set
+akka.coordination.lease.mongodb.ssl-context.trust-store-location
+Path to the trust store that holds the SSL certificate.
+Honours the global
+ipf.mongodb.ssl-context.trust-store-location
+override.
+ipf.mongodb.ssl-context.trust-store-location
+if set
+akka.coordination.lease.mongodb.ssl-context.trust-store-password
+Password used to access the trust store.
+Honours the global
+ipf.mongodb.ssl-context.trust-store-password
+override.
+ipf.mongodb.ssl-context.trust-store-password
+if set
+Getting Started
+Akka Discovery MongoDB

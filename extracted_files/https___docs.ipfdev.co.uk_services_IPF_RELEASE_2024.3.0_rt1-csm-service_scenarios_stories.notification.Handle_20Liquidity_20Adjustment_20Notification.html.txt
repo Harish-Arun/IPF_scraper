@@ -1,0 +1,16 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.notification.Handle%20Liquidity%20Adjustment%20Notification.html ===
+Handle Liquidity Adjustment Notification.story
+Scenario: Handling of liquidity adjustment notification
+When
+the ï½CSMï½  sends a Liquidity Adjustment
+Then
+ï½the Payment Serviceï½  receives a Liquidity Adjustment Notification  using predicate:
+| requestId                  | liquidity-adjustment              |
+| version.major              | 1                                 |
+| version.minor              | 0                                 |
+| version.patch              | 0                                 |
+| payload.content.csm        | RT1                               |
+| payload.content.rawMessage | prettyPrint(#LiquidityAdjustment) |
+| payload.version.major      | 1                                 |
+| payload.version.minor      | 0                                 |
+| payload.version.patch      | 0                                 |

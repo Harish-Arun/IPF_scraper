@@ -1,0 +1,26 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-2-0/release-IPF-2024-2-0-bulker.html ===
+Bulker & Debulker - Changes & Fixes
+This page covers the Bulker & Debulker module changes and fixes provided in release IPF-2024.2.0.
+Bulker
+Changed
+Breaking change
+- File path and archiving path have now moved to specific configurations to support multiple processing entities and output directories
+The following configuration items have been moved from → to (Where [0] represents a location in the array of config items):
+ipf.bulker.producer.file-path → ipf.bulker.configurations[0].file-path
+ipf.bulker.archiver.file-path → ipf.bulker.configurations[0].archive-path
+Breaking change
+- If using the S3 BulkOutputStreamProvider the following configuration has moved from → to (Where [0] represents a location in the array of config items):
+s3.config.bucket → ipf.bulker.configurations[0].file-path
+The BulkOutputStreamProvider bean is no longer required to be created and will be auto configured by bulker
+Fixed
+NullPointerException on rehydration fixed
+File production error can cause loop on bulk close and finalising
+Auto close scheduler fails to schedule jobs if deployed in timezone ahead of UTC
+Debulker
+Changed
+Processing entity and archiving path have now moved to specific configurations to support multiple processing entities and input directories
+The following configuration items have been moved from → to (Where [0] represents a location in the array of config items):
+ipf.debulker.processing-entity → ipf.debulker.configurations[0].processing-entity
+ipf.debulker.archiver.file-path → ipf.debulker.configurations[0].archive-path
+Optional Modules - Changes & Fixes
+CSM Reachability - Changes & Fixes

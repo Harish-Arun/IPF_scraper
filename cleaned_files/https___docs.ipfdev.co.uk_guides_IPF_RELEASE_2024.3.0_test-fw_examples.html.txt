@@ -1,0 +1,37 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/test-fw/examples.html ===
+Examples
+An Example of a BDD Scenario
+Scenario: Successful Outbound Journey without Remittance Information
+Given IPF is available to process transactions
+When the channel sends a 'payment initiation' with values:
+|CstmrCdtTrfInitn.PmtInves[0].DbtrAgt.FinInstnId.BICFI           |<OurBIC>  |
+|CstmrCdtTrfInitn.PmtInves[0].CdtTrfTxInves[0].Amt.InstdAmt.Value|<AnAmount>|
+|CstmrCdtTrfInitn.PmtInves[0].CdtTrfTxInves[0].Cdtr.PstlAdr      |{NOT_SET} |
+|CstmrCdtTrfInitn.PmtInves[0].Dbtr.PstlAdr                       |{NOT_SET} |
+|CstmrCdtTrfInitn.PmtInves[0].CdtTrfTxInves[0].RmtInf            |{NOT_SET} |
+Then the SANCTIONS system handles a request
+And the FRAUD system handles a request
+And the ACCOUNTS system handles a request
+And the CSM receives a 'customer credit transfer' with values:
+|FIToFICstmrCdtTrf.GrpHdr.InstgAgt.FinInstnId.BIC|ICSLGBL1XXX|
+|FIToFICstmrCdtTrf.GrpHdr.InstdAgt.FinInstnId.BIC|STTSEUP1   |
+|FIToFICstmrCdtTrf.CdtTrfTxInf.Dbtr.PstlAdr      |{NOT_SET}  |
+|FIToFICstmrCdtTrf.CdtTrfTxInf.Cdtr.PstlAdr      |{NOT_SET}  |
+|FIToFICstmrCdtTrf.CdtTrfTxInf.RmtInf            |{NOT_SET}  |
+When the CSM sends an 'ack'
+And the CSM sends a 'payment status report'
+Then the CSM receives an 'ack'
+And the channel receives a 'customer payment status report'
+And the sent 'payment status report' is verified against the transaction log with values:
+|PaymentStatus.OrgnlGrpInfAndSts.0.GrpSts|ACSP|
+And the sent 'payment status report' is verified against the message log with values:
+|Scheme     |SCTI    |
+|MessageType|RESPONSE|
+|Direction  |RECEIVE |
+
+Examples:
+|OurBIC     |AnAmount             |
+|ICSLGBL1   |randomAmount()       |
+|ICSLGBL127H|randomDecimalAmount()|
+How do I use the feature-test executor?
+IPF Test Framework

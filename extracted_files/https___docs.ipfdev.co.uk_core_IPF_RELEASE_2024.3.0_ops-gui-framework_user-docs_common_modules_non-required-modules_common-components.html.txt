@@ -1,0 +1,35 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/common/modules/non-required-modules/common-components.html ===
+Common Components Module
+A module for components and directives that can be used across any IPF angular application.
+These components were originally in the parent components folder but since moving to a more modular structure have not had a module home.
+The long term development plan should be to find these components/directives modules that suit their functionality better.
+Components
+DateFilterComponent
+A component to allow the user to filter a column by date. agGrid is required to use this component.
+DateTimeAgoComponent
+A component that allows the user to switch between date formats.
+DynamicListComponent (Legacy)
+A component to allow the user to add and remove items from a list.
+TooltipComponent
+A tooltip component.
+BreadcrumbsComponent
+A component to display a list of navigation items
+Example usage:
+<ipf-breadcrumbs [navLinks]="navLinks"></ipf-breadcrumbs>
+Where navLinks is an array of BreadcrumbNavLink objects:
+Name
+Description
+link?: string[];
+A value used for the routerLink e.g. ['../../', 'testing', 'view']
+title: string;
+A value used for the text value displayed
+Directives
+ShowWarningDirective
+A directive to decide whether to show a warning icon or not.
+Example:
+<div ipfShowWarning="showWarning"
+>This text will appear with a warning symbol next to it if showWarning=true</div>
+Pipes
+DateTimezonePipe
+A pipe that will add the UTC offset to the date based on the users location obtained from the browser
+e.g. A user based in Berlin will have a date appear with (UTC+1) during CET

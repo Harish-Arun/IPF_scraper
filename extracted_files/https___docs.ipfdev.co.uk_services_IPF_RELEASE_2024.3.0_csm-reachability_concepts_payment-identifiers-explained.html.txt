@@ -1,0 +1,32 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/concepts/payment-identifiers-explained.html ===
+Party Identifiers Explained
+CSM Reachability Service uses below identifier definitions for the parties. These are presented as identifier types and subtypes on the dynamic configurations as well as APIs used on the service.
+The type and subtype definitions for identifiers are consistent across all the dynamic configurations and APIs, so they mean exactly the same thing no matter which dynamic configuration or the API is being referred to.
+IBAN
+IBAN stands for International Bank Account Number and is a unique identifier used when making international payments.
+IBAN number identifies a specific banking account the transfer should be made to, ensuring the payment reaches its destination safely.
+No subtype is defined for identifiers of type IBAN.
+BIC
+Bank Identification Code issued by SWIFT (Society for Worldwide Interbank Financial Telecommunication).
+Both 8 or 11 character BICs can be used on the Dynamic configurations, but it is recommended that the BICs used are as specific to the entity as defined on Industry data (e.g. SWIFTRef Bank Directory Plus, SWIFTRef IBANPlus, SIX Bank Master and do on).
+When setting the dynamic configurations on IPF for CSM Reachability,BIC values should not be generalized as 8 character BICs. CSM Reachability does not pattern match 8 character BICs from 11 character BICs to correlate the entries.
+BIC SubTypes
+SubTypes
+Explained
+ACCOUNT_ISSUING_BIC
+This is the BIC assigned to entity directly and not necessarily used for scheme membership checks. This BIC can be a branch BIC or head office BIC based on the type of entity in question.
+SCHEME_MEMBERSHIP_BIC
+This is the BIC assigned to the entity by the schemes for membership purposes. In case of CSMs that implement SEPA schemes, the BICs are maintained on IBANPlus file and returned as IBAN BIC in the IBAN Deconstruct response. In some cases, ACCOUNT_ISSUING_BIC can have the same value as that of SCHEME_MEMBERSHIP_BIC
+NCC
+NCCs are National Clearing Codes issued by a Clearing System.These are also called as National Ids on some Industry reference data files.
+Examples of NCCs are Sort Codes in UK, IIDs issued by Swiss clearing systems and CNAPS codes in China.
+The NCCs from CSM Reachability point of view refer to any national Id used within a country, either issued by domestic clearing system or those issued by clearing systems from other countries where they are used in more than one countries.
+The subtypes used on NCCs are following ISO20022 standard. Full list of NCC subtypes: ATBLZ, AUBSB, CACPA, CHBCC, CHSIC, CNAPS, CNCIP, DEBLZ, ESNCC, GBDSC, GRBIC, HKNCC, IENCC, INFSC, ITNCC, JPZGN, KRBOK, MZBMO, NZNCC, NZRSA, PLKNR, PTNCC, RUCBC, SESBA, SGIBG, THCBC, TWNCC, USABA, USPID, ZANCC
+As of now, CSM Reachability provides NCC subtypes aligned to ISO20022 and in future the subtype enumerations specific to an industry data source may be provided.
+When setting dynamic configurations using an identifier of type NCC, client implementations will be able to use the subtype definitions as defined by ISO20022, where they are applicable.
+LEI
+LEIs refer to "Legal Entity Identifiers" and mostly used by corporates for entity identification.
+LEIs are supported on CSM Reachability for recording of Processing Data but at present, no membership checks using LEIs are supported. This may be supported in future when CSM participation using LEIs is deemed necessary based on client requirements.
+No subtypes are applicable for LEIs.
+Dynamic Processing Settings (DPS)
+CSM Reachability Logical Data Model

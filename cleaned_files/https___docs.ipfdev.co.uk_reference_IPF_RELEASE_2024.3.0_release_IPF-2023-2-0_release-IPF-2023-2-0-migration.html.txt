@@ -1,0 +1,67 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2023-2-0/release-IPF-2023-2-0-migration.html ===
+Migration Steps for IPF-2023.2.0
+Version Updates
+New IPF Data Model Migration
+You will need to migrate to the new data model before updating to the new BOM. We will be deprecating and removing the old types in subsequent releases.
+Details can be found in the IPF Developer Docs -
+Migrating from legacy data model
+To migrate from 2023.1.0, please perform the following steps:
+Update your BOM version to the new release version
+2023.2.0
+:
+<parent>
+    <groupId>com.iconsolutions.ipf</groupId>
+    <artifactId>ipf-release-core-bom</artifactId>
+    <version>2023.2.0</version>
+</parent>
+Update all the flo versions within the domain folders to
+1.36.101
+. Namely, in "docs", "domain", "external-libraries", "mps", "sampleapp" and "test" modules, update to look like:
+<parent>
+    <groupId>com.iconsolutions.ipf.core.flow</groupId>
+    <artifactId>flo-starter-<modulename></artifactId>
+    <version>1.36.101</version>
+    <relativePath></relativePath>
+</parent>
+Run a Maven build to retrieve all the latest dependencies.
+Code Updates
+App Bootstrapping
+When starting your IPF application with no seed nodes or Cluster Bootstrap configured, you may get this exception:
+java.lang.IllegalArgumentException: No default service discovery implementation configured in `akka.discovery.method`. Make sure to configure this setting to your preferred implementation such as 'akka-dns' in your application.conf (from the akka-discovery module).
+To remedy this, either specify a
+service discovery method
+like Kubernetes, or - if this application does not require clustering - specify this block:
+akka {
+  cluster.seed-nodes = ["akka://"${actor-system-name}"@0.0.0.0:"${akka.remote.artery.canonical.port}]
+  remote.artery {
+    canonical.port = 55001
+    canonical.hostname = 0.0.0.0
+    bind.hostname = 0.0.0.0
+    bind.port = 55001
+  }
+}
+The block above will configure a seed node with a specific address, which will disable Cluster Bootstrap.
+Do not use the block above for distributed Akka clusters. This will create a
+split-brain
+. Use Service Discovery
+with Kubernetes instead.
+Serialisation
+Any use of the
+SerializationHelper.CustomModule
+has now been moved and renamed.
+This will automatically be updated when using the SerializationHelper class but will not be updated if using this in other places like the akka serialization configuration.
+If you have something like this in your configuration:
+akka.serialization.jackson {
+  jackson-modules += "com.iconsolutions.ipf.core.shared.api.serializer.SerializationHelper$CustomModule"
+}
+it now needs to be replaced with:
+akka.serialization.jackson {
+  jackson-modules += "com.iconsolutions.ipf.core.shared.api.serializer.module.UntypedObjectDeserializationModule"
+}
+If using the
+ipf-common-starter-core
+module, which comes as a transitive dependency with the
+ipf-write-starter-mongo
+module, this has now been added by default, so you do not need to manually configure it as above.
+IPF-2023.2.0 - Release Notes
+IPF-2023.2.0.1 - Fix Release Notes

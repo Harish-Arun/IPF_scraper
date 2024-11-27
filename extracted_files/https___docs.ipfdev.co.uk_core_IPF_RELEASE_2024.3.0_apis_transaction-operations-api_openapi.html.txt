@@ -1,0 +1,201 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/apis/transaction-operations-api/openapi.html ===
+Connector and Transaction Operations Open API 3.0.1 Raw Specification
+{
+  "openapi" : "3.0.1",
+  "info" : {
+    "title" : "Connector and Transaction Operations",
+    "description" : "Connector and Transaction Operations",
+    "version" : "1.0.0"
+  },
+  "servers" : [ {
+    "url" : "http://localhost:8080",
+    "description" : "Generated server url"
+  } ],
+  "paths" : {
+    "/transactions/{transactionId}/resume" : {
+      "post" : {
+        "tags" : [ "transaction-operations-controller" ],
+        "operationId" : "resumeTransaction",
+        "parameters" : [ {
+          "name" : "transactionId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/transactions/{transactionId}/abort" : {
+      "post" : {
+        "tags" : [ "transaction-operations-controller" ],
+        "operationId" : "stopTransaction",
+        "parameters" : [ {
+          "name" : "transactionId",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/StopInfo"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/connectors/{connectorName}/stop" : {
+      "post" : {
+        "tags" : [ "connector-operations-controller" ],
+        "operationId" : "stop",
+        "parameters" : [ {
+          "name" : "connectorName",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/connectors/{connectorName}/start" : {
+      "post" : {
+        "tags" : [ "connector-operations-controller" ],
+        "operationId" : "start",
+        "parameters" : [ {
+          "name" : "connectorName",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/connectors/stop-receiving" : {
+      "post" : {
+        "tags" : [ "connector-operations-controller" ],
+        "operationId" : "stopReceivingFromAll",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/connectors/start-receiving" : {
+      "post" : {
+        "tags" : [ "connector-operations-controller" ],
+        "operationId" : "startReceivingFromAll",
+        "responses" : {
+          "200" : {
+            "description" : "OK"
+          }
+        }
+      }
+    },
+    "/connectors/{connectorName}" : {
+      "get" : {
+        "tags" : [ "connector-operations-controller" ],
+        "operationId" : "getConnector",
+        "parameters" : [ {
+          "name" : "connectorName",
+          "in" : "path",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ConnectorInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/connectors" : {
+      "get" : {
+        "tags" : [ "connector-operations-controller" ],
+        "operationId" : "getConnectors",
+        "responses" : {
+          "200" : {
+            "description" : "OK",
+            "content" : { }
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "StopInfo" : {
+        "type" : "object",
+        "properties" : {
+          "reason" : {
+            "type" : "string"
+          }
+        }
+      },
+      "ConnectorInfo" : {
+        "type" : "object",
+        "properties" : {
+          "name" : {
+            "type" : "string"
+          },
+          "running" : {
+            "type" : "boolean"
+          }
+        }
+      }
+    },
+    "examples" : {
+      "ConnectorInfo" : {
+        "summary" : "Connector Info",
+        "value" : "{\n  \"name\" : \"string\",\n  \"running\" : true\n}"
+      }
+    }
+  }
+}

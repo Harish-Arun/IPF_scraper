@@ -1,0 +1,141 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/events.html ===
+List of System Events
+The below table documents the system events that can be raised by
+Debulker
+. Payload schemas are documented as
+JSON Schema draft 4
+.
+Use a tool such as
+this one
+for a visual representation of the payload
+schemas.
+All events contain some basic top-level information, and a payload. The top-level information is represented as
+members of the
+IPFSystemEvent
+type, and their payloads are documented below.
+The schema for the top-level
+IPFSystemEvent
+type is as follows:
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "IPF System Event",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "name" : {
+      "type" : "string"
+    },
+    "level" : {
+      "type" : "string",
+      "enum" : [ "DEBUG", "INFO", "WARN", "ERROR" ]
+    },
+    "createdAt" : { },
+    "version" : {
+      "$ref" : "#/definitions/EventVersion"
+    },
+    "type" : {
+      "type" : "string",
+      "enum" : [ "TECHNICAL", "FUNCTIONAL" ]
+    },
+    "processingContext" : {
+      "$ref" : "#/definitions/ProcessingContext"
+    },
+    "source" : {
+      "type" : "string"
+    },
+    "metadata" : {
+      "type" : "object",
+      "additionalProperties" : {
+        "type" : "string"
+      }
+    },
+    "payload" : {
+      "$ref" : "#/definitions/Object"
+    }
+  },
+  "definitions" : {
+    "EventVersion" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "major" : {
+          "type" : "integer"
+        },
+        "minor" : {
+          "type" : "integer"
+        },
+        "patch" : {
+          "type" : "integer"
+        }
+      },
+      "required" : [ "major", "minor", "patch" ]
+    },
+    "ProcessingContext" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "associationId" : {
+          "type" : "string"
+        },
+        "checkpoint" : {
+          "type" : "string"
+        },
+        "unitOfWorkId" : {
+          "type" : "string"
+        },
+        "clientRequestId" : {
+          "type" : "string"
+        },
+        "processingEntity" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Object" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : { }
+    }
+  }
+}
+Debulker System Events
+Name
+Description
+Type
+Level
+Payload schema
+DuplicateCheckFailed
+Published when a duplicate check fails
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "filePath" : {
+      "type" : "string"
+    }
+  }
+}
+SchemaValidationFailed
+Published when an error occurs during schema validation
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "filePath" : {
+      "type" : "string"
+    },
+    "description" : {
+      "type" : "string"
+    }
+  }
+}
+Process Debulked Components
+File Component Store

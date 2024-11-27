@@ -1,0 +1,35 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/working-days-service/validating-execution-date.html ===
+Validating Execution Date
+This function performs the following validation on the date input:
+Checks the date is in the future (is after the current date), if the date is in the past then the service returns
+valid=false
+If the date is in the future, the service will return
+valid=true
+, the date passed in as well as the calculated settlement date (which is calculated by adding the
+settlementLeadDays
+to the execution date, taking into account non-working days as defined in the
+calendarId
+input)
+If the date input
+is
+the current date and the current time is
+after
+the cutOffTime input, then the service will return
+valid=false
+If the date input
+is
+the current date and the current time is
+before
+the cutOffTime input, then the service will return
+valid=true
+, the date passed in as well as the calculated settlement date (which is calculated by adding the
+settlementLeadDays
+to the execution date, taking into account non-working days as defined in the
+calendarId
+input)
+Test Results
+For sample data please refer to the test results:
+Validation Success
+Validation Failures
+Get Next Settlement Date
+Validating Settlement Date

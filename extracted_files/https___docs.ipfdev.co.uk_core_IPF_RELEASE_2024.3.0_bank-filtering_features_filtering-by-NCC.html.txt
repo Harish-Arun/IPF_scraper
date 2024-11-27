@@ -1,0 +1,10 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/features/filtering-by-NCC.html ===
+Filtering by NCC
+Input NCC is matched against NCC filter or country code defined in a filtering rule, by checking:
+If the input NCC value matches exactly with a value from list of NCCs available on the rule and the NCC country on the request matches with the NCC Country on the rule
+If the NCC Country on the input request matches with the country code on the country wide rules.
+While matching rules,
+If the rule direction is DEBTOR or ANY, then input debtor NCC (and NCC Country) has to match against NCC value on the rule (and NCC Country) (Exact match only) or the debtor NCC Country code matches with country code on the country wide rule.
+If the rule direction is DEBTOR or ANY, then input debtor NCC (and NCC Country) has to match against NCC value on the rule (and NCC Country) (Exact match only) or the debtor NCC Country code matches with country code on the country wide rule.
+Filtering By BIC
+Filtering By Currency

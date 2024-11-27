@@ -1,0 +1,30 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.credit%20transfer%20unhappy%20path.Handle%20Receive%20Payment%20Timeout.html ===
+Handle Receive Payment Timeout.story
+Scenario: Handling of receive payment timeout
+Steps
+When the CSM sends a 'Customer Credit Transfer'
+Then the Payment Service receives a 'Receive Payment Request'
+When the CSM sends a '<FileName>' 'Payment Status Report'
+Then the Payment Service receives a 'Receive Payment Timeout'
+Examples:
+FileName
+Psr Conf Response Tm01
+Orphan Psr Conf Response Tm01
+Example: {FileName=Psr Conf Response Tm01}
+When
+the i12CSMi12  sends a Customer Credit Transfer
+Then
+the i12Payment Servicei12  receives a Receive Payment Request
+When
+the i12CSMi12  sends a i12Psr Conf Response Tm01i12  Payment Status Report
+Then
+the i12Payment Servicei12  receives a Receive Payment Timeout
+Example: {FileName=Orphan Psr Conf Response Tm01}
+When
+the i12CSMi12  sends a Customer Credit Transfer
+Then
+the i12Payment Servicei12  receives a Receive Payment Request
+When
+the i12CSMi12  sends a i12Orphan Psr Conf Response Tm01i12  Payment Status Report
+Then
+the i12Payment Servicei12  receives a Receive Payment Timeout

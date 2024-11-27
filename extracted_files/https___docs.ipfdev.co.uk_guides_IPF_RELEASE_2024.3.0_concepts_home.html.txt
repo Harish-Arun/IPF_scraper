@@ -1,0 +1,17 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/concepts/home.html ===
+Concepts
+Here we dig into some concepts of IPF, provide explainers and background to help you understand and work with the product.
+Explainers
+An Introduction to IPF
+Introduction to State Machines in IPF
+IPF Training
+How to Start Your First IPF Implementation Project
+User Story Guide for IPF Solution Projects
+Operations
+Rolling Upgrade Deployments with IPF SDK
+Scheme Packs
+Scheme Packs Introduction
+What is a Scheme Pack and what is Included in it?
+Scheme Pack Functions
+Guides
+An Introduction to IPF

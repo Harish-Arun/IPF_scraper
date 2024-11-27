@@ -1,0 +1,29 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/home.html ===
+SEPA CT CSM Service
+The SEPA CT CSM Service is a scheme pack that can be purchased by clients as an add on to the Core IPF toolkit. It will allow the client to construct batch files that are compliant with the EBA SEPA CT service. These batch files will allow credit payments to be passed to and from the Client Bank and the EBA Scheme. As well as batch files of payments, the SEPA CT CSM will handle Result of Settlement Files (RSF) as well as files of all the additional messaging that is available within the scheme (eg Returns, Recalls, Claims and Queries).
+Concepts
+SEPA CT STEP2 Flows
+sepa Model
+Multi Level Bulking
+Features
+Request Processing
+Validations
+Validation API
+Business Day Calculator
+Correlation Store
+Bulk File Creation
+File Debulking
+Scheduling
+End of Day Processing
+Extension Points
+Core Configuration
+Notifications
+Message Generator
+Inquiry Messages
+Error Handling
+Getting Started
+List of System Events
+Licensing
+The SEPA CT CSM Service is an Additional Optional Module (AOM) for which you require an additional license, please check your license agreement if in any doubt.
+Supported Transports
+Concepts

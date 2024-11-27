@@ -1,0 +1,129 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/concepts/passivation-remembering-entities.html ===
+Understanding Passivation, Remembering Entities, and Schedulers
+When IPF flows are inflight (i.e. have not yet reached a terminal state), IPF’s default behaviour is to keep them in memory
+while they are in progress until they are terminated. Flows are distributed more-or-less evenly across the cluster with
+Akka Cluster Sharding.
+This article explains the concepts of passivation, remembering entities, and how to restart failed flows.
+Remembering Entities
+If a node dies or is gracefully stopped (or if all nodes are stopped and the application is cold-started), then all
+in-flight flows (shards) are loaded back into memory on
+the next startup. This is called
+remembering entities
+.
+The way Akka determines whether a flow is or is not completed is by also storing this state in a store of some
+description. The options for this are
+eventsourced
+(the IPF default) or
+ddata
+. The
+eventsourced
+option is the IPF
+default because it is more performant and is resilient to total restarts of the cluster with no additional
+configuration.
+Any data stored in
+ddata
+is saved to disk by default, so cannot survive a total cluster restart in a containerised
+environment like Kubernetes. On such environments  you will have to configure a
+Persistent Volume
+to store this state, and change the IPF configuration to point the application at the persistent volume.
+More information on the different remember entities stores (and how to configure them)
+here
+.
+Passivation and Automatic Passivation
+By default, a flow is considered "stopped" when the flow determines that it has reached a terminal state and stops
+itself. This is called
+passivation
+.
+Other ways to stop a flow - even if it isn’t finished - are:
+Manually passivating using
+domain operations
+Auto-passivate after entities reach a certain age. This is called
+automatic passivation
+.
+If remembering entities is enabled, automatic passivation cannot also be enabled
+Action Revival
+When a flow is loaded back into memory with remembering entites after another node leaving (or crashing), the IPF flow
+is notified of this and reacts by sending itself an
+ActionRecoveryCommand
+. This special command attempts to "poke" the
+flow to perform the next action that it needs to perform based on the last known state. More information on the topic is
+available
+here
+.
+Default IPF behaviour
+The default IPF behaviour is:
+Remember entities with
+eventsourced
+as the store
+Automatic Passivation off (must be off if remember entities is on)
+Akka Scheduler
+This default behaviour is suitable for flows that match the following profile:
+Short-lived
+Any sort of volume (high or low)
+However this approach can become problematic when there are lots of long-running flows: if there is a step that waits for
+hours or days, then there might be a large number of flows that are parked and consuming memory when they will not be
+needed for a long time.
+If this is the case, then it might be worth changing how the cluster behaves by:
+Switching off remembering entities
+Enabling automatic passivation
+Using IPF’s persistent Quartz Scheduler to schedule retries
+If they were to be laid out in a table, the options would be:
+ID
+Remember entities
+Auto-passivation
+Scheduler implementation
+Good for
+How node failures handled?
+1
+Enabled
+Disabled
+Akka (not persistent)
+High- or low-volume flows that complete quickly (e.g. within a minute)
+Flows are always held in memory and ActionRevival process (see above) is triggered when entities are restarted on
+another node after a failure or shutdown
+2
+Disabled
+Enabled
+Quartz (persistent)
+Long-running flows
+Retrying of tasks is managed separately to the flow itself and is also resilient against failures
+Triggering for missed events in the past
+If using combination 2 (remember entities disabled/auto passivation enabled/Quartz) then the Quartz Scheduler
+implementation will manage the retries for any tasks relating to flows. This is resilient because it too uses a
+Cluster Singleton to manage this work and in the event of the failure of the node that is holding the Cluster Singleton,
+the singleton is migrated onto the next oldest node and the jobs are re-queued for retrying.
+This process should only take a few seconds and so for long-running processes this is generally not a big problem.
+However in the unlikely case that a job has needed to run while the Cluster Singleton was in the process of being
+migrated, it is currently skipped with a warning in the logs alerting the user to this issue (i.e. a trigger
+was missed while the Cluster Singleton was being moved). This functionality can be toggleable in the future if so
+desired.
+Database usage concerns
+On startup and with remember entities enabled, IPF will read in all in-flight entities by reading in all of their events
+to build the current state of that particular flow. This is a read-heavy operation, and for environments where database
+usage is metered in such a way (e.g. Azure Cosmos DB) then it might be a better idea to use Combination 2 to avoid this
+heavy startup cost.
+Configuration
+To configure the non-default Combination 2, set the following configuration keys in
+ipf-impl.conf
+or
+application.conf
+:
+# Disable remembering entities
+akka.cluster.sharding.remember-entities = off
+# Set the passivation strategy to be the default i.e. a maximum of active entities at any one time
+akka.cluster.sharding.passivation.strategy = default-strategy
+
+# Change the below if you want to use a separate MongoDB instance for persisting scheduled tasks
+ipf-scheduler {
+  mongodb = {
+    uri = ${ipf.mongodb.uri}
+    database-name = "scheduled"
+  }
+}
+Passivation When In Terminal State Delay
+When ESB’s reach a terminal state they are passivated (off loaded from memory). However, in some circumstances (such as a delayed command or a query using the the getAggregate on the REST controller) an ESB will be rehydrated. In these instances, we need to ensure that the ESB is passivated so that it does not reside in memory
+unnecessarily. This is done by scheduling a request to passivate the ESB, we want to delay the passivation so that if a few commands are received in a short time period, each one does not require passivation and subsequent rehydration this delay is configurable via:
+application.conf
+ipf.behaviour.config.final-state-passivate-delay=10s
+Flo Starter Projects
+Domain Operations

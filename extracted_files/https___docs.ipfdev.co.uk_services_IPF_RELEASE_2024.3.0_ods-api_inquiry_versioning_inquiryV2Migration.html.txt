@@ -1,0 +1,242 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods-api/inquiry/versioning/inquiryV2Migration.html ===
+Inquiry API V2 Migration Guide
+Specification Changes from V1
+The V2 Inquiry API was introduced to remove all
+/payment-objects
+related endpoints and unify the search parameters for the four
+/views/summaries/
+endpoints. The following changes have been made:
+All endpoints have been updated to have a path beginning with
+/api/v2
+. For example:
+/views/summaries/recalls
+→
+/api/v2/views/summaries/recalls
+/catalogue/process-objects/message-logs
+→
+/api/v2/catalogue/process-objects/message-logs
+etc.
+Payment Object endpoints removed:
+/all/payment-objects
+/all/payment-objects/{odsObjectId}
+/all/payment-objects/{paymentObjectId}/history
+Every
+/catalogue/payment-objects/
+endpoint has been removed (e.g.
+/catalogue/payment-objects/PAIN_001_CREDIT_TRANSFER_TRANSACTION
+)
+The search parameters for the four
+/views/summaries/
+search endpoints have been unified. Previously, these four API endpoints had a mix of similar and unique search fields, now each endpoint can be queried using any of the combined search parameters. This change has been introduced as
+custom summary mappings
+allow clients to populate any field on a Summary, regardless of journey type. This effects the following endpoints:
+/api/v2/views/summaries/payments
+/api/v2/views/summaries/recalls
+/api/v2/views/summaries/batches
+/api/v2/views/summaries/bulks
+The response class for all
+/views/summaries/
+endpoints has changed to
+SummaryView
+, removing the use of the distinct classes
+PaymentSummaryView
+,
+RecallSummaryView
+,
+BulkSummaryView
+and
+BatchSummaryView
+. The four deprecated classes all extended SummaryView with no functional changes, the structure and response of the API remain consistent with the V1 implementation. This effects the following endpoints:
+/api/v2/views/summaries/payments
+/api/v2/views/summaries/payments/{unitOfWorkId}
+/api/v2/views/summaries/recalls
+/api/v2/views/summaries/recalls/{unitOfWorkId}
+/api/v2/views/summaries/batches
+/api/v2/views/summaries/batches/{unitOfWorkId}
+/api/v2/views/summaries/bulks
+/api/v2/views/summaries/bulks/{unitOfWorkId}
+Migrating Client Connectors
+The
+ods-inquiry-client
+module has been updated to support both V1 and V2 Inquiry APIs. The default configuration (
+ods.inquiry.client.version=2
+) enables the instantiation of the V2 Inquiry Client APIs and does not need to be explicitly overridden.
+If you are already using the V1 client APIs and do not want to migrate to the V2 client APIs, your configuration must be updated to override the client version configuration as follows:
+ods.inquiry.client.version=1
+This will ensure the V1 client APIs can be enabled and a code change will not be required. See
+V1 Inquiry API client documentation
+for more information on the V1 client APIs that can be enabled.
+The available V2 Client APIs are listed below. Client API configuration lives under
+ods.inquiry.client
+, and all properties listed below must be prefixed with this.
+Configure V2 Client APIs
+Property
+Default
+Notes
+summaries.enabled
+false
+Enable the
+Summaries
+bean when set to
+true
+details.enabled
+false
+Enable the
+Details
+bean when set to
+true
+process-flow-graphs.enabled
+false
+Enable the
+ProcessFlowGraphs
+bean when set to
+true
+process-objects.enabled
+false
+Enable the
+ProcessObjects
+bean when set to
+true
+custom-objects.enabled
+false
+Enable the
+CustomObjects
+bean when set to
+true
+mds-objects.enabled
+false
+Enable the
+MdsObjects
+bean when set to
+true
+pds-objects.enabled
+false
+Enable the
+PdsObjects
+bean when set to
+true
+Client Connector Changes from V1
+The difference from the set of V1 beans is that the
+PaymentSummaries
+,
+BulkSummaries
+,
+BatchSummaries
+, and
+RecallSummaries
+beans have been replaced with the
+Summaries
+bean, and the
+PaymentObjects
+bean has been removed. When migrating to the V2 Client APIs, the following code changes need to be made:
+Replace usage of the summary interfaces with
+Summaries
+. The difference between them is that the
+Summaries
+search request object requires a instance of the
+SummarySearchFields
+class, whereas the others, e.g.
+PaymentSummaries
+requires an instance of the
+PaymentSummarySearchFields
+class. The new
+SummarySearchFields
+class contains all the fields available within each of the V1 search fields classes.
+All usages of the classes
+PaymentSummaryView
+,
+RecallSummaryView
+,
+BatchSummaryView
+, and
+BulkSummaryView
+should be replaced with the
+SummaryView
+class. The four deprecated classes all extended SummaryView with no functional changes, so the migration is a class name change only.
+Any use of
+PaymentObjects
+should be replaced with
+MdsObjects
+. The
+MdsObjects
+interface provides the same functionality as
+PaymentObjects
+, but with field and method name changes from
+paymentObject
+to
+mdsObject
+.
+Migrating Test Client
+The
+ods-inquiry-test-client
+module has been updated to support both V1 and V2 Inquiry APIs. Similar to the Client APIs, a new set of V2 Test Client APIs are available via the
+InquiryClientV2
+interface.
+Usage
+Both the V1 and V2 Test Clients can be used at the same time. If you are migrating from V1 to V2, you will need to update your test suite to use the
+InquiryClientV2
+interface.
+The InquiryClient method
+createInquiryClientV2
+will return a default instance of the
+InquiryClientV2
+interface.
+@Configuration
+class TestClientConfig {
+    @Bean
+    InquiryClient inquiryClient(@Value("${inquiry.base.url}") final String baseUrl,
+                                @Value("${inquiry.openapi-validation.enabled}") final boolean openApiValidation,
+                                final CurrentAuthToken currentAuthToken) {
+        return InquiryClient.createInquiryClient(InquiryClientOptions.builder()
+                .baseUrl(baseUrl)
+                .currentAuthToken(currentAuthToken)
+                .requestTimeout(Duration.ofSeconds(60))
+                .openApiValidation(openApiValidation)
+                .build());
+    }
+
+    @Bean
+    InquiryClientV2 inquiryClientV2(@Value("${inquiry.base.url}") final String baseUrl,
+                                    @Value("${inquiry.openapi-validation.enabled}") final boolean openApiValidation,
+                                    final CurrentAuthToken currentAuthToken) {
+        return InquiryClient.createInquiryClientV2(InquiryClientOptions.builder()
+                .baseUrl(baseUrl)
+                .currentAuthToken(currentAuthToken)
+                .requestTimeout(Duration.ofSeconds(60))
+                .openApiValidation(openApiValidation)
+                .build());
+    }
+}
+Test Client Changes from V1
+The difference between the V1 and V2 Test Client APIs are as follows:
+All APIs have been updated to utilise the V2 Inquiry API specification
+The
+Payments
+,
+Batches
+,
+Bulks
+, and
+Recalls
+interfaces has been deprecated, to be replaced with the
+Summaries1
+interface.
+The
+Summaries1
+interface uses the
+SummarySearchFields
+class, whereas
+Payments
+uses the
+PaymentSummarySearchFields
+class
+The
+PaymentObjects
+interface has been removed from the
+InquiryClient2
+interface
+The
+MdsObjects
+interface should be utilised in its place
+Specifications
+Ingestion

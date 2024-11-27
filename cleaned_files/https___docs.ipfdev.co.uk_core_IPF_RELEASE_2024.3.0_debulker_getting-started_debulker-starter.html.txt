@@ -1,0 +1,49 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/debulker/getting-started/debulker-starter.html ===
+Debulker in Your Application
+First step is to add the Debulker starter maven modules to your IPF application pom.
+Debulker Starter
+The starter gives you the base modules to get a debulker up and running:
+<!--Responsible for debulking-->
+<dependency>
+  <groupId>com.iconsolutions.ipf.debulk</groupId>
+  <artifactId>ipf-debulker-starter</artifactId>
+</dependency>
+<!--Responsible for cleaning up after bulk components are processed by interested party-->
+<dependency>
+  <groupId>com.iconsolutions.ipf.debulk</groupId>
+  <artifactId>ipf-debulker-housekeeping-starter</artifactId>
+</dependency>
+Module Dependencies
+This modules depends on some additional modules:
+component-store
+- responsible for storing components produced by debulker.
+ipf-debulker-new-file-notification
+- responsible for consuming the file notification which should trigger debulking of the file.
+ipf-file-manager
+- responsible for archiving the bulk file after it was successfully processed.
+ipf-debulker-client-processing
+- notifies an external system that debulking is finished and produced components can be processed. This also consumes notification of successful processing of those components by the external system, so that it can start performing housekeeping.
+Adding dependencies needed for the starter modules
+The following is an example of the dependencies or specific implementations you can add, in this case using MongoDB for the component store and Kafka for notifications and connectors.
+<!-- ipf-component-store implementation which uses mongodb to store and read components -->
+<dependency>
+    <groupId>com.iconsolutions.ipf.componentstore</groupId>
+    <artifactId>ipf-component-store-mongo</artifactId>
+</dependency>
+<!-- Kafka receive connector implementation of ipf-debulker-new-file-notification which consumes FileNotification message which tells debulker to process bulk file -->
+<dependency>
+    <groupId>com.iconsolutions.ipf.debulk</groupId>
+    <artifactId>ipf-debulker-new-file-notification-connector-kafka</artifactId>
+</dependency>
+<!-- ipf-debulker-archiver implementation which archives processed bulk file to local file system -->
+<dependency>
+    <groupId>com.iconsolutions.ipf.filemanager</groupId>
+    <artifactId>ipf-file-manager-local</artifactId>
+</dependency>
+<!-- Kafka connector implementation of ipf-debulker-client-processing -->
+<dependency>
+    <groupId>com.iconsolutions.ipf.debulk</groupId>
+    <artifactId>ipf-debulker-client-processing-connector-kafka</artifactId>
+</dependency>
+Getting started
+Use the Debulker Client Library

@@ -1,0 +1,7 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bulker/home.html ===
+IPF Bulker
+"The ability to aggregate payment instructions into one or more bulk files, each containing multiple transactions, potentially between multiple debtors and creditors."
+If an IPF implementation needs to store a collection of data elements in a structured file format, the Bulker will provide this functionality.
+The individual features and characteristics of the Bulker are covered in the Concepts page.
+Create Settings
+Concepts

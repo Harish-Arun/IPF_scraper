@@ -1,0 +1,378 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/processing-data/features/egress.html ===
+Egress Processing Data
+Summary
+The egress module contains:
+Transports that can publish IPF Processing Data envelopes, e.g. kafka or http endpoints.
+Plugins that translate IPF data into the common IPF Processing Data format, comprised of the known types, MDS, PDS, events, message logs, system events, etc.
+Starter poms with a default set of plugins
+Data Model & Versioning
+The data model that is used to export the data is defined by an Open API specification, and multiple versions are supported.
+Only one version will be exported for any given application that uses the egress plugins.
+The egress plugins export data using the latest version of the data model.
+When a new version becomes available, the plugins will begin producing data in that version.
+The version can be pinned/fixed via configuration to any version with the following configuration.
+Config Path
+Description
+ipf.processing-data.egress.schema-version
+There is no default value. If the version is not explicitly configured, the latest version is used.
+There are currently two versions of the data model to choose from, version
+1
+, and version
+2
+. If not explicitly configured, version
+2
+is used.
+Example
+The egress plugins can be configured to produce data using version 1 of the data model with
+ipf.processing-data.egress.schema-version = 1
+.
+Once this configuration exists, all data produced by the plugins will be in this version, even when new versions of the data model are available.
+When ready to move to the new version, the configuration should be removed, or changed, e.g.
+ipf.processing-data.egress.schema-version = 2
+.
+Transport
+It is possible to depend on both Kafka and HTTP transports in a single application, but it is non-deterministic as to which one would be enabled by default, and you will need to explicitly configure
+ipf.processing-data.egress.transport
+to your desired transport.
+The version of the IPF Processing Data model contained in the payload is provided in the header
+schema-version
+, for all transports.
+Kafka
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-kafka</artifactId>
+</dependency>
+You won’t need to depend on this directly if you’re using one of the starter poms, which already includes a transport dependency.
+Enabled by default when present as a dependency, but can be explicitly configured with:
+Property
+Default Value
+Description
+ipf.processing-data.egress.transport
+kafka
+Enable or disable the kafka egress, anything other than
+kafka
+would disable it.
+The default behaviour is to deliver all IPF Processing Data types to the
+IPF_PROCESSING_DATA
+topic.
+It’s possible to deliver different data types to different topics, e.g. when an event containing a pacs.008 MDS object, and a JourneyType PDS object is produced - each of those types (event, MDS, PDS) could travel together in one single envelope to a single topic, or in three separate envelopes to three different topics.
+The default kafka configuration is under the config path
+ipf.processing-data.egress.kafka
+, e.g.
+Property
+Default Value
+Description
+ipf.processing-data.egress.kafka.producer.topic
+IPF_PROCESSING_DATA
+The default Kafka topic to which all ipf processing data is published when no additional Kafka topics are configured
+See the
+how to guide
+for more information about configuring IPF Processing Data to export to multiple Kafka Topics.
+HTTP
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-http</artifactId>
+</dependency>
+You won’t need to depend on this directly if you’re using one of the starter poms, which already includes a transport dependency.
+Enabled by default when present as a dependency, but can be explicitly configured with:
+Property
+Default Value
+Description
+ipf.processing-data.egress.transport
+http
+Enable or disable the http egress, anything other than
+http
+would disable it.
+ipf.processing-data.egress.http.client.host
+localhost
+The host of the http ipf processing data ingress endpoint
+ipf.processing-data.egress.http.client.port
+port
+The port of the http ipf processing data ingress endpoint
+The http egress uses a http send connector, further configuration under the key
+ipf.processing-data.egress.http.*
+can be found in the
+IPF Connector documentation
+.
+Plugins
+Plugins are provided for IPF processing flow applications that produce IPF processing data.
+You can take them all, or take just those that you need.
+The starter poms provide all the plugins.
+All plugins require an
+ipf.application.name
+property to exist within the spring context, as this is used to populate the
+source
+field of the envelopes.
+This will likely come for free if using
+akka-flo-starter
+.
+System Event Exporter
+The system event exporter module registers an instance of
+com.iconsolutions.payments.systemevents.api.EventProcessor
+which will publish system events to the configured transport.
+At-most once delivery. The system event bus is fire-and-forget. System events can be buffered, where multiple System Events with the same processing context are consolidated into a single DataEnvelope before being egressed.
+How to Use
+If not using a starter pom, you can use this plugin directly with
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-system-event-processor</artifactId>
+</dependency>
+This plugin is an implementation of
+com.iconsolutions.ipf.core.systemevents.api.EventProcessor
+and therefore has two levels of configurability, the first at the system event exporter level, and second at the ipf-processing-data implementation.
+Enabled by default when present as a dependency, but can be explicitly configured with:
+Property
+Values
+Default Value
+Description
+ipf.system-events.exporter.type
+ipf-processing-data-egress
+or
+none
+ipf-processing-data-egress
+Enable or disable the system-event-exporter plugin
+ipf.processing-data.egress.system-events.buffered-exporter.enabled
+true
+or
+false
+true
+Buffers system events and sends them as consolidated DataEnvelopes, grouped by their respective processing context.
+ipf.processing-data.egress.system-events.buffered-exporter.send-buffer-size
+int
+such as
+1000
+1000
+The number of system events to buffer before consolidating by processing context
+ipf.processing-data.egress.system-events.buffered-exporter.send-buffer-timeout
+a duration such as
+1 second
+1 second
+The time to wait before consolidating system events by processing context when the buffer isn’t filled.
+ipf.processing-data.egress.system-events.buffered-exporter.propagate-transport-errors
+boolean
+true or false
+true
+Whether failures when attempting to export data should be propagated to the caller
+Message Logger
+The message logger module registers an instance of
+com.iconsolutions.instantpayments.logging.MessageLogger
+which will publish message logs to the configured transport.
+At-most once delivery.
+The message logger can be configured to be fire-and-forget or optionally propagate errors from the transport back to the caller. Message Logs can be buffered, where multiple Message Logs with the same processing context are consolidated into a single DataEnvelope before being egressed.
+How to Use
+If not using a starter pom, you can use this plugin directly with
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-message-logger</artifactId>
+</dependency>
+Enabled by default when present as a dependency, but can be explicitly configured with:
+Property
+Values
+Default Value
+Description
+message.logger.type
+ipf-processing-data-egress
+or
+none
+ipf-processing-data-egress
+Enable or disable the message-logger plugin
+ipf.processing-data.egress.message-logger.connector.queue-size
+int
+such as
+100
+500
+The size of the connector queue indicating the number of entries that can be buffered
+ipf.processing-data.egress.message-logger.buffered-exporter.enabled
+true
+or
+false
+false
+Buffers message log entries and sends them as consolidated DataEnvelopes, grouped by their respective processing context.
+ipf.processing-data.egress.message-logger.buffered-exporter.send-buffer-size
+int
+such as
+100
+100
+The number of message log entries to buffer before consolidating by processing context
+ipf.processing-data.egress.message-logger.buffered-exporter.send-buffer-timeout
+a duration such as
+1 second
+500 milliseconds
+The time to wait before consolidating message log entries by processing context when the buffer isn’t filled.
+ipf.processing-data.egress.message-logger.buffered-exporter.propagate-transport-errors
+boolean
+true or false
+true
+Whether failures when attempting to export data should be propagated to the caller
+Model Exporter
+The Model Exporter collects
+all
+process flow metadata from the processing flow application when it starts up and publishes the metadata in a single envelope.
+There may be many deployed applications containing the same process flow, and on application startup/restart they will all publish the same process flow metadata.
+This is expected, and duplicates should be handled downstream.
+Overrides the unique id for process flow metadata, which is composed of the process flow name, and its identifier.
+At-least once delivery.
+The envelope is published immediately when the application starts, including on restarts.
+How to Use
+If not using a starter pom, you can use this plugin directly with
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-model-exporter</artifactId>
+</dependency>
+Enabled by default when present as a dependency, but can be explicitly configured with:
+Property
+Values
+Default Value
+Description
+ipf.process-flow.exporter.type
+ipf-processing-data-egress
+or
+none
+ipf-processing-data-egress
+Enable or disable the model exporter plugin
+Journal Processor
+The journal processor module registers a
+com.iconsolutions.ipf.platform.read.processor.EventProcessor
+instance which consumes all persisted events from the journal.
+It extracts MDS objects and PDS objects from each event, and bundles them into a single envelope.
+At-least once delivery.
+The envelope is published immediately.
+How to Use
+If not using a starter pom, you can use this plugin directly with
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-journal-processor</artifactId>
+</dependency>
+Enabled by default when present as a dependency, but can be explicitly configured with:
+Property
+Values
+Default Value
+Description
+ipf.journal.exporter.type
+ipf-processing-data-egress
+or
+none
+ipf-processing-data-egress
+Enable or disable the journal processor plugin
+Direct Data Exporter
+The direct data exporter module provides ability to directly publish data structures as (MDS, PDS, etc.) to the configured transport.
+At-most once delivery.The exporter is fire-and-forget. Exported data can be buffered, where multiple data structures with the same processing context are consolidated into a single DataEnvelope before being egressed.
+When using Kafka connector transports, a Direct Data Exporter buffer can only be configured when the Kafka topic for Data Structures and Message Logs are the same.
+See the
+how to guide
+for more information about configuring IPF Processing Data to export to multiple Kafka Topics.
+How to Use
+You can use this plugin directly with
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-exporter</artifactId>
+</dependency>
+Enabled by default when present as a dependency, but can be explicitly configured with:
+Property
+Values
+Default Value
+Description
+ipf.data-structure.exporter.type
+ipf-processing-data-egress
+or
+none
+ipf-processing-data-egress
+Enable or disable the message-logger plugin
+ipf.processing-data.egress.direct-exporter.connector.queue-size
+int
+such as
+100
+500
+The size of the connector queue indicating the number of entries that can be buffered
+ipf.processing-data.egress.direct-exporter.buffered-exporter.enabled
+true
+or
+false
+false
+Buffers entries and sends them as consolidated DataEnvelopes, grouped by their respective processing context.
+ipf.processing-data.egress.direct-exporter.buffered-exporter.send-buffer-size
+int
+such as
+100
+20
+The number of entries to buffer before consolidating by processing context.
+ipf.processing-data.egress.direct-exporter.buffered-exporter.send-buffer-timeout
+a duration such as
+1 second
+100 milliseconds
+The time to wait before consolidating entries by processing context when the buffer isn’t filled.
+ipf.processing-data.egress.direct-exporter.buffered-exporter.propagate-transport-errors
+boolean
+true or false
+true
+Whether failures when attempting to export data should be propagated to the caller
+MDS Exporter
+The
+IpfProcessingDataEgressMdsExporter
+interface is used to export MDS data structures to the configured transport.
+The MDS data structures are wrapped by a
+MdsWrapper
+instance which enables you to provide the desired
+id
+and
+parentId
+for the top level MDS object to be exported.
+If the
+id
+and
+parentId
+are not provided in the
+MdsWrapper
+instance, the default implementation will generate a unique
+id
+(and if applicable,
+parentId
+) for the exported MDS objects
+PDS Exporter
+The
+IpfProcessingDataEgressPdsExporter
+interface is used to export PDS data structures to the configured transport.
+A
+name
+can be specified as a unique identifier for the PDS object to be exported.
+If a
+name
+is not provided, the default implementation will generate a
+name
+for the exported PDS object using the PdsObject type.
+MessageLog Exporter
+The
+IpfProcessingDataEgressMessageLogExporter
+interface is used to export Message Log data structures to the configured transport.
+The exporter returns a
+uniqueId
+and
+reference
+.
+uniqueId
+is a identifier for the exported Message Log object, it is generated is not explicitly specified.
+reference
+is the identifier of a Message Log stored externally due to its file size if applicable.
+Business data elements specific to processing
+When extracting process objects from domain events, the journal processor looks for predefined business data elements.
+If any of the following elements are found among a domain event’s business data entries with the category
+PAYMENT_PROCESSING
+, they will be treated as processing metadata related to the event’s unit of work.
+PaymentType
+, representing the payment type as defined by the client in the IPF Solution at a point in time.
+PaymentJourneyType
+, representing the type given to a collection of ISO payment objects representing a payment.
+Csm
+, representing the Clearing & Settling Mechanism that was selected as part of payment processing.
+Priority
+, representing the priority of the payment relating to SLA, both the priority value (and subsequent behaviour) is configurable per IPF client solution.
+TimeZone
+, representing the offset for the timezone of the processing system.
+RelatedUnitOfWork
+, which is the unitOfWorkId of a related unit of work, e.g. the original payment being recalled, or the parent batch for the payment.
+Metrics
+The following metrics will be reported by the journal processor:
+ipf_processing_data_journal_latency
+, which records the duration between the time a domain event has been created and the time it has been sent to ODS; the durations will be sensitive to time skew between the servers, so they should be treated as estimates only
+Features
+Ingress Processing Data

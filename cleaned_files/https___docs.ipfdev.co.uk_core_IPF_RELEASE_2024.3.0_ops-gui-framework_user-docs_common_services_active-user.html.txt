@@ -1,0 +1,11 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/common/services/active-user.html ===
+Active User
+The active user service gets the username of the active user by decoding the JWT token. It uses the
+ngx-cookie-service
+to get the JWT from the browser cookie.
+It also gets the allowed processing entities from the JWT token.
+Example usage:
+private getUserName(): void {
+        this.userName = this.activeUserService.getActiveUserInfo();
+    }
+View example in source code

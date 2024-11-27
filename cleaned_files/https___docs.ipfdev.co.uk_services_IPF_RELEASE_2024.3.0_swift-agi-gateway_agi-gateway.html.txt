@@ -1,0 +1,656 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/swift-agi-gateway/agi-gateway.html ===
+IPF-SWIFT-AGI-GATEWAY Configuration
+This document explains how to configure the IPF Swift AGI Gateway. It is broken up into various parts that need to be configured to communicate with IPF on one end, and Swift on the other end.
+Docker Images
+Transport
+Image Name
+Latest version query on Nexus
+Kafka
+registry.ipf.iconsolutions.com/ipf-swift-agi-gateway-application-kafka:[version]
+Click
+IBM MQ
+registry.ipf.iconsolutions.com/ipf-swift-agi-gateway:[version]
+Click
+Configuration
+Paths
+Transport
+Config mount location
+Kafka
+/ipf-swift-agi-gateway-application-kafka/conf/ipf-swift-agi-gateway.conf
+IBM MQ
+/ipf-swift-agi-gateway/conf/ipf-swift-agi-gateway.conf
+LAU Configuration
+LAU Keys configuration for IPF-SWIFT-AGI-GATEWAY consists of two parts, providing configuration file and updating keystore.
+In configuration file ipf-swift-agi-gateway.conf we can set up/change properties which defines locations of LAU keys info .conf file, keystore and appropriate passwords. These parameters have defaults and they look like this:
+lauKeys = {
+  keyStore = {
+    keyStorePath = "classpath:swiftAgiKeyStore.jks"
+    keyStorePassword = "keyStorePassword"
+    keyPassword = "keyPassword"
+  }
+  configPath = "classpath:swiftAgiKeyInfo.conf"
+}
+Key information file configuration
+validity=P24M
+overlap=PT12H
+
+lauKeyInfos = [
+  {
+    id="keyA"
+    startDate="2017-12-17T09:30:47Z" #in ISO 8601 format
+  }
+  {
+    id="keyB"
+    startDate="2019-12-16T21:30:47Z"
+  }
+]
+This file contains additional information for LAU keys such as validity, overlap and start dates for each key,A lauKeyInfosA can have one or two elements.
+Keystore configuration
+The configuration also features a keystore which needs to include a SecretKeyEntryA  whose alias matches that of the LAU key ID in the configuration file described above. Be careful in this step because if ids from a file and alias you set in a keystore dont match, the application will not be configured properly.
+You can use a combination ofA keytoolA to create/rename the existing SeretKeyEntry, and theA com.iconsolutions.gateway.swift.crypto.LauKeystoreUpdater tool to update the LAU key in an existing keystore.
+The LAU key is usually supplied as two parts: a "left" part and a "right" part. You need to concatenate the two parts and run theA KeystoreSecretKeyUpdaterA to update an existing keystore to use the new LAU key. The key is really just a byte array and is provided to an application in HEX format.
+Sample usage of the utility would be:
+java -cp '[dir containing ipf-swift-agi-gateway-core-[version].jar]/*' com.iconsolutions.gateway.swift.crypto.LauKeystoreUpdater \
+    --pathToKeyStore [path to keystore] \
+    --keyStorePassword [keystore password] \
+    --secretKeyAlias [the alias of the existing LAU key to modify] \
+    --secretKey [the combined left and right parts of the LAU key] \
+    --secretKeyPassword [the key password]
+Configuring communication with SWIFT AGI
+Swift AGI may provide multiple IBM MQ Queue Manager connections to connect to. These can be configured in ipf-swift-agi-gateway.conf like this:
+ipf-agi-jms = {
+  ibmmq {
+    truststore.path = "/path/to/my/truststore.p12"
+    truststore.password = "password"
+    truststore.type = "PKCS12"
+    keystore.path = "/path/to/my/keystore.p12"
+    keystore.password = "password"
+    keystore.type = "PKCS12"
+  }
+  gateways = [
+    {
+      jms-component-name = jmsOne
+      hostname = ibmmq-1
+      port = 1414
+      queue-manager = QM1
+      channel = C1.TO.QM1
+      ssl-enabled = true
+    }
+    {
+      jms-component-name = jmsTwo
+      hostname = ibmmq-2
+      port = 1415
+      queue-manager = QM2
+      channel = C1.TO.QM1.2
+      ssl-enabled = true
+    }
+  ]
+}
+
+ipf-agi.jms-gateways = ["jmsOne", "jmsTwo"]
+
+//queue names
+ipf-agi.queue {
+    send-data = "AGI.SEND.DATA.QUEUE"       // IPF AGI to Swift
+    receive-data = "AGI.RECEIVE.DATA.QUEUE" // Swift to IPF AGI
+    receive-ack = "AGI.RECEIVE.ACK.QUEUE"   // Swift to IPF AGI
+    event = "AGI.EVENTS.DATA.QUEUE"         // Swift to IPF AGI
+}
+Configuring client entity (processing entity) to DN mapping
+The IPF Swift AGI gateway uses the concept of a distinguished name (DN) mapping to convert client entities (processing entities) from IPF to Swift DNs. The entity names ( nameA  in the example below) are retrieved from the NETWORK_SENDER_ID value on incoming messages (to be sent to Swift), and the DNs ( valueA  in the example below) are supplied by Swift. An example might be:
+ipf-agi = {
+  client-entity-to-dn-mapping = [
+    {
+      name = "MyBank",
+      value ="cn=chasus33,ou=ips,o=swhqbebb,o=swift"
+    }
+    {
+      name = "EBA",
+      value ="cn=agi009,ou=csm,o=swhqbebb,o=swift"
+    }
+  ]
+}
+Configuring communication with IPF: Kafka
+IPF AGI supports Kafka and JMS (IBM MQ) when talking to the client e.g. IPF. You can configure the usual Kafka consumer/producer properties like so:
+common-kafka-config {
+  bootstrap.servers = "kafka:9094"
+  ssl.keystore.location = /path/to/my/kafka.client.keystore.p12
+  ssl.keystore.password = password
+  ssl.truststore.location = /path/to/my/kafka.client.truststore.p12
+  ssl.truststore.password = password
+  ssl.key.password = password
+  security.protocol = SSL
+}
+akka.kafka.consumer.kafka-clients = ${common-kafka-config}
+akka.kafka.producer.kafka-clients = ${common-kafka-config}
+
+//topic names
+ipf-agi.client {
+  topic {
+    send = "SCTI.SEND.QUEUE"        // IPF to IPF AGI
+    receive = "SCTI.RECEIVE.QUEUE"  // IPF AGI to IPF
+    outcome = "SCTI.OUTCOME.QUEUE"  // IPF AGI to IPF
+    event = "AGI.EVENTS.DATA.QUEUE" // IPF AGI to [events consumer]
+  }
+}
+You can swap out authenticating with mTLS with Kerberos, add extra consumer/producer settings, split the configuration, etc. as you see fit.
+Configuring communication with IPF: IBM MQ
+The IPF Swift AGI application assumes that - when running in IBM MQ mode - the same queue manager is being used to communicate on both sides (client and AGI). Therefore no extra configuration is required. However, to configure the queue names (defaults shown):
+ipf-agi.client = {
+  queue {
+    send = "SCTI.SEND.QUEUE"        // IPF to IPF AGI
+    receive = "SCTI.RECEIVE.QUEUE"  // IPF AGI to IPF
+    outcome = "SCTI.OUTCOME.QUEUE"  // IPF AGI to IPF
+    event = "AGI.EVENTS.DATA.QUEUE" // IPF AGI to [events consumer]
+  }
+}
+Event Schema (Kafka only)
+When running in Kafka mode, are published as JSON and have the following schema:
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "eventCode": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "level": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "eventTime": {
+      "type": "string"
+    },
+    "payload": {
+
+    }
+  }
+}
+The
+payload
+field differs depending on the type of event published (see below)
+List of Events
+The IPF Swift AGI application publishes the following events:
+Event
+Description
+Event Code
+DNMappingMissing
+Raised when we can not map entity to DN (or vice versa)
+ipf.swift-agi-gateway.dn-mapping.missing
+DNMappingNotConfigured
+Is raised on application startup if there is no mapping configured for either
+ipf-agi.bank-entity-to-dn-mapping
+or _ipf-agi.client-entity-to-dn-mapping
+ipf.swift-agi-gateway.dn-mapping.not-configured
+InvalidHMAC
+Raised when we get ReceiveIndication message (a message received from SWIFT network) and calculated HMAC doesnt match one from headers
+ipf.swift-agi-gateway.hmac.invalid
+NoHMACKeyId
+Raised when we dont have matching LAU key configured so we can not perform HMAC calculation
+ipf.swift-agi-gateway.hmac.no-key-id
+NoLauKeysConfigured
+Raised when there is no LAU keys configured
+ipf.swift-agi-gateway.lau-keys.not-configured
+NoValidLauKeysConfigured
+Raised when there is no at least one LAU key valid
+ipf.swift-agi-gateway.lau-keys.not-valid
+NoValidLauKey
+Raised when ipf-agi receives a message, but there is no valid lau key to generate hmac
+ipf.swift-agi-gateway.lau-keys.no-valid-key
+ReceiveIndicationReceived
+Raised every time when new message (ReceiveIndication) is received from AGI network
+ipf.swift-agi-gateway.receive-indication.received-from-agi-network
+ReceiveIndicationSentToClient
+Raised every time after new message (ReceiveIndication) is received from AGI network, all checks are ok, and message is sent to a client
+ipf.swift-agi-gateway.receive-indication.sent-to-client
+SendRequestReceived
+Raised when IPF SWIFT AGI receives a message from the client (SendRequest), before sending message to AGI network
+ipf.swift-agi-gateway.send-request.received
+SendRequestSent
+Raised just before sending client message (SendRequest) to AGI network
+ipf.swift-agi-gateway.send-request.sent
+MQNotAvailable
+Raised when sending or receiving message from MQ fails because of MQ errors or unavailability
+ipf.swift-agi-gateway.mq.not-available
+TechnicalAckReceived
+Raised when an technical ack is received. This event is sent by remote side
+ipf.swift-agi-gateway.technical-ack
+NotifyReceived
+Raised when an notify is received. Notify is also sent by local AGI software
+ipf.swift-agi-gateway.notify
+MandatoryHeaderEmpty
+Raised when we get message from AGI Software, or client, and that message has missing headers
+ipf.swift-agi-gateway.mandatory-header.empty
+Example events
+Here are some example event messages:
+InvalidHMAC
+{
+  "eventCode": "ipf.swift-agi-gateway.hmac.invalid",
+  "description": "IPF Swift AGI Gateway Event",
+  "level": "ERROR",
+  "id": "ec706af9-e91e-4916-8c4c-af2a6a57887b",
+  "eventTime": "2024-04-05T11:05:30.098989459Z",
+  "payload": {
+    "JMS_IBM_Character_Set": "UTF-8",
+    "JMSMessageID": "ID:414d5120514d31202020202020202020e8da0f660e0c0b23",
+    "HMAC": "NotValidHmac",
+    "JMSRedelivered": false,
+    "JMS_IBM_Encoding": 273,
+    "MsgNetworkRef": "0be9545b-8652-4555-a577-3826ac8ffa8b",
+    "JMSDeliveryMode": 2,
+    "JMS_IBM_PutApplType": 28,
+    "SendTimestamp": "2018-08-13T12:15:54.651Z",
+    "JMS_IBM_Format": "        ",
+    "JMSXDeliveryCount": 1,
+    "Version": "1",
+    "PrimitiveType": "ReceiveIndication",
+    "JMS_IBM_PutTime": "11053007",
+    "MsgRef": "VqjJHgXnz366Ud3KErx7mnJd9QDba330Dsk",
+    "JMS_IBM_MsgType": 8,
+    "JMSExpiration": 0,
+    "HMACKeyId": "keyB",
+    "JMSXUserID": "app         ",
+    "JMSTimestamp": 1712315130075,
+    "Service": "csm.msg.ins",
+    "Receiver": "cn=agi009,ou=bank,o=swhqbebb,o=swift",
+    "MsgType": "PACS.008.001.03",
+    "JMSXAppID": "er-20240405110452635_302.jar",
+    "ReceiveTimestamp": "2018-08-13T12:15:54.726Z",
+    "Sender": "cn=agi009,ou=csm,o=swhqbebb,o=swift",
+    "JMSPriority": 4,
+    "JMS_IBM_PutDate": "20240405",
+    "JMSDestination": {
+      "CCSID": 1208,
+      "brokerCCDurSubQueue": "SYSTEM.JMS.D.CC.SUBSCRIBER.QUEUE",
+      "JMS_IBM_Unmappable_Action": "REPORT",
+      "failIfQuiesce": 1,
+      "destDescription": null,
+      "alternateUserId": null,
+      "readAheadClosePolicy": 2,
+      "JMS_IBM_Unmappable_Replacement": 63,
+      "mdWriteEnabled": false,
+      "XMSC_WMQ_QUEUE_MANAGER": "",
+      "timeToLive": -2,
+      "putAsyncAllowed": -1,
+      "deliveryMode": -2,
+      "readAheadAllowed": -1,
+      "XMSC_DESTINATION_NAME": "AGI.RECEIVE.DATA.QUEUE",
+      "wildcardFormat": 0,
+      "mdReadEnabled": false,
+      "messageBody": 2,
+      "XMSC_WMQ_BROKER_PUBQ": "",
+      "XMSC_ADMIN_OBJECT_TYPE": 33,
+      "priority": -2,
+      "encoding": 273,
+      "brokerVersion": 0,
+      "version": 7,
+      "brokerDurSubQueue": "SYSTEM.JMS.D.SUBSCRIBER.QUEUE",
+      "XMSC_CONNECTION_TYPE_NAME": "com.ibm.msg.client.jakarta.wmq",
+      "XMSC_WMQ_REPLYTO_STYLE": 0,
+      "targetClient": 0,
+      "mdMessageContext": 0,
+      "XMSC_WMQ_BROKER_PUBQ_QMGR": "",
+      "XMSC_CONNECTION_TYPE": 5
+    },
+    "messagePayload": "{\"content\":\"xtjubHNdsBEtmySAnAUXRRTTffeWTpyyzChOeOOkludqmBGQdluFmHsZZmcMmIiicbLWYBVXkgUnGDtfWzkBQbBsJUHGBNLfHPwY\"}"
+  }
+}
+NoValidLauKeysConfigured
+{
+  "eventCode": "ipf.swift-agi-gateway.lau-keys.not-valid",
+  "description": "IPF Swift AGI Gateway Event",
+  "level": "ERROR",
+  "id": "4febbca7-225c-4cf7-abcc-23f2835e1377",
+  "eventTime": "2024-04-05T11:05:13.626138341Z",
+  "payload": {
+    "invalidLauKeys": [
+      {
+        "id": "keyB",
+        "key": {
+          "algorithm": "HmacSHA256",
+          "encoded": "bdVRpMsSZSgzVjf56+1fEQ==",
+          "format": "RAW",
+          "destroyed": false
+        },
+        "validFrom": "2017-06-16T21:30:47Z",
+        "validTo": "2019-06-16T21:30:47Z",
+        "valid": false
+      },
+      {
+        "id": "keyA",
+        "key": {
+          "algorithm": "HmacSHA256",
+          "encoded": "bfVRpMoSZSgzVjf56+1fmA==",
+          "format": "RAW",
+          "destroyed": false
+        },
+        "validFrom": "2015-12-17T09:30:47Z",
+        "validTo": "2017-06-17T09:30:47Z",
+        "valid": false
+      }
+    ]
+  }
+}
+ReceiveIndicationReceived
+{
+  "eventCode": "ipf.swift-agi-gateway.receive-indication.received-from-agi-network",
+  "description": "IPF Swift AGI Gateway Event",
+  "level": "INFO",
+  "id": "91ac6d40-2483-425b-91b0-8de4f77db658",
+  "eventTime": "2024-04-05T11:05:28.041257893Z",
+  "payload": {
+    "JMS_IBM_Character_Set": "UTF-8",
+    "JMSMessageID": "ID:414d5120514d31202020202020202020e8da0f6603080b23",
+    "HMAC": "sde5gvCTSKiShmQfJWlxLMm4J0JVxDONHPsBJ++MMOs=",
+    "JMSRedelivered": false,
+    "JMS_IBM_Encoding": 273,
+    "MsgNetworkRef": "0be9545b-8652-4555-a577-3826ac8ffa8b",
+    "JMSDeliveryMode": 2,
+    "JMS_IBM_PutApplType": 28,
+    "SendTimestamp": "2018-08-13T12:15:54.651Z",
+    "JMS_IBM_Format": "        ",
+    "JMSXDeliveryCount": 1,
+    "Version": "1",
+    "PrimitiveType": "ReceiveIndication",
+    "JMS_IBM_PutTime": "11052801",
+    "MsgRef": "",
+    "JMS_IBM_MsgType": 8,
+    "JMSExpiration": 0,
+    "HMACKeyId": "keyA",
+    "JMSXUserID": "app         ",
+    "JMSTimestamp": 1712315128006,
+    "Service": "csm.msg.ins",
+    "Receiver": "cn=agi009,ou=bank,o=swhqbebb,o=swift",
+    "MsgType": "PACS.008.001.03",
+    "JMSXAppID": "er-20240405110452635_302.jar",
+    "ReceiveTimestamp": "2018-08-13T12:15:54.726Z",
+    "Sender": "cn=agi009,ou=csm,o=swhqbebb,o=swift",
+    "JMSPriority": 4,
+    "JMS_IBM_PutDate": "20240405",
+    "JMSDestination": {
+      "CCSID": 1208,
+      "brokerCCDurSubQueue": "SYSTEM.JMS.D.CC.SUBSCRIBER.QUEUE",
+      "JMS_IBM_Unmappable_Action": "REPORT",
+      "failIfQuiesce": 1,
+      "destDescription": null,
+      "alternateUserId": null,
+      "readAheadClosePolicy": 2,
+      "JMS_IBM_Unmappable_Replacement": 63,
+      "mdWriteEnabled": false,
+      "XMSC_WMQ_QUEUE_MANAGER": "",
+      "timeToLive": -2,
+      "putAsyncAllowed": -1,
+      "deliveryMode": -2,
+      "readAheadAllowed": -1,
+      "XMSC_DESTINATION_NAME": "AGI.RECEIVE.DATA.QUEUE",
+      "wildcardFormat": 0,
+      "mdReadEnabled": false,
+      "messageBody": 2,
+      "XMSC_WMQ_BROKER_PUBQ": "",
+      "XMSC_ADMIN_OBJECT_TYPE": 33,
+      "priority": -2,
+      "encoding": 273,
+      "brokerVersion": 0,
+      "version": 7,
+      "brokerDurSubQueue": "SYSTEM.JMS.D.SUBSCRIBER.QUEUE",
+      "XMSC_CONNECTION_TYPE_NAME": "com.ibm.msg.client.jakarta.wmq",
+      "XMSC_WMQ_REPLYTO_STYLE": 0,
+      "targetClient": 0,
+      "mdMessageContext": 0,
+      "XMSC_WMQ_BROKER_PUBQ_QMGR": "",
+      "XMSC_CONNECTION_TYPE": 5
+    },
+    "messagePayload": "{\"content\":\"xGmpxiEMwpNVKfAcdKbvKYLyUFQheCqBXKWIzxMMNkGjGRMBVrDRkvcTUQOKLhLTQrseIvwNtruEpxkxqTvgyPtcwcTqMBPbkUjC\"}"
+  }
+}
+SendRequestSent
+{
+  "eventCode": "ipf.swift-agi-gateway.send-request.sent",
+  "description": "IPF Swift AGI Gateway Event",
+  "level": "INFO",
+  "id": "f6b4b640-b89f-472f-b9a4-48abbea7d7ea",
+  "eventTime": "2024-04-05T11:05:30.293994531Z",
+  "payload": {
+    "HMAC": "nj+OfKbNew7R/5sCWZAFCFP6MeGUCRPdoiSQ2PkNJyE=",
+    "HMACKeyId": "keyB",
+    "Service": "csm.msg.ins",
+    "Receiver": "cn=agi009,ou=csm,o=swhqbebb,o=swift",
+    "MsgType": "PACS.008.001.03",
+    "TechnicalAckRequired": "A",
+    "Sender": "cn=agi009,ou=bank,o=swhqbebb,o=swift",
+    "Version": "1",
+    "messagePayload": "eyJjb250ZW50IjoiWWhiYmp1TktkYVNveVRleXNHaFhER0daQ09CSmRKaUpQa1hmS3JkcWFhZExmb0dscUZEbGdLY29wT01wUHN4c21SbXlOcnVYVmVWSHNEZVR4dnhnTWdQV0VvVFdmU0hjVnJwYyJ9",
+    "PossibleDuplicate": "N",
+    "PrimitiveType": "SendRequest",
+    "MsgRef": "CFqdIbdpZMkFaPSBys3pWfRuCieX86AIiUO",
+    "NotificationRequired": "A"
+  }
+}
+NotifyReceived (failure)
+{
+  "eventCode": "ipf.swift-agi-gateway.notify",
+  "description": "IPF Swift AGI Gateway Event",
+  "level": "ERROR",
+  "id": "04c2bc17-7b8e-42ca-9616-97158c95aff7",
+  "eventTime": "2024-04-05T11:05:30.694896246Z",
+  "payload": {
+    "JMS_IBM_Character_Set": "UTF-8",
+    "JMSMessageID": "ID:414d5120514d32202020202020202020e8da0f6608170125",
+    "HMAC": "fiZfR0sNH1+dkWwxuTVJ9k6GUk67twIGBz7nofK1J0g=",
+    "JMSRedelivered": false,
+    "JMS_IBM_Encoding": 273,
+    "MsgNetworkRef": "0be9545b-8652-4555-a577-3826ac8ffa8b",
+    "JMSDeliveryMode": 2,
+    "JMS_IBM_PutApplType": 28,
+    "SendTimestamp": "2018-08-13T12:15:54.651Z",
+    "JMS_IBM_Format": "        ",
+    "JMSXDeliveryCount": 1,
+    "Version": "1",
+    "PrimitiveType": "Notify",
+    "JMS_IBM_PutTime": "11053067",
+    "CorrelationId": "UzQZ2V6BTU14N0SRYvVe771rXn78Tg2mTkq",
+    "MsgRef": "UzQZ2V6BTU14N0SRYvVe771rXn78Tg2mTkq",
+    "JMS_IBM_MsgType": 8,
+    "JMSExpiration": 0,
+    "HMACKeyId": "keyB",
+    "PrimitiveErrorText": "error text",
+    "JMSXUserID": "app         ",
+    "JMSTimestamp": 1712315130678,
+    "Service": "csm.msg.ins",
+    "Receiver": "cn=agi009,ou=bank,o=swhqbebb,o=swift",
+    "MsgType": "PACS.008.001.03",
+    "PrimitiveErrorCode": "status_code",
+    "JMSXAppID": "er-20240405110452635_302.jar",
+    "ReceiveTimestamp": "2018-08-13T12:15:54.726Z",
+    "Sender": "cn=agi009,ou=csm,o=swhqbebb,o=swift",
+    "JMSPriority": 4,
+    "JMS_IBM_PutDate": "20240405",
+    "JMSDestination": {
+      "CCSID": 1208,
+      "brokerCCDurSubQueue": "SYSTEM.JMS.D.CC.SUBSCRIBER.QUEUE",
+      "JMS_IBM_Unmappable_Action": "REPORT",
+      "failIfQuiesce": 1,
+      "destDescription": null,
+      "alternateUserId": null,
+      "readAheadClosePolicy": 2,
+      "JMS_IBM_Unmappable_Replacement": 63,
+      "mdWriteEnabled": false,
+      "XMSC_WMQ_QUEUE_MANAGER": "",
+      "timeToLive": -2,
+      "putAsyncAllowed": -1,
+      "deliveryMode": -2,
+      "readAheadAllowed": -1,
+      "XMSC_DESTINATION_NAME": "AGI.RECEIVE.ACK.QUEUE",
+      "wildcardFormat": 0,
+      "mdReadEnabled": false,
+      "messageBody": 2,
+      "XMSC_WMQ_BROKER_PUBQ": "",
+      "XMSC_ADMIN_OBJECT_TYPE": 33,
+      "priority": -2,
+      "encoding": 273,
+      "brokerVersion": 0,
+      "version": 7,
+      "brokerDurSubQueue": "SYSTEM.JMS.D.SUBSCRIBER.QUEUE",
+      "XMSC_CONNECTION_TYPE_NAME": "com.ibm.msg.client.jakarta.wmq",
+      "XMSC_WMQ_REPLYTO_STYLE": 0,
+      "targetClient": 0,
+      "mdMessageContext": 0,
+      "XMSC_WMQ_BROKER_PUBQ_QMGR": "",
+      "XMSC_CONNECTION_TYPE": 5
+    },
+    "messagePayload": "{\"content\":\"HhZvwtQeDlngEBNKnECjfxAgMkMgUjhceTHagKVPyMaoHPmKgltQdRphVnguUlrVsjhvCiFOClQXXJOkbbPlMqHxzUgPBlezFolT\"}",
+    "PrimitiveReturnCode": "Fatal"
+  }
+}
+NotifyReceived (success)
+{
+  "eventCode": "ipf.swift-agi-gateway.notify",
+  "description": "IPF Swift AGI Gateway Event",
+  "level": "INFO",
+  "id": "fbb58aff-79f2-4d96-9a73-2d524c88cb5d",
+  "eventTime": "2024-04-05T11:05:30.760903994Z",
+  "payload": {
+    "JMS_IBM_Character_Set": "UTF-8",
+    "JMSMessageID": "ID:414d5120514d32202020202020202020e8da0f660a170125",
+    "HMAC": "52Yp1RErpnlvCC6O2UGlPeo3SyyujNbv6BfdG3QCimw=",
+    "JMSRedelivered": false,
+    "JMS_IBM_Encoding": 273,
+    "MsgNetworkRef": "3lQ237fra8nBOCipcEio1PiHPWBOPy14Ctx",
+    "JMSDeliveryMode": 2,
+    "JMS_IBM_PutApplType": 28,
+    "SendTimestamp": "2018-08-13T12:15:54.651Z",
+    "JMS_IBM_Format": "        ",
+    "JMSXDeliveryCount": 1,
+    "Version": "1",
+    "PrimitiveType": "Notify",
+    "JMS_IBM_PutTime": "11053074",
+    "CorrelationId": "3lQ237fra8nBOCipcEio1PiHPWBOPy14Ctx",
+    "MsgRef": "3lQ237fra8nBOCipcEio1PiHPWBOPy14Ctx",
+    "JMS_IBM_MsgType": 8,
+    "JMSExpiration": 0,
+    "HMACKeyId": "keyB",
+    "JMSXUserID": "app         ",
+    "JMSTimestamp": 1712315130742,
+    "Service": "<service>",
+    "Receiver": "cn=agi009,ou=bank,o=swhqbebb,o=swift",
+    "MsgType": "PACS.008.001.03",
+    "JMSXAppID": "er-20240405110452635_302.jar",
+    "Sender": "cn=agi009,ou=csm,o=swhqbebb,o=swift",
+    "JMSPriority": 4,
+    "JMS_IBM_PutDate": "20240405",
+    "JMSDestination": {
+      "CCSID": 1208,
+      "brokerCCDurSubQueue": "SYSTEM.JMS.D.CC.SUBSCRIBER.QUEUE",
+      "JMS_IBM_Unmappable_Action": "REPORT",
+      "failIfQuiesce": 1,
+      "destDescription": null,
+      "alternateUserId": null,
+      "readAheadClosePolicy": 2,
+      "JMS_IBM_Unmappable_Replacement": 63,
+      "mdWriteEnabled": false,
+      "XMSC_WMQ_QUEUE_MANAGER": "",
+      "timeToLive": -2,
+      "putAsyncAllowed": -1,
+      "deliveryMode": -2,
+      "readAheadAllowed": -1,
+      "XMSC_DESTINATION_NAME": "AGI.RECEIVE.ACK.QUEUE",
+      "wildcardFormat": 0,
+      "mdReadEnabled": false,
+      "messageBody": 2,
+      "XMSC_WMQ_BROKER_PUBQ": "",
+      "XMSC_ADMIN_OBJECT_TYPE": 33,
+      "priority": -2,
+      "encoding": 273,
+      "brokerVersion": 0,
+      "version": 7,
+      "brokerDurSubQueue": "SYSTEM.JMS.D.SUBSCRIBER.QUEUE",
+      "XMSC_CONNECTION_TYPE_NAME": "com.ibm.msg.client.jakarta.wmq",
+      "XMSC_WMQ_REPLYTO_STYLE": 0,
+      "targetClient": 0,
+      "mdMessageContext": 0,
+      "XMSC_WMQ_BROKER_PUBQ_QMGR": "",
+      "XMSC_CONNECTION_TYPE": 5
+    },
+    "messagePayload": "{\"content\":\"zBezYRohFAVEOevSRxwcNTeWEXnyoQhqYaOESoomsRsPPweyHjsKWjtRWBoaDmoMsGvHJxkkjWPNITvkojORFtOfemOUXnmqgFgY\"}",
+    "PrimitiveReturnCode": "Success"
+  }
+}
+TechnicalAckReceived (success)
+{
+  "eventCode": "ipf.swift-agi-gateway.technical-ack",
+  "description": "IPF Swift AGI Gateway Event",
+  "level": "INFO",
+  "id": "b1c499b5-cda6-46fb-94ad-3b6f8a66534d",
+  "eventTime": "2024-04-05T11:05:30.898883257Z",
+  "payload": {
+    "JMS_IBM_Character_Set": "UTF-8",
+    "JMSMessageID": "ID:414d5120514d31202020202020202020e8da0f66180c0b23",
+    "HMAC": "gy2+jkznrjlbQq3FYRTpSjxmRVdM/lBFD1slHuT/TrU=",
+    "JMSRedelivered": false,
+    "JMS_IBM_Encoding": 273,
+    "MsgNetworkRef": "2rjcfWu5sBxqSA57s5bQL8nKwhaKJdquZld",
+    "JMSDeliveryMode": 2,
+    "JMS_IBM_PutApplType": 28,
+    "SendTimestamp": "2018-08-13T12:15:54.651Z",
+    "JMS_IBM_Format": "        ",
+    "JMSXDeliveryCount": 1,
+    "Version": "1",
+    "PrimitiveType": "TechnicalAck",
+    "JMS_IBM_PutTime": "11053089",
+    "CorrelationId": "2rjcfWu5sBxqSA57s5bQL8nKwhaKJdquZld",
+    "MsgRef": "2rjcfWu5sBxqSA57s5bQL8nKwhaKJdquZld",
+    "JMS_IBM_MsgType": 8,
+    "JMSExpiration": 0,
+    "HMACKeyId": "keyB",
+    "JMSXUserID": "app         ",
+    "JMSTimestamp": 1712315130892,
+    "Service": "<service>",
+    "Receiver": "cn=agi009,ou=bank,o=swhqbebb,o=swift",
+    "MsgType": "PACS.008.001.03",
+    "JMSXAppID": "er-20240405110452635_302.jar",
+    "Sender": "cn=agi009,ou=csm,o=swhqbebb,o=swift",
+    "JMSPriority": 4,
+    "JMS_IBM_PutDate": "20240405",
+    "JMSDestination": {
+      "CCSID": 1208,
+      "brokerCCDurSubQueue": "SYSTEM.JMS.D.CC.SUBSCRIBER.QUEUE",
+      "JMS_IBM_Unmappable_Action": "REPORT",
+      "failIfQuiesce": 1,
+      "destDescription": null,
+      "alternateUserId": null,
+      "readAheadClosePolicy": 2,
+      "JMS_IBM_Unmappable_Replacement": 63,
+      "mdWriteEnabled": false,
+      "XMSC_WMQ_QUEUE_MANAGER": "",
+      "timeToLive": -2,
+      "putAsyncAllowed": -1,
+      "deliveryMode": -2,
+      "readAheadAllowed": -1,
+      "XMSC_DESTINATION_NAME": "AGI.RECEIVE.ACK.QUEUE",
+      "wildcardFormat": 0,
+      "mdReadEnabled": false,
+      "messageBody": 2,
+      "XMSC_WMQ_BROKER_PUBQ": "",
+      "XMSC_ADMIN_OBJECT_TYPE": 33,
+      "priority": -2,
+      "encoding": 273,
+      "brokerVersion": 0,
+      "version": 7,
+      "brokerDurSubQueue": "SYSTEM.JMS.D.SUBSCRIBER.QUEUE",
+      "XMSC_CONNECTION_TYPE_NAME": "com.ibm.msg.client.jakarta.wmq",
+      "XMSC_WMQ_REPLYTO_STYLE": 0,
+      "targetClient": 0,
+      "mdMessageContext": 0,
+      "XMSC_WMQ_BROKER_PUBQ_QMGR": "",
+      "XMSC_CONNECTION_TYPE": 5
+    },
+    "messagePayload": "{\"content\":\"RgxPDSFyOWuSTmwymHyVFpvZWbrffNgFKyZLOOCCfOYsdFvHlgJGFuPuTzFUvSRzXHoBAIJdfuMqFyBCsDEugYkckoPvoSCtbKpE\"}",
+    "PrimitiveReturnCode": "Success"
+  }
+}
+System Events
+CSM Reachability

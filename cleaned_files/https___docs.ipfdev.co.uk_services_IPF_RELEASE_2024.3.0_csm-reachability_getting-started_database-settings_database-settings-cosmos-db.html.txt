@@ -1,0 +1,40 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/database-settings/database-settings-cosmos-db.html ===
+Cosmos DB settings
+Based on performance testing that was done, the following partition keys and indexes should be defined on the CSM Reachability database.
+Partition Keys
+In order to have normal time for processing large files on CosmosDB, we need to add partition keys for every collection.
+Partition key needs to be added directly on Azure portal. The way to add partition keys:
+First we need to open Mongo shell and type use {database_name} e.g.
+use ipf-csm-test
+After you have switched to the required database, type commands below:
+db.runCommand({customAction:"CreateCollection", collection:"csm-reachability-journal", shardKey:"persistenceId"})
+db.runCommand({customAction:"CreateCollection", collection: "snapshots", shardKey:"persistenceId"})
+db.runCommand({customAction:"CreateCollection", collection: "settings-approvals", shardKey:"_id"})
+db.runCommand({customAction:"CreateCollection", collection: "settings-history", shardKey:"_entityId"})
+db.runCommand({customAction:"CreateCollection", collection: "settings-agent-settings", shardKey:"_id"})
+db.runCommand({customAction:"CreateCollection", collection: "settings-agent-clearing-settings", shardKey:"_id"})
+db.runCommand({customAction:"CreateCollection", collection: "settings-agent-settlement-settings", shardKey:"_id"})
+db.runCommand({customAction:"CreateCollection", collection: "settings-cs-agent-selection-settings", shardKey:"_id"})
+db.runCommand({customAction:"CreateCollection", collection: "settings-iban-plus", shardKey:"_id"})
+db.runCommand({customAction:"CreateCollection", collection: "settings-iban-structure", shardKey:"_id"})
+db.runCommand({customAction:"CreateCollection", collection: "settings-participant", shardKey:"_id"})
+db.runCommand({customAction:"CreateCollection", collection: "settings-processing-entity", shardKey:"_id"})
+db.runCommand({customAction:"CreateCollection", collection: "settings-party-entity", shardKey:"_id"})
+db.runCommand({customAction:"CreateCollection", collection: "settings-generic-processing-settings", shardKey:"_id"})
+The below indexes are required for the correct operation and optimal performance of the application. They should be created automatically at application startup. If they have not been created automatically (usually an issue that occurs
+with Cosmos deployments) please ensure the following overrides are in place
+ipf.mongodb.max-retry
+= 6
+ipf.mongodb.retryable-error-codes
+= [16500, 48]
+ipf.mongodb.delay-duration
+= 1000ms
+During testing, it was discovered that programmatic index creation on Cosmos would occasionally fail and need an increased number of retries to guarantee success, the above overrides have been tested and confirmed to ensure indexes get created properly.
+Typically core indexes are affected since the retry settings are defined in an external module, whereas the application indexes already have the right settings.
+Enabling the
+server-side retry feature
+on CosmosDB is highly recommended. If for some reason you need to keep this feature disabled, you may need to increase the value of
+ipf.mongodb.max-retry
+setting to avoid rate limit errors failing your DB operations.
+Indexes
+Deployment

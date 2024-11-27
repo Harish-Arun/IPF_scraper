@@ -1,0 +1,5 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/persistence.html ===
+Persistence
+Correlation Data Model
+Bearer Authentication
+Correlation Data Model

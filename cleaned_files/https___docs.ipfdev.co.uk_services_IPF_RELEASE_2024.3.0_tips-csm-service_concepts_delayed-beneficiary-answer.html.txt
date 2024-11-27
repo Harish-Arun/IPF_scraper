@@ -1,0 +1,40 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/tips-csm-service/concepts/delayed-beneficiary-answer.html ===
+Missing/Delayed Beneficiary-side Answer Flow
+Step
+Involved Messages
+Involved Actors
+Description
+1
+TIPS
+Every X seconds, with "X" being defined in the "Sweeping timeout" parameter, the Sweeping service runs checking all the payment in status "Reserved".
+If the "Acceptance timestamp" of the payment has exceeded the "SCTInst Timestamp Timeout" value, the payment is elected for sweeping
+1
+FIToFIPaymentStatusRequest
+Originator Participant, Ancillary System or Instructing Party as Sender
+TIPS as receiver
+TIPS receives an incoming Investigation request from the Originator Participant, Ancillary System or Instructing Party.
+There is no existing generated payment transaction status advice for the transaction and no answer from Beneficiary side has reached TIPS.
+2
+TIPS
+TIPS executes these operations for each orphan payment:
+- TIPS retrieves the transaction to be rejected and its ID executing the check aTimeout Check - Missing answera (see 4.1- Business Rules for details);
+- The transaction is set to "Expired" status;
+- The reserved amount is released in the involved Originator account and the possibly involved Debiting CMB is increased by the same amount
+TIPS always releases the reserved transactions even if the involved account or CMB have been blocked in the meantime.
+3
+FIToFIPaymentStatusReport
+TIPS as sender
+Originator Participant, Ancillary System or Instructing Party as receiver
+TIPS sends a message to the Originator Participant, Ancillary System or Instructing Party a same DN of the Sender taken from the transaction under analysis.
+The FItoFIPaymentStatusReport contains the Transaction ID of the transaction and the proper error code.
+4
+TIPS
+TIPS unsuccessfully executes the check:
+- Pending transaction existing.
+5
+FIToFIPaymentStatusReport
+TIPS as sender
+Beneficiary Participant, Ancillary System or Instructing Party as receiver
+TIPS sends a FIToFIPaymentStatusReport message to the Beneficiary Participant, Ancillary System or Instructing Party (DN of the sender of the message) containing the proper error code.
+Customer Payment Process
+Investigation

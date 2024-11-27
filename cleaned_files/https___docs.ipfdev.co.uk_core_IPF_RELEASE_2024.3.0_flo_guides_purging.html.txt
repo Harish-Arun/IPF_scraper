@@ -1,0 +1,115 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo/guides/purging.html ===
+How to enable persistence purging
+Flo-Lang is built upon the
+Akka Event-Sourced Domain model
+. Throughout a flow, domain events (and optionally snapshots) are persisted to the database by the configured
+Akka Persistence Plugin
+. You can configure your EventSourcedBehaviour to command the Persistence Plugin to create snapshots and delete events. This can help ensure consistent database performance and avoid the risk that a database can become unavailable due to filling up all available storage.
+When building a domain class, the snapshot creation and event deletion functionality for your flows can be controlled using an implementation of the
+BehaviourExtensions
+interface. There are three options that can be used to implement this functionality:
+Using the DefaultBehaviourExtensions class
+Extending the DefaultBehaviourExtensions class
+Creating your own implementation of BehaviourExtensions
+The BehaviourExtensions interface controls whether your built domain commands the Akka Persistence Plugin to create snapshots and delete events. The actual database writes are controlled by which Akka Persistence Plugin has been configured.
+See
+Journal and Snapshot Purging
+for more information about configuring purging with the IPF Akka Persistence Plugin for MongoDB. When utilising a different Persistence Plugin, consult the
+official Akka documentation
+for information on how each plugin handles persisting and deleting documents.
+Using the DefaultBehaviourExtensions class
+By default, when building a domain class, a instance of the
+DefaultBehaviourExtensions
+class is provided. This class can be controlled through configuration to enable the creation of snapshots after persisting a terminal event, and to enable the deletion of events after a snapshot is persisted successfully.
+ipf.behaviour.config.persistence {
+  snapshot-when-terminal=false
+  delete-events-on-snapshot=false
+}
+snapshot-when-terminal
+When configured to true, your behaviour will trigger the persistence of a snapshot after a event leading to a terminal state has been successfully persisted to the database.
+A terminal state is defined within your MPS flow:
+delete-events-on-snapshot
+When configured to true, after the successful persistence of a snapshot, your behaviour will trigger the deletion of all events matching the snapshots persistenceId and with a sequence number less than or equal to the snapshots sequence number
+The default configuration is to not create and persist snapshots and to not delete events on snapshots. This functionality must be explicitly enabled through configuration.
+Extending DefaultBehaviourExtensions
+The BehaviourExtensions interface is capable of controlling more than just the snapshotting and event deletion functionality. If you want to utilise some additional functionality, such as implementing an
+EventAdapter
+, while also utilising the default purging functionality, you should create a class extending the DefaultBehaviourExtensions class and supply that to your domain.
+public class ExtendingDefaultBehaviourExtensions extends DefaultBehaviourExtensions {
+
+    public ExtendingDefaultBehaviourExtensions(ConfigSettings configSettings, ModelDescriptor modelDescriptor) {
+        super(configSettings, modelDescriptor);
+    }
+
+    @Override
+    public Optional<EventAdapter<Event, Event>> eventAdapter() {
+        // Your event adapter implementation
+    }
+}
+When initiating your domain, you will need to pass an instance of your BehaviourExtensions class into the EventSourcedBehaviour using
+withBehaviourExtensions
+:
+@EventListener
+public void init(ContextRefreshedEvent event) {
+    ExtendingDefaultBehaviourExtensions myBehaviourExtensions = new ExtendingDefaultBehaviourExtensions(ConfigSettings.create(config), MyModelDescriptorBuilder.build());
+(1)
+new MyDomain.Builder(actorSystem)
+            .withEventBus(eventBus)
+            .withSchedulerAdapter(schedulerAdapter)
+            .withSystemAActionAdapter(new SampleSanctionsActionAdapter(sanctionsAdapter))
+            .withSystemBActionAdapter(new SampleSanctionsActionAdapter(sanctionsAdapter))
+            .withBehaviourExtensions(myBehaviourExtensions)
+(2)
+.build();
+}
+1
+Instantiate your ExtendingDefaultBehaviourExtensions using ConfigSettings and your domains ModelDescriptor
+2
+Supply the instance of ExtendingDefaultBehaviourExtensions to your domain
+Creating your own implementation of BehaviourExtensions
+You might want to utilise your own snapshot and event deletion functionality. To do this, you need to create your own implementation of the BehaviourExtensions interface and supply it to your domain.
+public class MyBehaviourExtensions implements BehaviourExtensions {
+    @Override
+    public Optional<Boolean> shouldSnapshot(Aggregate aggregate, Event event, long sequenceNr) {
+        return event instanceof BookingCompleted;
+    }
+
+    @Override
+    public Optional<Boolean> deleteEventsOnSnapshot() {
+        return Optional.of(false);
+    }
+
+    @Override
+    public Optional<RetentionCriteria> retentionCriteria() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Function<Event, CompletionStage<Void>> onEventPersistenceForwarder() {
+        return null;
+    }
+
+    @Override
+    public Optional<EventAdapter<Event, Event>> eventAdapter() {
+        return Optional.empty();
+    }
+}
+When initiating your domain, you will need to pass an instance of your BehaviourExtensions class into the EventSourcedBehaviour using
+withBehaviourExtensions
+:
+@EventListener
+public void init(ContextRefreshedEvent event) {
+    new MyDomain.Builder(actorSystem)
+            .withEventBus(eventBus)
+            .withSchedulerAdapter(schedulerAdapter)
+            .withSystemAActionAdapter(new SampleSanctionsActionAdapter(sanctionsAdapter))
+            .withSystemBActionAdapter(new SampleSanctionsActionAdapter(sanctionsAdapter))
+            .withBehaviourExtensions(new MyBehaviourExtensions())
+(1)
+.build();
+}
+1
+Supply the instance of MyBehaviourExtensions to your domain
+In this example implementation, your domain will trigger the creation of a snapshot when an event of instance BookingCompleted is successfully persisted, and the domain will not trigger the deletion of events after persisting the snapshot.
+Configuring States for Recovery or Passivation
+Migrate an existing IPF application for purging

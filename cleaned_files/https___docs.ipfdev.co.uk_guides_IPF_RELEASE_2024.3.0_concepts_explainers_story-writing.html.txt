@@ -1,0 +1,196 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/concepts/explainers/story-writing.html ===
+User Story Guide for IPF Solution Projects
+The purpose of this article is provide some guidance on how to write user stories when defining requirements for a solution built with IPF. It is assumed that the reader already has knowledge of user stories in the context of agile software development.
+When a user story is being written in the context of a solution being built with IPF, it should explicitly refer to IPF components and concepts. Most typically this will involve the flow definition in IPF Studio, but can also refer to other IPF core services and business functions (
+Reachability Service
+,
+SEPA CT STEP2 scheme pack
+etc). While IPF stories should provide as much detail as reasonable, they should still follow the normal agile INVEST principles of:
+Independent
+Negotiable
+Valuable
+Estimable
+Small
+Testable
+Typical User Story Writing Process for IPF
+1. Define the Scope
+The agile squad(s) agree a scope for a defined piece of work that they believe is achievable within a couple of sprints, usually within a single epic.
+This epic defines the scope and provides any needed context; the context can range from simple text describing business needs, to diagrams or even to use case models depending on the level of complexity and functional reuse.
+An IPF implementation consists of loosely coupled services defined by a client (Often containing one or more flows) as well as some pre-defined services provided by IPF.
+A possible client defined service with a flow is a 'Payment Execution Service' - this could receive a payment request in a Pain001 format and then manage the orchestration of the request by interacting with bank functions like accounting, FX, sanctions and fraud. This kind of orchestration service would have an extensive set of flows to handle returns and other edge cases.
+Another possible client defined service with a flow is a "Payment Recall Service" - this could handle all Camt056 processing and, if a return needs to be sent, initiate a flow in the Payment Execution Service to send a Pacs004 to the scheme.
+An example of a pre-defined service without a flow is the
+Notification Service
+- this sends payment status reports (Pain002s) to channels to provide the status of a transaction at defined stages of processing.
+The solution design describes the service boundaries, how the services interact and what happens inside those services (e.g. flows). It is typically created alongside the scope and referred to when creating the user stories.
+2. Writing User Stories
+2.1 Creating a New Service
+As the solution is built, new services will be added. It is a good idea to have a 'getting started' user story each time a new service is due to be created. This technical user story allows the engineers to create the project, set up the repo etc. and should describe the service boundaries and interfaces that are defined in the solution design, including the entry criteria (e.g. a specific message type required for the first flow) and exit criteria (e.g. a notification) for the service. Updates to a service warrant their own user stories.
+It is likely that service configuration will be used to store parameters used during processing. Document and maintain all the information about the configuration settings (business as well as technical config) in a space that is used to share information among teams, like Confluence or SharePoint.
+2.2 Creating an Initial Flow
+If a flow is being created for the first time it is sensible to have a dedicated story to create a skeleton version of the flow. The skeleton should:
+Define all known
+DSL states
+that a transaction can pass through on its happy path
+Have at least one terminal DSL state for the happy path
+Have a generic terminal failed or rejected DSL state a this can be replaced later with several specific failure states if required
+Define the
+domain events
+that will drive the DSL state transitions
+Define the responses that will generate the domain events
+Define the outcomes of all decisions (if any) used in the happy path
+Have no errors in IPF studio a i.e. the initiation behaviour, input behaviour and event behaviour are defined to an extent that means the flow is valid and a transaction can be processed through a flow to a terminal DSL state.
+At this stage you do not need to create subflows, although you may want to create a temporary DSL state to represent a subflow that will be defined at a later stage.
+You should ensure that:
+DSL States are named in the present tense and represent an action the solution built with IPF is doing, generally they will have an ainga word (e.g. Validat
+ing
+Payment, Await
+ing
+scheme response)
+Domain events are named in the past tense and represent a fact about something that has occurred in the payment flow, generally they will have an aeda word (e.g. Payment Validat
+ed
+, Payment Accept
+ed
+by CSM)
+References are added to fields where possible so engineers clearly know what is being referred to (e.g. to define a validation using participant limits: Payment amount (PmtInf.CdtTrfTxInf.Amt.InstdAmt.value) is less than creditor agent participant limit (Reachability.CSMParticipant.Limit.Amount)
+2.3 Update a Flow/Add Subflow Stories
+Most user stories will be building upon existing flows a either an initial flow (see above) or subsequent iterations. It is helpful to draw the updated flow in a diagramming application, marking the change (e.g. a new DSL state, change to the name of a domain event, etc.) in a separate colour and attaching it to the story. This is simpler than creating a branch in IPF studio for a business user, and it allows more independent scheduling as the change is clearly highlighted and doesnt require any merging of flows.
+Use the acceptance criteria in the story to define the changes to the flow in more detail using the gherkin syntax (scenario, given, when, then) making reference to DSL states and domain events to make clear where in the flow the requirement sit.
+2.3.1 Mapping
+When sending and receiving information with other systems, mapping is required from the flow data model to and from the external system.
+You will need to refer to a technical specification for requests and responses a this should be linked from the story, rather than defined within the story itself
+You will need to define the data mapping for a request (and sometimes a response too)
+Mapping specifications should be linked from the story, rather than defined within the story itself unless it is a very, very simple mapping
+Although the mapping sheet will cover all the data required in the request, it is worth including the most important data in the acceptance criteria to help readability and provide context
+2.3.2 Gherkin Scenario
+Provides an overview of what the story is trying to achieve in a short sentence and the path the transaction has taken up to the point that change is being made.*
+Example: A request is made from the Payment Execution flow to the CSM service and the response is handled - the transaction will be either rejected or continue processing.
+2.3.3 GIVEN
+Provides the pre-conditions.
+List the flow(s) that a transaction has been through up this point
+Specify the key domain events in the flow(s) that must have happened before story takes effect
+List the service(s) that are changed by the story.
+Example:
+GIVEN
+a payment has been submitted to the payment execution flow
+AND
+the last event is transactionValidated
+2.3.4 WHEN
+Provides the trigger for the required behaviour (could be a domain event, the result of a
+decision
+,
+aggregate function
+or
+flow
+/
+subflow
+, a specific type of response from a bank system etc.).
+Example:
+WHEN
+a request is sent to the Reachability service
+AND
+the request is structured according to the specification (add link to mapping page and specification)
+AND
+the request contains the Creditor Agent BIC
+AND
+a response has been received (add link to specification)
+2.3.5 THEN
+Is used to describe the required behaviour:
+The name of event generated by the response/output must be defined. This will correspond to the event defined in Payments DSL and used in the Input Behaviour.
+If a response code that is different to the output of an external domain is required (e.g. the external domain returns BANK4532, but you want the flow to handle it as IPF031), then this should be specified in the story. The user defined response code will either be from a predefined set imported into the Payments DSL (e.g. ISO) or a custom set of codes defined in the Payments DSL.
+If the response is a failure, then a reason code should be defined along with a reason code description.
+If the IPF Operational Dashboard is being used, then it can be valuable to describe what would be expected to be seen on the GUI as part of the acceptance criteria.
+The
+global state
+that corresponds to the state transition should be provided, if it needs to change (in the example below the global state will remain in a pending state if the creditor reachability check passes).
+Example:
+THEN
+an event is generated with a corresponding response and reason code and the following state transitions occur
+Response
+Event
+Response code
+Reason code
+Reason code description
+Transition to DSL state
+Global state
+pass
+reachabilityCheckPassed
+ACPT
+GY.001.002
+Creditor Agent Reachable
+Transaction Completed
+fail01
+reachabilityCheckFailed
+RJCT
+GY.200.001
+Creditor Agent Invalid
+Transaction Rejected
+Rejected
+fail02
+reachabilityCheckFailed
+RJCT
+GY.200.002
+Creditor Agent Not Reachable
+Transaction Rejected
+Rejected
+AND
+the following is observable on the IPF Operational Dashboard:
++
+the reachabilityCheckPassed event with Response Code
++
+the reachabilityCheckFailed event with Response Code, Reason Code and Reason Description
++
+the graphical representation of the flow showing the state transition to Transaction Rejected or Transaction Completed
++
+the state transition of the global state from Pending to Rejected upon the reachability check failing
++
+the global state remaining as Pending upon the reachability check passing
+2.4 Add a Domain Function Stories
+Domain functions are developed by IPF clients and are called from the flow via a request.  The Domain function will provide a response to the flow.
+If the function is simple, then the logic of the function can be described in the user story, otherwise it is advisable to describe the function where you keep project documentation and refer to it from the user story.
+Use the name of the function defined in the Payments DSL function library when referring to it in the user story.
+2.5 Configuration and Set Up Stories
+Some stories will be related to data setup, configuration changes, GUI usability etc. and will not lend themselves to naturally use the gherkin syntax. In these cases describe the requirement in the clearest way possible and ignore the Given, When, Then format.
+Ensure you always use Given, When, Then when describing flow requirements
+Some examples are:
+Creating or amending Processing Entity data structures
+Creating or amending CSM Agent and CSM Agent Settings data structures
+Create or amending technical or business configuration for a Service
+2.6 Simulator Stories
+If simulators are being built to represent external domains in the Payments DSL (e.g. an accounting platform or an FX system), then a user story to create the simulator will be required.
+Simulators stories should:
+Give an overall background and reference any architecture diagrams to be clear what is being simulated (e.g. an FX system or an accounting system)
+Provide links to the technical specifications for the external domain being simulated
+Be clear what the minimum data needed by the simulator is - in general the request should provide the data needed to be valid and for meaningful testing.
+Specify the magic values required.  Magic values are values (e.g. a specific name or amount) that will drive a specific response.
+Example:
+A simulator is required to represent a system that checks an account can be debited and returns a validation response which, if successful, includes an address.
+The user story would need to define the magic values needed for a number of different possible responses, and the data in the request to the simulator would have to contain those magic values.
+In this example a specific amount is used to drive the responses from the simulator:
+Scenario
+Request Data
+Expected Response
+Transaction passes validation, no enrichment
+Amount = 1.01
+Pass
+Address Line 1 is populated
+Transaction passes validation, enriched data in response
+Amount = 1.02
+Pass
+Address Line 1 is populated
+Town is populated
+Transaction fails validation
+Amount = 1.03
+Fail
+It is not necessary to cover every failure scenario, as they may run into the hundreds.  You only need cover each failure scenario that drives different behaviour in the flow.  If a group of failures result in the same behaviour, then you will need one of them modelled in the simulator.
+Tips and Tricks
+Never use the words "event" or "state" without being clear what the type is; its either a domain event or a system event. Likewise, its either a DSL state or a global state.
+Once youve created a simulator with a simulator story, adding new scenarios to the simulator may be best handled as part of the relevant flow story, depending on the level of complexity
+Using a business process model, like BPMN, along with a UML sequence diagram helps clarify the epic scope, especially when dealing with part of a complex end-to-end process that has been broken down into multiple IPF flows and services.
+If using Jira or a similar tool, the 'components' field can be used to list the relevant services rather than the success criteria.
+Because
+message logging
+in IPF is flexible, there is no default logging; so its a good idea to explicitly state that any new external messages a story is introducing to a flow need to be logged as this can easily be missed otherwise.
+Always specify what you want external messages to be called in the GUI.
+How to Start Your First IPF Implementation Project
+Rolling Upgrade Deployments with IPF SDK

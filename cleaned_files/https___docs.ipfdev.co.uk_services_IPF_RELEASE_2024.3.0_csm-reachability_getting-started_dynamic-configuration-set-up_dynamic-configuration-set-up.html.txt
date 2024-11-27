@@ -1,0 +1,6 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/dynamic-configuration-set-up/dynamic-configuration-set-up.html ===
+Dynamic Configuration Set Up
+Here are recommended steps to take when setting up dynamic configurations used for CSM Reachability Service.
+Refer to individual dynamic configuration set up steps for each dynamic configuration in the following section.
+File Ingestion Configuration
+Dynamic Configuration Management Guidelines

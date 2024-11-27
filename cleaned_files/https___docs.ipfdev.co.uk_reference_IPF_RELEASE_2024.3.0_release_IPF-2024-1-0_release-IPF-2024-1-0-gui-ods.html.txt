@@ -1,0 +1,49 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-1-0/release-IPF-2024-1-0-gui-ods.html ===
+ODS & GUI - Changes & Fixes
+This page covers the Operation Data Store (ODS) changes and fixes provided in release IPF-2024.1.0.
+ODS
+New
+IPF Metrics Processor
+The IPF Metrics Processor is an optional add-on. It utilises kafka to produce payment metrics, which includes counts and durations of finished payments, and counts of error codes.
+Additonal documentation and implementation guidelines found here. (Currently only staging docs, Will update link to external docs upon doc release)
+Camt027 and Camt087 MDS Object Support
+Camt.027 and camt.087 MDS Data can now be sent via the IPF Processing Data Kafka topic and ingested by ODS.
+There are two new ODS Inquiry API endpoints to query for these additional MDS objects:
+/catalogue/mds-objects/CAMT_027
+/catalogue/mds-objects/CAMT_087
+Both MDS objects can also be returned as part of the following ODS Inquiry API endpoints responses:
+/all/mds-objects/{odsObjectId}
+/all/mds-objects/{mdsObjectId}/history
+/views/details/{unitOfWorkId}
+GUI
+Changed
+Developer app updates and improvements
+Added summary, MDS and PDS tabs and improved the rendering of the graphs in the developer app
+New role to only allow the export functionality for specific users
+Implemented ngRxs linting rules as standard for our projects for a better standard of the codebase
+Updating the node and npm versions across our projects as our previous versions were now at end of life. Currently at node 20 and npm 10
+Split the backend config endpoint per module so any module that required a config no longer required ods-payment-search
+Updated the existing multiselect component to include a select all option
+Some general styling around the input field and requirements
+New navigation and route redesign
+New global navigation redesign and implementation for a more consistent feel and better user experience.
+Fixed
+Fixed an issue with the PDS history not showing any data
+Fixed an issue with sonar gate failing on ops-gui-framework and not picking up all the code correctly
+Removed
+CLIENT_REQUEST_ID
+from alternative Ids on the summary card
+Bank Filtering fixes
+CSM Agent ID is now optional
+Direction field updated based on service changes
+The GUI now displays the time zone offset against UTC for date time fields
+Creditor and Debtor identifier value fields are now correctly names
+Fixed an issue with swagger docs not matching the expected response for processing entity endpoint
+GUI Documentation & Tutorial
+Updating docs and details about our modules
+Version info
+Metric
+Processing entity mechanism and Permissions lib
+Cluster health
+CSM Reachability - Changes & Fixes
+SEPA CT CSM - Changes & Fixes

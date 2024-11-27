@@ -1,0 +1,169 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/akka-discovery-mongodb/getting-started/set-up-cluster-bootstrap.html ===
+Set up Cluster Bootstrap with MongoDB discovery
+This guide will help you use MongoDB as a discovery mechanism for bootstrapping an Akka cluster
+Step 0: Add dependency
+You will need to add this to pom.xml:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.discovery</groupId>
+    <artifactId>akka-discovery-mongodb-plugin</artifactId>
+</dependency>
+To find the latest version, you can use
+this Nexus query
+.
+Step 1: Enable Akka Cluster Bootstrap and Use MongoDB
+Add this snippet to your configuration (
+application.conf
+):
+akka {
+  extensions = ["akka.management.cluster.bootstrap.ClusterBootstrap"]
+  discovery {
+    method = akka-mongodb
+    akka-mongodb.uri = ${ipf.mongodb.url} # or use an actual MongoDB URI if not using this with IPF
+  }
+  management.cluster.bootstrap {
+    contact-point.filter-on-fallback-port=false
+  }
+}
+Step 2: Verify
+When starting up your application, you should check that indexes are created and that the service registers itself.
+Look for these lines in the log:
+[INFO] [04/26/2023 20:43:55.668] Ensured indexes on Akka Discovery MongoDB ([akka-discovery-mongodb-1])
+[INFO] [04/26/2023 20:43:55.663] Registered self with service name 8cc4d63b-09c8-4fca-9668-b11e6d00e75a and host:port 127.0.1.1:8558: AcknowledgedUpdateResult{matchedCount=0, modifiedCount=0, upsertedId=BsonObjectId{value=64497efb0b510545dbb89377}}
+Note that both of these pieces of functionality can be disabled.
+See below.
+You should now also be able to navigate to the Akka Management HTTP service (the default being
+127.0.1.1:8558
+) and observe that all nodes of the same type and that are using the same discovery method should be in a cluster together.
+Appendix A: Default Configuration
+The table below describes the default configuration that ships with the library:
+Config key
+Description
+Default value
+akka.discovery.akka-mongodb.uri
+The MongoDB URI to use to connect to the database.
+Set the value of this field if not using the plugin from within IPF or if not intending to use the same database as IPF.
+Honours the global
+ipf.mongodb.url
+property.
+ipf.mongodb.url
+if used within IPF,
+mongodb://localhost:27017/ipf
+otherwise
+akka.discovery.akka-mongodb.collection
+The name of the collection to store discovery data into
+akka-discovery-mongodb
+akka.discovery.akka-mongodb.register-self
+Should this node register itself in the database?
+true
+akka.discovery.akka-mongodb.create-indexes
+Should
+akka-discovery-mongodb
+create indexes for itself?
+Disable this if the database user is not granted the
+createIndex
+action.
+Honours the global IPF
+ipf.mongodb.create-indexes
+override.
+ipf.mongodb.create-indexes
+if set,
+true
+otherwise
+akka.discovery.akka-mongodb.commit-quorum
+The
+commit quorum
+to use when creating the index for Akka Discovery MongoDB.
+Honours the global IPF
+ipf.mongodb.commit-quorum
+override.
+ipf.mongodb.commit-quorum
+if set,
+votingMembers
+otherwise
+akka.discovery.akka-mongodb.updater.enabled
+Should the
+Updater
+run?
+true
+akka.discovery.akka-mongodb.updater.initial-delay
+Initial delay before the Updater starts updating its entrys
+lastUpdated
+value
+30 seconds
+akka.discovery.akka-mongodb.updater.initial-delay
+How often to update the
+lastUpdated
+value
+30 seconds
+akka.discovery.akka-mongodb.updater.expire-entries-older-than
+The
+expireAfter
+value of the MongoDB TTL index that is created
+30 minutes
+akka.discovery.akka-mongodb.set-ssl-context
+Whether to enable SSL support.
+Setting this to
+true
+will require setting some of the
+ssl-context
+settings below.
+Honours the global
+ipf.mongodb.set-ssl-context
+override.
+ipf.mongodb.set-ssl-context
+if set
+akka.discovery.akka-mongodb.ssl-context.key-store-type
+Type of the key store.
+Honours the global
+ipf.mongodb.ssl-context.key-store-type
+override.
+ipf.mongodb.ssl-context.key-store-type
+if set
+akka.discovery.akka-mongodb.ssl-context.key-store-location
+Path to the key store that holds the SSL certificate (typically a jks file).
+Honours the global
+ipf.mongodb.ssl-context.key-store-location
+override.
+ipf.mongodb.ssl-context.key-store-location
+if set
+akka.discovery.akka-mongodb.ssl-context.key-store-password
+Password used to access the key store.
+Honours the global
+ipf.mongodb.ssl-context.key-store-password
+override.
+ipf.mongodb.ssl-context.key-store-password
+if set
+akka.discovery.akka-mongodb.ssl-context.key-password
+Password used to access the key in the key store.
+Honours the global
+ipf.mongodb.ssl-context.key-password
+override.
+ipf.mongodb.ssl-context.key-password
+if set
+akka.discovery.akka-mongodb.ssl-context.trust-store-type
+Type of the trust store.
+Honours the global
+ipf.mongodb.ssl-context.trust-store-type
+override.
+ipf.mongodb.ssl-context.trust-store-type
+if set
+akka.discovery.akka-mongodb.ssl-context.trust-store-location
+Path to the trust store that holds the SSL certificate.
+Honours the global
+ipf.mongodb.ssl-context.trust-store-location
+override.
+ipf.mongodb.ssl-context.trust-store-location
+if set
+akka.discovery.akka-mongodb.ssl-context.trust-store-password
+Password used to access the trust store.
+Honours the global
+ipf.mongodb.ssl-context.trust-store-password
+override.
+ipf.mongodb.ssl-context.trust-store-password
+if set
+Note that there is also general Akka Cluster Bootstrap config that you might wish to tweak.
+The general Akka Cluster Bootstrap documentation can be found
+here
+.
+Getting Started
+Multiple Applications, One Database

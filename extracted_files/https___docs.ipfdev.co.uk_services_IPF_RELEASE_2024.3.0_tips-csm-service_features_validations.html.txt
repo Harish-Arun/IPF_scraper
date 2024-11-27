@@ -1,0 +1,213 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/tips-csm-service/features/validations.html ===
+Validations
+The purpose of this page is to summarise the additional usage validations performed by the TIPS scheme pack when processing a message.
+All messages undergo an XSD schema check to make sure that the fields are technically correct, but only certain fields have additional usage validations performed on them.  If an additional usage validation is not listed below then it is not validated by the scheme pack.
+Outbound (to scheme) messages have more validations performed than the Inbound (from scheme). This is in line with Icon’s rationale and prioritisation of making sure client constructed messages conform to all scheme rules and are not likely to be rejected. Messages from the scheme have, however, already been validated, so the priority for those is swift, safe processing through to the customer’s account.
+Inbound pacs.008
+The following validations are performed on an Inbound pacs.008, failures will result in a pacs.002 sent back to the scheme with the Return Code quoted below, and a system event to inform the Client.
+Field
+Validation Details
+Return Code
+All Fields
+Checks if the message is valid against the TIPS pacs.008 xsd
+FF01
+GrpHdr+TtlIntrBkSttlmAmt
+Check that it is coherent with the value of the underlying transactions and the Currency is EUR
+FF01
+CdtTrfTxInf+PmtId++TxId
+Technical Duplicate Check (same DbtrAgt and TxId within last 5 days for TIPS)
+AM05
+CdtTrfTxInf+AccptncDtTm
+[AcceptanceDateTime on the Creditor CT + the configured scheme timeout limit] must be greater than [the current timestamp + the configured time allowed to process a transaction within IPF (configurable by customer and per payment type)
+AB05
+CdtTrfTxInf+UltmtDbtrId+OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed
+FF01
+CdtTrfTxInf+UltmtDbtrId+PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed
+FF01
+CdtTrfTxInf+Dbtr++PstlAdr
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used
+FF01
+CdtTrfTxInf+DbtrPstlAdr+AdrLine
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used
+FF01
+CdtTrfTxInf+DbtrId+OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed
+FF01
+CdtTrfTxInf+DbtrId+PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed
+FF01
+CdtTrfTxInf+CdtrAgtFinInstnId+BICFI
+Validated against IPF configuration to ensure that this BIC corresponds to a BIC that this instance of IPF has responsibility for
+RC01
+CdtTrfTxInf+Cdtr++PstlAdr
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used.
+FF01
+CdtTrfTxInf+CdtrPstlAdr+AdrLine
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used
+FF01
+CdtTrfTxInf+CdtrId+OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed
+FF01
+CdtTrfTxInf+CdtrId+PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed
+FF01
+CdtTrfTxInf+UltmtCdtrId+OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed.
+FF01
+CdtTrfTxInf+UltmtCdtrId+PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed.
+FF01
+CdtTrfTxInf+RmtInf
+Either Unstructured or Structured may be present. If both components are included, the message will be rejected during the validation process.
+FF01
+Outbound pacs.008
+If any of the below validations fail then a Response is sent back to the client and a system event is raised.
+Field
+Validation Details
+Result of Failure
+All Fields
+Checks if the message is valid against the TIPS pacs.008 xsd
+System event raised with a description of the error
+GrpHdr.TtlIntrBkSttlmAmt
+Must be equal to the value of the underlying transaction
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and description "Interbank Settlement Amount between group header and transaction do not match"
+CdtTrfTxInf+PmtId++TxId
+Technical Duplicate Check (same DbtrAgt and TxId within last 5 days for TIPS)
+ERROR level system event raised with name 'OutboundMessageFailed' and description "Duplicate Transaction"
+CdtTrfTxInf+UltmtDbtrId+OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.UltmtDbtr.Id.OrgId"
+CdtTrfTxInf+UltmtDbtrId+PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.UltmtDbtr.Id.PrvtId"
+CdtTrfTxInf+Dbtr++PstlAdr
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used
+ERROR level system event raised with name  'SchemeRuleValidationFailed' and description "CdtTrfTxinf.Dbtr.PstlAdr - Structured Address must include a minimum of Town Name and Country Code"
+CdtTrfTxInf+DbtrPstlAdr+AdrLine
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used
+ERROR level system event raised with name  'SchemeRuleValidationFailed' and description "CdtTrfTxinf.Dbtr.PstlAdr.AdrLine - Unstructured address can only be combined with country code - no other structured address fields can be used"
+CdtTrfTxInf+DbtrId+OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.Dbtr.Id.OrgId"
+CdtTrfTxInf+DbtrId+PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.Dbtr.Id.PrvtId"
+CdtTrfTxInf+Cdtr++PstlAdr
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used.
+ERROR level system event raised with name  'SchemeRuleValidationFailed' and description "CdtTrfTxInf.Cdtr.PstlAdr - Structured Address must include a minimum of Town Name and Country Code"
+CdtTrfTxInf+CdtrPstlAdr+AdrLine
+If 'Address Line' is used, then 'Postal Address' sub-elements other than 'Country' are forbidden. A combination of 'Address Line' and 'Country' is allowed. If 'Address Line' is not used, then at least 'Town Name' and 'Country' must be used
+ERROR level system event raised with name  'SchemeRuleValidationFailed' and description "CdtTrfTxInf.Cdtr.PstlAdr.AdrLine - Unstructured address can only be combined with country code - no other structured address fields can be used"
+CdtTrfTxInf+CdtrId+OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.Cdtr.Id.OrgId"
+CdtTrfTxInf+CdtrId+PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.Cdtr.Id.PrvtId"
+CdtTrfTxInf+UltmtCdtrId+OrgId
+Either 'AnyBIC', 'LEI' or one occurrence of 'Other' is allowed.
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.UltmtCdtr.Id.OrgId"
+CdtTrfTxInf+UltmtCdtrId+PrvtId
+Either 'Date and Place of Birth' or one occurrence of 'Other' is allowed.
+ERROR level system event is raised with name 'SchemeRuleValidationFailed' and description "Mutually exclusive fields populated in CdtTrfTxInf.UltmtCdtr.Id.PrvtId"
+Inbound pacs.004
+The TIPS Scheme rules do not allow a pacs.004 to be rejected by the receiving bank. The scheme pack therefore does not perform any additional field validations. A technical validation of the message will be performed against the xsd in order to certain that it is not malformed or has been truncated, after this however, the message is passed to the client implementation flow for processing. It is the responsibility of the bank to decide if the return can be posted to the customer account or if it needs to be handled via exception processing.
+Field
+Validation Details
+Result of Failure
+All Fields
+Checked to make sure the message is valid against the TIPS pacs.004 xsd
+System event raised to payment service stating an invalid pacs.004 was received
+Outbound pacs.004
+If any of the below validations fail then a Response is sent back to the client and a system event is raised.
+Field
+Validation Details
+Result of Failure
+All Fields
+Checks if the message is valid against the TIPS pacs.004 xsd
+System event raised with a description of the error
+GrpHdr+NbOfTxs
+TIPS supports only one transaction per message.  If this field is not 1, the message will be rejected.
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and description "Number of transactions in group header and underlying transactions do not match" or "Only one instance of PmtRtr.TxInf is permitted"
+GrpHdr+TtlRtrdIntrBkSttlmAmt
+Check that it is coherent with the value of the underlying transactions
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and description ERROR level system event raised with name 'SchemeRuleValidationFailed'
+OrgnlGrpInf
+Sub-elements of 'Original Group Information' must be present in either 'Original Group Information' or in 'Transaction Information'.
+If any of these sub-elements is included in both components, message will be rejected.
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and description "Either PmtRtr.GrpHdr.OrgnlGrpInf or PmtRtr.TxInf.OrgnlGrpInf must be populated" or "Both PmtRtr.GrpHdr.OrgnlGrpInf and PmtRtr.TxInf.OrgnlGrpInf cannot be populated"
+TxInf
+TIPS supports only one transaction per message. If more than one Transaction Information block is included, message will be rejected.
+ERROR level system event raised with name 'SchemeRuleValidationFailed'"Only one instance of PmtRtr.TxInf is permitted"
+TxInf+RtrId
+Technical Duplicate Check (same Original CdtrAgt and RtrId within last 5 days for TIPS)
+ERROR level system event raised with name 'OutboundMessageFailed' and description "Duplicate Transaction"
+TxInf+OrgnlGrpInf
+Sub-elements of 'Original Group Information' must be present in either 'Original Group Information' or in 'Transaction Information'.
+If any of these sub-elements is included in both components, message will be rejected.
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and description "Either PmtRtr.GrpHdr.OrgnlGrpInf or PmtRtr.TxInf.OrgnlGrpInf must be populated" or "Both PmtRtr.GrpHdr.OrgnlGrpInf and PmtRtr.TxInf.OrgnlGrpInf cannot be populated"
+Inbound pacs.002
+A pacs.002 cannot be sent to scheme as the result of failed pacs.002 validation. In this situation a System Event is raised
+Field
+Validation Details
+Return Code
+All Fields
+Checked to make sure the message is valid against the TIPS pacs.002 xsd
+System event raised to payment service stating an invalid pacs.002 was received
+When processing an incoming (from scheme) pacs.002 message which is in response to an outgoing (to scheme) pacs.008 message the only additional validation check performed is to check that the pacs.002
+received correlates with an outbound pacs.008. If the pacs.008 cannot be located then a system event is raised to payment service stating an invalid pacs.002 was received.
+Outbound pacs.002
+If any of the following validations fail, a system event is raised with a description of the failure.
+Field
+Validation Details
+Result of Failure
+All Fields
+Checks if the message is valid against the TIPS pacs.002 xsd
+System event raised with a description of the error
+OrgnlGrpInfAndSts+OrgnlMsgNmId
+Checks that field is equal to 'pacs.008.001.08'
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and Description "Invalid value in OrgnlMsgNmId"
+OrgnlGrpInfAndSts+GrpSts
+Sub-elements of 'Original Group Information' must be present in either 'Original Group Information' or in 'Transaction Information'. If any of these sub-elements is included in both components, message will be rejected.
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and Description "Either FIToFIPmtStsRpt.OrgnlGrpInfAndSts.GrpSts or FIToFIPmtStsRpt.TxInfAndSts.TxSts must be populated" or "Both FIToFIPmtStsRpt.OrgnlGrpInfAndSts.GrpSts and FIToFIPmtStsRpt.TxInfAndSts.TxSts cannot be populated"
+OrgnlGrpInfAndSts+StsRsnInf
+MUST be populated if status = "RJCT"
+MUST NOT be populated if status = "ACCP"
+ERROR level system event raised with name 'OutboundMessageValidationFailedSchemeRuleValidationFailed' and description "Status reason Information can only be populated if GrpSts is Rejected" or "Transaction Information and Status reason Information must be populated if TxSts is Rejected"
+TxInfAndSts+TxSts
+Sub-elements of 'Original Group Information' must be present in either 'Original Group Information' or in 'Transaction Information'.
+If any of these sub-elements is included in both components, message will be rejected.
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and Description "Either FIToFIPmtStsRpt.OrgnlGrpInfAndSts.GrpSts or FIToFIPmtStsRpt.TxInfAndSts.TxSts must be populated" or "Both FIToFIPmtStsRpt.OrgnlGrpInfAndSts.GrpSts and FIToFIPmtStsRpt.TxInfAndSts.TxSts cannot be populated"
+TxInfAndSts+StsRsnInf
+MUST be populated if status = "RJCT".
+MUST NOT be populated if status = "ACCP"
+ERROR level system event raised with name 'OutboundMessageValidationFailedSchemeRuleValidationFailed' and description "Status reason Information can only be populated if GrpSts is Rejected" or "Transaction Information and Status reason Information must be populated if TxSts is Rejected"
+Outbound pacs.028
+If any of the following validations fail, a system event is raised with a description of the failure.
+Field
+Validation Details
+Result of Failure
+All Fields
+Checked to make sure the message is valid against the TIPS pacs.028 xsd
+System event raised to payment service stating an invalid pacs.028 was received
+OrgnlGrpInf.OrgnlMsgNmId
+Must be equal to pacs.008.001.08
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and description "Invalid value in OrgnlMsgNmId"
+TxInf.AccptncDtTm
+MUST be populated
+ERROR level system event raised with name 'SchemeRuleValidationFailed' and description "FIToFIPmtStsReq.TxInf.AccptncDtTm is mandatory on a payment status request"
+Inbound pacs.028
+The following validations are performed on an Inbound pacs.028, failures will result in a pacs.002 sent back to the scheme with the Return Code quoted below, and a system event to inform the Client.
+Field
+Validation Details
+Return Code
+All Fields
+Checked to make sure the message is valid against the TIPS pacs.028 xsd
+FF01
+OrgnlGrpInf.OrgnlMsgNmId
+Must be set to pacs.008.001.08
+FF01
+Deployment
+Validation API

@@ -1,0 +1,171 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/events.html ===
+List of System Events
+The below table documents the system events that can be raised by
+SEPA DD CSM
+. Payload schemas are documented as
+JSON Schema draft 4
+.
+Use a tool such as
+this one
+for a visual representation of the payload
+schemas.
+All events contain some basic top-level information, and a payload. The top-level information is represented as
+members of the
+IPFSystemEvent
+type, and their payloads are documented below.
+The schema for the top-level
+IPFSystemEvent
+type is as follows:
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "IPF System Event",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "name" : {
+      "type" : "string"
+    },
+    "level" : {
+      "type" : "string",
+      "enum" : [ "DEBUG", "INFO", "WARN", "ERROR" ]
+    },
+    "createdAt" : { },
+    "version" : {
+      "$ref" : "#/definitions/EventVersion"
+    },
+    "type" : {
+      "type" : "string",
+      "enum" : [ "TECHNICAL", "FUNCTIONAL" ]
+    },
+    "processingContext" : {
+      "$ref" : "#/definitions/ProcessingContext"
+    },
+    "source" : {
+      "type" : "string"
+    },
+    "metadata" : {
+      "type" : "object",
+      "additionalProperties" : {
+        "type" : "string"
+      }
+    },
+    "payload" : {
+      "$ref" : "#/definitions/Object"
+    }
+  },
+  "definitions" : {
+    "EventVersion" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "major" : {
+          "type" : "integer"
+        },
+        "minor" : {
+          "type" : "integer"
+        },
+        "patch" : {
+          "type" : "integer"
+        }
+      },
+      "required" : [ "major", "minor", "patch" ]
+    },
+    "ProcessingContext" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "associationId" : {
+          "type" : "string"
+        },
+        "checkpoint" : {
+          "type" : "string"
+        },
+        "unitOfWorkId" : {
+          "type" : "string"
+        },
+        "clientRequestId" : {
+          "type" : "string"
+        },
+        "processingEntity" : {
+          "type" : "string"
+        }
+      }
+    },
+    "Object" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : { }
+    }
+  }
+}
+SEPA DD CSM System Events
+Name
+Description
+Type
+Level
+Payload schema
+BulkCommandFailed
+Published when a command to the recurring bulk fails
+TECHNICAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "errorMessage" : {
+      "type" : "string"
+    },
+    "componentContent" : {
+      "type" : "string"
+    }
+  }
+}
+ReceiveFromSchemeExtensionPointFailed
+Published when a negative response is received from scheme message level extension point
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "description" : {
+      "type" : "string"
+    }
+  }
+}
+SendToSchemeExtensionPointFailed
+Published when a negative response is received from a send to scheme message level extension point
+FUNCTIONAL
+ERROR
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "description" : {
+      "type" : "string"
+    }
+  }
+}
+SendToSchemeExtensionPointSuccess
+Published when a successful response is received from a send to scheme message level extension point
+FUNCTIONAL
+DEBUG
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Payload",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "description" : {
+      "type" : "string"
+    }
+  }
+}
+Getting Started
+TIPS CSM Service

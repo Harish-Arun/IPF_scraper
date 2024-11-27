@@ -1,0 +1,49 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/home.html ===
+Bank Filtering
+Service Overview
+The Bank filtering service offers means to filter the transactions based on criteria defined through aDynamicallya configurable rules. The rules can be configured using the aDynamic Process Settingsa solution on IPF. This enables the rules to be updated without needing a restart on IPF implementation.
+The filtering service accepts selective payment attributes through Bank filtering Service API. The attributes can be populated by the client implementation flows on the API request from the payments it is processing to evaluate if the transaction being processed matches with any active filtering rules defined. The Service API provides a response based on matching rule and also provides relevant information about the rule, primarily severity of the matching rule(s).
+The Bank Filtering Service API response allows client implementations to determine how the payment should be processed based on the rules it has matched, if any. Possible actions from client implementation flows on back of Bank Filtering Service API response can be to:
+Block / Reject payment
+Send the payment for manual review
+Log the payment for regulatory reporting
+Allow processing of the payments if no rules matched
+The action following service API response is a client implementation decision, to be implemented on payment processing flows and the service does not dictate what operation should be performed by client implementations when rules are matched. The service purely informs of a match between the input request and the dynamically configurable filtering rules.
+Bank Filtering Contextual Diagram
+Bank filtering services uses below key components to provide the client implementations the filtering capability.
+Contextual Diagram
+Components
+#
+Component / Feature
+Description
+1
+Bank Filtering Rules
+These are the filtering rules defined by client implementation teams so they are applied to the payments being processed by payment processing flows to be able to check the risk involved with processing of the payment and take action based on the severity of the rule. The service also provides caching for the rules to reduce the database interactions and increase the performance of the service functionality.
+2
+Dynamic Processing Setting Management APIs
+The Setting management APIs are provided through use of IPF Dynamic Processing Settings implementation. The APIs provide ability to dynamically create, update and delete the rules as required. The DPS implementation also provides approvals workflow so the rules can go through multi-eye approval checks before they are considered active.
+3
+Bank Filtering Service API
+The service API provides an interface for client implementation flows / systems to interact with Bank Filtering service behaviour and retrieve the severity of the rules that match input criteria to be able to take appropriate action based on associated severity if any rules match. The Service API is versioned to ensure previous versions can be kept backward compatible in cases where the service functionality is extended based on future client requirements.
+4
+Bank Filtering Behaviour
+The service behaviour provides the core of the filtering capability and supports the service API behaviour. The filtering behaviour uses the dynamically configurable rules to ensure only active rules are applied as long as they match the input criteria and returns the highest severity associated with the payment when multiple rules match.
+Sample Usage
+Below diagram shows a representative sample usage of Bank Filtering Service API by a payment processing flow.
+The sample flow uses the attributes from the payment being processed to map them appropriately into the service API request parameters to secure the risk associated with the payment.
+The flow takes below actions based on the risk values returned:
+Highest Risk Severity
+Rules Matched
+Action
+0
+No rules matched
+Payment can be processed further to carry out any more validations as needed before being submitted for clearing and settlement or account posting.
+1 to 5
+The payment matched one or more filtering rules but the rules are not business critical severity.
+The payment will be routed for manual review for a human intervention to ensure it is safe to be processed and be rejected if needed.
+6 to 9
+The payment matched one or more filtering rules and the rules are of business critical severity.
+The payment will be rejected / blocked to avoid the risk associated with the payment from materializing.
+The attributes that should be mapped in the service API request, the range of severities to be used and associated actions with each severity are client implementation decisions.
+Orika Transformation Implementation - Direct Usage
+Why Bank Filtering?

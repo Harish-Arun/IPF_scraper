@@ -1,0 +1,54 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ops-gui-service-ng/modules/processing-settings/processing-settings.html ===
+Processing Settings
+The Processing Settings module is a CRUD module for reviewing and managing processing settings. This module will let you search and create processing settings via a series of different fields.
+Processing Settings Management Test App
+The processing settings management test app is an application created to combine the currently available CRUD processing settings for the UI. From this app we can extract a yaml spec with all the API calls available alongside sample requests and responses.
+Configuration
+Config
+This config is used for the dropdowns in the UI. Those being agent identifier types, processing entity account types and subtypes.
+This example shows the processing entity account types, to add more you would simply add to this array:
+processing-entity-account-types = [
+                                   "SuspenseAccount",
+                                   "LedgerAccount"
+                                  ]
+You can change the order in which these types appear in the dropdowns by changing the order in which they appear in the config.
+Currently, processing entity account types would appear in the UI in the order in the example above.
+If you want the Ledger Account type to appear at the top of the list you would change it to be like this:
+processing-entity-account-types = [
+                                   "LedgerAccount",
+                                   "SuspenseAccount"
+                                  ]
+ipf.business-operations.processing-settings.agent-identifier-types
+needs to match with the config on this path
+ipf.csm-reachability.setting.identifier-type.custom-codes
+.
+ipf.business-operations.processing-settings.processing-entity-account-types
+needs to match with the config on this path
+ipf.csm-reachability.setting.processing-entity-accounts.account-type.custom-codes
+.
+ipf.business-operations.processing-settings.processing-entity-account-subtypes
+needs to match with the config on this path
+ipf.csm-reachability.setting.processing-entity-accounts.account-subtype.custom-codes
+.
+Currency Codes
+Currency codes from common config can be overwritten for this module by supplying your own
+processing-settings-currency-codes.conf
+.
+The currency codes in this config should match with the config on this path
+ipf.csm-reachability.setting.currency-codes
+.
+Time Zones
+Time zones from common config can be overwritten for this module by supplying your own
+processing-settings-time-zones.conf
+.
+Country Codes
+Country codes from common config can be overwritten for this module by supplying your own
+processing-settings-country-codes.conf
+.
+The alpha-2 codes should match with the config on this path
+ipf.csm-reachability.setting.country-codes
+.
+All the CSM Reachability configuration that needs to match the described ops-gui-service-ng configuration can be found here:
+CSM Reachability Configurable Enums
+Human Task Manager
+Cluster Management

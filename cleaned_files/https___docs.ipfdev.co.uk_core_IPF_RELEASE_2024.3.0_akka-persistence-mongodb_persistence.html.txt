@@ -1,0 +1,5 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/akka-persistence-mongodb/persistence.html ===
+Persistence
+Akka Persistence Data Model
+Akka Persistence Plugin for MongoDB
+Akka Persistence Data Model

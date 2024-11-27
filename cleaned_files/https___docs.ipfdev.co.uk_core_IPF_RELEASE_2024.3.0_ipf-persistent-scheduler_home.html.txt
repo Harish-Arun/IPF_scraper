@@ -1,0 +1,22 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-persistent-scheduler/home.html ===
+IPF Persistent Scheduler
+Introduction
+IPFs Persistent Scheduler allows you to schedule jobs of any kind.
+It is based on the
+Quartz scheduler
+, and works with cron expressions in combination
+with calendars in order to execute one-time or recurrent jobs.
+It also features a persistence layer whose main role is to keep single source of truth with regards to the definition
+of tasks and also persists job history in an append-only journal.
+The Scheduler also features failsafes such as a rescheduling module which runs at startup and restores all the scheduled
+jobs back into Quartz after a previous failure. To use the Scheduler, start with
+SchedulingModuleInterface
+.
+Finally, it is designed to be run in a
+Akka Cluster
+to ensure that jobs are scheduled across the cluster and can survive any number of node failures (including a total outage). Certain aspect like rehydration of jobs and processing of failed jobs are run on a
+Cluster Singleton
+to prevent duplicate processing in these scenarios.
+The architecture for the scheduler is shown below:
+Getting Started
+Concepts

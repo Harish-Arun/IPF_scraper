@@ -1,0 +1,20 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo/concepts.html ===
+Orchestration & Flo-Lang Concepts
+Flo-Lang is Icons unique payments Domain Specific Language (DSL).
+Flo-Lang has a number of concepts which have driven the delivery of features which allow implementation of complex orchestration but without the need to write all of the code. The key orchestration code is generated but IPF, allowing you to focus on delivering business value specific to your organisaiaton.
+The features making up Flo-Lang are built using the following concepts. You are advised to read and understand these concepts before diving into building flows.
+Explore the following concepts in relation to IPF:
+Flows
+- The flow is the foundation of an IPF application, its the glue holding together the orchestration steps.
+States & Events
+- States represent a point in the processing of your system, where as events are persisted facts about something which has occurred in your system.
+Domain Operations
+- A domain can represent part of our system or applications external to our domain, we model both.
+Behaviours
+- A behaviour defines what the application should do when an event occurs whilst in a certain state.
+Data & Mapping
+- How IPF considers Business Data Elements and mapping for transforming into different business data elements.
+Generation
+- The orchestration code is generated from our IPF modelling and you work with the generated model.
+Orchestration
+Flows

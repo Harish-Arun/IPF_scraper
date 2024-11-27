@@ -1,0 +1,47 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/notification-service/concepts/data-flows.html ===
+Data Flows
+In order for payment status notifications to be sent, it is necessary to receive both the domain events (acting as a trigger) and the details of the initial payment message (PAIN.001) in order to extract the data necessary to populate the PAIN.002 message which forms the actual payment status notification. The service itself stands alone and does not for example require the Operation Data Store (ODS). This means that data needs to be cache somewhere.
+The first diagram below shows the receipt of a
+Domain Event
+that contains a PAIN.001 which has been exposed or published from the IPF Application. It is the initial event containing the PAIN.001 message which is used as the source of all payment parameters which will be used to populate the PAIN.002 . For the purposes of notifications this is what needs to be cached, so it can be accessed at a later point.
+In order to produce a notification, on the receipt of a subsequent
+Domain Event
+the original PAIN.001 data is retrieved from the cache. It is specific events which are filtered for this notification where the matching is done by domain event name. Then based on the notification settings the service will produce a Payment Status Notification.
+The deliver this capability the service uses the following components:
+IPF Processing Data
+ingress: to consume Domain Events which are published as part of IPF application processing. These events are consumed from Kafka and this is technically achieved by adding the following maven dependency:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-ingress-kafka</artifactId>
+</dependency>
+IPF Caching
+: to store and retrieve data, by adding the following maven dependency:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.platform</groupId>
+    <artifactId>ipf-cache-infinispan</artifactId>
+</dependency>
+Payment Status Notification Settings
+: to customise specific fields when producing the PAIN.002. More on the subject
+here
+Pain 002 Mapper
+: to map a PAIN.002 to be produced based on the original Domain Event and on the original PAIN.001 retrieved from the cache
+Send Connector
+: using an
+AlpakkaKafkaProducerConfiguration
+to produce the Payment Status Notification
+IPF Processing Data
+egress: to publish Message Logs to Kafka, by adding the following maven dependencies:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-message-logger</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.processingdata</groupId>
+    <artifactId>ipf-processing-data-egress-kafka</artifactId>
+</dependency>
+The Notification Service application also supports the following features:
+Filtering domain events - many events are discarded by the Notification Service since they are not required for notification purposes.
+Customising the PAIN.002 message output
+Send notifications to multiple bank endpoints
+Payment Notification Service
+Resequencer

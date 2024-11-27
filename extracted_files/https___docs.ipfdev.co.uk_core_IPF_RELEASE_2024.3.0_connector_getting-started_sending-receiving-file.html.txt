@@ -1,0 +1,84 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/getting-started/sending-receiving-file.html ===
+File Connector Quickstart
+Quite often you might want to configure a connector to load files from a specific destination. This guide explains how to do this.
+Step 1: Add
+connector-file
+dependency
+The dependency to add to your
+pom.xml
+is:
+<dependency>
+    <groupId>com.iconsolutions.ipf.core.connector</groupId>
+    <artifactId>connector-file</artifactId>
+</dependency>
+If importing the Icon BOM, or using the Icon BOM as a parent, there’s no need to supply a separate version.
+Step 2: Config
+Connector configuration - in general - is heavily config-driven.The configuration allows us to specify:
+Files directory
+File loading interval
+Here’s an example of a configuration block for a
+FileIngestionConfiguration
+.
+tips {
+(1)
+process-participant.enabled = true
+  file-ingestion-connector {
+    file-ingestion {
+      files-directory = "/static/files"
+(2)
+directory-id = "TIPS"
+(3)
+initial-delay = 5s
+(4)
+interval = 1h
+(5)
+}
+  }
+}
+1
+This is known as the
+config root path
+and will be referenced in the code. It indicates where in the application’s
+configuration to look for this File Connector Transport’s settings
+2
+Path of the directory with files
+3
+Id of the directory
+4
+Initial load delay
+5
+Loading interval
+Step 3: Create File Connector Transport Configuration
+The
+FileIngestionConfiguration
+class acts as a wrapper for the HOCON configuration which we defined in
+Step 2
+, the application accesses the configuration via this class.
+Here’s how to create a
+FileIngestionConfiguration
+class for configuring a Local Directory Connector Transport:
+var fileConfiguration = FileIngestionConfiguration.create("file-ingestion-connector", actorSystem.classicSystem().settings().config());
+fileConfiguration.setFilesDirectory(tempDirectory.toString());
+1
+This retrieves the application configuration from the actor system. The actorSystem can typically be injected as a Spring bean.
+2
+This indicates the path to the config where the application should retrieve configuration values from.
+Step 4: Create File Connector Transport
+Here’s an example of how a
+LocalDirectoryConnectorTransport
+can be created:
+var connectorTransport = LocalDirectoryConnectorTransport.builder()
+                .withName("file-ingestion-transport")
+(1)
+.withActorSystem(actorSystem)
+                .withFileIngestionConfiguration(fileConfiguration)
+(2)
+.build();
+1
+Give the ConnectorTransport a meaningful name
+2
+Provide a File Connector Transport Configuration (see
+Step 3
+for an example)
+HTTP Quickstart
+Bearer Authentication

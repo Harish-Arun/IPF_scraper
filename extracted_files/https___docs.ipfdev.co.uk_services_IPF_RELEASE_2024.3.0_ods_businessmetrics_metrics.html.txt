@@ -1,0 +1,399 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/businessmetrics/metrics.html ===
+Metrics
+Payment Metrics
+Payment metrics are produced when a payment has finished.
+They are a counter of finished payments, the duration of the end-to-end payment, and if configured, the duration of the payments critical path and its time spent waiting.
+Each metric is also labelled, see the
+Labels
+section for more information.
+Available Metrics
+Payments Finished
+The metric
+businessmetrics_payments_finished_total
+represents a count of finished payments.
+A payment is determined to be finished when its global state is terminal, which is achieved by querying the ODS database for the set of terminal global states.
+The terminal states are cached to avoid having to query ODS for each payment.
+End to End Payment Duration
+The metric
+businessmetrics_payments_duration_seconds
+represents the duration of finished payments, as three separate metrics.
+Metric
+Description
+businessmetrics_payments_duration_seconds_count
+The total number of durations produced. There will be one per finished payment. If five payments finish, this counter will be five.
+businessmetrics_payments_duration_seconds_max
+The largest payment duration (in seconds).
+businessmetrics_payments_duration_seconds_sum
+The sum of all payment durations (in seconds).
+These metrics allow you to determine the mean payment duration, e.g.
+\$"businessmetrics_payments_duration_seconds_sum" / "businessmetrics_payments_duration_seconds_count"\$
+Critical Path Duration
+The metric
+businessmetrics_payments_criticalpath_duration_seconds
+represents the time payments spent in the configured critical path.
+The critical path is defined by a start Global Status, and an end Global Status, and may be different between different payment types.
+This metric is only produced if the finished payment went through both the start Global Status and end Global Status of the configured critical path.
+Like the end to end payment duration, the critical path duration is defined as three separate metrics.
+Metric
+Description
+businessmetrics_payments_criticalpath_duration_seconds_count
+The total number of durations produced. There will be one per finished payment that went through a critical path. If five payments finish, and three went through a critical path, this counter will be three.
+businessmetrics_payments_criticalpath_duration_seconds_max
+The largest critical path duration (in seconds).
+businessmetrics_payments_criticalpath_duration_seconds_sum
+The sum of all critical path durations (in seconds).
+These metrics allow you to determine the mean critical path duration, e.g.
+\$"businessmetrics_payments_criticalpath_duration_seconds_sum" / "businessmetrics_payments_criticalpath_duration_seconds_count"\$
+Critical Path Configuration
+The Critical Path configuration defines any number of
+payment-type-mappings
+that specify how to calculate the Critical Path Duration for a given payment type.
+ipf.business-metrics-processor.payment-metrics.payment-duration {
+  critical-path {
+    critical-path-states-by-payment-type = [
+      {
+        paymentType = "Debtor CT"
+        start-state = "Validating"
+        end-state   = "Instructing"
+      }
+    ]
+  }
+}
+The above configuration will only calculate the critical path duration of
+Debtor CT
+payment types. The Duration is calculated by taking the difference between the timestamp of the Process Flow Event with
+status.globalStatus=Validating
+and the timestamp of the Process Flow Event with
+status.globalStatus=Instructing
+Waiting Duration
+The waiting duration metrics indicate how long payments spend in pre-defined waiting states
+The metric
+businessmetrics_payments_waiting_duration_seconds
+represents the time payments spent in pre-defined waiting states. This is typically the time the IPF payment flows spend waiting on external systems, such as those provided by the client bank, e.g. when the payment flow makes a call to a banks system to perform some part of the payment processing.
+Example
+A payment is processed by a single flow that can be in states [A, B, C, D, E] where B is considered a waiting state. The time that the payment flow transitions from A to B (entering B) is the start time, and the time that the payment flow transitions from B to C (leaving B) is the end time. The difference between the start and end time is the waiting duration.
+A payment may be processed by many flows, each with many possible waiting states. The payments waiting duration is the sum of time it spent in all waiting states.
+This metric is only produced if the finished payment actually spent time waiting, and like the other duration metrics, is defined as three separate metrics.
+Metric
+Description
+businessmetrics_payments_waiting_duration_seconds_count
+The total number of durations produced. There will be one per finished payment that spent a non-zero time waiting. If five payments finish, and three spent time waiting, this counter will be three.
+businessmetrics_payments_waiting_duration_seconds_max
+The largest waiting duration (in seconds).
+businessmetrics_payments_waiting_duration_seconds_sum
+The sum of all waiting durations (in seconds).
+These metrics allow you to determine the mean waiting duration, e.g.
+"businessmetrics_payments_waiting_duration_seconds_sum" / "businessmetrics_payments_waiting_duration_seconds_count"
+Waiting Duration Configuration
+The Waiting Duration configuration defines a list of statuses per flow that are considered as a waiting statuses. These statuses match against the Resulting Status and Originating Status of two Process Flow Events that are ingested for a given Flow.
+ipf.business-metrics-processor.payment-metrics.payment-duration {
+  waiting {
+    waiting-states-by-flow = [
+      {
+        flow-name = "PaymentExecutionFlowV1"
+        states = [ "Checking Bank System A", "Checking Bank System B" ]
+      }
+    ]
+  }
+}
+Given the above configuration, the waiting states for
+PaymentExecutionFlowV1
+are
+Checking Bank System A
+and
+Checking Bank System B
+. This means that for a payment from this flow, the waiting duration is the sum of the following two Durations:
+The Duration between the timestamp of the Process Flow Event with
+status.resultingStatus=Checking Bank System A
+and the timestamp of the Process Flow Event with
+status.originatingStatus=Checking Bank System A
+The Duration between the timestamp of the Process Flow Event with
+status.resultingStatus=Checking Bank System B
+and the timestamp of the Process Flow Event with
+status.originatingStatus=Checking Bank System B
+Labels
+Labels are applied to all the produced payment metrics, and they can be used to drill down into those metrics, e.g. The count of all finished payments that are
+Completed
+vs
+Cancelled
+, or a count of all finished payments that went via the CSM
+RT1
+.
+Default Label Values
+In most cases a default label value of
+"Unknown"
+is applied to any payment metric label where that label value cannot be determined for that payment.
+This can occur when the source for the label value is never received, e.g. there’s no
+Csm
+PDS object for the payment, or when configuration is missing for a specific label, e.g. currency mapping configuration.
+Payment metrics will be labelled with the following…​
+Label
+Description
+csm
+The CSM of the payment
+Mapped from a
+Csm
+PDS object that is produced for a payment.
+currency
+The currency of the payment
+Mapped when currency mappings are configured, and the configured source PDS object is produced by a payment.
+direction
+The direction of the payment.
+Mapped when direction mappings are configured, and the payment produces a
+PaymentType
+PDS object.
+htm
+A flag that indicates if a payment went through Human Task Manager
+Always present with a default of "No", and only "Yes" when payments produce an event that is configured as a HTM event.
+paymentType
+The type of the payment
+Mapped from a
+PaymentType
+PDS object that is produced for a payment.
+state
+The final global state of the payment.
+localInstrument
+The local instrument that facilitates the transfer of funds.
+Mapped when local instrument mappings are configured, and the configured source PDS object is produced by a payment.
+errorCode
+The most recent error code for a given unit of work.
+Always present with a default of "None" when there are no error codes for the unit of work.
+identityComparison
+The most recent identity comparison result performed for the unit of work
+Always present with the default of "NotExecuted" if no comparisons were performed.
+creditorComparison
+The result of any creditor comparison result.
+Mapped when creditor comparison mappings are configured, and the configured source PDS object containing a boolean true/false, match/no-match value is produced by a payment.
+processingEntity
+The processing entity for the unit of work
+Always present with the default of "None" if there is no known processing entity
+An example of a metric with labels is
+businessmetrics_payments_finished_total{csm="SIP",currency="CHF",direction="Outbound",htm="No",paymentType="IP SIC Outbound",localInstrument="ACTR",state="Cancelled",errorCode="RJ01"}
+.
+Each distinct value for a label produces a new distinct metric, e.g. the above example is a count of all
+Cancelled
+payments.
+An alternative metric may be
+businessmetrics_payments_finished_total{csm="SIP",currency="CHF",direction="Outbound",htm="No",paymentType="IP SIC Outbound",localInstrument="ACTR",state="Completed",errorCode="None"}
+which is a count of all
+Completed
+payments.
+Given there may be up to seven different labels, and assuming each could have at-least two distinct values, in theory, the total number of distinct metrics could be quite large.
+In practice the number of metrics may be fewer than expected because there is a relationship between some labels, e.g. the direction is mapped from the payment type, or perhaps the currency is missing in most cases for
+Cancelled
+payments
+Processing Entity
+If the processing entity for a unit of work is known when producing payment metrics, the metrics will be labelled with
+{processingEntity="ENTITY_1"}
+. If the processing entity is unknown for the unit of work, the payment metrics will be labelled with
+{processingEntity="None"}
+.
+This label is always present on payment metrics.
+CSM
+Applied to metrics when a finished payment has produced a
+Csm
+PDS object, e.g.
+{csm="RT1"}
+Payment Type
+Applied to metrics when a finished payment has produced a
+PaymentType
+PDS object, e.g.
+{paymentType="Debtor CT"}
+State
+The value for state is the last global state for the finished payment, e.g.
+{state="Completed"}
+Currency
+Applied to metrics when a currency mapping is configured, and the configured source PDS object is produced by a payment, otherwise the value is
+"Unknown"
+.
+The currency label value can be sourced from any client-specific PDS object, but, only one currency mapping may be configured.
+An example currency mapping configuration could be…​
+ipf.business-metrics-processor.payment-metrics.labels {
+  currency {
+      pdsType = ClientSpecificType
+      path = "amt.pmtAmt.ccy"
+  }
+}
+Given a
+ClientSpecificType
+PDS object with the content…​
+{
+  "amt": {
+    "pmtAmt": {
+      "ccy": "EUR"
+    }
+  }
+}
+All metrics for payments that produce the configured PDS object  will be labelled with
+{currency="EUR"}
+.
+If the configured target field of the PDS object is null, the label is applied to the metric as "Unknown".
+Direction
+Applied to metrics when the payment’s type is known, and a direction mapping is configured for the payment type.
+An example direction mapping configuration could be…​
+ipf.business-metrics-processor.payment-metrics.labels {
+  direction {
+    payment-type-mappings = [
+      {
+        label = "Outbound"
+        payment-types = [ "DebtorCT1", "DebtorCT2" ]
+      }
+      {
+        label = "Inbound"
+        payment-types = [ "CreditorCT" ]
+      }
+      {
+        label = "AnythingYouLike"
+        payment-types = [ "DebtorCT3" ]
+      }
+    ]
+  }
+}
+When a payment is determined to have finished, and the payment type is known to be "DebtorCT1", all metrics for that payment would be labelled with
+{direction="Outbound"}
+.
+If the payment type is "CreditorCT", then the label is
+{direction="Inbound"}
+.
+The payment types defined in configuration are case-insensitive, e.g. "debtorct1" matches the payment type "DebtorCT1".
+HTM
+Defaults to
+{htm="No"}
+, and will be set to
+{htm="Yes"}
+for a payments metrics if that payment saw an event that is configured as a HTM event.
+An example HTM configuration is…​
+ipf.business-metrics-processor.payment-metrics.labels {
+  htm {
+    events = [ "Task Registration Successful", "Task Registration Failed" ]
+  }
+}
+If a finished payment produced an event with the name
+"Task Registration Successful"
+, then it is considered to have been through Human Task Manager, and the metric is labelled with
+{htm="Yes"}
+.
+If the finished payment did not produce an event with one of those names, then the default
+{htm="No"}
+is applied.
+The configured event names are case-insensitive and whitespace-insensitive, e.g. "taskregistrationsuccessful" matches "Task Registration Successful".
+Local Instrument
+The
+localInstrument
+label value can be sourced from any client-specific PDS object, but, only one local instrument mapping may be configured.
+An example local instrument mapping configuration is…​
+ipf.business-metrics-processor.payment-metrics.labels {
+  local-instrument {
+      pdsType = ClientSpecificType
+      path = "prcgInstrs.lclInstrm.prtry"
+  }
+}
+Given a
+ClientSpecificType
+PDS object with the content…​
+{
+  "prcgInstrs": {
+    "lclInstrm": {
+      "prtry": "ACTR"
+    }
+  }
+}
+All metrics for the payment will be labelled with
+{localInstrument="ACTR"}
+.
+If the configured target field of the PDS object is null, the label is applied to the metric as "Unknown".
+Error Code
+The
+errorCode
+value is sourced from the
+originalReasonCode
+field within a process flow event, and it is the most recent value for a unit of work if it sees more than one error.
+If there is no error code on any of the events for a unit of work then there is no error, and the label value is
+"None"
+.
+An example of this label is
+{errorCode="E37:00001}
+, or
+{errorCode="None"}
+.
+Error Code Metrics
+Available Metrics
+Error Code Count
+The metric
+businessmetrics_errorcodes_total
+represents a count of error codes that have been seen by IPF Metrics Processor - an example of the metric is
+businessmetrics_errorcodes_total{code="E37:00001"}
+.
+The error code label is taken from a process flow events
+originalReasonCode
+field - if a value is present and not blank, the counter is updated.
+The metric always contains a code label.
+If a payment produces more than one error code, each instance is counted. If a payment produces duplicate error codes, e.g. many events contain the same error code, each duplicate instance is counted.
+Error code counts are emitted immediately, whereas payment metrics are emitted on completion of the payment. Payment metrics may therefore trail the error code counts when viewing the metrics within a specific time period.
+Labels
+The error code metric is labelled with the actual error code, e.g.
+businessmetrics_errorcodes_total{code="E37:00001"}
+.
+Each unique error code once seen by IPF Metrics Processor represents a new time series for the metric.
+In addition to any other labels applied to payment metrics, the main error code label is also captured and applied. Where a payment does not have an error code, the label is still applied with a value of 'None'
+Identity Comparison
+The
+identityComparison
+value is one of
+Passed|Failed|NotExecuted
+and is based on the most recent identity comparison result for the unit of work.
+The value is
+NotExecuted
+under the following scenarios:
+There are no identity comparison results for the unit of work
+There is an identity comparison result, but the label is not configured
+There is an identity comparison result, but the target path in the PDS content is not valid
+The identity comparison result must be within a custom PDS object, and the content must contain a boolean field indicating the result of the comparison. When the value is
+true
+, the label value is
+Passed
+, and when the value is
+false
+, the label value is
+Failed
+.
+The comparison result can be within any custom PDS object, and that boolean field is mapped from its content via configuration, e.g.
+ipf.business-metrics-processor.payment-metrics.labels {
+  identity-comparison {
+      pdsType = ClientSpecificType
+      path = "comparisonResult.match"
+  }
+}
+Given a
+ClientSpecificType
+PDS with the following content…​
+{
+  "comparisonResult": {
+    "match": true
+  }
+}
+Then all metrics for the payment will be labelled with
+{identityComparison="Passed"}
+.
+Creditor Comparison
+Labelling payment metrics with the result of any creditor comparison results.
+Configuration
+ipf.business-metrics-processor.payment-metrics {
+	labels {
+		identity-comparison {
+			pds-type = ClientSpecificPds
+			path = "comparison.result"
+		}
+	}
+}
+All payment metrics are now labelled with a creditor comparison result. If there wasn’t a comparison, the value is just NotExecuted.
+If a payment performs creditor comparison, it must produce a PDS object containing the result of that comparison as a boolean true/false, match/no-match.
+This gives the payment flow some flexibility, e.g. if it needs to perform several comparisons and then sum the results for a final match or no-match.
+The metrics processor must be configured to look for a client specific PDS object containing this boolean value.
+It’s called identity comparison here which aligns with the IPF naming of the identity comparison service, but clients can name their variable on their Grafana dashboard as creditor comparison.
+Example
+businessmetrics_payments_finished_total{
+	identityComparison="NotExecuted|Passed|Failed"
+}
+Introduction
+Grafana

@@ -1,0 +1,140 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2023-4-0/release-IPF-2023-4-0.html ===
+Release Notes for IPF-2023.4.0
+This page details everything required to get going on IPF Release 2023.4.0 made available on 9th February 2024.
+Details
+Binaries
+The core binaries are available from
+IPF-Releases
+.
+The Lightbend Telemetry (formerly known as "Cinnamon") binaries are available from
+IPF Lightbend
+.
+Archetype
+The latest version of the Archetype is
+4.0.2
+Developer App
+The latest version of the Developer App is
+1.14.6
+Features and Changes
+Here’s what’s new and changed in 2023.4.0
+Fix Spotlight
+Fixed Journal delete and update speed issues
+Added a timestamp to the entries in the Journal Collection
+Final state ESBs now schedule their own passivation on recovery
+Breaking Changes
+Java 17
+From release V2024.1 (May 2024), IPF will be using Java 17/Spring 6/Spring Boot 3 for all IPF components. IPF will no longer be compatible with Java 11, and you will need to use Java 17 at design, build and run time.
+DSL Changes
+The DSL implementation has been updated to allow stronger reuse.  There are two major changes in this regard:
+Aggregate Functions & Input Enrichers
+Aggregate functions and input enrichers were used to allow data to be manipulated during flow processing.  In essence, both of these functions perform a mapping from one set of data to another.  They have therefore now been replaced by a single 'Mapping Function' concept.
+When using a mapping function instead of the previous input enricher, everything is the same.  You define the mapping function in the mappings section:
+And then apply which input enrichments to put the mapping on:
+For aggregate functions, the slight difference is that they are now defined in the mappings section above but then applied at the event level:
+In addition to the existing capabilities provided by the old aggregate functions and input enrichers, we also get the following capabilities:
+Mapping functions can be defined within a 'Mapping Library' that is not restricted to a single flow.  This means that they can be used across multiple flows or versions of a flow.
+Mapping functions can now be used to define a mapping required to execute an outbound action without impacting the rest of the flow.
+RequestReplyConnector Changes
+The signature for request reply connectors have changed so that the resulting object is now wrapped in a 'Response' object:
+public class RequestReplySendConnector<REQ_D, REQ_T, REP_D, REP_T> implements SendingConnector<REQ_D, Response<REP_D>>
+This response object contains the original response entity in the 'value' field but also provides access to the application’s processing context.
+ActionNames deprecated
+ActionNames
+has been removed and has been replaced with
+[name of external domain]ActionNames
+.
+Any calls to
+Action.getActionName().name()
+in your solution will need to be replaced with
+Action.getActionName()
+.
+ODS
+New Features
+Customisable Summaries
+Allows the default built-in summary field mappings to be customised per solution.
+A library is produced for downstream clients/client-teams against which, custom summary mappings can be built and easily tested. Documentation is provided describing how to "plugin" the custom mappings into ODS Ingestion.
+IPF Archiver
+The IPF Archiver is an optional add-on, intended to be used alongside ODS Ingestion, that produces archive bundles for each unit of work that meets the criteria for archiving, e.g. it has reached a terminal state and is outside a configured grace period.
+FX Support
+Two new Core PDS types have been added: AdditionalIdentifier and Fx.
+Additional identifiers are now exported from a Process Flow Event as a PDS object instead of as a Custom Object.
+Fx PDS Objects are used to handle foreign exchange data. These are mapped to new Summary fields which are returned as part of the ODS Inquiry summaries APIs. These new fields are:
+convertedTransactionAmount
+convertedTransactionAmountCurrency
+exchangeRate
+Both new Core PDS objects can be exported to ODS via a Process Flow Event or via the direct PDS processing-data egress exporter
+Large Message Log Support
+Message log entries now support a reference field. This new field is used as an identifier to a Message Log that is stored externally sure to its file size.
+IPF ODS can handle this new field, storing it as part of the MessageLogEntry document, and returning it as part of the message log ODS Inquiry APIs.
+Additionally, a message log direct data exporter has been added to IPF Processing Data. Allowing for message log entries to be exported without implementing the MessageLogger interface
+CosmosDB TTL Purging (database change)
+The default purging implementation that we use for MongoDB does not perform well in a CosmosDB environment, and it also has a large impact on ODS Ingestion throughput.
+This CosmosDB-specific implementation is provided as an alternative, and is entirely optional.
+This implementation should cost less overall, and have a smaller impact on ODS Ingestion throughput, but with the added complexity that "housekeeping" jobs must be run (automated and configurable) to maintain feature-parity with the standard purging implementation.
+Notable Changes and Improvements
+Deprecate custom objects in IPF Processing Data
+As part of migration to PDS objects, the option to categorise business data elements in a flow as CUSTOM has been removed. They must now be categorised as PROCESSING_DATA_STRUCTURE.
+Existing sample flows have been migrated and IPF Processing Data no longer produces custom object data structures.
+Additionally, this means that IPF Processing Data no longer produces custom objects in duplicate of PDS objects.
+Allow clients to specify MDS and PDS identifiers.
+When exporting a MDS data structure, a id and parentId can now be provided alongside the MDS.When specified, these Ids are mapped to the top level MDS Object that is produced by IPF Processing Data.If not specified, the Ids are generated.
+A PDS object is uniquely identified by its name and unitOfWorkId.When directly exporting a PDS data structure, a name can now be provided to the exporter.If not specified, the name is generated from the PDS data structure.
+Introduce the unitOfWorks collection (database change)
+Added a new ODS collection: unitOfWorks. Used to track metadata for a unit of work as opposed to a Summary which is used as a business data view. Updates have been made to utilise this collection instead of the summaries collection for internal processes such as purging, and in future, archiving.
+This collection is not exposed as part of the ODS Inquiry APIs.
+In addition, configuration has been added to allow for ODS Ingestion Summary functionality to be disabled. Meaning ODS Ingestion can be deployed without Inquiry and summaries while still keeping a view of a unit of work’s metadata within the unitOfWorks collection.
+GUI
+GUI SDK improvements
+Angular 16 upgrade
+A needed upgrade to maintain 'N-1' with angular’s release schedule.
+Cypress.
+Added cypress testing to our modules in order to properly test component functionality.
+Currently only set up for bank-filtering and HTM flows but more will be added moving forward with other tickets.
+Move the common module to the ops-gui-framework repository.
+Jest tests performance issue resolved.
+Resolved long lasting '--legacy-peer-deps' flag issue.
+More reusable components added to help improve the speed of development.
+GUI support to allow BIC / Bank / Currency filtering by operators
+Added bank filtering flow
+Some general 'dynamic form' improvements to help ease of development and speed at which we can build new features.
+Refactor of CSM Agent and Agent Currency to align more with our other settings modules.
+Added the ability to search and view FX data points from the GUI.
+Also added these data points to the results table.
+SEPA CT
+Building upon the foundation laid by the previously delivered MVP.
+Integrate non-payment messages with the existing SEPA CT Outbound and Inbound processes.
+Implement comprehensive validation checks for incoming and outgoing non-payment messages to ensure adherence to SEPA standards. Facilitate efficient error reporting and resolution for improved system reliability.
+Support for additional message types, including camt.056 (Bank-to-Customer Cash Management) and pacs.028 (Financial Institution-to-Customer Statement).
+Implemented mechanisms for the effective handling and processing of non-payment messages, ensuring compatibility with existing workflows.
+Error-handling to manage exceptions and maintain the integrity of data transmission.
+CSM Services
+Added a new field
+externalRequestBody
+which is available on the following types sent from the following instant
+payment CSM Services:
+RT1
+FedNow
+T2
+This field is available on the following messages from the CSM Service:
+ReceivePaymentRequest
+ReceivePaymentSettledRequest
+ReceivePaymentStatusInquiryRequest
+ReceiveRecallRequest
+ReceivePositiveAnswer
+ReceiveNegativeAnswer
+These messages will be available on the various
+handleXxx
+methods as outlined in
+Use the CSM Service Client Library
+.
+The respective methods where the
+externalRequestBody
+will be available are therefore:
+handleReceivePaymentRequest
+handleReceivePaymentSettledRequest
+handleReceivePaymentStatusInquiryRequest
+handleReceiveRecallRequest
+handleReceivePositiveAnswer
+handleReceiveNegativeAnswer
+Migration Steps for IPF-2024.1.3
+Migration Steps for IPF-2023.4.0

@@ -1,0 +1,39 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/concepts/scenarios/stories.orphan.Handle%20Orphan%20Inbound%20Clear%20and%20Settle%20Request%20Response.html ===
+Handle Orphan Inbound Clear and Settle Request Response.story
+Scenario: Handling customer orphan Payment Status Report sends out alert
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseMeta(java.lang.String)
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseLegacy(java.lang.String)
+When
+i12the CSMi12  sends a Customer Credit Transfer
+Then
+i12the Payment Servicei12  receives a Receive Payment Request
+When
+i12the Payment Servicei12  sends a Receive Payment Response
+Then
+i12the CSMi12  receives a Payment Status Report
+When
+i12CSMi12  sends a Payment Status Report with values:
+| FIToFIPmtStsRpt.txInf*And*Sts[0].clrSysRef                              | EXC002               |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].orgnlTxId                              | ThisIsAnOrphanedPacs |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].orgnlGrpInf.orgnlMsgId                 | ThisIsAnOrphanedPacs |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].stsRsnInf[0].orgtr.id.orgId.othr[0].id | 318668               |
+Then
+i12Payment Servicei12  receives a System Event using predicate:
+| level                                 | WARN                                                               |
+| name                                  | OrphanPaymentStatusReportReceived                                  |
+| type                                  | FUNCTIONAL                                                         |
+| processingContext.associationId.value | #PaymentStatusReport_sent.fIToFIPmtStsRpt.txInf*And*Sts[0].orgnlTxId |
+Then
+the i12Payment Servicei12  receives a Dead Letter Message using predicate:
+| error.receivedMessage.message.targetMessage.payload.class.simpleName                                    | Clear*And*SettleResponse                                      |
+| error.receivedMessage.message.transportMessage.messageHeaders.getHeader(CorrelationId).orElse(none) | #CustomerCreditTransfer.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.TxId |
+Then
+the i12Payment Servicei12  receives a System Event using predicate:
+| level | ERROR                   |
+| name  | MessageSentToDeadletter |
+| type  | TECHNICAL               |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()

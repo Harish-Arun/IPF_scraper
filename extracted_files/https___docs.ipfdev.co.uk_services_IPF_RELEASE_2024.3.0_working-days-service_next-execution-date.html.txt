@@ -1,0 +1,11 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/working-days-service/next-execution-date.html ===
+Get Next Execution Date
+This function will take the date input and validate it as an execution date but if it is invalid, roll forward until a valid execution date is determined.
+Once the date is valid (i.e. not in the past and a valid business date for the scheme, as determined by the
+calendarId
+) then it will return the revised Execution Date and calculate the Settlement Date using the revised Execution Date
+Test Results
+For sample data please refer to the test results:
+Successful Responses
+Concepts
+Get Next Settlement Date

@@ -1,0 +1,41 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/csm-reachability-operations/service-apis/select-csm-agent.html ===
+2. /select-csm-agent
+Select a CSM Agent through which the counterparty is reachable for given payments data. Uses client defined preferences on the CS Agent Selection Settings to return a preferred reachable CSM Agent for the payment.
+Purpose
+When one or more CSM Agents are applicable for a given Payment Type, Service Level and Transfer Currencies, the client implementations can set the preference of which CSM Agent should be selected through the Processing Data dynamic configuration of CS Agent Selection Settings.
+Payment Types and Service levels are client implementation specific values and need to be defined outside of CSM Reachability context as these can vary from client to client and even across Processing Entities. The Payment Types and Service Levels are set on CS Agent Selection settings to ensure right CSM Agent is selected for reachability check.
+The API of select-csm-agent, checks the reachability of the all the CSM Agents specified on CS Agent Selection settings (matching specified input criteria) and returns "Highest Order Reachable CSM". This is the first CSM Agent on CS Agent Selection settings through which counterparty is found to be reachable.
+The API can also return enhanced CSM Data (like Agent Settings, Agent Clearing and Settlement Settings and the CSM Participant record) so the data can be used for payment enrichment purposes by the payment processing flows.
+Alongside "HighestOrderReachableCSM", when requested, the API can also return reachability results across all the CSM Agents specified on CS Agent Selection settings for matching input criteria (irrespective of whether the counterparty is reachable through the CSM Agent or not). This information can come handy when no CSM Agent is found to be reachable so manual intervention can be performed using the reachability result returned for all the matching CSM Agents on CS Agent Selection Settings.
+Usage
+Request and Response
+Please refer
+CSM Reachability Service API
+for the API specifications and example request and responses.
+Dynamic Configurations
+The API needs below dynamic configurations to be set up:
+Processing Data:
+Processing Entity (Mandatory)
+CS Agent Selection Settings (Mandatory)
+Agent Settings (Mandatory)
+Agent Settlement Settings (Mandatory)
+Agent Clearing Settings (Optional - Needed if Clearing Settings are required in the response following selection of a CSM Agent for payment processing)
+Industry Data:
+CSM Participant (Optional - Needed if Agents involved have participants)
+Party Entity Directory (Optional - Needed if reachability checks are required using identifiers other than those used on Intra Entity Parties list)
+IBAN Plus Directory (Optional - Needed if IBAN use is required on Payment flows)
+Reason Codes
+Possible reason codes are. Please refer
+Reachability Reason Codes
+for details on reason codes and descriptions.
+IPFRCH001
+IPFRCH002
+IPFRCH003
+IPFRCH004
+IPFRCH005
+IPFRCH006
+IPFRCH007
+IPFRCH008
+IPFRCH009
+Determining Applied Limits
+IBAN deconstruct

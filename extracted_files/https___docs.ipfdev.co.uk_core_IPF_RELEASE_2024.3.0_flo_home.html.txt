@@ -1,0 +1,27 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo/home.html ===
+Orchestration Framework
+Orchestration is one of the key areas where IPF sets itself apart from competitors. We have built our own unique payments Domain Specific Language (DSL), called Flo-lang, leveraging JetBrains MPS which enables clients to use it with minimal dependency on Icon.
+Besides being a low-code language to quickly and flexibly model complex payment orchestration flows, one of the key benefits is that the code itself is generated automatically, along with test scenarios, graphical visualisation and documentation, meaning it is continually up to date and in sync.
+The use of a payments domain specific language (DSL) simplifies and accelerates process definitions empowering the business whilst de-risking code delivery through alignment with documentation and testing.
+The key point to understand here is that by using flo-lang, developers and business analysts can come together to talk in one common language and define the required process in a way that both sides can be confident the right process is in place.
+Once the process has been defined, flo-lang then takes care of both:
+Automated generation of a self-contained Akka powered Java domain.
+Automated generation of BDD testing scripts, graphical views and supporting documentation (always in sync)
+Flo-lang provides a number of key features to support payment processing, including:
+Support for the Icon Payments Model, a pre-built ISO20022 type library.
+Support for custom business types.
+'Fan-out/Fan-in' processing, for asynchronous processing
+Customisable response & reason codes
+Retry, Timeout and Exception handling
+Process aborting and resuming
+Process flow chaining
+Ability to define sub-flows that are reusable multiple times within a single flow and across multiple flows
+All these features and more are discussed at length in the following documentation.
+We recommend starting at
+Concepts
+to understand key concepts of the DSL.
+Once these are understood, you can get instructions on how to set up a DSL environment in
+Getting Started
+.
+Core
+Concepts

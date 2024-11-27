@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20happy%20path.Handle%20Outbound%20Return%20For%20Bank.html ===
+Handle Outbound Return For Bank.story
+Scenario: Handle outbound return
+When
+the ï½Recall Serviceï½  sends a Send Positive Answer To CSM Request with values:
+| customBusinessData | supportingContext(cancellationId,abcd1234, cancellationReasonPrtry, TECH) |
+Then
+ï½the CSMï½  receives a Payment Return with values:
+| pmtRtr.txInf.rtrRsnInf.addtlInf | abcd1234 |
+And
+ï½IPFï½  receives a Send Positive Answer To CSM Response
+And
+ï½IPFï½  receives a Receive Settlement Confirmation

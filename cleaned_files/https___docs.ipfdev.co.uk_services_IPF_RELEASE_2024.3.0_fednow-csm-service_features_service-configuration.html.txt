@@ -1,0 +1,55 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/fednow-csm-service/features/service-configuration.html ===
+FedNow CSM Service Configuration
+Below are all the relevant properties for the FedNow CSM Service
+The following properties should also be configured
+Key
+Description
+Default Value
+ipf.processing-data.egress.enabled
+Send processing data events to ODS?
+true
+message.logger.type
+Where to output message log messages. Allowed values are:
+mongo
+kafka
+ipf-processing-data-egress
+ipf-processing-data-egress
+Property Grouping:
+ipf.fednow
+Key
+Description
+Default Value
+ipf.fednow.connection-party-identifier
+The Connection Party Identifier to identify this payment services provider (PSP) to the FedNow netowrk
+000000000
+ipf.fednow.instg-agent-member-id
+The value to set as the
+InstgAgt
+member ID when exchanging messages with FedNow. This should be an ABA Routing Number
+000000000
+ipf.fednow.instd-agent-member-id
+The value to set as the
+InstdAgt
+member ID when exchanging messages with FedNow. This should be an ABA Routing Number
+999999999
+ipf.fednow.jms.receive.queue
+The JMS queue to receive messages from FedNow
+FedNowReceiveQueue
+ipf.fednow.jms.send.queue
+The JMS queue to send messages to from FedNow
+FedNowSendQueue
+ipf.fednow.jms.broker-url
+The Apache ActiveMQ Artemis broker URL to use
+tcp://localhost:61616
+ipf.csm.fednow.pacs008.map-instg-agt-from-config-enabled
+Whether to map mmbId from the incoming
+ClearAndSettleRequest
+(when set to false), or from the config.
+false
+ipf.csm.fednow.pacs004.map-instd-agt-from-config-enabled
+Whether to map mmbId from the incoming
+SendPositiveAnswerToCSMRequest
+(when set to false), or from the config.
+false
+FedNow Validations
+CSM Events

@@ -1,0 +1,40 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/concepts/sic-service-apis.html ===
+Interfaces
+The SIC CSM Service handles the following canonical messages:
+Message
+API
+Receive Payment Request
+Credit Transfer API
+Receive Payment Response
+Credit Transfer API
+Receive Payment Settled Request
+Credit Transfer API
+Clear And Settle Request
+Clear and Settle API
+Validate Scheme Rules Request
+Clear and Settle API
+Clear And Settle Response
+Clear and Settle API
+Status Request
+Payment Status API
+Send Positive Answer To Csm Request
+CSM Recalls Returns ROI API
+Send Positive Answer To Csm Response
+CSM Recalls Returns ROI API
+Receive Positive Answer
+Recalls Returns ROI API
+Receive Positive Answer Response
+Recalls Returns ROI API
+In addition to the canonical messages above, the SIC CSM service also handles the following scheme specific messages:
+Message
+ISO Version
+Customer Credit Transfer
+pacs.008.001.08
+Payment Status Report
+pacs.002.001.10
+Payment Status Request
+pacs.028.001.03
+Payment Return
+pacs.004.001.09
+SIC Scenarios
+Features

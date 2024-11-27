@@ -1,0 +1,81 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/features/stsreq-scheduler.html ===
+Status Request Scheduler (SRS)
+The CSM Service offers a Status Request Scheduler (SRS) capability.
+Purpose
+Some instant payment schemes offer the capability to send a status request message some time after sending a credit
+transfer (when acting as a debtor) or a payment status report (when acting as a creditor).
+There are rules relating to when this message can be sent and at what cadence.
+The SRS allows the user to automate this capability from within the CSM Service instead of having to schedule these
+status requests from within an IPF flow, for example.
+The actual format of a Status Request message is determined by the individual CSM Service, e.g. converting the Status
+Request to a scheme-specific pacs.028 message.
+The current status request scheduling flows that are supported are:
+Status Request for ClearAndSettleRequest
+Status Request for ReceivePaymentResponse
+Mechanism
+When the CSM Service receives a the relevant message for forwarding onto the scheme, it will set up
+x
+scheduled tasks
+to send a Status Request message, after
+y
+duration, separated by
+z
+durations, where:
+x
+is the total number of configured Status Request attempts
+y
+is the initial interval allowed by the payment scheme between the Clear and Settle message and its Status Request
+z
+represents the list of intervals allowed by the scheme between Status Request messages
+For the
+ClearAndSettle
+flow this would look like the following:
+For
+ReceivePaymentResponse
+:
+Once a pacs.002 is received (either as a response to the initial message, or as a response to the status request) then
+the SRS cancels all remaining attempts.
+Enabling the SRS
+The SRS capability is included with all CSM Service implementations and configurable per flow type (see above), but is
+disabled by default. It can be enabled by setting a configuration property. See
+Appendix A
+below.
+Appendix A: Per-flow SRS properties
+Each SRS type supports the following configuration:
+Configuration value
+Type
+Description
+Default value
+[prefix].enabled
+Boolean
+Is the SRS capability active for ClearAndSettle?
+false
+[prefix].attempts
+Integer
+The total number of status request attempts the SRS will make for ClearAndSettle
+3
+[prefix].initial-delay
+Duration
+Initial delay between sending the Clear And Settle message and sending the first Status Request message for ClearAndSettle
+25 seconds
+[prefix].intervals-between-status-requests
+List of
+Duration
+List of intervals between Status Request messages for ClearAndSettle.
+Ignored if
+attempts
+is 1
+If number of attempts is more than count of intervals, last interval will be used for subsequent attempts
+If number of attempts is less than count of intervals, the remaining intervals will be ignored
+[15 seconds]
+Where
+[prefix]
+depends on the Status Request flow:
+Flow type
+Prefix
+ClearAndSettle (debtor credit transfer)
+ipf.csm.status-request-scheduler.clear-and-settle-request
+ReceivePaymentResponse (creditor credit transfer)
+ipf.csm.status-request-scheduler.receive-payment-response
+Character Replacement
+How to integrate with CSM Services

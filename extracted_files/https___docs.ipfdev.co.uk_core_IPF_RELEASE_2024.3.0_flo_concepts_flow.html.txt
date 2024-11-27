@@ -1,0 +1,82 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo/concepts/flow.html ===
+Flow Concepts
+Flows
+In IPF the processing of a payment is performed and controlled by a "
+Flow
+".   A flow represents a single business process from end to end and is designed to specify the lifetime of a single payment.  A single flow might have many paths through it, each representing a different way of processing an individual payment based on the data provided for that flow.
+A flow contains a number of things:
+"
+Name
+"
+"
+Description
+"
+"
+Version
+"
+"
+Global state set
+"
+List of "
+States
+"
+List of "
+Events
+"
+"
+Initiation Behaviour
+"
+List of "
+Input Behaviours
+"
+List of "
+Event Behaviours
+"
+List of "
+Aggregate Functions
+"
+List of "
+Mapping Function Definitions
+"
+List of "
+Input Enrichers
+"
+A definition of each of these aspects are discussed in the other Concepts sections.
+The combination of "Flow Name" and "Flow Version" uniquely identify a flow.  The version is just an optional numeric identifier, so for example a flow may be called "Test" and have version 3.  Then the flow can be unique identified as "TestV3".  If there was no version defined it can be identified simply by the name "Test".   This identifier is known as the "
+FlowId
+"
+Subflows
+The next thing to consider is reusable segments of flow.
+We may for example need to perform a sanctions check in various different places within the flow.   We could specify each section of the flow separately and write out the logic each time but ideally we would like to be able to simply reuse common logic each time. This is where the "
+Subflow
+" concept is introduced.
+A subflow is a reusable flow component.
+It is essentially the same as a flow in that it has states, input behaviours and event behaviours.  However, a subflow has no life of it’s own and is only used as a mechanism of reuse and therefore
+MUST
+be contained within an outer flow.  When calling a subflow it is very similar in behaviour to receiving an event:
+The key thing to understand is that instead of moving to a state and then calling an action like the normal processing above, here we move to a pseudo-state that acts as an entry point into the subflow.  "Control" of the flow is then handed over the subflow, at this point it will process through the input and event behaviours until it reaches a terminal state in the subflow.  When it reaches a terminal state, control will be passed back to the calling flow with a result of the name of the terminal state.  This can then be used for onward processing.
+Note that in order to achieve reuse of the subflow in multiple places, then when a subflow is placed within a main flow it’s state’s will be displayed as "<subflowid> <subflow state name>" where <subflowid> is the psuedo-state name of the calling flow and <subflow state name> is the name of the state within the subflow.
+Flow Calls
+Finally, it’s also possible to directly call one flow from another, sometimes referred to as "
+flow to flow
+".  In this case control is handed over to the secondary flow, and we wait for a result passed back.  The
+child flow can report that it has reached any state back to the parent flow
+.  Most commonly, this will be when a terminal state is reached and the child flow has finished processing, but it also allows for feedback from the child flow for intermediary states before it finishes.  This provides an opportunity to pass control back and forth between the child and parent as required.
+Completing a Flow
+The end or completion of an IPF flow is where the flow transitions to a
+Terminal
+state (see
+here
+to define). At this point:
+You can perform a
+Notification Action
+on the transition to the Terminal state
+No further Input Behaviour can trigger Events (& hence no further State transition)
+The Terminated flow will be
+passivated
+The Terminated flow’s journal entries are eligible for archive
+When a state is defined as Terminal this means that no further state transitions are intended (you will not define any further Event Behaviour beyond that state and no inputs into the flow trigger any further behaviour).
+This is the end of the flows processing
+. If you intend to potentially transition from this state, the state should not be defined as terminal.
+Concepts
+States & Events

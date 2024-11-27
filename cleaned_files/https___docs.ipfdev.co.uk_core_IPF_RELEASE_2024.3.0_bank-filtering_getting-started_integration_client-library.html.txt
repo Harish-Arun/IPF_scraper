@@ -1,0 +1,53 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/getting-started/integration/client-library.html ===
+Client Library
+Regardless of the deployment method, client module which invokes Bank filtering should import bank-filtering-client-port and use BankFilteringClientPort interface to invoke Bank filtering logic.
+With deployment type, it will be decided if the client port will use direct or connector implementation.
+<dependency>
+    <groupId>com.iconsolutions.ipf.bankfiltering</groupId>
+    <artifactId>bank-filtering-client-port</artifactId>
+    <version>${bank-filtering-api.version}</version>
+</dependency>
+An example how client port can be used:
+import com.iconsolutions.ipf.bankfiltering.model.BankFilteringRequest;
+import com.iconsolutions.ipf.bankfiltering.model.BankFilteringResult;
+import com.iconsolutions.ipf.core.connector.api.Response;
+import com.iconsolutions.ipf.core.shared.domain.context.ProcessingContext;
+import com.iconsolutions.ipf.core.shared.domain.context.SupportingContext;
+...
+
+@AllArgsConstructor
+public class DecisionLibraryAdapter implements DecisionLibraryPort {
+
+    private final BankFilteringClientPort bankFilteringClientPort;
+    ...
+
+    @Override
+    public Outcomes performManualInterventionCheck(Parameters decision) {
+        var bankFilteringRequest = new BankFilteringRequest()
+                .processingEntity(decision.getProcessingEntity())
+                .csmAgentID(decision.getCsmAgentId())
+                .debtor(decision.getDebtor())
+                .creditor(decision.getCreditor())
+                .currency(decision.getCurrency());
+
+        return bankFilteringClientPort.filterByBic(
+                processingContext,
+                supportingContext,
+                bankFilteringRequest
+        ).thenApply(DecisionLibraryAdapter::handleBankFilteringResult);
+    }
+
+    private static Outcomes handleBankFilteringResult(Response<BankFilteringResult> response) {
+        if (higSeverity(response.getValue())) {
+            return Outcomes.MANUAL_INTERVENTION_REQUIRED;
+        } else {
+            return Outcomes.MANUAL_INTERVENTION_NOT_REQUIRED;
+        }
+    }
+
+    private static Boolean higSeverity(BankFilteringResult result) {
+        ...
+    }
+}
+Integration
+DPS connectors

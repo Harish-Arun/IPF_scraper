@@ -1,0 +1,9 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/concepts/sepa-ct-flows.html ===
+SEPA CT STEP2 Flows
+SEPA Credit Transfer is not a real-time payments system, and, therefore, it does not provide immediate responses to payment requests. It is for this reason that the CSM for SEPA CT cannot follow the same architecture as that of other IPF scheme packs, where requests and responses can be mapped and passed straight through from one system to the next.
+In order to provide reliable technical acknowledgements to the payment flows and store various messages until windows for submitting batch files are ending, the CSM service uses MPS flows as its base architecture; in much the same way as actual IPF client payment flows might be built.
+You dont need to know the details of the flows which have been built to use the schema pack but its certainly worth being aware of them since they will be deployed into an Akka Cluster and you will see references to them in the logs.
+You can view a high-level set of documentation for all the flows
+here
+Concepts
+sepa Model

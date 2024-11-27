@@ -1,0 +1,12 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/architecture/home.html ===
+Architecture
+The following pages are intended to help with understanding some core principles used in IPF and help make decisions about your payments solution implementation.
+Principles and Patterns
+Hexagonal Architecture
+CQRS-ES
+IPF Solutions
+Instant Payment Solutions
+Anatomy of a typical IPF orchestration application
+IPF Payment data modelling
+Scheme Pack Functions
+Hexagonal Architecture

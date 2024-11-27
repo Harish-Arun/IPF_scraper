@@ -1,0 +1,24 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/tips-csm-service/features/validation-api.html ===
+Validation API
+Tips implements the Validation API which is a generic API used across most of IPF scheme packs.
+The Validation API schema is viewable at
+Validation API
+Pacs.002/Pacs.004/Pacs.008/Pacs.028
+The following Validation Request messages support the optional
+returnSchemeMessage
+parameter:
+ValidatePaymentStatusReportSchemeRulesRequest
+ValidatePaymentReturnSchemeRulesRequest
+ValidateSchemeRulesRequest
+ValidatePaymentStatusRequestSchemeRulesRequest
+If
+returnSchemeMessage
+is set to
+true
+the
+ValidateSchemeRulesResponse
+will return the
+schemeFormatMessage
+field containing the mapped scheme formatted message in XML format if validations were successful.
+Validations
+Getting Started

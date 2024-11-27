@@ -1,0 +1,8 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ipf-cache/features.html ===
+Features
+The current IPF-Cache offering is a Caffeine backed cache baked into Spring or InfiniSpan.
+Here are the key features:
+Caffeine
+InfiniSpan
+Concepts
+Caffeine

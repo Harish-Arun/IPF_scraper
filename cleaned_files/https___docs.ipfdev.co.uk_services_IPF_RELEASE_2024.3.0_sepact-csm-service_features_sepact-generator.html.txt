@@ -1,0 +1,56 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/features/sepact-generator.html ===
+Message Generator
+This module provides java generators for SEPA CT messages. They are registered as spring beans in autoconfiguration.
+Maven Dependency
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.sepact</groupId>
+    <artifactId>sepact-generator</artifactId>
+</dependency>
+Interface
+The Generator interface is defined as follows.
+public interface Generator<T> {
+    T generate();
+(1)
+Class<T> forType();
+(2)
+}
+1
+generate
+- generates an object of specific type T
+2
+forType
+- returns a
+Class
+type of object which will be created by the generator.
+Generator implementations:
+ICFGenerator
+IQFGenerator
+Some values which are set in the generated objects are configurable and can be set through configuration.
+ICF Generator Configuration
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-ct.generator-config.icf.receiving-institution
+String
+The STEP2 BIC. Value for test purposes is set to "ZYDOFRP0". For production environment it should be "EBAPFRPA".
+ZYDOFRP0
+ipf.csm.sepa-ct.generator-config.icf.test-code
+String
+Can contain only "T" or "P" values, depending on the environment used
+T
+IQF Generator Configuration
+Config
+Type
+Comment
+Default
+ipf.csm.sepa-ct.generator-config.iqf.receiving-institution
+String
+The STEP2 BIC
+ZYDOFRP0
+ipf.csm.sepa-ct.generator-config.iqf.test-code
+String
+Can contain only "T" or "P" values, depending on the environment used
+T
+Notifications
+Inquiry Messages

@@ -1,0 +1,57 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.rrr%20unhappy%20path.Handle%20Outbound%20Resolution%20Rejected%20From%20CSM%20TxSts.html ===
+Handle Outbound Resolution Rejected From CSM TxSts.story
+Scenario: Outbound resolution rejected by CSM TxSts
+Steps
+When the Recall Service sends a 'Send Negative Answer To CSM Request'
+Then the CSM receives a 'Resolution Of Investigation'
+When the CSM sends a 'for-camt029' 'Payment Status Report' with values:
+| FIToFIPmtStsRpt.txInfAndSts.txSts               | RJCT           |
+| FIToFIPmtStsRpt.txInfAndSts.stsRsnInf.rsn.cd    | <SctRespCd>    |
+| FIToFIPmtStsRpt.txInfAndSts.stsRsnInf.rsn.prtry | <SctRespPrtry> |
+Then Recall Service receives a 'Send Negative Answer To CSM Response' with values:
+| payload.content.orgnlGrpInfAndSts[0].OrgnlMsgNmId     | camt.029.001.03                                                         |
+| payload.content.txInfAndSts[0].orgnlTxId              | #ResolutionOfInvestigation.rsltnOfInvstgtn.cxlDtls.txInfAndSts.cxlStsId |
+| payload.content.txInfAndSts[0].txSts                  | RJCT                                                                    |
+| payload.content.txInfAndSts[0].stsRsnInf[0].rsn.cd    | <SctRespCd>                                                             |
+| payload.content.txInfAndSts[0].stsRsnInf[0].rsn.prtry | <SctRespPrtry>                                                          |
+Examples:
+SctRespCd
+SctRespPrtry
+AC06
+NOT_SET
+NOT_SET
+XT81
+Example: {SctRespCd=AC06, SctRespPrtry=NOT_SET}
+When
+the i12Recall Servicei12  sends a Send Negative Answer To CSM Request
+Then
+the i12CSMi12  receives a Resolution Of Investigation
+When
+the i12CSMi12  sends a for-camt029 Payment Status Report with values:
+| FIToFIPmtStsRpt.txInf*And*Sts.txSts               | RJCT           |
+| FIToFIPmtStsRpt.txInf*And*Sts.stsRsnInf.rsn.cd    | i12AC06i12     |
+| FIToFIPmtStsRpt.txInf*And*Sts.stsRsnInf.rsn.prtry | i12NOT_SETi12  |
+Then
+i12Recall Servicei12  receives a Send Negative Answer To CSM Response with values:
+| payload.content.orgnlGrpInf*And*Sts[0].OrgnlMsgNmId     | camt.029.001.03                                                         |
+| payload.content.txInf*And*Sts[0].orgnlTxId              | #ResolutionOfInvestigation.rsltnOfInvstgtn.cxlDtls.txInf*And*Sts.cxlStsId |
+| payload.content.txInf*And*Sts[0].txSts                  | RJCT                                                                    |
+| payload.content.txInf*And*Sts[0].stsRsnInf[0].rsn.cd    | i12AC06i12                                                              |
+| payload.content.txInf*And*Sts[0].stsRsnInf[0].rsn.prtry | i12NOT_SETi12                                                           |
+Example: {SctRespCd=NOT_SET, SctRespPrtry=XT81}
+When
+the i12Recall Servicei12  sends a Send Negative Answer To CSM Request
+Then
+the i12CSMi12  receives a Resolution Of Investigation
+When
+the i12CSMi12  sends a for-camt029 Payment Status Report with values:
+| FIToFIPmtStsRpt.txInf*And*Sts.txSts               | RJCT           |
+| FIToFIPmtStsRpt.txInf*And*Sts.stsRsnInf.rsn.cd    | i12NOT_SETi12     |
+| FIToFIPmtStsRpt.txInf*And*Sts.stsRsnInf.rsn.prtry | i12XT81i12  |
+Then
+i12Recall Servicei12  receives a Send Negative Answer To CSM Response with values:
+| payload.content.orgnlGrpInf*And*Sts[0].OrgnlMsgNmId     | camt.029.001.03                                                         |
+| payload.content.txInf*And*Sts[0].orgnlTxId              | #ResolutionOfInvestigation.rsltnOfInvstgtn.cxlDtls.txInf*And*Sts.cxlStsId |
+| payload.content.txInf*And*Sts[0].txSts                  | RJCT                                                                    |
+| payload.content.txInf*And*Sts[0].stsRsnInf[0].rsn.cd    | i12NOT_SETi12                                                              |
+| payload.content.txInf*And*Sts[0].stsRsnInf[0].rsn.prtry | i12XT81i12                                                           |

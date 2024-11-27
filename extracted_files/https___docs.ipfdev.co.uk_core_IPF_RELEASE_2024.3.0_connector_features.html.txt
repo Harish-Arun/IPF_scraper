@@ -1,0 +1,16 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/features.html ===
+Features
+Connectors implement a number of features out of the box which are commonly required when integrating with external systems.
+The following pages describe the features provided by the connector library.
+Examples and configuration details are provided, wherever possible.
+Backpressure
+Message Throttling
+Message Encryption
+Message Validation
+Message Association
+Message Logging
+Error Handling
+Resilience
+Metrics
+Connector Transports
+Backpressure

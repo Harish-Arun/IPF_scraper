@@ -1,0 +1,41 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/customisations/custom-generic-processing-settings.html ===
+Create Additional Generic Processing Settings Category
+CSM Reachability comes with 3 Generic Processing Settings categories:
+PROCESSING_ENTITY_ACCOUNTS
+,
+INTRA_ENTITY_PARTIES
+, and
+SUPPORTED_TRANSFER_CURRENCIES
+Creating custom category processing settings
+To create a new custom category processing settings there are few things that need to be done:
+Class needs to be annotated with
+@SettingCategoryName
+annotation, where parameter should be the name of the setting category.
+It needs to implement three different interfaces:
+com.iconsolutions.ipf.dynamicsettings.domain.CategoryProcessingSettings
+com.iconsolutions.ipf.csmreachability.dto.CategoryProcessingSettings
+com.iconsolutions.ipf.csmreachability.dto.${version}.CategoryProcessingSettings where version is the version of CSM Reachability API which is used by client
+Example
+@SettingCategoryName("CUSTOM_ACCOUNTS")
+public class CustomAccountCategory implements
+        com.iconsolutions.ipf.dynamicsettings.domain.CategoryProcessingSettings,
+        com.iconsolutions.ipf.csmreachability.dto.CategoryProcessingSettings,
+        com.iconsolutions.ipf.csmreachability.dto.v2.CategoryProcessingSettings  {
+
+        private String partyIdentifierType;
+}
+To use interfaces and annotation the next Maven dependency should be added:
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>setting-genericprocessingsettings-domain</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-model</artifactId>
+</dependency>
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-service-api-port</artifactId>
+</dependency>
+How to Create a Custom CSM Reachability Service
+CSM Reachability Configurable Enums

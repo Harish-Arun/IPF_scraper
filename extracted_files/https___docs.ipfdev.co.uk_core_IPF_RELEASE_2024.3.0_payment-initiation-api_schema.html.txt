@@ -1,0 +1,37 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/payment-initiation-api/schema.html ===
+Payment Initiation API
+Summary
+Description
+This API is used to initiate payment between a payment engine and a CSM Service.
+Integration Pattern
+Asynchronous
+Reply Method
+Separate request/response queues/topics
+Integration Method
+JMS, Kafka
+Message Format
+JSON
+Message Model
+ISO20022
+Security
+TLS 1.2
+Resiliency Strategies
+Circuit Breaker, Backpressure, Automatic Retries
+Models
+PaymentInitiationRequest
+Version:
+pain.001.001.09
+Details:
+View the json schema
+PaymentInitiationResponse
+Version:
+pain.002.001.10
+Details:
+View the json schema
+TechnicalResponse
+Version:
+pacs.002.001.10
+Details:
+View the json schema
+Validation API
+Payment Status API

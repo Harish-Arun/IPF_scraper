@@ -1,0 +1,157 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-1-0/release-IPF-2024-1-0-csm-reach.html ===
+CSM Reachability - Changes & Fixes
+This page covers the CSM Reachability V2 improvements, changes and fixes provided in release IPF-2024.1.0.
+CSM Reachability and Industry Data Ingestion
+CSM Reachability API
+Added
+API versioning introduced and new version of API /v2
+Existing endpoints defined under version v2
+/v2/bicvalidation
+/v2/select-csm-agent
+/v2/validate-csm-reachability
+/v2/iban/deconstruct
+/v2/party-entities
+New Domain API endpoints
+/v2/settlement-agents
+/v2/processing-entities/{processingEntity}
+OpenApi specification csm-reachability-service-api-v2.yaml.
+API model, generated in packages dto.v1 or dto.v2, used in controllers and client port implementations
+Service model, generated in dto package, used in service implementation
+API connector created for:
+/v2/iban/deconstruct
+/v2/validate-csm-reachability
+/v2/bicvalidation
+/v2/select-csm-agent
+/v2/settlement-agents
+/v2/party-entities
+/v2/processing-entities/{processingEntity}
+Changed
+OpenAPI specification
+csm-reachability-service-api.yaml
+replaced with
+/static/csm-reachability-service-api-v2.yaml
+Removed
+/bicvalidation
+/select-csm-agent
+/validate-csm-reachability
+/iban/deconstruct
+/party-entities
+CSM Reachability
+New
+Dynamic Configurations:
+New dynamic configurations added (supported by DPS V1 APIs)
+AgentSettings
+AgentClearingSettings
+CsAgentSelectionSettings
+GenericProcessingSettings
+IntraEntityParties
+ProcessingEntityAccounts
+SupportedTransferCurencies
+New searchable fields for ProcessingEntity
+Settings are moved from
+dynamic-settings-workflow
+to
+csm-reachability
+.
+ISO 3166-2 country codes are configurable with
+property ipf.csm-reachability.setting.country-codes
+ISO 4217 currency codes are configurable with
+property ipf.csm-reachability.setting.currency-codes
+Service Implementations:
+Common module for EntityIdentifiers and EntityAddresses(which has ConfigurableEnum)
+ipf.conf
+file with swagger configuration in the csm-reachability-setting-management module
+Select CSM Agent implementation to work with new data model and with updated input and output definitions (/v2 version of the API)
+Validate CSM Reachability implementation using new data structures
+ConfigurableEnum annotation for client defined enum values
+Changed
+Dynamic Configurations:
+CsmAgent data structure (replaced by AgentSettings)
+CsmAgentCurrency data structure (replaced by new structures: AgentClearingSettings and AgentSettlementSetting)
+OpeningTime and ClosingTime are now LocalDate type, not String, TimeZone field mandatory when opening or closing time provided
+CsmAgentSelectionOrder changed into CsAgentSelectionSettings
+ProcessingEntity data structure re-designed, some fields are removed, including BIC which is now combination of entityIdentifierType and entityIdentifierValue:
+added :
+field 'entityIdentifier' - list of Entityidentifiers
+field 'entityAddress'
+removed :
+field 'clearingSystemIdentification'
+field 'debtorAgentName'
+field 'onUsCurrencyList' - list of OnUsCurrency
+field 'suspenseAccountList' - list of SuspenseAccounts
+changed:
+field 'bic' is now combination of 'entityIdentifierType' and 'entityIdentifierValue'
+field 'postalAddressStreetName' now is a part of Address property as 'streetName'
+field 'postalAddressBuildingName' now is a part of Address property as 'buildingName'
+field 'postalAddressPostalCode' now is a part of Address property as 'postCode'
+field 'postalAddressTownName' now is a part of Address property as 'townName'
+field 'postalAddressCountryCode' now is a part of Address property as configurable 'country'
+Added LedgerCurrency attribute to Processing Entity configuration.
+Database Impact
+Settings that are no longer used and collections that need to be dropped are:
+CsmAgent (
+settings-csm-agent
+)
+CsmAgentSelectionOrder (
+settings-csm-agent-selection-order
+)
+CsmAgentCurrency (
+settings-csm-agent-currency
+)
+New settings should be used, and new collections created:
+AgentSettings (
+settings-agent-settings
+)
+AgentClearingSettings (
+settings-agent-clearing-settings
+)
+AgentSettlementSettings (
+settings-agent-settlement-settings
+)
+CsAgentSelectionSettings (
+settings-cs-agent-selection-settings
+)
+GenericProcessingSettings (
+settings-generic-processing-settings
+)
+CSM Reachability Runnable Application
+Swagger UI page configured to be at path
+/swagger-ui/index.html
+Data Ingestion
+New
+Data ingestion implementation moved to new repository csm-reachability-data-ingestion
+Six Bank Master load to Party Entity directory is now supported. Json files are parsed and loaded to party-entity collection.
+One new module party-entity with 2 submodules: party-entity-swift and party-entity-six
+New system event FileEntrySkippedEvent
+Fixed file ingestion throttling.
+Changed
+Previous config for party entity file ingestion was
+partyentity.process-bank-directory-plus.enabled = true
+, now is changed to
+swift.bankplus.process-bank-directory-plus.enabled = true
+The old implementation has been kept for backward compatibility. Also, since now we have support for json file ingestion in party entity new configuration is added in new module for bank master
+six.bankmaster process-bank-master.enabled = true
+. For example:
+party-entity.swift.bankplus {
+  process-bank-directory-plus.enabled = true
+  file-ingestion-connector.file-ingestion {
+    files-directory = "/static/files"
+    directory-id = "party-entity-swift"
+    initial-delay = 9s
+    interval = 1h
+  }
+}
+
+six.bankmaster {
+  process-bank-master.enabled = true
+  file-ingestion-bankmaster-connector {
+    file-ingestion {
+      files-directory = "/static/files"
+      directory-id = "party-entity-bank-master"
+      initial-delay = 9s
+      interval = 1h
+    }
+  }
+}
+Bulker & Debulker - Changes & Fixes
+ODS & GUI - Changes & Fixes

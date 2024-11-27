@@ -1,0 +1,6 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/platform/features/ipf-license.html ===
+IPF Licensing
+Reporting Usage Data to IPF Support
+If IPF support requires a report of used IPF components these will be available to view at the actuator endpoint
+actuator/ipflicense
+in JSON format. The contents of the data is encrypted and only IPF support teams can view the plaintext data. The data in this page can be sent to IPF support teams.

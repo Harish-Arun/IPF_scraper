@@ -1,0 +1,15 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/getting-started.html ===
+Getting Started
+Getting started guides for getting connectors up and running in as few steps as possible.
+These can be augmented with additional features provided by the connector library to fit the specific needs of a particular use case.
+Connector Operations Quickstart
+Receiving Connector Quickstart
+Sending Connector Quickstart
+HTTP Receiving Flow Quickstart
+Connector Configuration
+Kafka Quickstart
+JMS Quickstart
+HTTP Quickstart
+Bearer Authentication
+Metrics
+Connector Operations Quickstart

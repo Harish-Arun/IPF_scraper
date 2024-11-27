@@ -1,0 +1,11 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/features.html ===
+Features
+Foundational IPF capabilities often used in IPF application and solution builds
+Application Configuration
+Transaction Caching
+Application Health Indicators
+Flow Scheduling
+Automated Retries
+Monitoring and Observability
+Domain Operations
+Application Configuration

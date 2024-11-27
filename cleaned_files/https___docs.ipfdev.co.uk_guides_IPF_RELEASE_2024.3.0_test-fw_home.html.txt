@@ -1,0 +1,39 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/test-fw/home.html ===
+Icon Test Framework
+The Icon Test Framework is a standalone, black-box focused, BDD orientated, testing application. It was developed alongside IPF with the goal of bootstrapping the feature-testing of a given target application through re-use of common assertions whilst also providing complete extensibility for project specific requirements. The core-framework is now fully independent and can be leverages for any level of system testing.
+Motivation
+IPFs high-throughput, asynchronous and flexible nature meant that testing using existing test frameworks was a challenge. This reaffirmed the necessity of investing in a home-made test harness that can support such an application. There are several core principles that the test-fw is built against:
+Black box
+- We need to ensure that we are testing to the application as a remote target system to ensure integration layer test coverage and increase confidence in what we ship.
+BDD driven
+- We need to be able to derive our expected application behaviour directly from business requirements to ensure accurate feature coverage.
+Extensible
+- We need to be able to facilitate effective testing of the different possible potential banks, schemes, configurations and technologies.
+Parallelisable
+- We need to be able to run multiple tests concurrently to reduce build times and emulate real-world behaviour more closely.
+What Does the Icon Test Framework Offer?
+A core library of pre-built Gherkin BDD steps for sending, receiving and verifying messages.
+Implementations of common transport protocols: RESTful HTTP, JMS (IBMMQ, ActiveMQ), SOAP.
+Implementations of common message correlation strategies via domain concerns such as TransactionID vs OriginalTransactionID, or technical associations such as JMSCorrelationID
+Domain agnostic property handling
+Recipes for generating documents, including Freemarker integration
+A growing library of powerful BDD evaluations, including inbuilt referencing of a previous messages, strict or loose checks and custom method invocation
+Pluggable type conversions
+Utility components for preparing the target environment prior to testing
+A fully modular, outward facing library with Developer documentation, JavaDocs and a generated steps library
+Core Dependencies
+We have the following major technology dependencies
+JBehave
+- A BDD test engine, chosen over Cucumber for its extensibility and built-in parallelisation.
+DockerComposeRule
+- An (optional) environment utility for starting the target application though a set of configured docker-compose files.
+Spring Framework
+The classic application framework, used for dependency injection, template components and scheduling
+JBehave Intellij Syntax Support
+provides syntax highlighting and autocompletion within .story files
+Windows users
+, please set the equivalent environment variables for DockerComposeRule
+DOCKER_COMPOSE_LOCATION=C:\Program Files\Docker\Docker\resources\bin
+DOCKER_LOCATION=C:\Program Files\Docker\Docker\resources\bin
+Step 11 - Add A Domain Function
+Concepts

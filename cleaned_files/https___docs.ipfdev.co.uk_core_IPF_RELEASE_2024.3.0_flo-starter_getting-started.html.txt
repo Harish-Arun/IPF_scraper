@@ -1,0 +1,6 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/getting-started.html ===
+Getting Started
+Create a new IPF Application Project
+Defining The Read Side
+Monitoring and Observability
+Create a new IPF Application Project

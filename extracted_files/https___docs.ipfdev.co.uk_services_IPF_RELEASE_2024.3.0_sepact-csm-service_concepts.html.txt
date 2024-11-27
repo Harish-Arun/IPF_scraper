@@ -1,0 +1,89 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepact-csm-service/concepts.html ===
+Concepts
+STEP2
+STEP2 is a Pan-European Automated Clearing House (PE-ACH) processing mass payments in Euro. STEP2 is a high volume, low value, retail Euro payments processing system capable of routing payments between Participants that have a registered office or a branch within the Single Euro Payments Area (SEPA). The platform is one of the the key processors in SEPA.
+STEP2 SEPA Services process Payment Orders for the clearing and settlement of SEPA-compliant payment messages. The payment messages are always exchanged between a Participant of the relevant STEP2 SEPA Service, acting as Instructing Agent, and the STEP2 Central System. This IPF CSM service is providing the interface between client payment processing and STEP2, by processing SEPA Credit Transfers, bulking and debulking files of payments.
+The messages are bulked within files and submitted from sending Participants, formatted to ISO20022 XML standards.
+SEPA CT STEP2 CSM Service
+The SEPA CT STEP2 CSM will:
+Accept messages from Client flows (eg pacs.008 for payments)
+Build batch files for delivery to the scheme
+Receive response files
+Deconstruct these files and match them to the original requests
+Respond to the appropriate Client flow (pacs.002 for payments)
+In addition to the processing of the actual messages intended for the scheme, the CSM provides Validation only APIs. These APIs allow the client flows to submit messages that can be validated against the scheme’s schema; to provide assurance that the message will be processed straight through once it is submitted for processing to the scheme.
+Scheme Rulebook Versions
+The SEPA CT (STEP2) CSM Service pack is built against the EBA release that goes live on 18th November 2024. The Service pack is designed to work in Bulk Processing Mode, not Batch Processing.
+ISO20022 Messaging Versions
+This release will use the following ISO2022 message versions:
+pacs.002.001.10S2
+pacs.004.001.09
+pacs.008.001.08
+pacs.028.001.03
+camt.027.001.07
+camt.029.001.09
+camt.056.001.08
+camt.087.001.06
+EBA STEP2 SCT File Types Supported
+The STEP2 SCT CSM Service supports below files:
+ICF (Input Credit File)
+The Input Credit File (ICF) sent to the scheme contains the following messages types in bulks/batches. This list will be updated as the Service is updated to support more ISO20022 message types.
+Credit Transfers (pacs.008)
+Returns (pacs.004)
+Cancellations (camt.056)
+Result of Investigations (camt.029)
+Status Update (pacs.028)
+CVF (Credit Validation File)
+The Credit Validation File (CVF) received from the scheme contains the following message types in bulks/batches:
+The CVF Rejects (pacs.002S2)
+RSF (Result of Settlement File):
+The Result of Settlement File (RSF) received from the scheme contains the following message types in bulks/batches:
+Payment Status (pacs.002S2)
+The file is produced at the end of the daily continuous settlement window and contains bulks plus transactions cancelled because of settlement failure due to insufficient funds
+Current version of STEP2 SCT CSM Service supports default RSF configuration (a single RSF files received at the CGS EOD). Multiple RSF files delivered at the end of each LAC is not supported.
+SCF (Settled Credit File)
+The Settled Credit File (SCF) received from the scheme contains the following messages types in bulks/batches. This list will be updated as the Service is updated to support more ISO20022 message types.
+Credit Transfers (pacs.008)
+Returns (pacs.004)
+Cancellations (camt.056)
+Result of Investigations (camt.029)
+IQF (Input Inquiry File)
+The Input Inquiry File (IQF) sent to the scheme contains the following messages types in bulks/batches. This list will be updated as the Service is updated to support more ISO20022 message types.
+Status Update (pacs.028)
+QVF (Inquiry Validation File)
+The Inquiry Validation File (QVF) received from the scheme contains the following message types in bulks/batches:
+The QVF Rejects (pacs.002S2)
+OQF (Output Inquiry File)
+The Output Inquiry File (OQF) received from the scheme contains the following messages types in bulks/batches. This list will be updated as the Service is updated to support more ISO20022 message types.
+Status Update (pacs.028)
+Payment Cancellation File - an optional file that  clients can configure to receive from the EBA SEPA scheme; it is generated at the end of each Liquidity Adjustment Cycle (LAC) as long as a payment recall request has been submitted in the validation window preceding the LAC. It contains pacs.002S2 messages for any payment messages submitted to the scheme but cancelled before settlement.
+Scheme Service Configurations Not Supported
+The initial release of the SEPA CT CSM will support the default EBA configurations as well as PCF processing, which is an optional subscription (Although it is possible to be a member of the SEPA scheme and run the CSM without the PCF, it is highly recommended by Icon that this is subscribed to for a better experience).
+Behaviour that goes beyond default and will require an additional request for development will be:
+Additional optional RSF configuration which produces the final RSF at the end of the continuous settlement window containing:
+All settled transactions not delivered in a previous RSF
+All cancelled transactions because of settlement failure due to insufficient funds
+Additional RSF files to be generated which will contain:
+All settled transactions not delivered in a previous RSF
+All transactions queued in CGS at the end of the relevant LAC because insufficient funds are available to settle them
+Response Processing
+SEPA CT is not a real time payments scheme. Funds are not transferred as soon as the payment request is made by the end user customer. A payment request will need to wait for the next appropriate window to be transferred to the scheme for processing and then for the appropriate settlement window for the funds to clear.  A payment request could wait many hours or days for the final outcome to be reported.
+A pacs.008/pacs.004 submitted to the SEPA CT (STEP2) CSM can expect 4 responses from the CSM:
+Technical Acknowledgement - This will be a real time response from the CSM to acknowledge receipt of the request to confirm it is in a format that can be processed.
+ACTC - Accepted after Technical Checks. This response tells the calling flow that the CSM itself has checked the message and is happy it is well formed and can be submitted to the Scheme.
+ACSP - Accepted Settlement in Process. This response comes after the message has been added to a batch file and this has been accepted by the scheme for forward processing to the destination bank.
+ACCP - Fully Accepted. Once the destination bank has received the request to transfer funds and at the end of the day that the settlement successfully takes place, the client flow will receive an ACCP to inform it that the process has finished.
+A camt.056/camt.029 submitted to the SEPA CT (STEP2) CSM can expect 3 responses from the CSM, as per pacs.008/pac.004 processing, except no ACSP response is returned.
+Additional information can be found -
+here
+.
+Validation API
+The SEPA CT CSM provides a suite of APIs that can be used by the client flows to build an ISO20022 message that they can be confident will pass validations and be accepted by the scheme.
+The main API for this will accept a message passed as an object in the API call, validate this message against the appropriate schema and return the findings of the validations. If the message is valid, a success response is returned. If the message contains fundamental errors in the header or main structure, a rejected response will be returned with the reason for the failure.
+Should the message contain multiple transactions and only a subset of these transactions fail, the response will contain a modified message with the offending parts removed and the the headers updated appropriately. This modified message can be submitted for full processing through to the scheme, without undue delay, while the transaction(s) with errors is subject to the clients procedures for investigation and repair.
+As well as validating scheme messages, the CSM provide APIs for checking or getting dates that are valid days for settlement.
+Read more about this here -
+Validation API
+.
+SEPA CT STEP2 CSM Service
+SEPA CT STEP2 Flows

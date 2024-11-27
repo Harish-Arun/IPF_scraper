@@ -1,0 +1,17 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.credit%20transfer%20happy%20path.Handle%20Inbound%20Status%20Request.html ===
+Handle Inbound Status Request.story
+Meta
++sendOutcomeEnabled+:
+Scenario: Handling inbound status request
+When
+the i12CSMi12  sends a Customer Credit Transfer
+Then
+the i12Payment Servicei12  receives a Receive Payment Request
+When
+the i12CSMi12  sends a Payment Status Request
+Then
+the i12Payment Servicei12  receives a Receive Payment Status Inquiry Request
+When
+the i12Payment Servicei12  sends a Receive Payment Status Inquiry Response
+Then
+the i12CSMi12  receives a Payment Status Report

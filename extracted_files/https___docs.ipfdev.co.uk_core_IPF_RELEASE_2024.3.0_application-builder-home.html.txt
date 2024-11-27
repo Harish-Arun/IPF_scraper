@@ -1,0 +1,10 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/application-builder-home.html ===
+Application Builder
+This section covers the core components or modules which exist to get you started building IPF applications.
+Flo Starter
+- this consists of all the necessary core dependencies required to wire together an IPF flow implementation.
+IPF Project
+Scaffolder
+- this is the quickest way to bootstrap a new project using the IPF SDK. The Maven archetype will generate a Maven project (using the Icon BOM as its parent) containing an application skeleton, the flow domain and a test module.
+How to register dynamically generated connectors as beans
+Flo Starter

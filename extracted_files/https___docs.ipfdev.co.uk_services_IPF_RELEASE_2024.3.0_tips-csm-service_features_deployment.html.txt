@@ -1,0 +1,339 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/tips-csm-service/features/deployment.html ===
+Deployment
+Building as a Container
+The following
+Dockerfile
+can be used as a template for integration with your own underlying base container.
+FROM adoptopenjdk/openjdk11
+
+RUN mkdir -p /tips-csm/conf /tips-csm/lib
+
+COPY tips-csm-application-kafka-1.2.107-runnable.jar /tips-csm/lib/
+COPY cinnamon-agent-2.17.3.jar /tips-csm/lib/
+
+WORKDIR /tips-csm
+EXPOSE 8080
+
+HEALTHCHECK --interval=30s --timeout=3s --retries=1 CMD wget -qO- http://localhost:8080/actuator/health/ | grep UP || exit 1
+
+ENTRYPOINT java \
+  -javaagent:/tips-csm/lib/cinnamon-agent-2.17.3.jar \
+  -cp "/tips-csm/lib/tips-csm-application-kafka-1.2.107-runnable.jar:/tips-csm/conf" \
+  ${IPF_JAVA_ARGS} \
+  -Dma.glasnost.orika.writeClassFiles=false \
+  -Dma.glasnost.orika.writeSourceFiles=false \
+  -Dconfig.override_with_env_vars=true \
+  -Dloader.main=com.iconsolutions.ipf.payments.csm.tips.application.TipsApplicationKafkaApplication  \
+  org.springframework.boot.loader.PropertiesLauncher
+Docker-Compose
+Docker-compose.yaml
+# This contains only infrastructure and payment, query + CSM adapters.
+services:
+
+  tips-csm-application-kafka:
+    image: tips-csm
+    container_name: tips-csm-application-kafka
+    ports:
+      - "8080:8080"
+      - "9001:9001"
+#    environment:
+#      - IPF_JAVA_ARGS=-Dnoargs=set
+    volumes:
+      - ./tips-csm.conf:/tips-csm/conf/application.conf:ro
+    depends_on:
+      - kafka
+
+  zookeeper:
+    image: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+
+  kafka:
+    image: registry.ipf.iconsolutions.com/kafka-icon:2.13-2.7.1
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      - KAFKA_BROKER_ID=0
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LOG_RETENTION_MINUTES=10
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_OFFSETS_TOPIC_NUM_PARTITIONS=1
+      - KAFKA_LISTENERS=PLAINTEXT://:29092,PLAINTEXT_HOST://:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+
+  kafdrop:
+    image: obsidiandynamics/kafdrop:latest
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      - KAFKA_BROKERCONNECT=kafka:29092
+    depends_on:
+      - kafka
+
+  ipf-mongo:
+    image: registry.ipf.iconsolutions.com/ipf-docker-mongodb:latest
+    container_name: ipf-mongo
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo localhost:27017/test --quiet
+Kubernetes and OpenShift
+The TIPS CSM Service operates as an un-clustered, stateless application and so can be easily deployed using the following manifests
+Deployment Manifest
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tips-csm-service
+  namespace: default
+  labels:
+    app: tips-csm-service
+    product: ipfv2
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: tips-csm-service
+      product: ipfv2
+  template:
+    metadata:
+      labels:
+        app: tips-csm-service
+        product: ipfv2
+    spec:
+      imagePullPolicy: Always
+      containers:
+        - name: tips-csm-service
+          image: tips-csm-service-kafka:latest
+          ports:
+            - name: actuator
+              containerPort: 8080
+            - name: akka-metrics
+              containerPort: 9001
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: actuator
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: actuator
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          startupProbe:
+            httpGet:
+              path: /actuator/health
+              port: actuator
+              scheme: HTTP
+            periodSeconds: 10
+            failureThreshold: 30
+          env:
+            - name: "POD_NAME"
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: "POD_IP"
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: "KUBERNETES_NAMESPACE"
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: "AKKA_CLUSTER_BOOTSTRAP_SERVICE_NAME"
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.labels['app']
+            - name: "KAFKA_KEYSTORE_PASS"
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-client-keystore
+                  key: kafka-client-keystore-pass
+            - name: "KAFKA_TRUSTSTORE_PASS"
+              valueFrom:
+                secretKeyRef:
+                  name: kafka-client-keystore
+                  key: kafka-client-truststore-pass
+            - name: "POD_NAME"
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: "POD_IP"
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: "KUBERNETES_NAMESPACE"
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              memory: 1Gi
+              cpu: 1
+          volumeMounts:
+            - mountPath: /tips-csm/conf
+              name: config-volume
+            - name: kafka-client-keystore
+              mountPath: /tmp/keys/kafka-client-keystore.p12
+              subPath: kafka-client-keystore.p12
+            - name: kafka-client-keystore
+              mountPath: /tmp/keys/kafka-client-truststore.p12
+              subPath: kafka-client-truststore.p12
+      volumes:
+        - name: config-volume
+          configMap:
+            name: tips-csm-service-cm
+        - name: kafka-client-keystore
+          secret:
+            secretName: kafka-client-keystore
+Service Manifest
+apiVersion: v1
+kind: Service
+metadata:
+  name: tips-csm-service
+  namespace: default
+  labels:
+    app: tips-csm-service
+    product: ipfv2
+spec:
+  selector:
+    app: tips-csm-service
+    product: ipfv2
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      name: actuator
+    - protocol: TCP
+      port: 9001
+      targetPort: 9001
+      name: akka-metrics
+ConfigMap Manifest
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: tips-csm-service-cm
+  namespace: default
+  labels:
+    app: tips-csm-service
+    product: ipfv2
+data:
+  application.conf: |
+    ipf.mongodb.url = ""
+    spring.data.mongodb.uri = ${ipf.mongodb.url}
+
+    common-kafka-client-settings {
+      bootstrap.servers = "${ipf.kafka.bootstrap.servers}"
+      security.protocol = ${ipf.kafka.security.protocol}
+      ssl {
+        protocol = SSL
+
+        keystore {
+          location = /tmp/keys/kafka-client-keystore.p12
+          password = ${KAFKA_KEYSTORE_PASS}
+        }
+
+        truststore {
+          location = /tmp/keys/kafka-client-truststore.p12
+          password = ${KAFKA_TRUSTSTORE_PASS}
+        }
+      }
+    }
+
+    akka {
+      kafka {
+        producer {
+          kafka-clients = ${common-kafka-client-settings}
+        }
+
+        consumer {
+          kafka-clients = ${common-kafka-client-settings}
+          kafka-clients {
+            auto.offset.reset = earliest
+          }
+        }
+      }
+      loglevel = "INFO"
+    }
+
+    akka {
+      remote.artery {
+        enabled = on
+        transport = tcp
+        canonical.hostname = ${POD_IP}
+      }
+
+      discovery {
+        kubernetes-api {
+          pod-label-selector = "app=%s"
+        }
+      }
+
+      management {
+        # available from Akka management >= 1.0.0
+        health-checks {
+          readiness-path = "health/ready"
+          liveness-path = "health/alive"
+        }
+        http.hostname = ${POD_IP}
+        cluster.bootstrap {
+          contact-point-discovery {
+            discovery-method = kubernetes-api
+            service-name = ${AKKA_CLUSTER_BOOTSTRAP_SERVICE_NAME}
+            required-contact-point-nr = 2
+            required-contact-point-nr = ${?REQUIRED_CONTACT_POINT_NR}
+          }
+        }
+      }
+    }
+
+    management.endpoints.web.exposure.include = "*"
+
+  logback.xml: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <configuration>
+
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <target>System.out
+            </target>
+            <encoder>
+                <pattern>[%date{ISO8601}] [%level] [%logger] [%marker] [%thread] - %msg MDC: {%mdc}%n</pattern>
+            </encoder>
+        </appender>
+
+        <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+            <queueSize>8192</queueSize>
+            <neverBlock>true</neverBlock>
+            <appender-ref ref="CONSOLE"/>
+        </appender>
+
+        <logger name="akka.cluster" level="INFO"/>
+
+        <root level="INFO">
+            <appender-ref ref="ASYNC"/>
+        </root>
+
+    </configuration>
+Application Configuration
+Validations

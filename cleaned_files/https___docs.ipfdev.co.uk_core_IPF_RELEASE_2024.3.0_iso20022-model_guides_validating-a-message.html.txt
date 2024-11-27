@@ -1,0 +1,29 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/guides/validating-a-message.html ===
+Validating an Example Message
+The process of validation of a message is described in detail as part of
+Validation
+. It is
+strongly recommended to read that page to understand the difference between validation levels
+However, in summary to validate a Message Definition instance in the strictest way possible(Schema Rules, Message Rules
+and Business Rules) you can use the
+MessageComponentValidator
+as follows:
+// Get JsonMapper instance
+JsonMapper jsonMapper = ISO20022MessageModel.getInstance().jsonMapper();
+
+// De-serialising from Json
+FIToFICustomerCreditTransferV08 cct = jsonMapper.fromJson(json, FIToFICustomerCreditTransferV08.class);
+
+// Get validator instance
+MessageComponentValidator validator = ISO20022MessageModel.getInstance().validator();
+
+//validate
+ValidationResult<CustomerCreditTransferInitiationV09> result = validator.validate(ccti, ValidationOptions.ruleValid());
+
+boolean isValid = result.isValid() // true
+The
+ValidationResult
+contains information around any violations, failures, or unimplemented rules, all of this is
+summarized within the isValid() method.
+Creating an Example Message
+ISO20022 Meta-Model Generator

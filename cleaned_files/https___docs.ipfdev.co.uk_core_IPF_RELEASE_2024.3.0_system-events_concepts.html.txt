@@ -1,0 +1,205 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/system-events/concepts.html ===
+Concepts
+This section contains explanations and help on accomplishing the following tasks
+with IPF events:
+Subscribing to events
+Using implementations of the IPF event API
+Defining your own events for publishing using the event API
+Event hierarchy
+All events extend the top-level
+IPFSystemEvent<T>
+, which has the following members: have the following members (and
+associated getters):
+public abstract class IPFSystemEvent<T> {
+    private static final EventVersion DEFAULT_VERSION = new EventVersion(1, 0, 0);
+
+    private String name;
+    private EventLevel level;
+    private Instant createdAt;
+    private EventVersion version;
+    private EventType type;
+    private ProcessingContext processingContext;
+    private String source;
+    private Map<String, String> metadata;
+    private T payload;
+The
+IPFSystemEvent
+is parameterised, and the
+T
+type contains the payload of the event subclassing this one.
+Raising and subscribing to events
+The two subsections below assume that a bus implementation has been created. The events API and implementation are in
+two different modules to allow for plug-ability of different bus and processor implementations.
+To use the
+DefaultEventBus
+implementation that is used in the examples below, declare the following dependencies in
+pom.xml
+:
+<dependencies>
+    <dependency>
+        <groupId>com.iconsolutions.ipf.core.systemevents</groupId>
+        <artifactId>ipf-system-events-api</artifactId>
+        <version>${ipf-system-events.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.iconsolutions.ipf.core.systemevents</groupId>
+        <artifactId>ipf-system-events-impl</artifactId>
+        <version>${ipf-system-events.version}</version>
+    </dependency>
+</dependencies>
+The examples below assume a bus with the name
+eventBus
+has already been created like this:
+private final EventBus eventBus = DefaultEventBus.getInstance();
+Subscribing to events
+Note that events published to a bus before a subscription is acknowledged will not be delivered to that subscriber.
+There are two
+subscribe
+methods as described in the interface. Heres the first:
+<T extends IPFSystemEvent> boolean subscribe(Class<T> clazz, EventProcessor<? extends T> eventProcessor);
+This call allows the supplied
+eventProcessor
+to subscribe to the bus, but also gives an optional
+Class
+to denote a
+specific level in the class hierarchy at which to subscribe. If we consider the following hierarchy for example:
+|- IPFSystemEvent
+|--> FunctionalSystemEvent
+|---> TestSpecEvent
+We can issue a
+subscribe
+call like this:
+eventBus.subscribe(TestSpecEvent.class, eventProcessor);
+This will guarantee that this eventProcessor will only ever receive events of type
+TestSpecEvent
+and its subclasses
+,
+and no other type of IPFSystemEvent.
+Use this call when you are only interested in a specific set of events.
+Heres the second way to subscribe:
+default boolean subscribe(EventProcessor<IPFSystemEvent<?>> eventProcessor) {
+This is a shorthand for subscribing in the following way:
+var subscribed = eventBus.subscribe(IPFSystemEvent.class, eventProcessor);
+Use this call if you are potentially interested in
+all
+possible events that can be raised by this system.
+Narrowing the focus with the
+EventProcessor
+If we look at the interface definition of the
+EventProcessor
+we can see the following interface method (with a default
+implementation), in addition to the (expected)
+notify
+:
+/**
+     * A predicate to filter which events to accept for processing
+     *
+     * @return whether this {@link EventProcessor} should process the given {@link IPFSystemEvent}.
+     */
+    default Predicate<T> predicate() {
+        return a -> true;
+    }
+This predicate allows the processor to inspect every incoming message and decide whether it is interested in this
+particular message.
+The default implementation -
+a  true
+- allows all events through. Overriding this method allows for finer-grained
+control over the events that are passed to the
+notify
+method.
+See below for different usage examples of how predicates can be used to narrow the focus of a processor.
+Raising events
+Lets assume we want to raise an event signifying the start of an IPF flow. To do that
+we can call the
+raise
+method like this:
+var testSpecEvent = new TestSpecEvent(PROCESSING_CONTEXT, "B");
+        eventBus.raise(testSpecEvent);
+Defining custom events
+To define custom events, create an event class as a subclass of
+IPFSystemEvent<T>
+, where the
+T
+type is the type of
+payload that will be published. Depending on the usage of the new event the payload does not necessarily need to be
+serialisable, but it is advised that that is made the case as events will generally eventually need to be serialised
+over some medium (message queue, file, RPC).
+Documenting events
+There is a utility in the
+ipf-system-events-api
+module which retrieves all subclasses of
+IPFSystemEvent
+on the
+classpath and can list their:
+Name (the
+getSimpleName()
+of the class)
+Description (from the
+@EventDescription
+annotation)
+Abstract/not abstract
+Payload type
+Bus semantics
+This section defines the behaviour the event API in specific situations:
+Situation
+Behaviour
+Event is raised before a subscriber successfully subscribes
+Event is not delivered to the subscriber
+Subscriber misses an event delivery
+Subscriber is not notified again (at-most-once delivery)
+Default event bus semantics
+All events have a "source" - this is loosely defined as the "node" from which a system event was published.
+The default IPF event bus looks for a Config (HOCON) value called
+ipf.system-events.source
+- if this value is not
+configured in a file called
+ipf.conf
+or
+application.conf
+on the classpath, then the default will be used, which will
+the output of
+InetAddress.getLocalHost().getHostName()
+. If that throws an exception, the source will be
+UNKNOWN
+.
+Writing a custom event bus implementation
+If the existing in-memory
+DefaultEventBus
+defined in the
+-impl
+package is insufficient, it is possible to implement
+your own bus.
+There is a compatibility test kit (
+TCK
+) in the
+-api
+project which allows for future bus implementers to test their implementations correctness.
+The test is available in a
+test-jar
+version of the
+-api
+module. Create a dependency like this:
+<dependencies>
+    <dependency>
+        <groupId>com.iconsolutions.ipf.core.systemevents</groupId>
+        <artifactId>ipf-system-events-api</artifactId>
+        <version>${ipf-system-events.version}</version>
+        <type>test-jar</type>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+The TCK is an abstract JUnit test class -
+EventBusTestSpec
+- with the
+following abstract method:
+abstract EventBus getEventBus();
+Make your test extend this class and implement this abstract method in order to allow the test to run. You can also add
+your own
+@Test
+methods in this class (and others) if you wish to test other scenarios not covered by the TCK.
+Remember to have your TCK implementation class end with the word
+Test
+so that it is picked up automatically by the
+Maven Surefire Plugin
+System Events
+List of System Events

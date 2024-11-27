@@ -1,0 +1,39 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/architecture/cqrs-es.html ===
+CQRS-ES
+Principle
+Command and query responsibility segregation with event sourcing is the key pattern used in IPF payment processing solutions.
+Rationale
+Efficient and non-blocking writes
+Every critical state change is recorded in the write-side as domain events, in an append-only fashion. As there is no need to persist and maintain a separate current state, there is no need for update-in-place and no need to implement optimistic locking type solutions, eliminating the risk of contention.
+Efficient read-side queries with complex view models, without impacting the command-side
+Complex queries for searching and analytics purposes are executed on the separate read-side. Accepting the reality that there is always going to be an element of delay when reading/fetching data and eventual consistency allows decoupling of read and write models. A variety of read models and complex projections are created by fetching the data from the write-side as part of projection/synchronisation, without impacting the overall payment processing.
+Independent scaling of teams and use of technology
+The separation of the read- and write-side also allows wider decoupling of teams and technology, providing the opportunities of scaling different teams and applying specialised technologies in order to improve efficiency of the teams and the read and write solutions. It is possible to apply technology options and optimisations which can differ between read- and write-side.
+No need to maintain a separate execution history
+Domain events are immutable facts representing the change in state. By empowering domain events to be the critical part of the solution and constructing the application state based on them also gives the advantage of maintaining business critical execution history as part of the payment processing, not as an afterthought.
+Consistent state management
+Domain events become the single source of truth, eliminating the risk of publishing a domain event to the outside but failing to update the state consistently.
+Improved self-healing and trouble-shooting
+In case of temporary failures, recorded domain events can be replayed again to recover the application state to allow self-healing, debugging or trouble-shooting.
+Archiving is much easier on immutable data
+It certainly is much safer to archive immutable domain events to a slower storage.
+Object model doesnt have to be same as the data mode
+l
+CQRS naturally guides you to model your domain with the right concerns from the very beginning. Commands are modelled to contain concise information that is enough to make decision on how to handle the command. This allows the model to be more focused and not populated with concerns which do not serve the intent.
+Implications
+Embrace eventual consistency
+With CQRS, there will be a natural lag between the writes and reads, as the data updates may not be immediately available on the read-side. Understand the acceptable limits and apply optimisations to reduce the latency. it is the best to start with challenging the reasons behind the requirements for a strong consistency. It may become clear that all that effort and cost for a strong consistency may not give you the desired business benefit at all; it may even degrade the application proving to be even more costly.
+Steep Learning curve
+As with anything else, there is a learning curve that requires a shift from traditional design thinking. However, the pattern is not new and there are many different implementations with examples and articles.
+Backward compatibility
+In event sourcing, it is actually easier to introduce a new state as it wont really impact the overall model. However, in time, you may need to apply more breaking changes such as mandatory changes in an event structure. A good approach is to be flexible in what you are accepting from outside and strict when exposing data to the outside. This may allow the introduction of adapters when necessary. Snapshotting before introducing breaking changes and broadcasting a major event are also helpful strategies.
+Increased volume of data
+Naturally, there will be more data that the application will be persisting. This is primarily because the audit trail of 'how we got there' information is now the critical part of the domain. Archiving is not as problematic any more as it is an append-only log. Removing the events after broadcasting and snapshotting could also help with data volume concerns.
+Rebuilding state can be costly
+As the number of events to represent the state changes in a domain object grows, it may become inefficient to rehydrate all the events for the object to build its current state. Snapshotting is useful and can be applied to the domain events after a major change. This would reduce the number of events to be rehydrated and improve the overall performance. Another option could be to keep the domain object in memory, perhaps to introduce a distributed cache. This is a risky approach and you need to make sure cache is updated consistently as the domain events are persisted.
+Challenges in Duplicate checking
+Duplicate checking is often used as a criticism to event sourcing. As there is no update-in-place type data management, it may be more challenging to detect duplicate entities. Again, there are various strategies to overcome that. One strategy is to allow duplicates but implement a rigorous after process which handles duplicate data. However, this will not work for instant payments as the money movement is very critical and allowing duplicate payments would be too risky. Another strategy could be to use the unique identifier for the payment as for the primary key for events, not allowing duplicate events for the same payment id. However, as payment id is often a combination of mandatory and optional fields, it could be challenging to implement such a unique identifier. A better strategy is to keep a temporary cache of payments objects close to the application and new payment execution commands could be checked against the cached payments and rejected if duplication is detected.
+Examples of applying the principle
+All IPF V2 payment processing solutions naturally support this design pattern.
+Hexagonal Architecture
+Instant Payment Solutions

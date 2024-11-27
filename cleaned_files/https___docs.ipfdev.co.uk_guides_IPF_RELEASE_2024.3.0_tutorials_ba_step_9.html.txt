@@ -1,0 +1,54 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/tutorials/ba_step_9.html ===
+Step 9 - Add Response Codes
+Introduction to Step 9
+In this step you will be creating a set of response codes to more accurately reflect the kind of responses you could receive.
+In this scenario, assume that the debtor agents accounting system (external domain) supplies a number of different responses, rather than the simple 'AcceptOrReject' response that you have used up to now.
+Three different responses are possible in this use case:
+Account Valid
+Account Invalid
+Account Blocked
+Create a Response Code Library
+First lets create a response code library to house your new response codes.
+From the left menu right click on the model, press New>v2Flo>Response Code Library
+Add Response Code Sets to the Library
+Now you can add a set of response codes, followed by the individual codes.
+Click 'Add Response Code Set'
+Name the set 'Account Verification Response Codes'
+Click 'Add Response Code'
+Add the three codes, with a description
+For the 'Account Invalid' and 'Account Blocked' codes, check the 'Is Failure' box
+The 'Is Failure' column is use to denote whether the reason code results in a rejection, or continues the flow.
+If the 'Is Failure' is selected then the Response Code will appear on the aggregate and can be made available for any messages that require the rejection reason code.
+Update the Debtor Account System Request
+Now you have created a response code set, then you can replace the set you originally set up in the 'Debtor Account Validation Request'.
+Double click 'Debtor Agents Accounting System' external domain on the left menu
+In the 'Responses' column place the cursor after 'Response Codes'
+Press
+Ctrl
++
+Space
+and select the new response code set you have just created
+Update Input Behaviour
+Now you have three responses, rather than two, you need to update the input behaviour to tell the flow what to do in all three cases,
+Double click the flow on the left menu
+Find 'Input Behaviour'
+You will see that some of the input are now underlined red - this is because the response codes (AcceptOrReject) are no longer valid for that response, they have been replaced by the new code set
+Replace accepted and rejected response codes with the new codes and add the new input behaviours using the 'Add Input Behaviour' button.
+Your list of responses are probably in an order that dont make sense.  Use the keyboard shortcut
+Ctrl
++
+Shift
++
+up
+/
+Ctrl
++
+Shift
++
+up/down
+to move the rows around to make it look how you want it to.
+Your final input behaviour table should look something like this.
+Would you ever actually implement like this?
+No you probably wouldnt - this is just an example for the purposes of a tutorial.  In reality you would keep Accept or Reject as the response code set, since the new codes only actually have 2 outcomes - pass or fail - so why introduce the complexity of adding new input behaviours that achieve nothing new?
+Step 8 - Add a decision
+Step 10 - Add a Subflow

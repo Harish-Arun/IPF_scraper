@@ -1,0 +1,58 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/bank-filtering/features/bankfiltering-bic.html ===
+Endpoint - Bank Filtering BIC
+Date introduced on IPF: 31-October-2023
+Request
+Input Parameter
+Optionality
+Multiplicity
+Description
+processingEntity
+M
+1..1
+The Processing Entity for which the filtering rules should be applied.
+csmAgentID
+O
+0..1
+The CSM Agent Id for which the filtering rules should be applied. When provided on the request, only those rules where provided CSM Agent Id is registered will be applied. The rules which do not state a CSM Agent Id are also applied as those rules are designed to be applicable across the board. The only rules which are not applied in the scenario where the CSM Agent Id on the rule does not have an entry for CSM Agent Id supplied on the request.
+debtor
+C
+0..1
+The party which is going to be debited in the settlement scenario. Only BIC accepted on the request and the BIC must be a valid 8 or 11 character BIC. Conditionally mandatory, at least one of debtor, creditor and currency must be provided on the request.
+creditor
+C
+0..1
+The party which is going to be credited in the settlement scenario. Only BIC accepted on the request and the BIC must be a valid 8 or 11 character BIC. Conditionally mandatory, at least one of debtor, creditor and currency must be provided on the request.
+currency
+C
+0..1
+The currency of the payment, any rule that has the specified currency is applied and corresponding currency severity returned in the request.
+Response
+Output Parameter
+Optionality
+Multiplicity
+Description
+debtorSeverity
+O
+0..1
+Returned when the debtor party on the request matched with an active rule with direction registered as "debtor".
+The severity of the rule with the highest severity is returned when multiple rules match
+creditorSeverity
+O
+0..1
+Returned when the creditor party on the request matched with an active rule with direction registered as "creditor".
+The severity of the rule with the highest severity is returned when multiple rules match.
+currencySeverity
+O
+0..1
+Returned when the currency on the input request matched with an active rule currency.
+The severity of the rule with the highest severity is returned when multiple rules match.
+Detailed API specifications can be found
+here
+.
+Select 'Bank Filtering API' definition in upper right corner in Swagger documentation.
+Filtering
+The filtering behaviour used by the Service API can be found here
+Bank Filtering Behaviour
+The endpoint /bankfiltering/bic endpoint accepts only BIC values for debtor and creditor and uses Common filtering, filtering by BIC and filtering by currencies behaviour.
+Bank Filtering Service API
+Endpoint - Bank Filtering Check Payment Risk

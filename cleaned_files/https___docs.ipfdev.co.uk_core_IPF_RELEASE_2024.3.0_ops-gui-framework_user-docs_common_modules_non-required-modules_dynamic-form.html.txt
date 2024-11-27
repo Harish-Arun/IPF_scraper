@@ -1,0 +1,207 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/ops-gui-framework/user-docs/common/modules/non-required-modules/dynamic-form.html ===
+Dynamic Form Module
+The DynamicFormModule contains the DynamicFormComponent and its child components that allow for easy creation of simple forms.
+Components
+AmountRangeComponent and AmountRangeMultiComponent
+A component to display an amount range input and multiple amount range inputs respectively.
+Using the latter component will return a list of amount ranges.
+Name
+Description
+@Input() amountTypeList: FieldOption[];
+The list of amount types to be displayed in the amount type dropdown.
+@Input() currencyCodeList: FieldOption[];
+The list of currency codes to be displayed in the currency code dropdown.
+@Input() id;
+The id of the amount range input, the id is used in multiple places to form unique ids for testing. For example, 'amount-' + id + '-from-label' for the from-label id.
+AutocompleteComponent
+A component to allow the user to select an item from a list using autocomplete.
+Name
+Description
+@Input() id;
+The id of the autocomplete input, the id is used in multiple places to form unique ids for testing. For example, 'autocomplete-' + id + '-label' for the label id.
+@Input() label;
+The label to be displayed above the autocomplete input.
+@Input() itemList: FieldOption[];
+The list of items to be displayed in the autocomplete dropdown. If a FieldOption is marked as disabled then the option will not be selectable.
+AutocompleteMultiComponent
+A component to allow the user to select multiple items from a list using autocomplete.
+Name
+Description
+@Input() id;
+The id of the autocomplete input, the id is used in multiple places to form unique ids for testing. For example, 'autocomplete-' + id + '-label' for the label id.
+@Input() label;
+The label to be displayed above the autocomplete input.
+@Input() itemList: FieldOption[];
+The list of items to be displayed in the autocomplete dropdown. If a FieldOption is marked as disabled then the option will not be selectable.
+@Input() options: AutocompleteModel;
+This input is used to define the additional properties of the component, in this case, allowing custom inputs or the select all functionality
+DynamicFormComponent
+A component to help with simple form creation containing the ipf input components.
+Name
+Description
+@Input() formSectionList: FormSection[]
+The list of form sections to be displayed. A FormSection is a group of form fields that appear within its own collapsable div. A section is for display purposes only and will be submitted as part of the main form submission.
+@Input() formValues: { [key: string]: any };
+The initial values of the form. This is an object where the key is the field name and the value is the field value.
+@Input() expand: boolean;
+Whether the form sections should be expanded or not. Defaults to true.
+@Input() submitText: string;
+The text to be displayed on the submit button. If the submitText is empty then the submit button will not show in the template.
+@Input() resetText: string;
+The text to be displayed on the reset button. If the resetText is empty then the reset button will not show in the template.
+@Input() actions: FormAction[];
+A list of actions. When supplied an action will appear to the bottom right of the form as a button. When the button is clicked the action will be emitted. See actionClick output below.
+@Input() errors: FormErrors;
+An object of form errors. When supplied the errors will appear next to the field that is supplied as the key, if there is no matching field for the key then they appear at the bottom of the form.
+Example
+{
+    string: ['This is required', 'This should be a string' ]
+}
+@Output() formSubmit: EventEmitter<{ [key: string]: any }>;
+An event that is emitted when the form is submitted. The event will contain the form values.
+@Output() formReset: EventEmitter<null>;
+An event that is emitted when the form is reset.
+@Output() actionClick: EventEmitter<FormActionEvent>;
+An event that is emitted when an action is clicked with the actions id as the event value. e.g.
+{ actionId: 'action-id-that-was-supplied' }
+.
+DynamicSearchFormComponent
+A component to create a basic search form
+Name
+Description
+@Input() formSectionList: FormSection
+The form section to be displayed. A FormSection is a group of form fields that appear in the search form
+@Input() formValues: { [key: string]: any }
+The initial values of the form. This is an object where the key is the field name and the value is the field value.
+@Input() submitText: string
+The text to be displayed on the submit button.
+@Input() resetText: string
+The text to be displayed on the reset button. If the resetText is empty then the reset button will not show in the template.
+@Input() customActions: CustomActions[]
+A list of custom actions which will display an additional button which will dispatch the given action when clicked.
+@Input() customValidator?: CustomValidation;
+This is used to provide the form with custom validation. For example, if two form fields validity is based on each others value
+CustomComponent (WIP)
+If you want to add a custom component to the form, you can add the customComponent property to the FormField within the formSectionList
+Name
+Description
+component
+The component you wish to inject into the form
+formControl
+The form control to be associated with that component
+inputs: FormInputs[]
+A input value array which is used provide any inputs for that custom component
+Custom Action
+This object is used define the custom action that should be added to the form.
+Name
+Description
+action
+This is the action that will be dispatched on the click of the custom action. It is of the type Action from ngrx
+title
+The text to be used in the custom actions button
+style
+One of 'primary', 'secondary' or 'warn'. Based on the stylesheet given this will style the button accordingly
+Custom Validation
+This object is used define the custom form validation
+Name
+Description
+validator
+A ValidatorFn that will be appended to the form
+errorText
+The text to be displayed
+DateRangeWithTypeComponent and DateRangeMultiComponent
+A component to display a date range input with a list of types and multiple date range inputs respectively.
+Name
+Description
+@Input() id;
+The id of the date range input, the id is used in multiple places to form unique ids for testing. For example, 'date-' + id + '-from-label' for the from-label id.
+@Input() dateTypeList: FieldOption[];
+The list of date types to be displayed in the date type dropdown. This is a enum created by the open api docs.
+DateRangeComponent
+A component to display a date range input without a date type dropdown.
+Name
+Description
+@Input() id;
+The id of the date range input, the id is used in multiple places to form unique ids for testing. For example, id + '-from-label' for the from-label id.
+DateInputComponent
+A component to display a single date input with a date picker.
+Name
+Description
+@Input() id;
+The id of the date input.
+DynamicDialogComponent
+A dialog component that works with the dynamicFormComponent to allow for easy creation of a simple form containing the ipf input components.
+Name
+Description
+Data object:
+title: string;
+The title of the dialog.
+formSectionList: FormSection[];
+The list of form sections to be displayed. A FormSection is a group of form fields that appear within its own collapsable div. A section is for display purposes only and will be submitted as part of the main form submission.
+formValues: { [key: string]: any };
+The initial values of the form. This is an object where the key is the field name and the value is the field value.
+submitText: string;
+The text to be displayed on the submit button. If the submitText is empty then the submit button will not show in the template.
+resetText: string;
+The text to be displayed on the reset button. If the resetText is empty then the reset button will not show in the template.
+SelectMultiComponent
+A component used for any fields where a select and up to two input fields are needed. The select field is always required and the input fields are set to required via the options
+Name
+Description
+@Input() id;
+The id of the component, used for testing purposes to define the element selectors
+@Input() itemList: FieldOption[];
+The list of items to be displayed in the dropdown
+@Input() options: SelectMultipleModel;
+This input is used to define the additional properties of the component, in this case, determining the number of inputs, the max length, whether the fields are required, numeric or string and the labels for the fields
+Example options (SelectMultipleModel):
+{
+    singleInput: false,
+    input: {
+        label: 'input 1',
+        numeric: false,
+        required: true
+    },
+    selectLabel: 'select label',
+    secondaryInput: {
+        label: 'input 2',
+        numeric: true,
+        required: false
+    },
+    secondarySelectInput: {
+        label: 'select 2',
+        numeric: false,
+        required: false
+    },
+    secondaryOptionList: [
+        { value: 'GBP', description: 'GBP' },
+        { value: 'USD', description: 'USD' },
+        { value: 'EUR', description: 'EUR' }
+    ],
+    maxLength: 5
+}
+MultiTextComponent
+A component used for providing multiple text values that are outputted as an array of strings
+Name
+Description
+@Input() id: string;
+The id of the component, used for testing purposes to define the element selectors
+@Input() label: string;
+The label used for the component
+@Input() options: MultiTextInputModel;
+This input is used to define the additional properties of the component, in this case, the placeholder for the input and the icon used for the removal of the items
+Example options (MultiTextInputModel):
+{
+   inputText: 'Enter an Address Line',
+   icon: 'close'
+}
+Pipes
+StringToFieldOptionPipe
+A pipe to convert a string to a FieldOption.
+When developing we often have a list of enums generated from the api docs that we wish to give the user as a dropdown.
+This pipe allows us to convert the enum to a FieldOption so that it can be used in the DynamicFormModule.
+The enum is kept at its original value for the 'value' attribute but is formatted to sentence case for the 'description' attribute.
+Input
+Output
+['TEST_THIS']
+[{value: 'TEST_THIS', description: 'Test This'}]

@@ -1,0 +1,14 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sepadd-csm-service/concepts/multi-level-bulking.html ===
+Multi Level Bulking
+The SEPA DD STEP2 scheme pack provides the necessary processing to take pacs.003 requests from client flows, containing customer direct debits (DrctDbtTxInf), validate and process those individual DrctDbtTxInf into outbound files sent to the scheme. This means those DrctDbtTxInf need to be processed individually across the scheme pack, but they must be brought together into aggregated bulks to be sent to the scheme. This means the scheme pack is taking responsibility for handling the aggregation of DrctDbtTxInf received across multiple pacs.003 messages received from a client implementation flow.
+The scheme pack contains logic to aggregate input pacs.003s (whether they contain one or many payments) into a shared pacs.003 on the basis of Instructing Agent, Creditor Agent and Interbank Settlement Date. All incoming transactions which share this set of characteristics would be placed into the same outgoing pacs.003.
+Important points to note:
+An incoming pacs.003 from the client bank can have its transactions split across multiple pacs.003 in the IDF file to be sent to the scheme.
+The outgoing pacs.003 will contain individual DrctDbtTxInf from one or more submitted pacs.003.
+The placing of DrctDbtTxInf into the outbound bulk pacs.003 is handled exclusively by the CSM.
+Multiple outbound pacs.003 bulks are themselves bulked into an outbound IDF bulk file.
+This form of multi-level bulking is used for the following messages in the IDF:
+pacs.003
+Other message types will be added in future releases.
+sepadd Model
+Features

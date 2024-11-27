@@ -1,0 +1,275 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/concepts/scheme-packs/sp-functions.html ===
+Scheme Pack Functions
+Below is a list of functions covered by every Scheme Pack in IPF.
+Outbound Flow
+Outbound Flow
+Scheme Pack Component
+Receipt of outbound payment request from flows in IPF canonical format (a standardised ISO model)
+- Clear & Settle API / Collect & Settle API
+- Clear and Settle Connectors
+Business / data validation of received canonical payment messages according to scheme rules, to minimise the possibility of scheme rejections
+Scheme and CSM specific validators
+Mapping from IPF canonical to scheme / CSM specific formats and generation of outbound payment messages in scheme-specific format ensuring compliance with scheme rules
+IPF Canonical to CSM mappers using IPF mapping framework
+Transmission of outbound payment message to scheme via IPF Connectors or via client systems
+- CSM API
+- CSM sending connector
+- File sending connector (i.e. write to file storage for transmission to scheme by some other system)
+Note that Bank GW API and Connector are part of bank specific implementation.
+Receipt of incoming ACK / NACK responses from scheme
+- CSM API
+- CSM Receiving Connector
+- File Receiving Connector (i.e. write to file storage for transmission to scheme by some other system)
+Note that Bank GW API and Connector are part of bank specific implementation.
+Validation of ACK / NACK
+Scheme and CSM specific validators
+Correlation of ACK / NACK with original payment message
+Correlation Cache
+Storage of ACK / NACK response in DB
+Message Logging
+Receipt of incoming functional response from scheme
+- From a number of different sources
+- CSM API
+- CSM Receiving Connector
+- File Receiving Connector (i.e. write to file storage for transmission to scheme by some other system)
+Note that Bank GW API and Connector are part of bank specific implementation.
+Validation of incoming functional response from scheme to ensure it is safe to process
+Scheme and CSM specific validators
+Correlation of incoming functional response to outbound message
+Correlation Cache
+Storage of functional response in DB
+Message Logging
+Translation of inbound functional response into canonical format
+CSM to IPF Canonical mappers using IPF mapping framework
+Receipt of outbound R-messages from client
+- Recalls Returns ROI API
+- CSM Receiving Connector
+- Bank Gateway API
+- Bank Gateway Receiving Connector (if extended by the bank)
+- File Receiving Connector (i.e. write to file storage for transmission to scheme by some other system)
+Validation of outbound R-messages and associated necessary enrichment
+Scheme and CSM specific validators
+Generation of outbound R-message in scheme-specific format
+IPF Canonical to CSM mappers using IPF mapping framework
+Transmission of outbound R-message to scheme via IPF connectors or client systems
+- CSM API
+- CSM Sending Connector
+- Bank Gateway API
+- Bank Gateway Send Connector
+- File Sending Connector (i.e. write to file storage for transmission to scheme by some other system)
+Note that Bank GW API and Connector are part of bank specific implementation.
+Receipt of incoming ACK / NACK response from scheme (R-message)
+- CSM Receiving Connector
+- Bank Gateway API
+- Bank Gayeway Receiving Connector (if extended by the bank)
+- File Receiving Connector (i.e. write to file storage for transmission to scheme by some other system)
+Note that Bank GW API and Connector are part of bank specific implementation.
+Validation of ACK / NACK (R-message)
+Scheme and CSM specific validators
+Correlation of ACK / NACK with original message (R-message)
+Correlation Cache
+Translation of incoming functional response from scheme to canonical format
+CSM to IPF Canonical mappers using IPF mapping framework
+Necessary notifications back to bank specific payment processing application
+- Clear & Settle API
+- Clear and Settle Sending Connectors
+- Recalls Returns ROI API
+- Recalls Returns ROI Sending connectors
+Generation of implicit outcome messages per scheme rules (bulk schemes only)
+- CSM Specific Processing Flows
+- Synthetic pacs.002 generator
+Aggregation of messages into bulk files (bulk schemes only)
+- CSM Specific Processing Flows
+- Bulker
+Splitting of bulk files into messages (bulk schemes only)
+- CSM Specific Processing Flows
+- Debulker
+Archiving a copy of each message exchanged with the scheme to file storage (bulk schemes only)
+- Bulker
+Periodic transmission of files to scheme (bulk schemes only)
+Bulker
+Inbound Flow
+Inbound Flow
+Scheme Pack Component
+Receipt of incoming payment messages from the scheme
+- CSM API
+- CSM Receiving Connector
+- Bank Gateway API
+- Bank Gateway Receiving Connector (if extended by the bank)
+- File Receiving Connector (i.e. write to file storage for transmission to scheme by some other system)
+Note that Bank GW API and Connector are part of bank specific implementation.
+Syntax / schema validation of messages received from the scheme
+Schema validators
+Translation of inbound messages into internal canonical format
+CSM to IPF Canonical mappers using IPF mapping framework
+Appropriate business validation of the incoming messages
+Scheme and CSM specific validators
+Verification of "our customer" as recipient
+- Our BIC configuration
+- Our BIC validation
+Generation of ACK / NACK to scheme - compliant with scheme rules
+IPF Canonical to CSM mappers using IPF mapping framework
+Make incoming message available to bank specific payment processing application
+- Credit Transfer API
+- Sending connector
+- Recalls Returns ROI API
+- Recalls Returns ROI sending connector
+Receive business response from bank specific payment processing application
+- Credit Transfer API
+- Receiving Connector
+- Recalls Returns ROI API
+- Recalls Returns ROI connectors
+Validate business response
+Scheme and CSM specific technical validators
+Convert business response to scheme specific functional response - compliant with scheme rules
+IPF Canonical to CSM mappers using IPF mapping framework
+Transmission of scheme message to scheme via IPF Connector or client systems
+- CSM API
+- CSM Sending Connector
+- Bank Gateway API
+- Bank Gateway Sending Connector (if extended by the bank)
+- File Sending Connector (i.e. write to file storage for transmission to scheme by some other system)
+Note that Bank GW API and Connector are part of bank specific implementation. See 'Extend a generic IPF service with client specific adapters' below.
+Receipt of incoming ACK / NACK from scheme
+- CSM API
+- CSM Receiving Connector
+- Bank Gateway API
+- Bank Gayeway Receiving Connector (if extended by the bank)
+- File Receiving Connector (i.e. write to file storage for transmission to scheme by some other system)
+Note that Bank GW API and Connector are part of bank specific implementation.
+Technical validation of ACK / NACK
+Scheme and CSM specific validators
+Correlation of ACK / NACK to original message
+Correlation Cache
+Receipt of incoming confirmation response from scheme  (where applicable to the scheme)
+- CSM API
+- CSM Receiving Connector
+- Bank Gateway API
+- Bank Gateway Receiving Connector (if extended by bank)
+- File Receiving Connector (i.e. write to file storage for transmission to scheme by some other system)
+Note that Bank GW API and Connector are part of bank specific implementation.
+Technical validation of confirmation response from the scheme
+- Schema validators
+- Scheme and CSM specific validators
+Correlation of response and original message
+Correlation Cache
+Translation of scheme messages to IPF canonical format
+CSM to IPF Canonical mappers using IPF mapping framework
+Receipt of incoming R messages from scheme
+- CSM API
+- CSM Receiving Connector
+- Bank Gateway API
+- Bank Gateway Receiving Connector (if extended by bank)
+- File Receiving Connector (i.e. write to file storage for transmission to scheme by some other system)
+Note that Bank GW API and Connector are part of bank specific implementation.
+Syntax / schema validation of messages from the scheme
+- Schema validators
+- Scheme and CSM specific validators
+Conversion of scheme messages to canonical format
+CSM to IPF Canonical mappers using IPF mapping framework
+Generation of ACK /NACK to scheme - compliant with scheme rules
+IPF Canonical to CSM mappers using IPF mapping framework
+Make inbound message available to bank specific payment processing application
+- Credit Transfer API
+- Sending Connectors
+- Recalls Returns ROI API
+- Recalls Returns ROI connectors
+Receive response from bank specific payment processing application
+- Credit Transfer API
+- Clear and Settle Connectors
+- Recalls Returns ROI API
+- Recalls Returns ROI connectors
+Generate response to scheme - compliant with scheme rules
+IPF Canonical to CSM mappers using IPF mapping framework
+Transmission of response to scheme
+- CSM API
+- CSM sending connector
+- Bank Gateway API
+- Bank Gateway sending connector (if extended by bank)
+- File sending connector (i.e. write to file storage for transmission to scheme by some other system)
+Note that Bank GW API and Connector are part of bank specific implementation.
+Necessary notifications back to bank specific payment processing application
+- Credit Transfer API
+- Sending connectors
+- Recalls Returns ROI API
+- Recalls Returns ROI sending connectors
+Generation of implicit outcome messages per scheme rules (bulk schemes only)
+- CSM Specific Processing Flows
+- Synthetic pacs.002 generator
+Aggregation of messages into bulk files (bulk schemes only)
+- CSM Specific Processing Flows
+- Bulker
+Splitting of bulk files into messages (bulk schemes only)
+- CSM Specific Processing Flows
+- Debulker
+Periodic transmission of files to scheme (bulk schemes only)
+Bulker
+Archiving a copy of each message exchanged with the scheme to file storage (bulk schemes only)
+Bulker
+Other Functions
+Other
+Scheme Pack Component
+Duplicate checking
+Duplicate checking
+Scheme technical and business rules validation
+- Validate Scheme Rules API
+- Validate Scheme Rules Connectors
+Handling of business and technical failure scenarios specific to the scheme
+- CSM specific processing flows using IPF orchestration framework (optional) or
+- handcrafted CSM specific domain logic
+Handling of all scheme specific error scenarios
+- CSM specific processing flows using IPF orchestration framework (optional)
+- handcrafted CSM specific domain logic
+Error code mappings
+Error code mappings
+Retry mechanisms (in line with scheme rules)
+IPF Connector Framework
+Scheme compliant enquiry / status request handling
+- Payment Status API
+- Sending / receiving connectors
+- IPF canonical to CSM mappings with error code mappings.
+Notifying of technical issues with different severity levels
+IPF system events
+Generation of all associated events for each processing step associated with the scheme
+IPF domain events ( where IPF orchestration is used)
+Where required, extension points within Scheme Packs can be used to retrieve messages exchanged with the scheme / CSM, so that clients have access to the raw scheme messages for their records.
+IPF GUI Integration
+Publish system events  to notify consumers of various events that take place in the IPF ecosystem (or any system related to IPF).
+System Events catalogue and publishing
+Publish business and technical metrics
+- Open telemetry API
+- Connector metrics
+-Application metrics
+- Akka cinnamon library : Prometheus exporter
+Health check endpoint
+- Spring Actuator health check endpoint
+- Connector endpoints
+- Akka cluster management endpoint ( for the scheme packs where Akka cluster is setup)
+Complementary Functions - not included in Scheme Packs, but related to them
+These functions are related to Scheme Packs, may be used in Scheme Packs (or separately), but are not contained within the actual Scheme Pack module itself and are packaged separately.
+CSM Reachability Service Business functions:
+Get CSM Reachability
+Validate Reachability
+Select CSM Agent
+The Reachability Service is extended for each specific Scheme Pack which IPF supports.    It is separate from the Scheme Pack itself and may be called from anywhere in the client flow and / or from within the Scheme Pack itself.
+Data validators / enrichers
+Business functions:
+Determine BIC from IBAN
+Validate BIC
+Validate IBAN
+Validate Instructing / Instructed Agent
+Manage execution & value dates
+Warehousing & Payment Scheduler to support handling of Future Dated Payments
+Bulker
+Creates bulk submissions / files from available data
+Provides message structure configurations, for each scheme file type
+Supports recurring bulk configurations (standard names, timings, size limits)
+Debulker
+Decomposes files / bulk submissions into induvial components for onward processing
+Supervises processing of bulks / batches to ensure completion
+Message structure configurations, for each scheme file type
+Connectors
+JMS
+Kafka
+What is a Scheme Pack and what is Included in it?
+Architecture

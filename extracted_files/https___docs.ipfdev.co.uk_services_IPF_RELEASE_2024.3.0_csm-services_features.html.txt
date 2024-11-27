@@ -1,0 +1,10 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-services/features.html ===
+Features
+Transport Reference
+Validations
+On-us via CSM determination
+Character Replacement
+Status Request Scheduler (SRS)
+How to integrate with CSM Services
+Supported Flows
+Transport Reference

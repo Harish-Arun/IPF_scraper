@@ -1,0 +1,32 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ods/businessmetrics/prometheus.html ===
+Prometheus
+IPF Metrics Processor produces metrics in a Prometheus format under the HTTP endpoint
+/actuator/prometheus
+. It is expected that a Prometheus instance will scrape this endpoint periodically - The suggested scrape frequency is 15 seconds or less.
+For visualisation of these Prometheus metrics it is recommended to use a tool such as Grafana. See the
+Grafana
+page for more information.
+Caveats
+Time Accuracy
+Prometheus will scrape the exposed metrics endpoint, by default
+/actuator/prometheus
+, at set intervals, e.g. every 30 seconds.
+The implication of this is that metrics scraped from IPF Metrics Processor, such as a count of finished payments, will not reflect the exact count at an exact given time.
+Example:
+Ten payments complete successfully at
+12:00:00
+, and IPF Metrics Processor updates its count of finished payments to
+10
+.
+Prometheus scrapes the endpoint some time later, e.g. if configured to scrape at 30 second intervals it may scrape at
+12:00:30
+.
+Prometheus stores the count at
+12:00:30
+, despite those payments actually finishing at
+12:00:00
+.
+Metric Accuracy
+If IPF Metrics Processor is restarted or fails in some way between the time that it updated its metrics, and the time that Prometheus scraped the endpoint, any metrics that were updated will not be captured by Prometheus, resulting in inaccurate metrics.
+Grafana
+Resiliency

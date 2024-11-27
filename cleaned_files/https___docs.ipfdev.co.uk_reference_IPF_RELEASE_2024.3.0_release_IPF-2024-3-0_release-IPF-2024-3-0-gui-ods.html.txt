@@ -1,0 +1,76 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-3-0/release-IPF-2024-3-0-gui-ods.html ===
+ODS & GUI - Changes & Fixes
+ODS
+Changed
+ODS supports receiving batches of records from IPF Processing Data Kafka topics, resulting in fewer and larger database writes, improving overall processing throughput.
+GUI
+New
+Bulk Execute Human Task:
+Added ability to execute tasks in bulk
+Can see the status of any bulk executions
+GUI Support for SCT Operator Journey:
+Create screen for viewing transactions in the context of a batch and see all transactions in a batch in a single view and view batches in the context of a bulk and see all batches in a bulk
+Ability to navigate  between the parent, children and grandchildren of the transactions
+Participant details to be viewable by clients in the IPF GUI:
+Added a new page to search and view participant data from the GUI
+Can search for participant data based on the appropriate CSM agent ID
+Can view participant details on a tables based on the search form and see the details when clicked through
+Bank Filtering - Service API improvements:
+Show API validation errors on the form
+Include NCC and NCC country on the create and search forms
+Update create form layout
+Configuration changes:
+Added new permissions roles for bulk executing tasks and viewing bulk task details:
+HTM_B_C, HTM_B_R
+Can set the number of max tasks to bulk execute at one time (1000 as default):
+ipf.business-operations.human-task-manager.htm-bulk-page-results
+Configuration for bulk execute types which is an array of Bulk Task Types:
+ipf.business-operations.human-task-manager.htm-bulk-task-types
+HTTP client host and port transport configuration, for call time-out and resiliency-settings added for participant dynamic processing setting:
+ipf.business-operations.processing-settings.participant.http.client.host
+ipf.business-operations.processing-settings.participant.http.client.port
+ipf.business-operations.processing-settings.participant.http.client.call-timeout
+ipf.business-operations.processing-settings.participant.http.client.resiliency-settings
+Added new permissions role for viewing participant data:
+ROLE_DPS_P_R
+Added a mds-response-fields.conf which determines how to render and layout the various MDS search page tables in MDS Search module on the GUI. This has to be done per MDS object that you want to be displayed on your MDS search page.
+Allow for assertionConsumerServiceLocation within SAML2 authorization to be configurable:
+ipf.business-operations.auth.saml2.assertion-consumer-service-location
+Changed
+JWT token used for authorization needs to be reduced in size:
+Reduced the length of the role names
+Improvements to GUI to Support Reachability:
+Can now see agent names on bank filtering pages
+Fixed issue with 403 error when changing from one processing entity to another when on the agent settings page
+Core Project Defects
+Fixed issue where Bulk Execute E2E tests were flaky
+Intra entity modal no longer appears when switching between processing entities in generic processing settings
+User now actually gets redirected to login page when session is expired
+Domain event correctly displays the supporting data
+HTM now filters by processing entity
+Dates are sorted correctly on payment search results
+PDS history no longer replaces any others that are open on summary details
+Bulk to batch related summary now works correctly
+Removed
+Removed redundant attribute 'allowedProcessingEntities' from the cookie:
+ipf.business-operations.jwt.allowed-processing-entities-claim
+Migration Steps
+@iconsolutions/common
+Bump npm module to
+"@iconsolutions/common": "^9.12.7"
+in package.json
+See docs around new injection tokens for date formats
+@iconsolutions/htm
+Bump npm module to
+"@iconsolutions/htm": "^9.2.3"
+in package.json
+@iconsolutions/ods-payment-search
+Bump npm module to
+"@iconsolutions/ods-payment-search": "^12.6.3"
+in package.json
+@iconsolutions/processing-settings
+Bump npm module to
+"@iconsolutions/processing-settings": "^13.0.23"
+in package.json
+Dynamic Processing Settings v2 - Changes & Fixes
+Migration Steps for IPF-2024.3.0

@@ -1,0 +1,16 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2024-1-2/release-IPF-2024-1-2-migration.html ===
+Migration Steps for IPF-2024.1.2
+Version Updates
+To migrate to
+2024.1.2
+, please perform the following steps:
+Update your BOM version to the new release version
+2024.1.2
+<parent>
+    <groupId>com.iconsolutions.ipf</groupId>
+    <artifactId>ipf-bom</artifactId>
+    <version>2024.1.2</version>
+</parent>
+Run a Maven build to retrieve all the latest dependencies.
+IPF-2024.1.2 - Release Notes
+IPF-2024.1.3 - Release Notes

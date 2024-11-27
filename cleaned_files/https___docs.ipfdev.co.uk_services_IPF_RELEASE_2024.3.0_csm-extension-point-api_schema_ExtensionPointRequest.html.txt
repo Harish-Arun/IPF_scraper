@@ -1,0 +1,50 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-extension-point-api/schema/ExtensionPointRequest.html ===
+Json Schema for ExtensionPointRequest
+Json Schema:
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "title" : "Extension Point Request",
+  "type" : "object",
+  "additionalProperties" : false,
+  "properties" : {
+    "componentId" : {
+      "type" : "string"
+    },
+    "componentMarker" : {
+      "type" : "string"
+    },
+    "content" : {
+      "type" : "string"
+    },
+    "direction" : {
+      "type" : "string",
+      "enum" : [ "TO_SCHEME", "FROM_SCHEME" ]
+    },
+    "processingContext" : {
+      "$ref" : "#/definitions/ProcessingContext"
+    }
+  },
+  "definitions" : {
+    "ProcessingContext" : {
+      "type" : "object",
+      "additionalProperties" : false,
+      "properties" : {
+        "associationId" : {
+          "type" : "string"
+        },
+        "checkpoint" : {
+          "type" : "string"
+        },
+        "unitOfWorkId" : {
+          "type" : "string"
+        },
+        "clientRequestId" : {
+          "type" : "string"
+        },
+        "processingEntity" : {
+          "type" : "string"
+        }
+      }
+    }
+  }
+}

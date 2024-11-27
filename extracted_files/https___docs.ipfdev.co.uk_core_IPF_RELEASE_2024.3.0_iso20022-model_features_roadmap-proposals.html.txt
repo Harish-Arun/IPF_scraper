@@ -1,0 +1,32 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/iso20022-model/features/roadmap-proposals.html ===
+Future Enhancements
+Below is a list of future enhancements, some concrete, some quite speculative.
+Enhancement
+Details
+Status
+Completion of existing Message Rule implementations
+Completion of existing Message Rule implementations for the existsing 20 IPF supported Message Definitions
+Backlog
+Enums as Strings
+Replace Enum (CodeSets) with Strings and extensible Enum classes. Can be validated as part of Schema Rules
+Backlog
+External CodeSet validation
+External CodeSets are codified and can be validated as part of Message Rules
+Backlog
+Example Message Generators
+Package a set of usable, effective example message generators for each Message Definition.
+Proposal
+Extend support, include more Message Definitions
+Provide alternate artifacts for different Business Domains and Message Definitions
+Proposal
+Migration between Message Definition Versions
+Provide the ability to uplift/downgrade Message Versions
+Proposal
+Removal of Lombok
+Remove Lombok dependency and instead generate what is needed.
+Proposal
+Package the ISO20022 Meta Generator module for client use
+Allow IPF client developers to use the generator to define their own Message Definitions
+Proposal
+XML Serialisation
+Getting Started

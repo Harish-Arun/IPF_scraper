@@ -1,0 +1,371 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/getting-started/customisations/custom-csm-reachability.html ===
+How to Create a Custom CSM Reachability Service
+This guide will provide an example of how to use CSM Reachability functionalities to create a custom implementation.
+Step 1: Generate the API Endpoint
+If a new API endpoint is required, generate it along with all necessary schemas and model classes.
+Follow the CSM Reachability structure by creating an interface that will serve as the entry point (port) to the new service.
+We will use a fictional
+iban-reachability
+endpoint as an example, planning to expose this logic via an HTTP API:
+openapi: 3.0.1
+info:
+  title: Custom CSM Reachability Service API V1
+  version: ${project.version}
+  description: APIs for IBAN Reachability
+servers:
+  - url: http://localhost:8080
+    description: Local server URL
+paths:
+  /iban-reachability:
+    get:
+      tags:
+        - iban-reachability
+      description: Using creditor iban to discover which CSMs is creditor reachable by
+      operationId: get-csm-reachability
+      parameters:
+        - name: processingEntity
+          in: query
+          description: >-
+            Exact match on the processing entity on behalf of which the source
+            payment instruction was being processed
+          required: true
+          schema:
+            type: string
+          example: '001'
+        - name: creditorIban
+          in: query
+          description: IBAN for which to check which CSMs are reachable
+          required: true
+          schema:
+            type: string
+        - name: transferCurrency
+          in: query
+          description: Filter results by currency
+          schema:
+            type: string
+# omitted for brevity
+Step 2: Separate Model and Port Modules
+It’s good practice to separate the generated model and port module, allowing them to be used independently if needed.
+We use the API spec to generate the model classes:
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+        <artifactId>iban-reachability-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>iban-reachability-model</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <!-- https://openapi-generator.tech/ -->
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>${openapi-generator-maven-plugin.version}</version>
+                <dependencies>
+                    <!-- Depend on the api module, we're going to generate interfaces from its spec -->
+                    <dependency>
+                        <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+                        <artifactId>iban-reachability-service-api</artifactId>
+                        <version>${project.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <!-- Generate DTO classes -->
+                    <execution>
+                        <id>generate-openapi-ubs-model</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>static/iban-reachability.yaml</inputSpec>
+                            <skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
+
+                            <!-- See https://openapi-generator.tech/docs/generators/spring/ for options-->
+                            <generatorName>spring</generatorName>
+                            <configOptions>
+                                <dateLibrary>java8</dateLibrary>
+                                <generateBuilders>true</generateBuilders>
+                                <openApiNullable>false</openApiNullable>
+                                <useSwaggerAnnotations>false</useSwaggerAnnotations>
+                                <booleanGetterPrefix>is</booleanGetterPrefix>
+                                <!-- Remain backward compatible with existing code by using Lombok builders -->
+                                <!-- To be strictly compatible with existing schema, do not include null properties in JSONs -->
+                                <additionalModelTypeAnnotations>
+                                    @lombok.NoArgsConstructor
+                                    @lombok.Builder(toBuilder = true)
+                                    @lombok.AllArgsConstructor(access = lombok.AccessLevel.PRIVATE)
+                                    @com.fasterxml.jackson.annotation.JsonInclude(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL)
+                                </additionalModelTypeAnnotations>
+                                <useSpringBoot3>true</useSpringBoot3>
+                            </configOptions>
+
+                            <!-- Only generate models in this module-->
+                            <generateModels>true</generateModels>
+                            <modelPackage>com.iconsolutions.ipf.csmreachability.dto.v1</modelPackage>
+
+                            <!-- Interfaces/APIs will be generated later in a separate module -->
+                            <generateApis>false</generateApis>
+                            <generateApiTests>false</generateApiTests>
+                            <generateApiDocumentation>false</generateApiDocumentation>
+                            <generateModelTests>false</generateModelTests>
+                            <generateModelDocumentation>false</generateModelDocumentation>
+
+                            <!-- Skip all the extra stuff that gets generated -->
+                            <generateSupportingFiles>false</generateSupportingFiles>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-iban-reachability</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>static/iban-reachability.yaml</inputSpec>
+                            <skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
+                            <generatorName>openapi</generatorName>
+                            <configOptions>
+                                <outputFileName>iban-reachability-service.json</outputFileName>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+We then add the model dependency to the port module to utilize the generated classes.
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+        <artifactId>iban-reachability-parent</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>iban-reachability-service-api-port</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+            <artifactId>iban-reachability-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>
+And finally, we define a service port:
+/**
+ * <p>
+ * Interface for providing list of reachable csm's
+ * based on input provided (iban, sort code, account number)
+ * </p>
+ */
+public interface IbanReachabilityService {
+    Mono<ReachabilityDtoWrapper> getReachableCsm(IbanReachabilityCriteria ibanReachabilityCriteria);
+}
+Step 3: Implement the REST Controller
+Implement the REST controller from the generated API:
+@RestController
+@RequiredArgsConstructor
+public class IbanReachabilityController implements IbanReachabilityApi {
+
+    private final IbanReachabilityService ibanReachabilityService;
+
+    @Override
+    public Mono<ResponseEntity<ReachabilityDtoWrapper>> getCsmReachability(String processingEntity,
+                                                                           String creditorIban,
+                                                                           String transferCurrency,
+                                                                           ServerWebExchange exchange) {
+        var criteria = IbanReachabilityCriteria.builder()
+                .processingEntity(processingEntity)
+                .creditorIban(creditorIban)
+                .transferCurrency(transferCurrency)
+                .build();
+
+        return ibanReachabilityService.getReachableCsm(criteria)
+                .map(ResponseEntity::ok)
+                .switchIfEmpty(Mono.just(notFound().build()));
+    }
+}
+Step 4: Use Reachability Error Handling
+Implement a specific error handler and the necessary error attributes.
+Here are some examples:
+public class ErrorHandler extends AbstractErrorWebExceptionHandler {
+
+    private static final RequestPredicate UBS_CSM_REACHABILITY_PATHS = Stream.of(
+                    "/iban-reachability")
+            .map(RequestPredicates::path)
+            .reduce(RequestPredicate::or)
+            .orElseThrow();
+
+    public ErrorHandler(ErrorAttributes errorAttributes,
+                        ApplicationContext applicationContext,
+                        ServerCodecConfigurer serverCodecConfigurer) {
+        super(errorAttributes, new WebProperties.Resources(), applicationContext);
+        super.setMessageReaders(serverCodecConfigurer.getReaders());
+        super.setMessageWriters(serverCodecConfigurer.getWriters());
+    }
+
+    @Override
+    protected RouterFunction<ServerResponse> getRoutingFunction(org.springframework.boot.web.reactive.error.ErrorAttributes errorAttributes) {
+        return RouterFunctions.route(UBS_CSM_REACHABILITY_PATHS, this::renderErrorResponse);
+    }
+
+    private Mono<ServerResponse> renderErrorResponse(ServerRequest request) {
+        var errorPropertiesMap = getErrorAttributes(request, ErrorAttributeOptions.defaults());
+        return ServerResponse.status(ErrorAttributes.httpStatusFor(getError(request)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(errorPropertiesMap));
+    }
+}
+public class ErrorAttributes extends DefaultErrorAttributes {
+
+    public static HttpStatus httpStatusFor(Throwable ex) {
+        return ex instanceof ServerWebInputException
+                || ex instanceof InvalidRequestException
+                ? HttpStatus.BAD_REQUEST
+                : HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    @Override
+    public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
+        var error = getError(request);
+        var httpStatus = httpStatusFor(error);
+        var map = super.getErrorAttributes(request, options);
+        map.put("status", httpStatus);
+        map.put("messages", getErrorMessage(error));
+        map.put("error", httpStatus.getReasonPhrase());
+        return map;
+    }
+
+    private List<String> getErrorMessage(Throwable error) {
+        return error.getMessage() == null ? Collections.emptyList() : List.of(error.getMessage());
+    }
+}
+Step 5: Implement the Service Layer
+First, add the dependency for the CSM Reachability service:
+<dependency>
+    <groupId>com.iconsolutions.ipf.payments.csm.reachability</groupId>
+    <artifactId>csm-reachability-service</artifactId>
+    <version>{csm-reachability.version}</version>
+</dependency>
+Also, add the dependency for the previously constructed port module to implement the service.
+Step 6: Define Configuration Properties
+Define the following properties in the configuration:
+actor-system-name = csm-reachability-service
+
+ipf.csm-reachability.settings-api.connection = direct
+If you need to use the DPS connectors implementation, set the second property to
+http
+.
+Step 7: Build Validation Checks
+With the CSM Reachability logic available as dependencies, build a validation check that uses
+AgentClearingSettings
+data:
+@RequiredArgsConstructor
+public class AgentClearingSettingsCheck implements ValidationCheck<IbanReachabilityByCurrenciesValidationData> {
+
+    // Inject an interface provided by `csm-reachability-api` and implemented in
+    // `csm-reachability-api-direct` and `csm-reachability-api-connector`
+    private final AgentClearingSettingsQuery agentClearingSettingsQuery;
+
+    @Override
+    public Mono<IbanReachabilityByCurrenciesValidationData> checkAndEnrich(IbanReachabilityByCurrenciesValidationData validationData) {
+        var criteria = Map.<String, Object>of("processingEntity", validationData.getProcessingEntity());
+        // use the query interface to build validation validation logic
+        return Mono.fromCompletionStage(agentClearingSettingsQuery.getAgentClearingSettings(criteria))
+                .map(Response::getValue)
+                .filter(SettingsDTO::hasSettings)
+                .flatMapIterable(SettingsDTO::getSettings)
+                .filter(setting -> !setting.getStatus().equals(INACTIVE_APPROVAL_PENDING.name()))
+                .map(SettingDTO::getPayload)
+                .collectList()
+                .map(itemsList -> itemsList.stream().collect(toMap(AgentClearingSettings::getAgentUniqueId, Function.identity())))
+                .map(agentClearingSettingsCache -> enrichValidationData(validationData, agentClearingSettingsCache));
+    }
+Wire all related validation checks into a service:
+@RequiredArgsConstructor
+public class IbanReachabilityByCurrencyServiceImpl {
+
+    // validation checks built using existing `csm-reachability` logic
+    private final AgentSettlementSettingsCheck agentSettlementSettingsCheck;
+    private final ValidateCsmReachabilityCheck validateCsmReachabilityCheck;
+    private final AgentClearingSettingsCheck agentClearingSettingsCheck;
+Step 8: Build the Custom Service
+Finally, build your own custom service:
+@RequiredArgsConstructor
+public class IbanReachabilityServiceImpl implements IbanReachabilityService {
+
+    private final Validator validator;
+    private final IbanReachabilityByOnUsServiceImpl ibanReachabilityByOnUsService;
+    private final IbanReachabilityByCurrencyServiceImpl ibanReachabilityByCurrencyService;
+
+    @Override
+    public Mono<ReachabilityDtoWrapper> getReachableCsm(IbanReachabilityCriteria criteria) {
+        return validate(criteria)
+                .flatMap(validatedCriteria -> {
+                    CounterPartyIdentifier cpi = toCounterPartyIdentifier(validatedCriteria);
+                    return ibanReachabilityByOnUsService.getReachableCsm(cpi, validatedCriteria.getProcessingEntity(), validatedCriteria.getTransferCurrency())
+                            .zipWith(ibanReachabilityByCurrencyService.getReachableCsms(cpi, validatedCriteria.getProcessingEntity(), validatedCriteria.getTransferCurrency()));
+                })
+                .map(IbanReachabilityServiceImpl::buildResult);
+    }
+
+    private Mono<IbanReachabilityCriteria> validate(IbanReachabilityCriteria criteria) {
+        var violations = validator.validate(criteria);
+        if (!violations.isEmpty()) {
+            return Mono.error(new ConstraintViolationException(violations));
+        }
+        return Mono.just(criteria);
+    }
+
+    private static CounterPartyIdentifier toCounterPartyIdentifier(IbanReachabilityCriteria criteria) {
+        return CounterPartyIdentifier.builder()
+                .identifier(criteria.getCreditorIban())
+                .identifierType(IDENTIFIER_TYPE_IBAN)
+                .build();
+    }
+
+    private static ReachabilityDtoWrapper buildResult(Tuple2<Optional<ReachabilityOnUsDto>, Optional<List<ReachableByCurrencyDto>>> result) {
+        return ReachabilityDtoWrapper.builder()
+                .reachableByOnUS(result.getT1().orElse(null))
+                .reachableByCurrencies(result.getT2().orElse(null))
+                .build();
+    }
+}
+This completes the implementation of a new endpoint that requires some of the reachability functionalities.
+Customisations
+Create Additional Generic Processing Settings Category

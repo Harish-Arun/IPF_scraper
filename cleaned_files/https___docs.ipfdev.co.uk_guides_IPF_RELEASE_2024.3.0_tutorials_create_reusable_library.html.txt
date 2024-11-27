@@ -1,0 +1,118 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/tutorials/create_reusable_library.html ===
+REUSE1 - Creating a Reusable DSL Library
+This section covers how to create a reusable DSL library.  By this we mean:
+A set of DSL components that can be plugged into a different implementation (flow) project.
+The actual implementation code for those components.
+By creating a reusable library in this way, we can create components that are just plug and play.
+Create a new project
+The first thing we need to do is create a new project.  Lets do this using the project scaffolder:
+mvn com.iconsolutions.ipf.build:ipf-project-scaffolder-maven:0.0.9:scaffold \
+-DipfVersion=2024.1.2 \
+-DincludeBusinessFunctions=n \
+-DincludeSampleSystems=n \
+-DincludeApplication=n \
+-DincludeE2E=n \
+-DuseBuildScripts=y \
+-DsolutionName=librarysolution \
+-DmodelName=librarymodel \
+-DprojectName=ReuseLibrary \
+-DgroupId=com.iconsolutions \
+-Dversion=0.0.1-SNAPSHOT \
+-DartifactId=tutorial-reuse-library \
+-DoutputDir=/build/reuse/tutorial-reuse-library
+The properties defined here should be familiar, but the key thing to note here is that when defining reusable libraries we must set the value of useBuildScripts to 'y'.  This tells the project to include the settings that allow the MPS zip file to be included and published.  Without it, we will be unable to pull this into another project correctly.
+Note that we havent included the E2E or application modules here. This is because, in this scenario, the library will not be a standalone ("runnable") solution.
+Creating the reusable library
+Now lets jump into creating the project. To begin with, build it and open it in MPS just like we would with a normal flow project.  Well see here though that instead of creating a flow, it provides you a sample external domain:
+Well make things simple here and just implement this.  Lets dive into our code project.  The first thing to note is that the service project here is just like any other IPF project weve built previously and indeed all the same approaches are applied.
+In our config class we can see the standard domain creation:
+@Bean
+public LibrarymodelDomain librarymodelDomain(ActorSystem actorSystem, Dispatcher floDispatcher) {
+    // All adapters should be added to the domain model
+    return new LibrarymodelDomain.Builder(actorSystem)
+            .withDispatcher(floDispatcher)
+            .build();
+}
+For this demo, were just going to apply a simple 'bounce back' routine, i.e. immediately returning a sample domain response back into the domain itself.  Obviously, in actual implementations wed do something else here like calling a remote system.
+@Bean
+public LibrarymodelDomain librarymodelDomain(ActorSystem actorSystem, Dispatcher floDispatcher) {
+    // All adapters should be added to the domain model
+    return new LibrarymodelDomain.Builder(actorSystem)
+            .withDispatcher(floDispatcher)
+            .withSampleDomainActionAdapter(action -> LibrarymodelDomain.sampleDomain().handle(new SampleResponseInput.Builder(action.getId()).build()).thenAccept(done -> log.info("Completed a call into the sample domain.")))
+            .build();
+}
+Thats it, our reusable domain is done and ready to use!  Firstly, lets build it. If you then look in your maven repository youll see:
+Here, the important thing to note is the creation of the zip file.  A zip is the MPS equivalent of a standard jar file in maven.
+Now lets now try and use it.
+Using the library
+Lets start by creating a new project. This time well make a flow based project:
+mvn com.iconsolutions.ipf.build:ipf-project-scaffolder-maven:0.0.9:scaffold \
+-DipfVersion=2024.1.2 \
+-DincludeBusinessFunctions=n \
+-DincludeSampleSystems=n \
+-DincludeApplication=y \
+-DincludeE2E=n \
+-DuseBuildScripts=n \
+-DsolutionName=clientsolution \
+-DmodelName=clientmodel \
+-DprojectName=ReuseTest \
+-DgroupId=com.iconsolutions \
+-Dversion=0.0.1-SNAPSHOT \
+-DartifactId=tutorial-reuse-client \
+-DoutputDir=/build/reuse/tutorial-reuse-client
+Looking at the above command, you can see weve changed the values of our flags to: create an application project, and not use build scripts.  This will provide a basic flow project for us to use.
+Before we start, lets add the dependency to the new library weve created.  To do this, open the pom.xml for the mps module:
+Then in the maven-dependency-plugins section add the following execution:
+<execution>
+    <id>unpack-tutorial-library-plugin</id>
+    <phase>initialize</phase>
+    <goals>
+        <goal>unpack</goal>
+    </goals>
+    <configuration>
+        <artifactItems>
+            <artifactItem>
+                <groupId>com.iconsolutions.librarysolution.domain</groupId>
+                <artifactId>mps</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+                <type>zip</type>
+                <overWrite>true</overWrite>
+                <outputDirectory>${plugin_home}</outputDirectory>
+            </artifactItem>
+        </artifactItems>
+    </configuration>
+</execution>
+The key values here to note:
+id
+- this can be anything. The key thing is to ensure its uniqueness against other executions. As a good practice, a definition like here that explains what its doing is good.
+groupId
+- this will be of the format: <maven-group-id>.<solution-name>.domain, where the maven-group-id and solution-name are as defined in the creation command previously.  Note you can always check your values by looking at the path in the repository.
+artifactid
+- this will be mps.
+version
+- this is the maven version of the library project.
+Thats all we need to do for now, so lets go ahead and build our project. This will pull in the dependencies just like any normal maven project. Once finished, lets open up MPS and well see we have the standard example flow:
+Well add a simple extra step into our flow to call our new reusable function.  To do this, create a state 'In Progress' and then change the initiation behaviour to call it. Finally, opt to perform an action - for now you wont have any actions to choose, so it should be like this:
+Now we choose to import our new library. To do this, we simply pressing
+Ctrl
++
+R
+twice to bring up the import box as usual and then search for our SampleDomain.
+Well be prompted to import the model.
+And the finally we should be able to reuse the library.
+Complete the flow, as appropriate, by adding in:
+An event for when the reply is received, say 'Response Received'.
+An input behaviour that maps the sample response to the new event.
+An event behaviour to complete the flow when the event is received.
+Finally, we need to tell our application where to get the implementation of our sample request domain.  To do that, we simply add in the service dependency of the library project to our client service project:
+<dependency>
+    <groupId>com.iconsolutions</groupId>
+    <artifactId>tutorial-reuse-library-service</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+</dependency>
+Now lets build our project again, and then spin it up (note youll need a running mongo and developer-app for the application to start correctly). Then we can send the normal example curl request to trigger a payment, which you can then view in the developer app to check its been successfully processed and use our library domain:
+Conclusions
+In this section weve learnt how to create a reusable library, complete with all the code implementation required to allow us to pull it into another project.
+CON3 - Writing your own connector (Http)
+TEST1 - Adding tests

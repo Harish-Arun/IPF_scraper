@@ -1,0 +1,48 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/concepts/scenarios/stories.happy%20path%20return.Handle%20Outbound%20Return%20For%20Bank.html ===
+Handle Outbound Return For Bank.story
+Scenario: Handle outbound (creditor) return for bank
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseMeta(java.lang.String)
+com.iconsolutions.ipf.payments.csm.sic5.application.bdd.testfw.Steps.parseLegacy(java.lang.String)
+When
+ï½the CSMï½  sends a Customer Credit Transfer
+Then
+ï½the Payment Serviceï½  receives a Receive Payment Request
+When
+ï½Payment Serviceï½  sends a Receive Payment Response with values:
+| payload.content.txInf*And*Sts[0].txSts                                 | ACCP   |
+| payload.content.txInf*And*Sts[0].instgAgt.finInstnId.clrSysMmbId.mmbId | 318668 |
+Then
+ï½the CSMï½  receives a Payment Status Report with values:
+| FIToFIPmtStsRpt.txInf*And*Sts[0].OrgnlGrpInf.OrgnlMsgNmId              | pacs.008.001.08.ch.02                                            |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].orgnlTxId                             | #ReceivePaymentResponse.payload.content.txInf*And*Sts[0].orgnlTxId |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].instgAgt.finInstnId.clrSysMmbId.mmbId | 318668                                                           |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].txSts                                 | ACCP                                                             |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].clrSysRef                             | POS002                                                           |
+!-- Camt56, Camt25 missing
+When
+the ï½Recall Serviceï½  sends a Send Positive Answer To CSM Request with values:
+| payload.content.txInf[0].rtrRsnInf[0].Rsn.Cd | FOCR |
+| payload.content.txInf[0].orgnlTxId           | #ReceivePaymentResponse.payload.content.txInf*And*Sts[0].orgnlTxId |
+Then
+ï½the CSMï½  receives a Payment Return with values:
+| pmtRtr.txInf[0].rtrRsnInf[0].Rsn.Cd | FOCR |
+| pmtRtr.txInf[0].orgnlTxId           | #ReceivePaymentResponse.payload.content.txInf*And*Sts[0].orgnlTxId |
+When
+the ï½CSMï½  sends a Payment Status Report with values:
+| FIToFIPmtStsRpt.txInf*And*Sts[0].txSts                                 | ACCP                                     |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].orgnlTxId                             | #PaymentReturnV09.pmtRtr.txInf[0].rtrId |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].OrgnlGrpInf.OrgnlMsgNmId              | pacs.004.001.09.ch.02                    |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].instgAgt.finInstnId.clrSysMmbId.mmbId | 318668                                   |
+| FIToFIPmtStsRpt.txInf*And*Sts[0].clrSysRef                             | OKA002                                   |
+Then
+ï½the Recall Serviceï½  receives a Send Positive Answer To CSM Response with values:
+| payload.content.txInf*And*Sts[0].orgnlGrpInf.orgnlMsgNmId              | pacs.004.001.09.ch.02                    |
+| payload.content.txInf*And*Sts[0].orgnlTxId                             | #PaymentReturnV09.pmtRtr.txInf[0].rtrId |
+| payload.content.txInf*And*Sts[0].instgAgt.finInstnId.clrSysMmbId.mmbId | 318668                                   |
+| payload.content.txInf*And*Sts[0].txSts                                 | ACCP                                     |
+| payload.content.txInf*And*Sts[0].clrSysRef                             | OKA002                                   |
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()
+com.iconsolutions.testfw.core.steps.BaseSteps.clearContext()

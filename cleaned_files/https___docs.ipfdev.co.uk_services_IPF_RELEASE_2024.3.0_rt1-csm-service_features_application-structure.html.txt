@@ -1,0 +1,24 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/features/application-structure.html ===
+RT1 CSM Service Application Structure
+This application is intended to act as a proxy between a flow and the RT1 scheme.
+The application has 2 layers, the adapter layer which is responsible for mapping and routing the canonical copy of the ISO messages according to the schema rules.  The application module is there to enable this repository to exist as an application, and to provide the relevant runtime dependencies.
+Module dependencies
+The following modules are present;
+rt1-model
+- responsible for converting the RT1 scheme XSDs into POJOs, with relevant JAXB annotations.
+rt1-mapping
+- responsible for mapping canonical messages used in the flow to and from the RT1 ISO equivalents.
+rt1-csm-adapter
+- adapts messages and applies scheme rules whilst interacting with the scheme.
+rt1-csm-application-core
+- responsible for pulling dependencies together and wiring all components except together into a CSM Service application but without any CSM Service API connectors.
+rt1-csm-application-jms
+- uses the
+rt1-csm-application-core
+and provides the standard CSM Service JMS API.
+rt1-csm-application-kafka
+- uses the
+rt1-csm-application-core
+and provides the standard CSM Service Kafka API.
+Features
+Validations

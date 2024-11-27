@@ -1,0 +1,132 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/tutorials/resiliency.html ===
+RES1 - Resiliency and Retry Settings (HTTP)
+Getting Started
+The tutorial step uses the
+add_http
+solution of the project as its starting point.
+If at anytime you want to see the solution to this step, this can be found on the
+resiliency
+solution.
+In
+CON3 - Writing your own connector (HTTP)
+, we connected our application with an external test fraud systems. This gave us an synchronous connection to an external system which is inherently less stable than using Kafka or JMS. And our landscape at this point in the tutorials looks like;
+In this tutorial we are going to look at how we can control the resiliency and retry settings in a best effort to allow the HTTP call to be successful. We will do this by simulating failures of the fraud-sim such that HTTP calls to that service will fail.
+Starting the Application
+If the environment is not running, we need to start up our docker environment. To do this from the docker directory of the project, run the following command:
+docker-compose -f application.yml up -d
+This should start all applications and simulators. We can check whether the containers are started and healthy using the command:
+docker-compose -f application.yml ps
+Validate BAU Processing
+Lets check everything is working BAU first will all simulator end points up and functioning, send in a payment:
+curl -X POST localhost:8080/submit -H 'Content-Type: application/json' -d '{"value": "25"}' | jq
+Checking the payment in the
+Developer GUI
+we can see the messages being sent and spot the OlafRequest & OlafResponse messages to the fraud-sim (
+search by unit of work id, click view, click ipf tutorial flow, click messages
+) then we see:
+Failure Scenario Test
+Assuming all is well with the BAU processing, lets test the scenario where the fraud-sim is down and OlafResponses are not coming back. The easiest way to do this is to stop the fraud-sim container:
+docker stop fraud-sim
+Once the container is down we can send in another payment request:
+curl -X POST localhost:8080/submit -H 'Content-Type: application/json' -d '{"value": "24"}' | jq
+Checking the payment in GUI again you should see the OlafRequest being sent but not OlafResponse coming back and the status of the transaction itself shows as PENDING:
+Finally from the GUI we can see the system event which has been generated for this failure:
+Its also worth check the container logs to see the exception and the specific errors (this will become important as we configure the service to retry the HTTP call). You will note there are no more errors, processing is effectively stalled with our current configuration:
+2022-10-27 09:43:17.245 ERROR  c.i.i.c.c.RequestReplySendConnector   - Fraud Send connector returned a response without associated response, response: DeliveryOutcome(deliveryReport=DeliveryReport(outcome=FAILURE, deliveryException=java.util.concurrent.CompletionException: java.lang.IllegalStateException: No closed routees for connector: Fraud. Calls are failing fast), response=null)
+2022-10-27 09:43:17.246 ERROR  c.i.i.c.c.RequestReplySendConnector   - Fraud Received a failure for UnitOfWorkId(value=5f97e12d-8bdd-4fbe-92c3-cbe9e2be58a6) with reason java.lang.IllegalStateException: java.util.concurrent.CompletionException: java.lang.IllegalStateException: No closed routees for connector: Fraud. Calls are failing fast
+java.util.concurrent.CompletionException: java.lang.IllegalStateException: java.util.concurrent.CompletionException: java.lang.IllegalStateException: No closed routees for connector: Fraud. Calls are failing fast
+Configure Timeout and Resiliency Settings
+As things stand with the tutorial application it is not proactively configured for retry and has not set the resiliency settings to protect against intermittent errors on the HTTP synchronous connection. It is possible however to define resiliency settings to retry the HTTP call within a defined period and at configurable intervals. The default configuration is shown below, including both the connector settings and the resiliency settings.
+Now well update the max-attempts to be 6 which is intended to give sufficient retries of the HTTP call to allow the fraud-sim service to recover (attempts of 6, together with the backoff-multiplier of 2 seconds should give 5 attempts before the call-timeout of 30 seconds)
+Youll add our configuration into our application configuration file (ipf-tutorial-app/application.conf):
+fraud {
+  transport = http
+  http {
+    client {
+      host = "fraud-sim"
+      port = "8080"
+      endpoint-url = "/v1"
+    }
+  }
+  resiliency-settings {
+    max-attempts = 6
+  }
+}
+And we have to update the FraudConnectorConfiguration to provide the resiliency settings from the application config when building the RequestReplySendConnector.
+...
+
+        return new RequestReplySendConnector.Builder<FIToFICustomerCreditTransferV08, OlafRequest, OlafResponse, OlafResponse>(
+                "Fraud",
+                "fraud.connector",
+(1)
+actorSystem
+(2)
+).withConnectorTransport(HttpConnectorTransport.<OlafRequest>builder(
+                                "OlafRequestReplyHttpConnectorTransport",
+                                actorSystem,
+                                "fraud")
+(3)
+.build())
+                .withMessageLogger(messageLogger)
+There are a number of changes we have made here:
+1
+- We have defined the root of the properties we want to apply to our connector.  So here we use "fraud.connector".
+2
+- We supply the actor system
+3
+- We have defined the root of the properties we want to apply to our connector transport.  So here we use "fraud".
+Note that this also contains retryOnFailureWhen to effectively retry all failures as configured. We can do other things here to retry based on certain Exceptions, for example;
+...
+                .retryOnFailureWhen(this::isRetryableFailure)
+Where isRetryableFailure is the result of a test against a defined list of exceptions you want to retry.
+Failure Scenario Test 2
+Now we can apply this configuration by rebuilding the ipf-tutorial-app container (mvn clean install -rf :ipf-tutorial-app) and starting it, then running through the following test steps:
+GIVEN
+the fraud-sim is stopped && ipf-tutorial-app has resiliency settings to retry HTTP calls
+WHEN
+a payment is initiated && the fraud-sim recovered within the 30 second connector timeout
+THEN
+we the payment will complete processing with delay and retries evident in the logs
+docker stop fraud-sim
+
+curl -X POST localhost:8080/submit -H 'Content-Type: application/json' -d '{"value": "23"}' | jq
+Wait 5 seconds (this will allow the Connector to retry).
+docker start fraud-sim
+If you are observing the ipf-tutorial-app logs (change the logback.xml for ipf-tutorial-app to have     <logger name="com.iconsolutions.ipf" level="DEBUG"/>
+) and you should see retry entries like (
+note - this is the decision to retry the actual retry happens once the backoff period has expired
+):
+2022-10-31 14:30:50.941 WARN   c.i.i.c.c.t.HttpConnectorTransport   - Failure reply for association ID [UnitOfWorkId(value=5931c9c4-66f0-4a87-964b-b00ff11954ee)] with exception [UnknownHostException: fraud-sim] and message [TransportMessage(, )]
+
+2022-10-31 14:30:50.949 DEBUG  c.i.i.c.c.r.*ResiliencySettings*   - *retryOnResult decided to retry this attempt since it was a failure*: DeliveryReport(outcome=FAILURE, deliveryException=akka.stream.StreamTcpException: Tcp command [Connect(fraud-sim:8080,None,List(),Some(10 seconds),true)] failed because of java.net.UnknownHostException: fraud-sim)
+(
+strictly speaking an UnknownHostException shouldnt be retried but its a quick way to demonstrate retry processing and the resiliency settings
+).
+Once the backoff period has passed the actual retry will take place:
+2022-10-31 14:30:52.950 DEBUG  c.i.i.c.c.r.ResiliencyPassthrough   - Calling UNKNOWN : using OlafRequestReplyHttpConnectorTransport
+Checking the payment in GUI again you should see the OlafRequest being sent, but the success response in the Messages tab appears after the delay (approximately 15 seconds).
+A few things to note:
+You can flexibly configure the retries by thinking about the backoff-multiplier & the initial-retry-wait-duration. For example
+initialRetryWaitDuration
+backoffMultiplier
+First 5 attempt intervals
+1
+2
+1, 2, 4, 8, 16
+5
+2
+5, 10, 20, 40, 80
+1
+5
+1, 5, 25, 125, 625
+This retry happened within the 30 seconds connector timeout. Thus you should also be considering the call-timeout in conjunction with the resiliency settings.
+As the tutorial is currently written, if the retry is not a success within that 30 seconds this will return to the flow and the fraud check wont have been completed.
+This is a good example of something which is short term transient and resolves itself quickly. Where that is not the case we have a number of options to configure additional transport end points, to "retry" from the flow by defining appropriate business logic in the IPF DSL.
+We also have the options to react differently to actual business responses (using retryOnResultWhen), to retry on certain business error codes returned from the called application. But this should be balanced with how much logic you want at the connector level versus within the flow logic.
+The resiliency component is implemented with resilience4j. See
+docs on the Resilience4j
+framework for more information on these settings and behaviours.
+Conclusions
+In this section, weve established potential options for configuring retries on the HTTP Connector. Next steps might be to explore Kafka connectors and other options to configure retry when the call-timeout is exceeded.
+TEST1 - Adding tests
+RUN1 - Running your application on Kubernetes

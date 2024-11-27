@@ -1,0 +1,17 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.credit%20transfer%20unhappy%20path.Handle%20Clear%20And%20Settle%20Response%20TM01.html ===
+Handle Clear And Settle Response TM01.story
+Scenario: Handling clear and settle responses with TM01
+When
+the i12Payment Servicei12  sends a Clear
+And
+Settle Request
+Then
+the i12CSMi12  receives a Customer Credit Transfer
+When
+the i12CSMi12  sends a Rejected With Grpsts TM01 Payment Status Report
+Then
+i12the Payment Servicei12  receives a Clear
+And
+Settle Response with values:
+| payload.content.orgnlGrpInf*And*Sts[0].grpSts        | RJCT |
+| payload.content.txInf*And*Sts[0].stsRsnInf[0].rsn.cd | TM01 |

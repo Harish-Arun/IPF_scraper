@@ -1,0 +1,48 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/concepts/scheme-packs/sp-content.html ===
+What is a Scheme Pack and what is Included in it?
+In IPF a Scheme Pack:
+Is an out-of-the-box implementation built using re-usable and configurable IPF framework components.
+Enables simple and quick adherence to appropriate scheme rules and integration with an associated payment scheme / CSM.
+Is specifically for a particular scheme and CSM combination. However it uses common IPF components underneath.
+Is concerned only with the scheme / CSM specific processing, data transformation / mapping, messages exchange and (depending on the scheme / CSM) connectivity.   It does not govern the overall payment processing or specific bank systems integration for the payment processing. It simply facilitates the clearing and settlement of payments / collections via the associated scheme / CSM and the handling of associated R-messages.
+Ensures only scheme compliant messages are sent to the scheme, minimising the risk of messages being rejected by the scheme.
+Are updated regularly by Icon with all mandatory changes as required by the appropriate scheme rulebooks thereby ensuring (wherever possible) that clients are protected from the need for making rulebook changes themselves..
+Ensures that inbound messages are syntactically valid and structurally sound, are destined for the associated IPF client and (where appropriate) correlate to a message previously sent by that client.
+Provides extension points for additional client specific handling if required.
+Is a standalone application, deployed independently.
+Is a container for all functionality required in order to correctly interface with the relevant scheme/CSM.
+Supports scheme SLAs by providing high throughput, low latency scheme specific processing.
+Extensibility is supported by customisation.  A key use case for scheme pack extension is to integrate with the Bank Gateways instead of the CSM directly. In this case, instead of using the default connectors and mappers for direct CSM communication in the scheme pack, client/bank specific connectors and mappers can be assembled together with the default IPF scheme pack implementation to provide a bank specific scheme pack application that talks to the bank gateway.
+There is a separate Scheme Pack for each scheme/CSM and the correct Scheme Pack will be called by the client implementation flow based on the scheme/CSM which this flow has selected to process the transaction.
+Technical connectivity to the respective payment scheme via the relevant CSM will be included in the Scheme Pack where connectivity is specific and via a single mechanism, e.g. a single standard API or single standard gateway.  Clients can choose, by customisation, to bypass the Scheme Packs connectivity to the scheme and instead route payments via their own internal systems for connectivity to the CSM.
+See Extend a generic IPF service with client specific adapters to see more examples of this pattern
+For more information including IPF terminology, see our
+Glossary
+.
+Overview
+Components of a Scheme Pack
+IPF Core SDK Components Used in a Scheme Pack
+IPF APIs
+Validate scheme rules API
+Credit Transfer API (for sending inbound payments to the banks payment execution)
+Clear and Settle API (or Collect and Settle for Direct Debits)
+Payment Status API
+Recall, Return ROI API
+IPF connector framework
+IPF mapping framework
+IPF system events logging
+Message logging
+IPF orchestration framework (where relevant)
+instant payment scheme packs currently do not use this
+used only in SEPA CT & SEPA Direct Debits so far, but anticipated that it could be used in other non-instant schemes
+IPF persistence
+IPF Processing Data
+Correlation Cache
+Bulker (optional - where relevant)
+Debulker (optional - where relevant)
+IPF scheduler (optional -where relevant)
+CSM Service
+IPF test framework
+IPF simulator framework (to build a Scheme Pack simulator)
+Scheme Packs Introduction
+Scheme Pack Functions

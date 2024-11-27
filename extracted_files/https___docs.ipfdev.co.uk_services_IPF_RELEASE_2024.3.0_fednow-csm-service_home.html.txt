@@ -1,0 +1,23 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/fednow-csm-service/home.html ===
+FedNow CSM Service
+FedNow
+is an instant payment infrastructure developed by the Federal Reserve that allows eligible depository institutions of different sizes across the U.S. to provide instant payment services
+The FedNow CSM Service was built with the
+CSM Service Base
+Concepts
+FedNow Supported Flows
+Messages Handled by FedNow CSM Service
+Features
+FedNow CSM Service Application Structure
+FedNow Validations
+FedNow CSM Service Configuration
+CSM Events
+Supported Transports
+FedNow CSM Service Customisation
+The CSM Service provides all the standard connectors and integrations, please refer to the
+CSM Service Documentation
+for more details.
+Licensing
+The FedNow CSM Service is an Additional Optional Module (AOM) for which you require an additional license, please check your license agreement if in any doubt.
+List of System Events
+Concepts

@@ -1,0 +1,188 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/tips-csm-service/concepts/customer-payment-process.html ===
+Instant Payment Transaction Flow
+Step
+Involved Messages
+Involved Actors
+Description
+1
+FItoFICustomerCreditTransfer
+Originator Participant, Ancillary System or Instructing Party as Sender
+TIPS as receiver
+TIPS receives an Instant Payment transaction from the Originator Participant or Instructing Party acting on behalf of the Originator Participant, Ancillary System or a Reachable Party starting the conditional settlement phase of the transaction. Technical validation, check of mandatory fields and authentication checks have already been successfully executed. The timeout for the Instant Payment transaction has not expired.
+TIPS logs the instruction as âReceivedâ.
+2
+TIPS
+TIPS unsuccessfully executes one of the checks listed in step 2.
+At the first negative check the system stops and sends a message to the Originator Participant, Ancillary System or Instructing Party acting on behalf of the Originator Participant or a Reachable Party â same DN of the Sender in step 1 â containing the proper error code.
+If the failed check is âTimeout Check - Originator Sideâ, the status of the transaction is set to âExpiredâ; in all the other cases, the status is set to âFailedâ.
+2e
+FIToFIPaymentStatusReport
+TIPS as sender
+Originator Participant, Ancillary System or Instructing Party as receiver
+TIPS unsuccessfully executes one of the checks listed in step 2.
+At the first negative check the system stops and sends a message to the Originator Participant, Ancillary System or Instructing Party acting on behalf of the Originator Participant or a Reachable Party â same DN of the Sender in step 1 â containing the proper error code.
+If the failed check is âTimeout Check - Originator Sideâ, the status of the transaction is set to âExpiredâ; in all the other cases, the status is set to âFailedâ.
+3
+TIPS
+TIPS infers the account to be debited from the configured accounts information, the Originator Participant BIC and the currency of the Instant Payment transaction. In details TIPS checks that:
+an account, with either type "TIPS Account" or âTIPS AS Technical Accountâ exists,
+it is linked to the Originator Participant (field "Originator BIC") as authorised user,
+and it is denominated in the same currency as the one defined in the Settlement Amount.
+If the check does not return any account, TIPS looks for a CMB linked to the Originator Participant (field "Originator BIC") as authorised user;
+TIPS selects the account linked to the CMB; the account related to the CMB must be denominated in the same currency as the one defined in the Settlement Amount.
+From now on, the selected account is referred to as "Originator Account" and the possible CMB as "Debiting CMB".
+4
+TIPS
+TIPS infers the account to be credited from the configured accounts information, the Beneficiary Participant BIC and the currency of the Instant Payment transaction. In details TIPS checks that:
+an account, with either type "TIPS Account" or âTIPS AS Technical Accountâ exists,
+it is linked to the Beneficiary Participant (field "Beneficiary BIC" ) as authorised user,
+and has a currency equal to the one defined in the Settlement Amount.
+If the check does not return any account, TIPS looks for a CMB linked to the Beneficiary Participant (field "Beneficiary BIC") as authorised user;
+TIPS selects the account linked to the CMB; the account related to the CMB must be denominated in the same currency as the one defined in the Settlement Amount.
+From now on, the selected account is referred to as "Beneficiary Account" and the possible CMB as "Crediting CMB".
+5
+TIPS	T
+TIPS successfully executes the check:
+- Duplicate check;
+5e
+FIToFIPaymentStatusReport
+TIPS as sender
+Originator Participant, Ancillary System or Instructing Party as receiver
+TIPS unsuccessfully executes the check listed in step 5.
+If the check is unsuccessful the system stops and sends a message to the Originator Participant, Ancillary System or Instructing Party acting on behalf of the Originator Participant or a Reachable Party â same DN of the Sender â containing the proper error code.
+The transaction is set to âFailedâ status.
+6
+TIPS
+TIPS sends it to the Check and Execute Instruction process. TIPS sets the transaction status to "Validated".
+7
+TIPS
+TIPS successfully executes the checks:
+- Originator Account/CMB not blocked;
+- Beneficiary Account/CMB not blocked;
+- Available amount not exceeded;
+7e
+FIToFIPaymentStatusReport
+TIPS as sender
+Originator Participant, Ancillary System or Instructing Party as receiver
+TIPS unsuccessfully executes the checks listed in step 7.
+At the first negative check the system stops and sends a message to the Originator Participant, Ancillary System or Instructing Party acting on behalf of the Originator Participant or a Reachable Party â same DN of the Sender in step 1 â containing the proper error code.
+The transaction is set to âFailedâ status.
+8
+TIPS
+The DN of the Sender in step 1 is saved as information related to the transaction. From now on, this DN is referred to as "Originator DN".
+9
+TIPS
+TIPS reserves funds in the Originator account. The full amount is reserved as Reserved Balance in the Cash Balance. TIPS sets the transaction status to "Reserved". If a Debiting CMB is involved, the system decreases its headroom by the same amount.
+After this moment, the settlement attempt is agreed and can either be confirmed or rejected by the counterpart or fail for a missing answer. The reserved amount cannot be considered for other payments.
+10
+TIPS
+The DN of the beneficiary is identified in the "Outbound DN-BIC Routing" mapping table from the field Creditor Agent. From now on, this DN is referred to as "Beneficiary DN".
+11
+FItoFICustomerCreditTransfer
+TIPS as sender
+Beneficiary Participant, Ancillary System or Instructing Party as receiver
+TIPS forwards the received Instant Payment transaction to the Beneficiary DN.
+12p
+FIToFIPaymentStatusReport
+Beneficiary Participant, Ancillary System or Instructing Party as sender
+TIPS as receiver
+The Beneficiary Participant, Ancillary System or Instructing Party acting on behalf of the Beneficiary Participant or a Reachable Party starts the settlement phase of the transaction by sending a positive payment status report that is successfully delivered to TIPS.
+Technical validation, check of mandatory fields and authentication checks have already been successfully executed.
+13p
+TIPS
+TIPS successfully executes the checks:
+- Access Rights check;
+- Instructing Party authorised â creditor side;
+- Pending transaction existing;
+- Timeout Check - Beneficiary Side
+13e
+FIToFIPaymentStatusReport
+TIPS as sender
+Beneficiary Participant, Ancillary System or Instructing Party as receiver
+TIPS unsuccessfully executes the checks listed in step 13p.
+At the first negative check the system stops and sends a message to the Beneficiary Participant, Ancillary System or Instructing Party acting on behalf of the Beneficiary Participant or a Reachable Party (DN of the sender of the message) containing the proper error code.
+14e
+TIPS
+If the pending transaction exists, TIPS retrieves it using the Transaction ID.
+The reserved amount is released in the involved Originator Account and the possibly involved Debiting CMB is increased of the same amount.
+TIPS always releases the reserved transactions even if the involved account or CMB have been blocked in the meantime.
+The transaction is set to "Failed" status.
+15e
+FIToFIPaymentStatusReport
+TIPS as sender
+Originator Participant, Ancillary System or Instructing Party as receiver
+TIPS sends a message to the Originator Participant, Ancillary System or Instructing Party acting on behalf of the Originator Participant or a Reachable Party â same DN of the Sender in step 1 â containing the proper error code.
+14p
+TIPS
+TIPS identifies the transaction using the Transaction ID. The transaction Id is related to a transaction that exists in TIPS and still in "Reserved" status.
+15p
+TIPS
+TIPS retrieves the reserved transaction and confirms it. The amount is considered settled and the transaction is set to "Settled" status.
+The reserved amount of the Originator Account is decreased by the amount of the corresponding settled transaction.
+The same positive amount is added to the Beneficiary Account. If a Crediting CMB is involved, TIPS increases its headroom by the same amount.
+TIPS always executes the reserved transactions even though the involved accounts (or CMBs) have been blocked in the meantime.
+16p
+FIToFIPaymentStatusReport
+TIPS as sender
+Originator Participant, Ancillary System or Instructing Party as receiver
+TIPS forwards the received Payment status report to the Originator DN.
+17p
+FIToFIPaymentStatusReport
+TIPS as sender Beneficiary Participant, Ancillary System or Instructing Party as receiver
+TIPS generates a positive Payment status report and sends it to the Beneficiary DN. The FIToFIPaymentStatusReport contains the Transaction ID and Originator BIC of the transaction.
+18p
+ReturnAccount
+TIPS as sender
+Debited Account and/or CMB Owner
+TIPS checks the "Floor notification amount" configured for the involved Originator account or Debiting CMB.
+After settlement confirmation, if the account balance and/or the CMB headroom crosses the threshold configured as "floor notification amount", TIPS sends a ReturnAccount to the account and/or CMB owners involved in the transaction.
+The message is sent to the default DN of the Account Owner and/or CMB Owner. The message contains the Originator account number or the Debiting CMB number
+19p
+ReturnAccount
+TIPS as sender
+Credited Account and/or CMB Owner
+TIPS checks the "Ceiling notification amount" configured for the involved Beneficiary account or Crediting CMB.
+After settlement confirmation, if the account balance and/or the CMB headroom crosses the threshold configured as "ceiling notification amount", TIPS sends a ReturnAccount to the account and/or CMB owners involved in the transaction.
+The message is sent to the default DN of the Account Owner and/or CMB Owner.
+The message contains the Beneficiary account number or the Crediting CMB number
+12n
+FIToFIPaymentStatusReport
+Beneficiary Participant, Ancillary System or Instructing Party as sender
+TIPS as receiver
+The Beneficiary Participant, Ancillary System or Instructing Party acting on behalf of the Beneficiary Participant or a Reachable Party triggers the settlement phase of the transaction sending a negative payment status report that is successfully delivered to TIPS.
+In this scenario the settlement phase will end up with a rejection of the Instant Payment transaction and the un-reservation of corresponding funds.
+Technical validation, check of mandatory fields and authentication checks have already been successfully executed.
+13n
+TIPS
+TIPS successfully executes the checks:
+- Access Rights check;
+- Instructing Party authorised â creditor side;
+- Pending transaction existing.
+13e
+TIPS as sender
+Beneficiary Participant, Ancillary System or Instructing Party as receiver
+TIPS unsuccessfully executes the checks at step 13n.
+At the first negative check the system stops and sends a message to the Beneficiary Participant, Ancillary System or Instructing Party acting on behalf of the Beneficiary Participant or a Reachable Party (DN of the sender of the message) containing the proper error code.
+14e
+TIPS
+If the pending transaction exists, TIPS retrieves it using the Transaction ID.
+The reserved amount is released in the involved Originator account and the possibly involved Debiting CMB is increased of the same amount.
+TIPS always releases the reserved transactions even if the involved account or CMB have been blocked in the meantime.
+The transaction is set to "Failed" status
+15e
+FIToFIPaymentStatusReport
+TIPS as sender
+Originator Participant, Ancillary System or Instructing Party as receiver
+TIPS sends a message to the Originator Participant, Ancillary System or Instructing Party acting on behalf of the Originator Participant or a Reachable Party â same DN of the Sender in step 1 â containing the proper error code.
+14n
+TIPS
+TIPS identifies the transaction using the Transaction ID. The Transaction ID is related to a transaction existing in TIPS and still in "Reserved" status.
+15n
+TIPS
+TIPS retrieves the Instant Payment transaction to be rejected and releases it.
+The reserved amount is released in the involved Originator Account and the possibly involved Debiting CMB is increased of the same amount.
+TIPS always releases the reserved transactions even if the involved account or CMB have been blocked in the meantime.
+The transaction is set to "Rejected" status.
+16n
+Concepts
+Instant Payment Transaction Missing/Delayed Beneficiary-side Answer

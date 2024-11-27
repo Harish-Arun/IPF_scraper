@@ -1,0 +1,39 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/rt1-csm-service/scenarios/stories.credit%20transfer%20unhappy%20path.Handle%20Invalid%20Clear%20And%20Settle%20Request.html ===
+Handle Invalid Clear And Settle Request.story
+Scenario: Handling invalid clear and settle request
+Steps
+When the 'Payment Service' sends a '<FileName>' 'Clear And Settle Request'
+Then the 'CSM' receives a corresponding 'System Event' using predicate:
+| level                                 | ERROR                           |
+| processingContext.associationId.value | #ClearAndSettleRequest.ipfId    |
+| name                                  | OutboundMessageValidationFailed |
+| payload.reasonCode                    | FF01                            |
+| type                                  | TECHNICAL                       |
+Examples:
+FileName
+Invalid Xsd
+With Mutex Ctgy Purp
+Example: {FileName=Invalid Xsd}
+When
+the i12Payment Servicei12  sends a i12Invalid Xsdi12  Clear
+And
+Settle Request
+Then
+the i12CSMi12  receives a corresponding System Event using predicate:
+| level                                 | ERROR                           |
+| processingContext.associationId.value | #Clear*And*SettleRequest.ipfId    |
+| name                                  | OutboundMessageValidationFailed |
+| payload.reasonCode                    | FF01                            |
+| type                                  | TECHNICAL                       |
+Example: {FileName=With Mutex Ctgy Purp}
+When
+the i12Payment Servicei12  sends a i12With Mutex Ctgy Purpi12  Clear
+And
+Settle Request
+Then
+the i12CSMi12  receives a corresponding System Event using predicate:
+| level                                 | ERROR                           |
+| processingContext.associationId.value | #Clear*And*SettleRequest.ipfId    |
+| name                                  | OutboundMessageValidationFailed |
+| payload.reasonCode                    | FF01                            |
+| type                                  | TECHNICAL                       |

@@ -1,0 +1,13 @@
+=== URL: https://docs.ipfdev.co.uk/reference/IPF_RELEASE_2024.3.0/release/IPF-2023-1-0-4/release-IPF-2023-1-0-4-migration.html ===
+Migration Steps for IPF-2023.1.0.4
+Version Updates
+To migrate to 2023.1.0.4, please perform the following steps:
+Update your BOM version to the new release version 2023.1.0.4
+<parent>
+    <groupId>com.iconsolutions.ipf</groupId>
+    <artifactId>ipf-release-core-bom</artifactId>
+    <version>2023.1.0.4</version>
+</parent>
+Run a maven build to pull down all the latest dependencies.
+IPF-2023.1.0.4 - Fix Release Notes
+Glossary

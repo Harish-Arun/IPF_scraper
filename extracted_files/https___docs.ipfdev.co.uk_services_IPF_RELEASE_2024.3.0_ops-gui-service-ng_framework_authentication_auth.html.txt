@@ -1,0 +1,104 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ops-gui-service-ng/framework/authentication/auth.html ===
+Auth
+Auth is a core module that is required in order to access ipf services. There are currently 3 types of authentication that are supported: Basic Auth, OAuth 2.0 and SAML.
+The authentication methods can be enabled with the following commands:
+ipf.business-operations.auth.basic-auth.enabled = true
+ipf.business-operations.auth.saml2.enabled = true
+ipf.business-operations.auth.oauth2.enabled = true
+Configuration
+For each type of authentication you will need to provide a configuration file.
+Basic Auth
+For the basic auth you will need to provide a configuration similar to one in the example below, specifying the users and the mapping between the processing entities and the ipf roles.
+users = [
+  {
+    username: "admin"
+    password: "p4ssw0rd"
+    roles: {
+      BANK_ENTITY_1 = [ROLE_HTM_VIEWER, ROLE_HTM_EXECUTE, ROLE_HTM_APPROVER, ROLE_HTM_B_C, ROLE_HTM_B_R, ROLE_AUDIT, ROLE_METRICS, ROLE_PAYMENT, ROLE_PAYMENT_EXPORT, ROLE_DPS_P_R, ROLE_DPS_AS_R, ROLE_DPS_AS_C, ROLE_DPS_AS_A, ROLE_DPS_AS_U, ROLE_DPS_AS_D, ROLE_DPS_GP_R, ROLE_DPS_GP_C, ROLE_DPS_GP_A, ROLE_DPS_GP_U, ROLE_DPS_GP_D, ROLE_DPS_PE_R, ROLE_DPS_PE_C, ROLE_DPS_PE_A, ROLE_DPS_PE_D, ROLE_DPS_PE_U, ROLE_DPS_BF_R, ROLE_DPS_BF_C, ROLE_DPS_BF_A, ROLE_DPS_BF_D, ROLE_DPS_BF_U]
+      BANK_ENTITY_2 = [ROLE_AUDIT, ROLE_METRICS, ROLE_PAYMENT, ROLE_DPS_P_R, ROLE_DPS_AS_R, ROLE_DPS_GP_R, ROLE_DPS_PE_R, ROLE_DPS_BF_R]
+    }
+  }, {
+    username: "guest"
+    password: "guest"
+    roles: {
+      BANK_ENTITY_1 = [ROLE_GUEST, ROLE_PAYMENT]
+    }
+  }
+]
+users = ${?env.users}
+OAuth 2
+If you are using OAuth 2, you will need to provide configuration similar to the example below.
+oauth2 {
+    enabled = false
+    registration-id = "example-app-id"
+    client-id = "login-app-client-id"
+    client-secret = "secret"
+    scopes = "openid, roles"
+    authorization-uri = "http://example-url/auth"
+    token-uri = "http://example-url/token"
+    jwk-set-uri = "http://example-url/certs"
+    userinfo-uri = "http://example-url/userinfo"
+    return-url = "/"
+    roles-attribute = "roles"
+    roles-separator = ","
+    roles-from-attributes = true
+    username = "preferred_username"
+    ipf-roles = false
+    roles-mapping {
+      BANK_ENTITY_1 {
+        TECHNICAL_BANK_OPERATOR = [ROLE_PAYMENT, ROLE_PAYMENT_EXPORT, ROLE_DPS_P_R, ROLE_DPS_AS_R, ROLE_DPS_AS_C, ROLE_DPS_AS_A, ROLE_DPS_AS_U, ROLE_DPS_AS_D, ROLE_DPS_GP_R, ROLE_DPS_GP_C, ROLE_DPS_GP_A, ROLE_DPS_GP_U, ROLE_DPS_GP_D, ROLE_DPS_PE_R, ROLE_DPS_PE_C, ROLE_DPS_PE_A, ROLE_DPS_PE_D, ROLE_DPS_PE_U, ROLE_DPS_BF_R, ROLE_DPS_BF_C, ROLE_DPS_BF_A, ROLE_DPS_BF_D, ROLE_DPS_BF_U]
+        BANK_ASSISTANT = [ROLE_METRICS, ROLE_PAYMENT_EXPORT, ROLE_PAYMENT, ROLE_DPS_P_R, ROLE_DPS_AS_R, ROLE_DPS_GP_R, ROLE_DPS_PE_R, ROLE_DPS_BF_R]
+      },
+      BANK_ENTITY_2 {
+        CSM_BANK_OPERATOR = [ROLE_DPS_P_R, ROLE_DPS_AS_R, ROLE_DPS_AS_C, ROLE_DPS_AS_A, ROLE_DPS_AS_U, ROLE_DPS_AS_D, ROLE_DPS_GP_R, ROLE_DPS_GP_C, ROLE_DPS_GP_A, ROLE_DPS_GP_U, ROLE_DPS_GP_D, ROLE_DPS_PE_R, ROLE_DPS_PE_C, ROLE_DPS_PE_A, ROLE_DPS_PE_D, ROLE_DPS_PE_U, ROLE_DPS_BF_R, ROLE_DPS_BF_C, ROLE_DPS_BF_A, ROLE_DPS_BF_D, ROLE_DPS_BF_U]
+        PAYMENTS_BANK_OPERATOR = [ROLE_PAYMENT, ROLE_PAYMENT_EXPORT]
+        BANK_SUPPORT_OPERATOR = [ROLE_AUDIT, ROLE_METRICS, ROLE_DPS_P_R, ROLE_DPS_AS_R, ROLE_DPS_GP_R, ROLE_DPS_PE_R, ROLE_DPS_BF_R]
+      }
+    }
+  }
+The most important properties are roles-attributes, ipf-roles and roles-mapping.
+roles-attribute
+refers to the token claim that holds the roles for the user. An attribute name that holds a delimited list of roles. Optional if attribute-to-roles-mappings are already specified.
+ipf-roles
+is a flag which can take 2 properties: true or false. If it is set to true, it will signal the fact that the user has
+IPF roles
+(audit, metrics, etc) directly into the token and not bank roles. If it is set to false, it signals the fact that the client has
+bank roles
+into the token (roles unknown to the IPF that are present in the roles-mapping). This property helps us parse the roles mapping and assign the correct roles to the user.
+roles-mapping
+represents the mapping between processing entities, bank roles and IPF roles. Each processing entity can contain multiple bank roles and each bank role can contain multiple IPF roles. When granting access, we are parsing the mapping provided by clients and assign the correct roles to the user based on this mapping. If clients use IPF roles in the token, the bank role key needs to be provided, but it will be completely ignored (it can be a random text). This structure must be followed for both cases.
+A full list of OAuth configuration properties can be found here:
+OPS GUI Service Configuration OAuth 2 Properties
+SAML 2
+If you are using SAML 2, you will need to provide configuration similar to the example below.
+saml2 {
+    enabled = false
+    verification-certificate = "classpath:idp.crt"
+    registration-id = "example-app-id"
+    single-sign-on-service-location = "http://example-url/SingleSignOnService.php"
+    single-log-out-service-location = "http://example-url/SingleLogoutService.php"
+    identity-provider-entity-id = "http://example-url/metadata.php"
+    service-provider-entity-id = "http://example-url/service-provider-metadata/"${ipf.business-operations.auth.saml2.registration-id}
+    assertion-consumer-service-location = "<override for redirect URL>" //In the case of Gateway rewrite breaking the default for spring which is "{baseUrl}/login/saml2/sso/{registrationId}"
+    want-authn-requests-signed = false
+    uid-attribute = "uid"
+    roles-attribute = "roles"
+    roles-separator = ","
+    return-url = "/"
+    ipf-roles = true
+  }
+The most important properties are roles-attributes, ipf-roles and roles-mapping.
+roles-attribute
+refers to the token claim that holds the roles for the user. An attribute name that holds a delimited list of roles.
+ipf-roles
+is a flag which can take 2 properties: true or false. If it is set to true, it will signal the fact that the user has
+IPF roles
+(audit, metrics, etc) directly into the token and not bank roles. If it is set to false, it signals the fact that the client has
+bank roles
+into the token (roles unknown to the IPF that are present in the roles-mapping). This property helps us parse the roles mapping and assign the correct roles to the user.
+roles-mapping
+represents the mapping between processing entities, bank roles and IPF roles. Each processing entity can contain multiple bank roles and each bank role can contain multiple IPF roles. When granting access, we are parsing the mapping provided by clients and assign the correct roles to the user based on this mapping. If clients use IPF roles in the token, the bank role key needs to be provided, but it will be completely ignored (it can be a random text). This structure must be followed for both cases.
+A full list of SAML configuration properties can be found here:
+OPS GUI Service Configuration SAML2 Properties
+Auditing
+Scheme Pack Building

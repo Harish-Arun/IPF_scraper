@@ -1,0 +1,106 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ops-gui-service-ng/framework/audit/audit.html ===
+Auditing
+Auditing is a core module that can be enabled by setting the following property:
+ipf.business-operations.audit.enabled = true
+To audit a method you need to add the
+@Auditable
+annotation to the method signature. The annotation takes a parameter called
+type
+which indicates the action you are auditing.
+Example:
+@GetMapping("auth/basic")
+@Auditable(type = "LOGIN_BASIC")
+public void loginBasic() {}
+An audit record consists of the following data fields:
+public class AuditRecord {
+    @Id
+    String id;
+    String userId;
+    String clientIpAddress;
+    String processingEntity;
+    String transactionId;
+    String action;
+    Instant time;
+    Map<String, Object> request;
+    Map<String, Object> response;
+}
+To be able to populate the request and response Map you need to implement an AuditRequestExtractor and AuditResponseExtractor respectively:
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * This class can be extended to implement a custom request extractor for a particular
+ * type of audited method.
+ */
+public interface AuditRequestExtractor {
+    /**
+     * Return the extractor type that should match the corresponding
+     * @Auditable types
+     *
+     * @return The types of extractor
+     */
+    Set<String> types();
+
+    /**
+     * Here you can extract the fields from the request parameters
+     * you would like to be audited
+     *
+     * @param args The method arguments from the annotated method
+     * @return A map representing the key value params extracted from the request method arguments
+     */
+    Map<String, Object> extractRequestData(Object[] args);
+}
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * This class can be extended to implement a custom response extractor for a particular
+ * type of audited method.
+ */
+public interface AuditResponseExtractor {
+    /**
+     * Return the extractor type that should match the corresponding
+     * @Auditable types
+     *
+     * @return The type of extractor
+     */
+    Set<String> types();
+
+    /**
+     * Here you can extract the fields from the response message
+     * you would like to be audited
+     *
+     * @param responseData The response data from the annotated method
+     * @return A map representing the key value params extracted from the response
+     */
+    Map<String, Object> extractResponseData(Object responseData);
+}
+The
+type
+of the extractor must match the annotated @Auditable type so we know which extractor to use for the audited method. Multiple extractors can be defined to cover all audited types.
+By default, no fields are extracted unless you implement a custom extractor.
+Custom Types
+Sometimes it is not possible to use the annotation for things like SAML/OAUTH which require special processing. In these types of cases it is possible to register custom action types that will then appear as action types in the UI for filtering purposes. To do this register a bean of type
+CustomAuditable
+which returns a set of strings representing the action types.
+Example:
+@Bean
+public CustomAuditable getCustomAuthAuditables(SamlProperties samlProperties, OAuthProperties oAuthProperties) {
+    return new CustomAuditable() {
+        @Override
+        public Set<String> actionTypes() {
+            Set<String> actionTypes = new HashSet<>();
+            if(samlProperties.isEnabled()) {
+                actionTypes.add("SAML_LOGIN_SUCCESS");
+                actionTypes.add("SAML_LOGIN_FAILURE");
+            }
+            if(oAuthProperties.isEnabled()) {
+                actionTypes.add("OAUTH_LOGIN_SUCCESS");
+                actionTypes.add("OAUTH_LOGIN_FAILURE");
+            }
+            return actionTypes;
+        }
+    };
+}
+Cluster Management
+Auth

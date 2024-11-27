@@ -1,0 +1,24 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/ipf-operational-dashboard/home.html ===
+IPF Operational Dashboard
+The IPF Operational Dashboard is the reference implementation used by Icon to demonstrate the available functionality available within the Icon GUI Framework. It contains every Icon owned screen available. This artifact is deployable and production ready but only allows limited customisation.
+For more information about the Icon GUI framework and it’s deployment and build models, please see:
+Deployment
+Guidelines
+Options
+Requirements
+Service Configuration
+Available Screens
+ODS Search
+Human Task Manager
+Metrics
+Cluster Health
+Version Info
+Permissions
+Audit
+Homepage
+Once you are logged it through your Single Sign On (SSO) mechanism, you will be presented with the homepage.
+Each tile represents a set of screens that will interact with one of IPF’s components or functionality.
+Please click on the links above for guides on each of those screens.
+Note: you will only be able to see screens that you have permissions to view.
+Security
+IPF GUI Roles

@@ -1,0 +1,107 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/connector/guides/pascal.html ===
+PascalCase Messages
+How do I accept messages that are incoming in PascalCase format?
+Defining a Custom Jackson ObjectMapper
+IPF currently has a utility class called the
+SerializationHelper
+which is a wrapper around a Jackson ObjectMapper that registers custom serialisers/deserialisers. This allows us to have a consistent approach when serialisers/deserialisers messages across the IPF estate.
+By default Jackson support CamelCase and the
+SerializationHelper
+therefore also only support CamelCase messages by default. This can be easily changed to support PascalCase.
+To support PascalCase you need to define a new instance of the ObjectMapper with the following property:
+private final ObjectMapper pascalCaseMapper = SerializationHelper.objectMapper()
+            .setPropertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE);
+This can then be used when mapping messaged to/from external system within the connector code.
+Below is an example ReceiveConnector and SendConnector that would receive or send messages in PascalCase respectively:
+package com.iconsolutions.connector.samples.pascal;
+
+import akka.actor.ActorSystem;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.iconsolutions.common.exception.IconRuntimeException;
+import com.iconsolutions.ipf.core.connector.ReceiveConnector;
+import com.iconsolutions.ipf.core.connector.ReceiveConnectorBuilderHelper;
+import com.iconsolutions.ipf.core.connector.SendConnector;
+import com.iconsolutions.ipf.core.connector.SendConnectorBuilderHelper;
+import com.iconsolutions.ipf.core.connector.message.MessageHeaders;
+import com.iconsolutions.ipf.core.connector.message.TransportMessage;
+import com.iconsolutions.ipf.core.connector.transport.ConnectorTransport;
+import com.iconsolutions.ipf.core.connector.transport.ReceiveConnectorTransport;
+import com.iconsolutions.ipf.core.shared.correlation.CorrelationId;
+import com.iconsolutions.ipf.core.shared.domain.context.ProcessingContext;
+import com.iconsolutions.ipf.core.shared.domain.context.UnitOfWorkId;
+import com.iconsolutions.ipf.payments.domain.clearing_and_settlement.pacs002.FIToFIPaymentStatusReport;
+import com.iconsolutions.ipf.payments.domain.clearing_and_settlement.pacs008.FIToFICustomerCreditTransfer;
+import com.iconsolutions.ipf.payments.domain.payment_initiation.pain001.CustomerCreditTransferInitiation;
+import com.iconsolutions.samplesystems.shared.model.header.CryptoHelper;
+import com.iconsolutions.simulator.api.RequestHandler;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
+
+@Slf4j
+public class PascalConnectors {
+
+    /**
+     * Here set the UPPER_CASE_CAMEL (PascalCase) naming strategy
+     * on your ObjectMapper instance
+     */
+    private final ObjectMapper pascalCaseMapper = SerializationHelper.objectMapper()
+            .setPropertyNamingStrategy(PropertyNamingStrategies.UPPER_CAMEL_CASE);
+
+
+    // tag::receiveConnector[]
+    @Bean
+    public ReceiveConnector<CustomerCreditTransferInitiation> executePaymentReceiveConnector(
+            ReceiveConnectorTransport initPaymentReceiveConnectorTransport,
+            RequestHandler someRequestHandler,
+            ActorSystem actorSystem) {
+        return ReceiveConnector.<CustomerCreditTransferInitiation>builder("InitPaymentReceive", "initpayment.receive-connector", actorSystem)
+                .withMessageLogger(m -> log.debug("Receive connector has identified message: {}", m.getMessage()))
+                .withProcessingContextExtractor(tm -> ProcessingContext.builder()
+                        .unitOfWorkId(UnitOfWorkId.createRandom())
+                        .build())
+                .withConnectorTransport(initPaymentReceiveConnectorTransport)
+                .withReceiveTransportMessageConverter(message -> this.convertResponse(message.getPayload().toString()))
+                .withReceiveHandler((context, payload) -> someRequestHandler.process(payload))
+                .build();
+    }
+    // end::receiveConnector[]
+
+    /**
+     * Here you would convert the incoming PAIN001 JSON message in Pascal format into your PAIN001 domain object
+     */
+    public CustomerCreditTransferInitiation convertResponse(String messageText) {
+        try {
+            return pascalCaseMapper.readValue(messageText, CustomerCreditTransferInitiation.class);
+        } catch (JsonProcessingException e) {
+            throw new IconRuntimeException(e);
+        }
+    }
+
+    @Bean
+    public SendConnector<FIToFIPaymentStatusReport, FIToFIPaymentStatusReport> executePaymentSendConnector(
+            ConnectorTransport<FIToFIPaymentStatusReport> executePaymentReceiveConnectorTransport,
+            ActorSystem actorSystem) {
+        return SendConnector
+                .<FIToFIPaymentStatusReport, FIToFIPaymentStatusReport>builder("ExecutePaymentSend", "executepayment.send-connector", actorSystem)
+                .withMessageLogger(m -> log.debug("Send connector has identified message: {}", m.getMessage()))
+                .withCorrelationIdExtractor(it -> CorrelationId.of(it.getTxInfAndSts().get(0).getOrgnlTxId()))
+                .withConnectorTransport(executePaymentReceiveConnectorTransport)
+                .withSendTransportMessageConverter(this::convertToTransport)
+                .build();
+    }
+
+    /**
+     * Here you would convert the PACS002 domain object into Pascal formatted JSON before sending out
+     */
+    public TransportMessage convertToTransport(FIToFIPaymentStatusReport response) {
+        try {
+            return new TransportMessage(new MessageHeaders(CryptoHelper.messageHeaders()), pascalCaseMapper.writeValueAsString(response));
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+}
+How to filter messages
+How to register dynamically generated connectors as beans

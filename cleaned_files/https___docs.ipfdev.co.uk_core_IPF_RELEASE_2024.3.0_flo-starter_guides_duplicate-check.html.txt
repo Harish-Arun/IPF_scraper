@@ -1,0 +1,138 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/flo-starter/guides/duplicate-check.html ===
+Sample Duplicate Check Function Implementation
+Duplicate check via transaction cache is modeled as a Domain Function implementation calling the configured
+Transaction Cache Service
+.
+This uses PersistentTransactionCacheService backed by MongoDB, so the necessary data to populate the cache and perform duplicate checks survives a service restart.
+The definition of the Domain Function is (currently) done within the MPS project as the data points may be solution specific. See screenshots of an example Domain Function definition and its usage within a flow (calling the function and handling the response events) from a reference solution:
+The corresponding implementation is as follows:
+package com.iconsolutions.instantpayments.credittransfer.sample.config;
+
+import com.iconsolutions.ipf.core.platform.txcache.service.PersistentTransactionCacheService;
+import com.iconsolutions.ipf.core.platform.txcache.repository.TransactionCacheRepository;
+import com.iconsolutions.ipf.core.platform.txcache.service.TransactionCacheService;
+import com.iconsolutions.ipf.core.shared.retry.RepositoryRetryProvider;
+import com.iconsolutions.ipf.payments.domain.clearing_and_settlement.pacs008.FIToFICustomerCreditTransfer;
+import io.vavr.control.Try;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
+import java.util.Optional;
+
+@Configuration
+public class TransactionCacheServiceConfig {
+
+    /**
+     *
+     * This definition builds a TransactionCacheService instances that handles entries for pacs.008 objects.
+     * The following fields are being used to determine if the transaction is a duplicate and forms the key:
+     *  EndToEndId, DbtrAcct.Id, LclInstrm.Prtry/Cd, IntrBkSttlmAmt.Value, IntrBkSttlmAmt.Ccy
+     *
+     * @param transactionCacheRepository - by default this bean is provide by spring-data repository through the
+     *                                   com.icon.ipf.core.platform:ipf-transaction-cache dependency
+     *
+     * @param repositoryRetryProvider    - by default this bean is provided by the SharedRepositoryConfiguration config
+     *                                   from the com.iconsolutions.ipf.core.shared:shared-application-common dependency.
+     *                                   Added below for completeness
+     *
+     *                                   <pre>
+     *                                       @Bean
+     *                                       @ConditionalOnMissingBean
+     *                                       public RepositoryRetryProvider repositoryRetryProvider() {
+     *                                           return new RepositoryRetryProvider(
+     *                                                   0,
+     *                                                   t -> false,
+     *                                                   null);
+     *                                       }</pre>
+     */
+    @Bean
+    public TransactionCacheService<FIToFICustomerCreditTransfer> debtorCTTransactionCacheService(
+            TransactionCacheRepository transactionCacheRepository, RepositoryRetryProvider repositoryRetryProvider) {
+        return new PersistentTransactionCacheService<FIToFICustomerCreditTransfer>(
+                fi2fi -> {
+                    var cdtTrfTxInf = fi2fi.getCdtTrfTxInf().get(0);
+                    return List.of(
+                            cdtTrfTxInf.getPmtId().getEndToEndId(),
+                            Try.of(() -> cdtTrfTxInf.getDbtrAcct().getId().getOthr().getId()).getOrElseTry(() -> cdtTrfTxInf.getDbtrAcct().getId().getIBAN()),
+                            Try.of(() -> Optional.ofNullable(cdtTrfTxInf.getPmtTpInf().getLclInstrm().getPrtry()).orElseThrow()).getOrElseTry(() -> cdtTrfTxInf.getPmtTpInf().getLclInstrm().getCd()),
+                            cdtTrfTxInf.getIntrBkSttlmAmt().getValue().toString(),
+                            cdtTrfTxInf.getIntrBkSttlmAmt().getCcy());
+                },
+                transactionCacheRepository,
+                repositoryRetryProvider
+        );
+    }
+}
+package com.iconsolutions.instantpayments.credittransfer.sample.adapter.action;
+
+import com.iconsolutions.instantpayments.domain.credittransfer.actions.CheckFunctionalDuplicateAction;
+import com.iconsolutions.instantpayments.domain.credittransfer.adapters.DuplicateCheckingActionPort;
+import com.iconsolutions.instantpayments.domain.credittransfer.domain.CredittransferDomain;
+import com.iconsolutions.instantpayments.domain.credittransfer.inputs.CheckFunctionalDuplicateResponseInput;
+import com.iconsolutions.instantpayments.domain.credittransfer.inputs.responsecodes.AcceptOrRejectCodes;
+import com.iconsolutions.instantpayments.domain.credittransfer.reasoncodes.ISOReasonCodes;
+import com.iconsolutions.ipf.core.platform.txcache.service.TransactionCacheService;
+import com.iconsolutions.ipf.payments.domain.clearing_and_settlement.pacs008.FIToFICustomerCreditTransfer;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.CompletionStage;
+
+/**
+ * This class is the implementation of an external domain action adapter that calls the transaction cache in order to perform
+ * a duplicate check.
+ *
+ * It depends on an instance of TransactionCacheService that has been defined in TransactionCacheServiceConfig
+ */
+@Slf4j
+@AllArgsConstructor
+public class SampleDuplicateCheckingActionAdapter implements DuplicateCheckingActionPort {
+
+    private final TransactionCacheService<FIToFICustomerCreditTransfer> transactionCacheService;
+
+    @Override
+    public CompletionStage<Void> execute(CheckFunctionalDuplicateAction action) {
+        return saveAndVerify(transactionCacheService, action)
+                .thenCompose(CredittransferDomain.duplicateChecking()::handle)
+                .thenAccept(result -> log.debug("DuplicateCheckingActionAdapter completed with {}", result.getResult()));
+    }
+
+    /**
+     * In this example we eagerly save the payment and then verify if it has any duplicates
+     * - save it to the cache
+     * - re-read it from the cache using the derived key
+     * - if more than one entry is found then at least one previously existed and therefore it IS a duplicate
+     * - return the appropriate response to the process response Input
+     *
+     * Note:
+     * This "eager" save is a preferable alternative to the process of:
+     * - read from cache with derived key
+     * - if there is a result then flag a duplicate else save to the cache
+     *
+     * As it reduces the window for concurrent duplicates slipping through, at the cost of an extra record being stored
+     *
+     * @param cacheService
+     * @param action
+     */
+    public CompletionStage<CheckFunctionalDuplicateResponseInput> saveAndVerify(TransactionCacheService<FIToFICustomerCreditTransfer> cacheService,
+                                                                               CheckFunctionalDuplicateAction action) {
+        return cacheService.saveToCache(action::getFlowType, action.getCustomerCreditTransfer(), action.getId())
+                .thenCompose(entry -> cacheService.findInCache(action::getFlowType, action.getCustomerCreditTransfer(), action.getId()))
+                .thenApply(entries -> entries.size() == 1 ? accepted(action.getId()) : rejected(action.getId()));
+    }
+
+    private CheckFunctionalDuplicateResponseInput accepted(String aggregateId) {
+        return new CheckFunctionalDuplicateResponseInput.Builder(aggregateId, AcceptOrRejectCodes.Accepted)
+                .build();
+    }
+
+    private CheckFunctionalDuplicateResponseInput rejected(String aggregateId) {
+        return new CheckFunctionalDuplicateResponseInput.Builder(aggregateId, AcceptOrRejectCodes.Rejected)
+                .withReasonCode(ISOReasonCodes.AM05)
+                .build();
+    }
+
+}
+How to use the persistent scheduler with a flow
+How to get aggregate data for use in an external domain request

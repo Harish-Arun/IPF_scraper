@@ -1,0 +1,19 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/system-events/home.html ===
+IPF System Events
+IPF System events can be used to notify consumers of various events that take place in the IPF ecosystem (or any
+system related to IPF). These can be converted to meaningful statistics or reformatted and relayed to other downstream
+systems for consumption and subsequent action.
+Checkout the
+Concepts
+section to learn more about accomplishing the following tasks
+with IPF events:
+Subscribing to events
+and using implementations of the IPF event API
+Defining your own events
+for publishing using the event API
+Also see
+The
+List of System Events
+raised by IPF core
+Data Model Specifications
+Concepts

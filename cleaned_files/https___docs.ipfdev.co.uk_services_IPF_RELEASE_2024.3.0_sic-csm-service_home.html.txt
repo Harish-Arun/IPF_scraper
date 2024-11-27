@@ -1,0 +1,25 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/sic-csm-service/home.html ===
+SIC CSM Service Reference
+SIC is the
+Swiss Interbank Clearing process
+.
+The SIC CSM Service was built utilising the
+CSM Service Base
+. IPFs SIC CSM Service handles SIC instant payments only (currently it does not handle SIC RTGS or EuroSIC payments).
+Concepts
+SIC Scenarios
+SIC Supported Flows
+Interfaces
+Features
+SIC CSM Application Structure
+SIC Validations
+CSM Events
+Supported Transports
+SIC CSM Service Customisation
+The CSM Service provides all the standard connectors and integrations, please refer to the
+CSM Service Documentation
+for more details.
+Licensing
+The SIC CSM Service is an Additional Optional Module (AOM) for which you require an additional license, please check your license agreement if in any doubt.
+Supported Transports
+Concepts

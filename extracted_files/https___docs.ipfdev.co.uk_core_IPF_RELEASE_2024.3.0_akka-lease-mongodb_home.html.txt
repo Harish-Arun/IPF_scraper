@@ -1,0 +1,24 @@
+=== URL: https://docs.ipfdev.co.uk/core/IPF_RELEASE_2024.3.0/akka-lease-mongodb/home.html ===
+Akka MongoDB Lease
+This module enables IPF users to use MongoDB as a lease (distributed lock) provider. For more information about leases, see the
+official Akka docs
+.
+When to Use
+In an IPF context, you generally do not need to use a lease to ensure safety of clustered operations (singleton or shard creation, split brain resolver downing).
+However, you should use this discovery method
+only when all the following are true
+:
+IPF nodes are running in a multi DC setup on Kubernetes
+Each DC runs its own Kubernetes cluster
+IPF nodes form a single Akka Cluster
+[
+1
+]
+All Kubernetes clusters can access the same MongoDB instance
+If IPF is running in a multi-DC environment, but the DCs belong to a single Kubernetes cluster, you should use the
+official Kubernetes API lease
+.
+1
+. Requires all nodes to be reachable by other nodes, either by running on a routeable pod network or via nodePort
+How do you create a reusable flow module?
+Getting Started

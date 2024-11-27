@@ -1,0 +1,93 @@
+=== URL: https://docs.ipfdev.co.uk/guides/IPF_RELEASE_2024.3.0/ipf-test-fw/step-library.html ===
+Step Library
+Common Steps
+Type
+Step Definition
+Parameters
+Description
+Example
+Given
+the IPF service is healthy
+none
+Confirms that the IPF system is ready to start processing and all health checks have successfully passed
+Given the IPF service is healthy
+Then
+the last $number of received '$messageType' were equivalent
+number
+- ?
+messageType
+- ?
+description tbc
+Then the last 3 of received 'Sanctions Requests' were equivalent
+Then
+_\{the |\}$sendingSystem sends \{a|an\} duplicate '$messageType'
+messageType
+- ?
+description tbc
+Then the SanctionsSystem sends a duplicate SanctionsResponse
+Aggregate Steps
+Type
+Step Definition
+Parameters
+Description
+Example
+Then
+the '$flowDefinitionId' flow is in state '$desiredState'
+flowDefinitionId
+- the unique id of a flow, this is the concatenation of flow name and version, e.g. CreditTransferFlowV1
+desiredState
+- the target state name, e.g. Completed
+Provides the ability to check a flow is in a given state, this usage assumes that the test has a single unique instance of the provided flowDefinitionId.
+Then the 'ParamsHttpFlow' flow is in state 'Complete'
+Then
+the '$flowDefinitionId' flow for requestId '$requestId' is in state '$desiredState'
+flowDefinitionId
+- the unique id of a flow, this is the concatenation of flow name and version, e.g. CreditTransferFlowV1
+requestId
+- the client request id that initiated the required flow.
+desiredState
+- the target state name, e.g. Completed
+Provides the ability to check a flow is in a given state, this usage allows provision of a distinguishing request id for provided flowDefinitionId.
+Then the 'ParamsHttpFlow' flow for requestId 'my-client-request-id' is in state 'Complete'
+Then
+there is no '$flowDefinitionId' flow created
+flowDefinitionId
+- the unique id of a flow, this is the concatenation of flow name and version, e.g. CreditTransferFlowV1
+Checks to see that there no flow of the required definition id has been created.
+Then there is no 'ParamsHttpFlow' flow created
+Then
+the flow with ID '$aggregateId' is in state '$desiredState'
+aggregateId
+- the unique identifying aggregate id of a flow
+desiredState
+- the target state name, e.g. Completed
+Checks that the defined flow is in the given state.
+Then flow with ID 'ParamsHttpFlow|abc' is in state 'Complete'
+Then
+the list of published domain events for the '$flowDefinitionId' flow is: $values
+flowDefinitionId
+- the unique id of a flow, this is the concatenation of flow name and version, e.g. CreditTransferFlowV1
+values - a list of event names
+Provides the ability to check that the events provided have been successfully generated for the provided flow definition id.  This step assumes there will be a single flow of this type within the test.  The step will pass if and only if the provided list is an exact match for the events on the aggregate.
+Then the list of published domain events for the 'ParamsHttpFlow' flow is:
+| event1 |
+| event2 |
+System Event Steps
+Type
+Step Definition
+Parameters
+Description
+Example
+Then
+a new $flowDefinitionId flow is started
+flowDefinitionId
+- the unique id of a flow, this is the concatenation of flow name and version, e.g. CreditTransferFlowV1
+This step checks that a flow started system event for the given flow exists. It assumes a single flow in the test for the provided definition.
+Then a new 'ParamsHttpFlow' flow is started
+Then
+a '$eventName' event is raised
+eventName - the name of the event being looked for
+This step looks for the appearance of a system event for the defined name.  It does not consider which flow this event emanated from
+Then a 'SanctionsPassed' event is raised
+IPF Test Framework
+IPF Simulators

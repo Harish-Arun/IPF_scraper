@@ -1,0 +1,82 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/csm-reachability/features/csm-reachability-operations/domain-apis/iban-deconstruct.html ===
+3. /iban/deconstruct
+Purpose
+IBAN Deconstruct API enables an IBAN to be deconstructed to provide details of the entity that has issued the IBAN. The details provided on the response include 'Scheme Membership BIC' associated with the IBAN, national clearing code, the country where the issuing entity is located as well as IBAN National Id and Bank Identifier as registered on industry files.
+Industry Reference Data
+IBAN Deconstruct uses the industry data dynamic configurations to de-contruct the IBANs. The dynamic configurations are required to be populated through ingestion of relevant industry files provided
+Industry Data
+Purpose
+Additional References
+IBAN Structure Directory
+The dynamic configuration provides the structure of IBANs across different countries including position and length of relevant identifiers that are embedded on the IBANs issued in those countries.
+IBAN Structure Directory
+IBANPlus Directory
+The dynamic configuration provides
+IBAN Plus Directory
+IBAN Exclusion List
+Column 2, row 3
+Exclusion List Directory
+Usage
+Client implementations can call the endpoint /iban-deconstruct to deconstruct an IBAN and to get the details of the entity that has issued the IBAN.
+IBAN Deconstruct implementation is also used internally by different CSM Reachability services to deconstruct the IBAN and use the entity details to perform reachability checks or party entity look ups. Below CSM Reachability endpoints use IBAN deconstruct internally (Refer
+CSM Reachability Operations
+)
+Validate Intra Entity Reachability
+Validate CSM Reachability
+Select CSM Agent
+Party Entities
+Request and Response
+IBAN Deconstruct follows below request and response structure. This section provides information on the request and response properties, for detailed API specs, please refer
+CSM Reachability Service API
+API Version 2
+Request
+Request Property
+Description
+IBAN
+The IBAN to be validated and deconstructed
+Response
+Response Property
+Description
+entityCountry
+Indicates the country in which the entity that holds the IBAN is located.
+ibanCountry
+Indicates the country that has issued the IBAN. This can be different from the entityCountry.
+bankIdentifier
+The bankIdentifier as defined on IBANPlus Directory.
+ibanNationalId
+ibanNationalId as defined on IBANPlus Directory.
+entityIdentifiers (*)
+1. A list of identifiers derived from the IBAN using IBANPlus and IBAN Structure dynamic configurations. The identifier types returned are of type BIC and NCC.
+2. Refer
+Party Identifiers Explained
+for more details on identifier types supported on CSM Reachability Service.
++identifier
+The identifier value for the entity associated with the IBAN.
++IdentifierType
+The type value associated with the entity identifier.
++identifierSubType
+Subtype of the identifier type returned.
+NOTE
+The IBAN deconstruction relies on the industry data provided by SWIFTRef about the IBAN Structure IBAN Plus and IBAN Exclusion List. In case if the entities that have issued the IBANs have not registered themselves on IBAN Plus, IBAN Deconstruction will not be possible.
+There is an exception of IBANs issued by Switzerland in which case IBAN Deconstruction is possible and reachability checks using deconstruction can be performed to domestic payment systems (Reachability checks to regional or international payment schemes that rely on BICs is not possible)
+For all other countries, if the entities issuing IBANs are not registered on IBAN Plus, IBAN deconstruction and reachability checks to domestic, regional and international payment schemes will not be possible (Reason Code IPFRCH002).
+Some countries do not issue NCCs as the account numbers are issued by the central banks, in these cases, NCCs will not be returned as they are not defined by the entities.
+The subtype associated with the identifier of type BIC will be SCHEME_MEMBERSHIP_BIC as the BICs are used by entities for scheme membership purposes.
+The Sub-Type for NCC type identifier is mapped to an ISO20022 aligned External Clearing System code where one is issued. If the NCC codes issued in the countries do not have an ISO20022 aligned code, a sub-type will not be returned.
+Below is a list of NCC sub-types that will be returned for given countries that issue IBANs. In future more countries can have the ISO20022 aligned sub-types returned (ES, GR, IT, PT, PL, SE).
+IBAN Country Code
+NCC SUbType (ISO20022 Aligned)
+AT
+ATBLZ
+CH
+CHBCC
+DE
+DEBLZ
+GB
+GBDSC
+IE
+IENCC
+MZ
+MZBMO
+Select CSM Agent
+Party Entities

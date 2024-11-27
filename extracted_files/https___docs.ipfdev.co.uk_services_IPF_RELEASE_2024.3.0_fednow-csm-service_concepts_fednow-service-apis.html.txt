@@ -1,0 +1,84 @@
+=== URL: https://docs.ipfdev.co.uk/services/IPF_RELEASE_2024.3.0/fednow-csm-service/concepts/fednow-service-apis.html ===
+Messages Handled by FedNow CSM Service
+Interfaces
+The FedNow CSM Service handles the following canonical messages:
+Message
+API
+ReceivePaymentRequest
+Credit Transfer API
+ReceivePaymentResponse
+Credit Transfer API
+ReceivePaymentSettledRequest
+Credit Transfer API
+ReceivePaymentSettledResponse
+Credit Transfer API
+ClearAndSettleRequest
+Credit Transfer API
+ClearAndSettleResponse
+Credit Transfer API
+ReceivePaymentStatusInquiryRequest
+Credit Transfer API
+ReceivePaymentStatusInquiryResponse
+Credit Transfer API
+StatusRequest
+Payment Status API
+StatusRequestResponse
+Payment Status API
+ReceiveSettlementConfirmation
+CSM Recalls Returns ROI API
+SendPositiveAnswerToCSMRequest
+CSM Recalls Returns ROI API
+SendPositiveAnswerToCSMResponse
+CSM Recalls Returns ROI API
+SendNegativeAnswerToCSMRequest
+CSM Recalls Returns ROI API
+SendNegativeAnswerToCSMResponse
+CSM Recalls Returns ROI API
+SendRecallToCSMRequest
+CSM Recalls Returns ROI API
+SendRecallToCSMResponse
+CSM Recalls Returns ROI API
+TechnicalResponse
+CSM Recalls Returns ROI API
+ReceiveNegativeAnswer
+Recalls Returns ROI API
+ReceivePositiveAnswer
+Recalls Returns ROI API
+ReceivePositiveAnswerResponse
+Recalls Returns ROI API
+ReceiveRecallEnquiryRequest
+Recalls Returns ROI API
+ReceiveRecallRequest
+Recalls Returns ROI API
+ReceiveRecallResponse
+Recalls Returns ROI API
+TechnicalResponse
+Recalls Returns ROI API
+The IPF canonical messages above are adapted from their FedNow equivalents below, which are supported by the FedNow
+CSM Service:
+Message
+ISO Version
+FIToFIPaymentStatusReportV10
+pacs.002.001.10
+PaymentReturnV10
+pacs.004.001.10
+FIToFICustomerCreditTransferV08
+pacs.008.001.02
+PaymentStatusRequest
+pacs.028.001.01
+SystemEventNotificationV02
+admi.004.001.02
+UnableToApplyV07
+camt.026.001.07
+AdditionalPaymentInformationV09
+camt.028.001.09
+FIToFIPaymentStatusRequestV03
+pacs.028.001.03
+ReceiptAcknowledgementV01
+admi.007.001.01
+FIToFIPaymentCancellationRequestV08
+camt.056.001.08
+ResolutionOfInvestigationV09
+camt.029.001.09
+FedNow Supported Flows
+Features
